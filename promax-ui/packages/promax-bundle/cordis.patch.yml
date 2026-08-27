@@ -1,0 +1,29 @@
+# Promax is the third profile layer after dsh-base and dsh-web-app.
+# This layer is additive by policy: it may only insert Promax-owned rows and
+# must never target, replace, disable, or delete an existing dsh row.
+- insert:
+    - id: promax-workspace-bootstrap
+      name: '@promax/promax-bundle'
+      config:
+        apiBaseUrl: !!js process.env.PROMAX_API_BASE_URL ?? 'http://127.0.0.1:3001'
+
+    - id: promax-ui-console
+      name: '@promax/promax-ui-console'
+
+    - id: promax-ui-brand
+      name: '@promax/promax-ui-brand'
+
+    - id: promax-report
+      name: '@promax/promax-report'
+      disabled: !!js Boolean(!(process.env.PROMAX_EMPLOYEE_ID && process.env.PROMAX_ACCESS_TOKEN && process.env.PROMAX_REFRESH_TOKEN))
+      config:
+        baseUrl: !!js process.env.PROMAX_API_BASE_URL ?? 'http://127.0.0.1:3001'
+        accessToken: !!js process.env.PROMAX_ACCESS_TOKEN ?? 'not-configured'
+        refreshToken: !!js process.env.PROMAX_REFRESH_TOKEN ?? 'not-configured'
+        employeeId: !!js process.env.PROMAX_EMPLOYEE_ID ?? 'not-configured'
+        project: 产品
+        dshVersion: 0.1.1-rc.2
+        artifactRoots: ['.']
+        maxScanFiles: 5000
+        maxArtifactBytes: 1073741824
+        requestTimeoutMs: 15000

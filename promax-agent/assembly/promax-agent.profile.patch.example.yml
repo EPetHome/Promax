@@ -1,0 +1,6 @@
+# 示例：仅在 product-solution 已安装到 $DSH_HOME/.agent-presets 后应用。
+# 本文件当前没有写入任何运行中 profile，也没有修改 GUI bundle。
+- id: agent-presets
+  config:
+    default: product-solution
+    includeUserRoot: true

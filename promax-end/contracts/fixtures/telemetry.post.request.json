@@ -1,0 +1,12 @@
+{
+  "employee_id": "10086",
+  "event_type": "agent",
+  "target": "product-solution",
+  "source": "hook",
+  "session_id": "session_01K3J8V7J4K9R6A5M2N1P0Q8ST",
+  "occurred_at": "2026-08-25T14:03:22+08:00",
+  "output_files": [
+    "需求方案-技能统计.md"
+  ],
+  "status": "success"
+}

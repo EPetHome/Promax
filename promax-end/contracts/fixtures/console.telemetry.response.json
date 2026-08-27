@@ -1,0 +1,16 @@
+{
+  "series": [
+    {
+      "key": "2026-08-25",
+      "event_type": "agent",
+      "source": "hook",
+      "count": 5
+    },
+    {
+      "key": "2026-08-25",
+      "event_type": "agent",
+      "source": "llm",
+      "count": 3
+    }
+  ]
+}

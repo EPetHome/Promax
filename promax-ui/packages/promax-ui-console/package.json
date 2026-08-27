@@ -1,0 +1,48 @@
+{
+  "name": "@promax/promax-ui-console",
+  "version": "0.1.1",
+  "private": true,
+  "type": "module",
+  "main": "lib/index.mjs",
+  "types": "lib/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.mts",
+      "default": "./lib/index.mjs"
+    },
+    "./client": "./lib/client.js",
+    "./server": {
+      "types": "./lib/server.d.mts",
+      "default": "./lib/server.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "promax-console": "./lib/server.mjs"
+  },
+  "dsh": {
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-settings-general",
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ],
+      "platform": "web"
+    }
+  },
+  "files": ["lib", "dist"],
+  "scripts": {
+    "build": "tsdown && vite build",
+    "dev": "vite --host 127.0.0.1 --port 3090",
+    "serve": "node lib/server.mjs",
+    "typecheck": "tsc --noEmit -p ../../tsconfig.json"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@promax/contracts": "file:../../../promax-end/contracts",
+    "@promax/promax-ui-brand": "file:../promax-ui-brand"
+  }
+}

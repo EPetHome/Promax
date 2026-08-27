@@ -1,0 +1,15 @@
+{
+  "request_id": "019c7de2-b4c1-7c2a-9b42-1dc13ec74003",
+  "ok": true,
+  "data": [
+    {
+      "id": "demo-requirement-review",
+      "name": "脱敏需求评审",
+      "version": "1.0.0",
+      "author": "Promate Demo",
+      "category": "产品",
+      "description": "用于公开示例的需求评审流程",
+      "updated_at": "2026-08-27T00:00:00Z"
+    }
+  ]
+}

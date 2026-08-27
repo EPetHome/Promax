@@ -1,0 +1,8 @@
+{
+  "stage": "propose",
+  "artifact_id": "art_demo_001",
+  "project_id": "promax-demo",
+  "requirement_id": "REQ-DEMO-001",
+  "type": "需求文档PRD",
+  "summary": "脱敏演示产出物"
+}

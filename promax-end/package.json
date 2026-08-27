@@ -1,0 +1,25 @@
+{
+  "name": "promax",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.7.0",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "scripts": {
+    "build:report": "pnpm --filter @promax/promax-report build",
+    "mock": "tsx contracts/mock-server.ts",
+    "server": "tsx server/src/main.ts",
+    "server:create-user": "tsx server/src/create-user.ts",
+    "test:server": "./scripts/workspace-guardrails.sh implementation && tsx --test server/tests/**/*.test.ts",
+    "test:report": "./scripts/workspace-guardrails.sh implementation && pnpm build:report && tsx --test packages/promax-report/tests/**/*.test.ts",
+    "test:cp1": "./scripts/workspace-guardrails.sh implementation && pnpm build:report && tsx --test packages/promax-report/integration/cp1.test.ts",
+    "typecheck": "./scripts/workspace-guardrails.sh implementation && tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}

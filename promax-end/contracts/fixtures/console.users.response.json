@@ -1,0 +1,26 @@
+[
+  {
+    "employee_id": "10086",
+    "name": "测试用户",
+    "dept": "市场经营部",
+    "last_report_at": "2026-08-25T14:03:22+08:00",
+    "artifacts_count": 4,
+    "status": "ok"
+  },
+  {
+    "employee_id": "10010",
+    "name": "过期样例",
+    "dept": "市场经营部",
+    "last_report_at": "2026-07-01T09:00:00+08:00",
+    "artifacts_count": 3,
+    "status": "stale"
+  },
+  {
+    "employee_id": "10000",
+    "name": "未上报样例",
+    "dept": "市场经营部",
+    "last_report_at": null,
+    "artifacts_count": 0,
+    "status": "never"
+  }
+]

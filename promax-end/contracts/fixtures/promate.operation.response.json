@@ -1,0 +1,13 @@
+{
+  "request_id": "019c7de2-b4c1-7c2a-9b42-1dc13ec74005",
+  "ok": true,
+  "data": {
+    "request_id": "019c7de2-b4c1-7c2a-9b42-1dc13ec74005",
+    "artifact_id": "art_demo_001",
+    "project_id": "promax-demo",
+    "requirement_id": "REQ-DEMO-001",
+    "status": "pending",
+    "attempts": 2,
+    "last_error_code": "UPSTREAM_UNAVAILABLE"
+  }
+}
