@@ -1,0 +1,13 @@
+{
+  "request_id": "019c7de2-b4c1-7c2a-9b42-1dc13ec74004",
+  "ok": true,
+  "data": {
+    "id": "demo-requirement-review",
+    "name": "脱敏需求评审",
+    "version": "1.0.0",
+    "files": [
+      { "path": "SKILL.md", "content": "# 脱敏需求评审\n\n仅用于公开示例。\n" }
+    ],
+    "download_url": "https://promate.example.invalid/download/demo-requirement-review.zip"
+  }
+}

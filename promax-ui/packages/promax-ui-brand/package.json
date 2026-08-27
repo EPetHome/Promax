@@ -1,0 +1,35 @@
+{
+  "name": "@promax/promax-ui-brand",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "lib/index.mjs",
+  "types": "lib/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.mts",
+      "default": "./lib/index.mjs"
+    },
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-ui-theme",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@promax/promax-ui-console"
+      ],
+      "platform": "web"
+    }
+  },
+  "files": ["lib"],
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit -p ../../tsconfig.json"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  }
+}

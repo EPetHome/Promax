@@ -1,0 +1,12 @@
+{
+  "request_id": "019c7de2-b4c1-7c2a-9b42-1dc13ec74001",
+  "ok": true,
+  "data": [
+    { "project_id": "promax-demo", "name": "Promax 脱敏演示", "req_count": 2 }
+  ],
+  "next": {
+    "type": "done",
+    "question": "已找到 1 个项目",
+    "instruction": "使用用户明确选择的 project_id 继续。"
+  }
+}

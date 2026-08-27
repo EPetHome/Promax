@@ -1,0 +1,8 @@
+node_modules/
+dist/
+packages/*/lib/
+coverage/
+.DS_Store
+*.db
+*.db-shm
+*.db-wal

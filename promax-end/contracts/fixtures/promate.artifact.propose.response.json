@@ -1,0 +1,17 @@
+{
+  "request_id": "019c7de2-b4c1-7c2a-9b42-1dc13ec74005",
+  "ok": true,
+  "data": {
+    "request_id": "019c7de2-b4c1-7c2a-9b42-1dc13ec74005",
+    "artifact_id": "art_demo_001",
+    "project_id": "promax-demo",
+    "requirement_id": "REQ-DEMO-001",
+    "status": "proposed",
+    "attempts": 1
+  },
+  "next": {
+    "type": "confirm",
+    "question": "即将把脱敏演示产出物关联到 REQ-DEMO-001，确认写入吗？",
+    "instruction": "等待用户明确确认；确认后只提交 request_id。"
+  }
+}

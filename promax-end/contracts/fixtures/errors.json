@@ -1,0 +1,56 @@
+[
+  {
+    "status": 401,
+    "error": {
+      "code": "UNAUTHORIZED",
+      "message": "登录已失效，请重新登录",
+      "detail": {}
+    }
+  },
+  {
+    "status": 400,
+    "error": {
+      "code": "VALIDATION",
+      "message": "请求参数不符合接口要求",
+      "detail": {
+        "field": "employee_id"
+      }
+    }
+  },
+  {
+    "status": 409,
+    "error": {
+      "code": "CONFLICT",
+      "message": "当前资源状态与请求冲突",
+      "detail": {}
+    }
+  },
+  {
+    "status": 429,
+    "error": {
+      "code": "RATE_LIMIT",
+      "message": "请求过于频繁，请稍后重试",
+      "detail": {
+        "retry_after_seconds": 30
+      }
+    }
+  },
+  {
+    "status": 503,
+    "error": {
+      "code": "UPSTREAM_UNAVAILABLE",
+      "message": "Promate 暂时不可用，请稍后重试",
+      "detail": {
+        "capability": "promate"
+      }
+    }
+  },
+  {
+    "status": 500,
+    "error": {
+      "code": "INTERNAL",
+      "message": "服务暂时不可用，请稍后重试",
+      "detail": {}
+    }
+  }
+]

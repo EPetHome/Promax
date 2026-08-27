@@ -1,0 +1,23 @@
+{
+  "request_id": "019c7de2-b4c1-7c2a-9b42-1dc13ec74002",
+  "ok": true,
+  "data": [
+    {
+      "requirement_id": "REQ-DEMO-001",
+      "title": "脱敏产出物回传演示",
+      "version": "P0.1",
+      "done": false,
+      "artifact_count": 0
+    }
+  ],
+  "next": {
+    "type": "choose_one",
+    "question": "请选择要关联的需求：",
+    "options": [
+      { "value": "REQ-DEMO-001", "label": "REQ-DEMO-001 脱敏产出物回传演示" }
+    ],
+    "then_call": "promate_artifact_propose",
+    "then_arg": "requirement_id",
+    "instruction": "把选项原样列给用户并等待选择。"
+  }
+}

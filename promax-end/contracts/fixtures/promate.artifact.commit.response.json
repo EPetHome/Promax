@@ -1,0 +1,19 @@
+{
+  "request_id": "019c7de2-b4c1-7c2a-9b42-1dc13ec74005",
+  "ok": true,
+  "data": {
+    "request_id": "019c7de2-b4c1-7c2a-9b42-1dc13ec74005",
+    "artifact_id": "art_demo_001",
+    "project_id": "promax-demo",
+    "requirement_id": "REQ-DEMO-001",
+    "status": "synced",
+    "attempts": 2,
+    "promate_artifact_id": "ART-DEMO-001",
+    "requirement_url": "https://promate.example.invalid/req/REQ-DEMO-001"
+  },
+  "next": {
+    "type": "done",
+    "question": "产出物关联完成",
+    "instruction": "向用户报告关联结果。"
+  }
+}

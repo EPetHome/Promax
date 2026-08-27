@@ -1,0 +1,7 @@
+packages:
+  - contracts
+  - server
+  - packages/*
+
+allowBuilds:
+  esbuild: true

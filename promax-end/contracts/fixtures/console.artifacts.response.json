@@ -1,0 +1,16 @@
+{
+  "total": 1,
+  "items": [
+    {
+      "artifact_id": "art_01K3J8V7J4K9R6A5M2N1P0Q8ST",
+      "employee_id": "10086",
+      "project": "产品中台",
+      "agent": "product-solution",
+      "kind": "prd",
+      "filename": "需求方案-技能统计.md",
+      "created_at": "2026-08-25T14:03:22+08:00",
+      "size": 50,
+      "path": "raw/10086/产品中台/2026-08-25-需求方案-技能统计.md"
+    }
+  ]
+}
