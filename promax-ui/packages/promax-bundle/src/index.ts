@@ -48,7 +48,10 @@ export async function apply(ctx: HostContext, config: Config): Promise<void> {
     })
   })
   const dshHome = process.env.DSH_HOME?.trim() || join(homedir(), '.dsh')
+  const generalWorkspacePath = resolve(process.env.PROMAX_GENERAL_WORKSPACE?.trim() || join(dshHome, 'workspaces', 'general'))
   const workspacePath = resolve(process.env.PROMAX_PRODUCT_WORKSPACE?.trim() || join(dshHome, 'workspaces', 'product'))
+  await mkdir(generalWorkspacePath, { recursive: true })
   await mkdir(workspacePath, { recursive: true })
+  await ctx.workspaceRegistry.create(generalWorkspacePath, '通用工作区')
   await ctx.workspaceRegistry.create(workspacePath, '产品')
 }

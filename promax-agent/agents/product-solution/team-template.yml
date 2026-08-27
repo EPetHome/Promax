@@ -1,0 +1,141 @@
+schema_version: 1
+team_template_id: product-solution
+template_revision: 1
+status: published
+
+display_name: Promax 产品 Agent 团队
+description: 由产品负责人编排 PRD、业务流程图和交互原型三名专员，共享输入证据并执行跨产物终审。
+
+preset_id: product-solution
+supported_task_types:
+  - prd
+  - diagram
+  - prototype
+  - all
+default_task_type: all
+
+members:
+  - member_id: product_solution_lead
+    display_name: 产品负责人
+    role: orchestrator
+    runtime_tool_id: null
+
+  - member_id: product_prd_agent
+    display_name: PRD 专员
+    role: worker
+    runtime_tool_id: product_prd_agent
+
+  - member_id: product_diagram_agent
+    display_name: 业务流程专员
+    role: worker
+    runtime_tool_id: product_diagram_agent
+
+  - member_id: product_prototype_agent
+    display_name: 交互原型专员
+    role: worker
+    runtime_tool_id: product_prototype_agent
+
+skills:
+  - skill_id: prd-document-generator
+    display_name: PRD 文档生成
+
+  - skill_id: business-diagram-generator
+    display_name: 业务流程图生成
+
+  - skill_id: interactive-prototype-generator
+    display_name: 单 HTML 可交互原型生成
+
+capabilities:
+  - capability_id: prd
+    display_name: 产品需求文档
+    member_id: product_prd_agent
+    skill_ids:
+      - prd-document-generator
+    artifact_kinds:
+      - prd
+
+  - capability_id: diagram
+    display_name: 业务流程图
+    member_id: product_diagram_agent
+    skill_ids:
+      - business-diagram-generator
+    artifact_kinds:
+      - diagram
+
+  - capability_id: prototype
+    display_name: 交互原型
+    member_id: product_prototype_agent
+    skill_ids:
+      - interactive-prototype-generator
+    artifact_kinds:
+      - prototype
+
+coordination:
+  mode: orchestrator-workers
+  orchestrator_member_id: product_solution_lead
+  shared_context:
+    mechanism: source-ledger
+    relative_path: deliverables/{task_key}/source-ledger.md
+    write_owner: product_solution_lead
+    worker_access: read-only
+  routing:
+    prd: product_prd_agent
+    diagram: product_diagram_agent
+    prototype: product_prototype_agent
+  execution:
+    parallelize_independent_tasks: true
+    wait_for_required_members: true
+    member_started_is_delivered: false
+    retry_owner: original-worker
+  completion:
+    require_member_settlement: true
+    require_artifact_recheck: true
+    unavailable_required_member: partial-or-failed
+    failed_required_member: partial-or-failed
+
+artifacts:
+  - kind: other
+    relative_path: deliverables/{task_key}/source-ledger.md
+    produced_by: product_solution_lead
+    task_types:
+      - prd
+      - diagram
+      - prototype
+      - all
+
+  - kind: prd
+    relative_path: deliverables/{task_key}/prd.md
+    produced_by: product_prd_agent
+    task_types:
+      - prd
+      - all
+
+  - kind: diagram
+    relative_path: deliverables/{task_key}/business-diagram.md
+    produced_by: product_diagram_agent
+    task_types:
+      - diagram
+      - all
+
+  - kind: prototype
+    relative_path: deliverables/{task_key}/prototype.html
+    produced_by: product_prototype_agent
+    task_types:
+      - prototype
+      - all
+
+receipt_fields:
+  - 状态
+  - preset
+  - task_type
+  - task-key
+  - 团队成员
+  - 产物
+  - G0-G6
+  - 被阻断项
+  - 未验证项
+
+session_policy:
+  preset_binding: create-time
+  allow_preset_rebind: false
+  silent_migration: forbidden
