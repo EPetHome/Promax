@@ -7,6 +7,9 @@
       config:
         apiBaseUrl: !!js process.env.PROMAX_API_BASE_URL ?? 'http://127.0.0.1:3001'
 
+    - id: promax-team-harness
+      name: '@promax/team-harness'
+
     - id: promax-ui-console
       name: '@promax/promax-ui-console'
 
