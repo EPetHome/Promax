@@ -14,6 +14,7 @@ const packageSpecs = [
   { source: join(root, 'packages', 'promax-ui-brand') },
   { source: join(root, 'packages', 'promax-ui-console') },
   { source: resolve(root, '../promax-end/packages/promax-report') },
+  { source: resolve(root, '../promax-agent/team-harness') },
   {
     source: join(root, 'packages', 'promax-bundle'),
     dependencies: {},
@@ -35,6 +36,23 @@ try {
     delete manifest.private
     delete manifest.devDependencies
     if (spec.dependencies !== undefined) manifest.dependencies = spec.dependencies
+    if (manifest.name === '@promax/team-harness') {
+      manifest.version = `${manifest.version}-dist.1`
+      await cp(
+        resolve(root, '../promax-agent/agents/team-configurator'),
+        join(stageDir, 'agents', 'team-configurator'),
+        { recursive: true },
+      )
+      await cp(
+        resolve(root, '../promax-agent/agents/product-solution/skills'),
+        join(stageDir, 'agents', 'product-solution', 'skills'),
+        { recursive: true },
+      )
+      const skillCatalogPath = join(stageDir, 'catalogs', 'skills.yml')
+      const skillCatalog = await readFile(skillCatalogPath, 'utf8')
+      await writeFile(skillCatalogPath, skillCatalog.replaceAll('../../agents/', '../agents/'))
+      manifest.files = [...new Set([...(manifest.files ?? []), 'agents'])]
+    }
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
     run('pnpm', ['pack', '--pack-destination', releaseDir], stageDir)
     archivesByPackage.set(manifest.name, archiveFor(manifest.name, manifest.version))
@@ -66,12 +84,14 @@ SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 DSH_ROOT="\${DSH_HOME:-\${HOME}/.dsh}"
 PROFILE_MANIFEST="$DSH_ROOT/profiles/$PROFILE/package.json"
 REPORT_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/promax-report')}"
+TEAM_HARNESS_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/team-harness')}"
 BRAND_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/promax-ui-brand')}"
 CONSOLE_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/promax-ui-console')}"
 BUNDLE_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/promax-bundle')}"
 ${dshRunner}if [ -f "$PROFILE_MANIFEST" ]; then
   node - "$PROFILE_MANIFEST" \\
     "@promax/promax-report=$REPORT_ARCHIVE" \\
+    "@promax/team-harness=$TEAM_HARNESS_ARCHIVE" \\
     "@promax/promax-ui-brand=$BRAND_ARCHIVE" \\
     "@promax/promax-ui-console=$CONSOLE_ARCHIVE" \\
     "@promax/promax-bundle=$BUNDLE_ARCHIVE" <<'NODE'
@@ -90,10 +110,24 @@ NODE
 else
   run_dsh plugin --profile "$PROFILE" add \\
     "$REPORT_ARCHIVE" \\
+    "$TEAM_HARNESS_ARCHIVE" \\
     "$BRAND_ARCHIVE" \\
     "$CONSOLE_ARCHIVE" \\
     "$BUNDLE_ARCHIVE"
 fi
+CONFIGURATOR_SOURCE="$DSH_ROOT/profiles/$PROFILE/node_modules/@promax/team-harness/agents/team-configurator"
+CONFIGURATOR_TARGET="$DSH_ROOT/.agent-presets/promax-team-configurator"
+node - "$CONFIGURATOR_SOURCE" "$CONFIGURATOR_TARGET" <<'NODE'
+const fs = require('node:fs')
+const path = require('node:path')
+const [source, target] = process.argv.slice(2)
+fs.mkdirSync(target, { recursive: true })
+for (const name of ['agent.cordis.yml', 'preset.yml']) {
+  const sourceFile = path.join(source, name)
+  if (!fs.existsSync(sourceFile)) throw new Error('Missing configurator preset file: ' + name)
+  fs.copyFileSync(sourceFile, path.join(target, name))
+}
+NODE
 `
   const installerPath = join(releaseDir, 'install-promax.sh')
   await writeFile(installerPath, installer)

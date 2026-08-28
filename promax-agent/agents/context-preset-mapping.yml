@@ -1,0 +1,46 @@
+schema_version: 1
+
+contexts:
+  - context_type: general-workspace
+    description: Promax 的通用工作区，不属于任何 Agent 团队实例。
+    preset_resolution:
+      mode: fixed
+      preset_id: general
+    team_template_required: false
+    ordinary_user_visible: true
+
+  - context_type: team-instance
+    description: 由 GUI 创建的 Agent 团队实例；实例引用一个已发布 TeamTemplate。
+    preset_resolution:
+      mode: team-template-field
+      field: preset_id
+    team_template_required: true
+    ordinary_user_visible: true
+
+  - context_type: preset-authoring
+    description: 为后续二开预留的 preset 创作上下文，不承载普通业务会话。
+    preset_resolution:
+      mode: fixed
+      preset_id: cordis
+    team_template_required: false
+    ordinary_user_visible: false
+    availability: administrator-only
+
+session_binding:
+  resolve_preset: once-at-session-create
+  resume_preset: use-session-record
+  allow_preset_rebind: false
+  silent_migration: forbidden
+  template_change_effect: new-sessions-only
+
+failure_policy:
+  missing_context_mapping: reject-session-create
+  missing_team_template: reject-session-create
+  missing_preset: reject-session-create
+  fallback_preset: none
+
+p0_team_creation:
+  mode: instantiate-published-template
+  create_preset_during_team_creation: false
+  allowed_template_statuses:
+    - published
