@@ -2,18 +2,39 @@ import type { ComponentType } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { apply } from '../src/client/index.tsx'
-import { PRODUCT_TEAM_ID, resetTeamStateForTests, selectTeamSession } from '../src/client/team-state.ts'
+import { PRODUCT_PRESET_ID, PRODUCT_TEAM_ID, resetTeamStateForTests, selectTeamSession } from '../src/client/team-state.ts'
+
+const runtimePresetContent = `
+  ## 已发布团队快照
+
+  - team revision：\`team-mtcjsbcz-04tpe2@r2\`
+  - preset：\`promax-team-mtcjsbcz-04tpe2-r2\`
+
+  成员：
+  - \`customer_research\`（客研管理智能体）：完成客户研究。
+  - \`solution_design\`（产品需求方案智能体）：生成并验证 PRD。
+  - \`quality_judge\`（独立 Judge）：独立判定最终产物。
+
+  ## 稳定消息路由
+
+  文件责任：
+  - \`deliverables/{task_key}/prd.md\`：solution_design
+  - \`.promax/judge/{task_key}/judge.md\`：quality_judge
+
+  稳定回执字段（按顺序）：\`状态\`、\`产物\`、\`Judge判定\`
+`
 
 describe('Promax shell registration', () => {
-  it('occupies only published inner slots and applies the requested preset before opening', async () => {
+  it('occupies only published inner slots and prepares the requested preset without opening early', async () => {
     const registrations: Array<{ options: Record<string, unknown>; component: ComponentType<Record<string, unknown>> }> = []
     const sources: Array<Record<string, unknown>> = []
     const open = vi.fn()
     const noteAgentPreset = vi.fn()
-    const select = vi.fn(async () => ({ result: { ok: true as const, value: { agentPreset: 'product-solution' } } }))
-    const prompt = vi.fn(async () => ({ ok: true as const, value: { accepted: true as const } }))
+    const list = vi.fn(async () => ({ result: { ok: true as const, value: { presets: [{ id: PRODUCT_PRESET_ID }] } } }))
+    const read = vi.fn(async () => ({ result: { ok: true as const, value: { agentPreset: PRODUCT_PRESET_ID, content: runtimePresetContent } } }))
+    const select = vi.fn(async () => ({ result: { ok: true as const, value: { agentPreset: PRODUCT_PRESET_ID } } }))
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({
-      workspaceId: 'workspace-new', path: '/tmp/promax-team', title: '增长团队', sessionIds: [],
+      workspaceId: 'workspace-new', path: '/tmp/Promax/云盘项目', title: '云盘项目', sessionIds: [],
     }), { status: 200, headers: { 'content-type': 'application/json' } }))
     vi.stubGlobal('fetch', fetchMock)
     const listState = {
@@ -41,7 +62,7 @@ describe('Promax shell registration', () => {
         clear: vi.fn(),
         noteAgentPreset,
         scope: () => ({}),
-        binding: () => ({ session: { prompt } }),
+        binding: () => undefined,
       },
       workspaces: {
         list: {
@@ -64,15 +85,19 @@ describe('Promax shell registration', () => {
             toggleSource: vi.fn(),
           }),
         }
-        : { api: { agentPresets: { select } } },
+        : { api: { agentPresets: { list, read, select } } },
     }
 
     resetTeamStateForTests()
     selectTeamSession(PRODUCT_TEAM_ID, 'product-session', 'product')
     apply(context as unknown as Parameters<typeof apply>[0])
+    await vi.waitFor(() => {
+      expect(read).toHaveBeenCalledWith({ agentPreset: PRODUCT_PRESET_ID })
+    })
 
     expect(registrations.map(entry => entry.options.name)).toEqual([
       'sidebar.footer.action',
+      'settings.section',
       'settings.section',
       'conversation.input.dock',
       'conversation.session.header.actions',
@@ -87,6 +112,7 @@ describe('Promax shell registration', () => {
     expect(registrations.find(entry => entry.options.name === 'conversation.hero.workspace')?.options.priority).toBe(-100)
     expect(registrations.find(entry => entry.options.name === 'conversation.hero.agentPreset')?.options.priority).toBe(-100)
     expect(registrations.find(entry => entry.options.name === 'shell.overlay')?.options.id).toBe('promax-team-rail')
+    expect(registrations.some(entry => entry.options.id === 'promax-preferences')).toBe(true)
     expect(registrations.some(entry => entry.options.name === 'root' || entry.options.name === 'sidebar')).toBe(false)
     expect(registrations.some(entry => ['conversation.session', 'conversation.composer', 'conversation.view'].includes(String(entry.options.name)))).toBe(false)
     expect(registrations.find(entry => entry.options.name === 'conversation.session.header.actions')?.options.id).toBe('promax-team-context')
@@ -98,32 +124,24 @@ describe('Promax shell registration', () => {
       onPick(input: { candidate: { name: string; value?: string } }): { insert: { ref: string; label: string } } | undefined
       codec: { serialize(ref: string, signal: AbortSignal): Promise<string> }
     }
-    const candidates = await memberSource.candidates({ sessionId: 'product-session' }, { query: 'PRD', signal: new AbortController().signal })
-    const prd = candidates.find(candidate => candidate.name === 'PRD 专员')
+    const candidates = await memberSource.candidates({ sessionId: 'product-session' }, { query: '产品需求', signal: new AbortController().signal })
+    const prd = candidates.find(candidate => candidate.name === '产品需求方案智能体')
     expect(prd).toBeDefined()
-    expect(memberSource.onPick({ candidate: prd! })?.insert).toMatchObject({ ref: 'product_prd_agent', label: 'PRD 专员' })
-    await expect(memberSource.codec.serialize('product_prd_agent', new AbortController().signal)).resolves.toBe('@product_prd_agent')
+    expect(memberSource.onPick({ candidate: prd! })?.insert).toMatchObject({ ref: 'solution_design', label: '产品需求方案智能体' })
+    await expect(memberSource.codec.serialize('solution_design', new AbortController().signal)).resolves.toBe('@solution_design')
 
     const shellEntry = registrations.find(entry => entry.options.name === 'shell.overlay')
     const actions = (shellEntry?.options.inject as (() => {
       startSession(workspaceId: string, presetId: string): Promise<string>
-      sendPrompt(sessionId: string, text: string): Promise<void>
-      sendTeamPrompt(input: { sessionId: string; teamId: string; text: string; targetMemberIds: string[] }): Promise<void>
-      createTeamWorkspace(input: { teamId: string; teamName: string; parentPath: string }): Promise<{ workspaceId: string; path: string; title: string }>
+      createProjectWorkspace(input: { projectName: string; parentPath?: string }): Promise<{ workspaceId: string; path: string; title: string }>
     }))()
-    await expect(actions.startSession('product', 'product-solution')).resolves.toBe('session-new')
-    expect(select).toHaveBeenCalledWith({ sessionId: 'session-new', agentPreset: 'product-solution' })
-    expect(noteAgentPreset).toHaveBeenCalledWith('session-new', 'product-solution')
-    expect(open).toHaveBeenCalledWith('session-new')
+    await expect(actions.startSession('product', PRODUCT_PRESET_ID)).resolves.toBe('session-new')
+    expect(select).toHaveBeenCalledWith({ sessionId: 'session-new', agentPreset: PRODUCT_PRESET_ID })
+    expect(noteAgentPreset).toHaveBeenCalledWith('session-new', PRODUCT_PRESET_ID)
+    expect(open).not.toHaveBeenCalled()
 
-    await actions.sendPrompt('session-new', '生成产品方案')
-    expect(prompt).toHaveBeenCalledWith([{ type: 'text', text: '生成产品方案' }], 'queue')
-    await actions.sendTeamPrompt({ sessionId: 'session-new', teamId: 'product-team', text: '继续', targetMemberIds: [] })
-    expect(prompt).toHaveBeenLastCalledWith([{ type: 'text', text: '继续' }], 'queue')
-    await actions.sendTeamPrompt({ sessionId: 'session-new', teamId: 'product-team', text: '定向', targetMemberIds: ['product_prd_agent'] })
-    expect(prompt).toHaveBeenLastCalledWith([{ type: 'text', text: '@product_prd_agent 定向' }], 'queue')
-    await expect(actions.createTeamWorkspace({ teamId: 'team-1', teamName: '增长团队', parentPath: '/tmp' })).resolves.toMatchObject({ title: '增长团队', path: '/tmp/promax-team' })
-    expect(fetchMock).toHaveBeenCalledWith('/promax-workspace-api/team', expect.objectContaining({ method: 'POST' }))
+    await expect(actions.createProjectWorkspace({ projectName: '云盘项目' })).resolves.toMatchObject({ title: '云盘项目', path: '/tmp/Promax/云盘项目' })
+    expect(fetchMock).toHaveBeenCalledWith('/promax-workspace-api/project', expect.objectContaining({ method: 'POST' }))
     vi.unstubAllGlobals()
   })
 })
