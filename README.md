@@ -10,11 +10,7 @@ Promax 单仓库，包含 UI、Agent 配置与后端三个独立模块。
 
 各 Node.js 模块使用 pnpm 管理依赖，具体命令以模块内的 `package.json` 为准。
 
-首次克隆后初始化冻结的 DeepSeek Harness 依赖：
-
-```bash
-git submodule update --init --recursive
-```
+DeepSeek Harness 的冻结源码快照已直接收录在 `promax-agent/deepseek-harness/`，首次克隆后无需初始化 submodule。
 
 ## 分支流程
 
