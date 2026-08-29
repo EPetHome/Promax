@@ -1,0 +1,324 @@
+api_version: promax.ai/v1alpha2
+kind: TeamRevision
+metadata:
+  team_revision_id: team-mtcjsbcz-04tpe2@r2
+  team_id: team-mtcjsbcz-04tpe2
+  revision: 2
+  status: published
+  definition_sha256: b26480182a83a87aa1bddea05d8b881cd95aa61cdfcd8d9667c260f7fd8f12b4
+  display_name: "123"
+  description: "141"
+  source_recipe_ref: general-collaboration@1
+spec:
+  preset_id: promax-team-mtcjsbcz-04tpe2-r2
+  workspace_policy:
+    mode: team-folder
+    default_output_root: deliverables
+    resource_root: team-resources
+    resource_manifest_path: .promax/team-resource-manifest.yml
+  coordinator:
+    member_id: team_lead
+    display_name: 主智能体
+    role: orchestrator
+    runtime_tool_id: null
+    mention_aliases:
+      - team_lead
+      - 主智能体
+    module_ref: team-coordinator@1
+    skill_refs: []
+  members:
+    - member_id: customer_research
+      display_name: 客研管理智能体
+      role: worker
+      runtime_tool_id: customer_research
+      mention_aliases:
+        - customer_research
+        - 客研管理智能体
+      module_ref: general-worker@1
+      skill_refs: []
+    - member_id: product_discovery
+      display_name: 产品探索智能体
+      role: worker
+      runtime_tool_id: product_discovery
+      mention_aliases:
+        - product_discovery
+        - 产品探索智能体
+      module_ref: general-worker@1
+      skill_refs: []
+    - member_id: requirement_management
+      display_name: 需求管理智能体
+      role: worker
+      runtime_tool_id: requirement_management
+      mention_aliases:
+        - requirement_management
+        - 需求管理智能体
+      module_ref: general-worker@1
+      skill_refs: []
+    - member_id: solution_design
+      display_name: 产品需求方案智能体
+      role: worker
+      runtime_tool_id: solution_design
+      mention_aliases:
+        - solution_design
+        - 产品需求方案智能体
+      module_ref: product-prd@2
+      skill_refs:
+        - prd-document-generator@2
+    - member_id: requirement_review
+      display_name: 需求评审智能体
+      role: worker
+      runtime_tool_id: requirement_review
+      mention_aliases:
+        - requirement_review
+        - 需求评审智能体
+      module_ref: general-worker@1
+      skill_refs: []
+    - member_id: user_analysis
+      display_name: 用户分析智能体
+      role: worker
+      runtime_tool_id: user_analysis
+      mention_aliases:
+        - user_analysis
+        - 用户分析智能体
+      module_ref: general-worker@1
+      skill_refs: []
+    - member_id: quality_judge
+      display_name: 独立 Judge
+      role: worker
+      runtime_tool_id: quality_judge
+      mention_aliases:
+        - quality_judge
+        - 独立 Judge
+      module_ref: independent-judge@1
+      skill_refs: []
+  skills:
+    - skill_ref: prd-document-generator@2
+      skill_id: prd-document-generator
+      revision: 2
+      content_sha256: aa0b7330d275523fb0009686ebedc5369565d6a94d6a90aac4e7b019347c94b2
+  capabilities:
+    - capability_id: customer-research
+      member_id: customer_research
+      skill_refs: []
+      artifact_kinds:
+        - other
+    - capability_id: product-discovery
+      member_id: product_discovery
+      skill_refs: []
+      artifact_kinds:
+        - other
+    - capability_id: requirement-management
+      member_id: requirement_management
+      skill_refs: []
+      artifact_kinds:
+        - other
+    - capability_id: solution-design
+      member_id: solution_design
+      skill_refs:
+        - prd-document-generator@2
+      artifact_kinds:
+        - prd
+    - capability_id: requirement-review
+      member_id: requirement_review
+      skill_refs: []
+      artifact_kinds:
+        - other
+    - capability_id: user-analysis
+      member_id: user_analysis
+      skill_refs: []
+      artifact_kinds:
+        - other
+    - capability_id: quality-judge
+      member_id: quality_judge
+      skill_refs: []
+      artifact_kinds:
+        - judge-report
+  artifacts:
+    - kind: other
+      relative_path: deliverables/{task_key}/source-ledger.md
+      required: true
+      produced_by: team_lead
+    - kind: other
+      relative_path: deliverables/{task_key}/customer_research.md
+      required: true
+      produced_by: customer_research
+    - kind: other
+      relative_path: deliverables/{task_key}/product_discovery.md
+      required: true
+      produced_by: product_discovery
+    - kind: other
+      relative_path: deliverables/{task_key}/requirement_management.md
+      required: true
+      produced_by: requirement_management
+    - kind: prd
+      relative_path: deliverables/{task_key}/prd.md
+      required: true
+      produced_by: solution_design
+    - kind: other
+      relative_path: deliverables/{task_key}/requirement_review.md
+      required: true
+      produced_by: requirement_review
+    - kind: other
+      relative_path: deliverables/{task_key}/user_analysis.md
+      required: true
+      produced_by: user_analysis
+    - kind: judge-report
+      relative_path: .promax/judge/{task_key}/judge.md
+      required: true
+      produced_by: quality_judge
+  coordination:
+    topology: orchestrator-workers
+    parallelize_independent_tasks: true
+    wait_for_settlement: true
+    retry_owner: original-worker
+    orchestrator_member_id: team_lead
+    max_depth: 1
+  routing:
+    default_target_member_id: team_lead
+    mention_syntax: "@<member_id|display_name>"
+    mention_match: leading-longest-exact
+    unknown_mention: reject-before-send
+    multiple_mentions: coordinator-mediated
+    members:
+      - member_id: team_lead
+        display_name: 主智能体
+        role: orchestrator
+        mention_aliases:
+          - team_lead
+          - 主智能体
+        target_kind: root-session
+        runtime_tool_id: null
+      - member_id: customer_research
+        display_name: 客研管理智能体
+        role: worker
+        mention_aliases:
+          - customer_research
+          - 客研管理智能体
+        target_kind: subagent-session
+        runtime_tool_id: customer_research
+      - member_id: product_discovery
+        display_name: 产品探索智能体
+        role: worker
+        mention_aliases:
+          - product_discovery
+          - 产品探索智能体
+        target_kind: subagent-session
+        runtime_tool_id: product_discovery
+      - member_id: requirement_management
+        display_name: 需求管理智能体
+        role: worker
+        mention_aliases:
+          - requirement_management
+          - 需求管理智能体
+        target_kind: subagent-session
+        runtime_tool_id: requirement_management
+      - member_id: solution_design
+        display_name: 产品需求方案智能体
+        role: worker
+        mention_aliases:
+          - solution_design
+          - 产品需求方案智能体
+        target_kind: subagent-session
+        runtime_tool_id: solution_design
+      - member_id: requirement_review
+        display_name: 需求评审智能体
+        role: worker
+        mention_aliases:
+          - requirement_review
+          - 需求评审智能体
+        target_kind: subagent-session
+        runtime_tool_id: requirement_review
+      - member_id: user_analysis
+        display_name: 用户分析智能体
+        role: worker
+        mention_aliases:
+          - user_analysis
+          - 用户分析智能体
+        target_kind: subagent-session
+        runtime_tool_id: user_analysis
+      - member_id: quality_judge
+        display_name: 独立 Judge
+        role: worker
+        mention_aliases:
+          - quality_judge
+          - 独立 Judge
+        target_kind: subagent-session
+        runtime_tool_id: quality_judge
+  runtime_mapping:
+    driver: dsh-tool-subagent
+    scope: session
+    worker_instance_cardinality: zero-or-many-per-member
+    instance_key_fields:
+      - team_revision_id
+      - parent_session_id
+      - child_session_id
+    root:
+      member_id: team_lead
+      instance_kind: root-session
+      session_id_source: sessions.create.sessionId
+    worker_observation:
+      runtime_tool_id_source: parent.tool_call.name
+      child_session_id_source: parent.tool_result.subagentId
+      parent_session_id_source: root.sessionId
+      lineage_parent_source: child.header.parentSession
+    workers:
+      - member_id: customer_research
+        runtime_tool_id: customer_research
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: product_discovery
+        runtime_tool_id: product_discovery
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: requirement_management
+        runtime_tool_id: requirement_management
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: solution_design
+        runtime_tool_id: solution_design
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: requirement_review
+        runtime_tool_id: requirement_review
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: user_analysis
+        runtime_tool_id: user_analysis
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: quality_judge
+        runtime_tool_id: quality_judge
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+  receipt_fields:
+    - 状态
+    - preset
+    - team_revision_id
+    - task-key
+    - 团队成员
+    - 产物
+    - Judge判定
+    - 修复轮次
+    - 人工处理
+    - 被阻断项
+    - 未验证项
+  session_policy:
+    preset_binding: create-time
+    allow_preset_rebind: false
+    silent_migration: forbidden
+    configuration_change_effect: publish-new-team-revision
+    resource_change_effect: update-workspace-manifest-without-team-revision
+  compiled_files:
+    - relative_path: agent.cordis.yml
+      sha256: 77ecf903b6eec426cce561f8c6e7db76e9b3895d14a671b9150fc99eae5a4ff9
+    - relative_path: preset.yml
+      sha256: d2f8af7920b8b82e9779fc41a1e1f4704e00844ef9fed115a527d87bd4cce1df
+    - relative_path: skills/prd-document-generator/SKILL.md
+      sha256: aa0b7330d275523fb0009686ebedc5369565d6a94d6a90aac4e7b019347c94b2

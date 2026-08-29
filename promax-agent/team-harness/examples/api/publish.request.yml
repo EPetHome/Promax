@@ -1,0 +1,35 @@
+api_version: promax.ai/v1alpha2
+kind: PublishRequest
+request_id: pub_demo0001
+revision: 2
+team_definition:
+  api_version: promax.ai/v1alpha2
+  kind: TeamDefinition
+  metadata:
+    team_id: demo-research
+    display_name: 脱敏研究小组
+    description: 对指定脱敏资料进行分析与复核。
+    source_recipe_ref: research-review@1
+  spec:
+    workspace:
+      mode: team-folder
+      default_output_root: deliverables
+      resource_root: team-resources
+      resource_manifest_path: .promax/team-resource-manifest.yml
+    coordinator:
+      member_id: research_lead
+      display_name: 研究负责人
+      module_ref: team-coordinator@1
+      role_instructions: 先建立来源台账。
+    members:
+      - member_id: research_agent
+        display_name: 资料分析员
+        module_ref: general-worker@1
+        enabled: true
+        role_instructions: 只处理来源台账中的脱敏资料。
+    coordination:
+      topology: orchestrator-workers
+      parallelize_independent_tasks: false
+      wait_for_settlement: true
+      retry_owner: original-worker
+    receipt_fields: [状态, preset, team_revision_id, 产物, 未验证项]

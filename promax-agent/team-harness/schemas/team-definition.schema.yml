@@ -1,0 +1,121 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://promax.local/schemas/team-definition.schema.yml
+title: Promax TeamDefinition
+type: object
+additionalProperties: false
+required: [api_version, kind, metadata, spec]
+properties:
+  api_version:
+    const: promax.ai/v1alpha2
+  kind:
+    const: TeamDefinition
+  metadata:
+    type: object
+    additionalProperties: false
+    required: [team_id, display_name, description]
+    properties:
+      team_id:
+        type: string
+        pattern: ^[a-z][a-z0-9-]{2,47}$
+      display_name:
+        type: string
+        minLength: 1
+        maxLength: 80
+      description:
+        type: string
+        minLength: 1
+        maxLength: 500
+      source_recipe_ref:
+        type: string
+        pattern: ^[a-z][a-z0-9-]{2,47}@[1-9][0-9]*$
+  spec:
+    type: object
+    additionalProperties: false
+    required: [workspace, coordinator, members, coordination, receipt_fields]
+    properties:
+      workspace:
+        type: object
+        additionalProperties: false
+        required: [mode, default_output_root, resource_root, resource_manifest_path]
+        properties:
+          mode:
+            const: team-folder
+          default_output_root:
+            const: deliverables
+          resource_root:
+            const: team-resources
+          resource_manifest_path:
+            const: .promax/team-resource-manifest.yml
+      coordinator:
+        allOf:
+          - $ref: '#/$defs/memberDraft'
+          - not:
+              type: object
+              required: [enabled]
+      members:
+        type: array
+        minItems: 1
+        maxItems: 12
+        items:
+          allOf:
+            - $ref: '#/$defs/memberDraft'
+            - type: object
+              required: [enabled]
+              properties:
+                enabled:
+                  type: boolean
+      coordination:
+        type: object
+        additionalProperties: false
+        required: [topology, parallelize_independent_tasks, wait_for_settlement, retry_owner]
+        properties:
+          topology:
+            const: orchestrator-workers
+          parallelize_independent_tasks:
+            type: boolean
+          wait_for_settlement:
+            const: true
+          retry_owner:
+            const: original-worker
+      receipt_fields:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: string
+          minLength: 1
+          maxLength: 64
+$defs:
+  memberDraft:
+    type: object
+    additionalProperties: false
+    required: [member_id, display_name, module_ref]
+    properties:
+      member_id:
+        type: string
+        pattern: ^[a-z][a-z0-9_]{2,47}$
+      display_name:
+        type: string
+        minLength: 1
+        maxLength: 80
+      module_ref:
+        type: string
+        pattern: ^[a-z][a-z0-9-]{2,47}@[1-9][0-9]*$
+      enabled:
+        type: boolean
+      persona_fragment:
+        description: 用户可编辑的风格、沟通方式或领域补充；只能追加在基础 persona 之后。
+        type: string
+        maxLength: 2000
+      role_instructions:
+        description: 用户可编辑的职责补充；只能追加在基础 persona 之后。
+        type: string
+        maxLength: 4000
+      skill_refs:
+        description: 只能引用 SkillCatalog 中 status=allowed 的版本化 skill。
+        type: array
+        maxItems: 32
+        uniqueItems: true
+        items:
+          type: string
+          pattern: ^[a-z][a-z0-9-]{2,63}@[1-9][0-9]*$

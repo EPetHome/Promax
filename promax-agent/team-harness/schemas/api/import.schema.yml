@@ -1,0 +1,80 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://promax.local/schemas/api/import.schema.yml
+title: Promax GUI Configuration Import API
+oneOf:
+  - $ref: '#/$defs/request'
+  - $ref: '#/$defs/response'
+  - $ref: error.schema.yml
+$defs:
+  issue:
+    type: object
+    additionalProperties: false
+    required: [code, severity, field_path, message]
+    properties:
+      code: { type: string }
+      severity: { enum: [error, warning] }
+      field_path: { type: string }
+      message: { type: string }
+      hint: { type: string }
+  request:
+    type: object
+    additionalProperties: false
+    required: [api_version, kind, import_id, recipe_ref, team_id, documents]
+    properties:
+      api_version: { const: promax.ai/v1alpha2 }
+      kind: { const: ImportRequest }
+      import_id: { type: string, pattern: '^imp_[a-z0-9]{8,32}$' }
+      recipe_ref: { type: string, pattern: '^[a-z][a-z0-9-]{2,47}@[1-9][0-9]*$' }
+      team_id: { type: string, pattern: '^[a-z][a-z0-9-]{2,47}$' }
+      display_name: { type: string, minLength: 1, maxLength: 80 }
+      description: { type: string, minLength: 1, maxLength: 500 }
+      documents:
+        type: array
+        minItems: 1
+        maxItems: 32
+        items:
+          type: object
+          additionalProperties: false
+          required: [document_id, filename, media_type, content, sha256]
+          properties:
+            document_id: { type: string, pattern: '^doc_[a-z0-9]{8,32}$' }
+            filename: { enum: [AGENTS.md, SOUL.md, SKILL.md] }
+            media_type: { const: text/markdown }
+            content: { type: string, maxLength: 1048576 }
+            sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+  response:
+    type: object
+    additionalProperties: false
+    required: [api_version, kind, import_id, status, publish_allowed, skill_install_performed, execution_performed, draft, validation, warnings, matched_skill_refs, review_items]
+    properties:
+      api_version: { const: promax.ai/v1alpha2 }
+      kind: { const: ImportResponse }
+      import_id: { type: string }
+      status: { enum: [draft-ready, draft-invalid] }
+      publish_allowed: { const: false }
+      skill_install_performed: { const: false }
+      execution_performed: { const: false }
+      draft: { $ref: ../team-definition.schema.yml }
+      validation:
+        type: object
+        additionalProperties: false
+        required: [valid, errors]
+        properties:
+          valid: { type: boolean }
+          errors: { type: array, items: { $ref: '#/$defs/issue' } }
+      warnings: { type: array, items: { $ref: '#/$defs/issue' } }
+      matched_skill_refs: { type: array, uniqueItems: true, items: { type: string } }
+      review_items:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [review_id, kind, document_id, claimed_name, content_sha256, reason_code, action]
+          properties:
+            review_id: { type: string }
+            kind: { const: unknown-skill }
+            document_id: { type: string }
+            claimed_name: { type: [string, 'null'] }
+            content_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+            reason_code: { enum: [SKILL_HASH_MISMATCH, SKILL_NOT_IN_ALLOWED_CATALOG] }
+            action: { const: manual-review-required }

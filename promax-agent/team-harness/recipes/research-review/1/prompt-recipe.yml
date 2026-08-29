@@ -1,0 +1,47 @@
+api_version: promax.ai/v1alpha2
+kind: PromptRecipe
+metadata:
+  recipe_id: research-review
+  revision: 1
+  status: published
+  display_name: 资料研究与复核团队
+  description: 一键配置协调者、资料分析员和独立复核员。
+spec:
+  team_defaults:
+    display_name: 我的研究团队
+    description: 对指定资料进行证据整理、分析与独立复核。
+  workspace:
+    mode: team-folder
+    default_output_root: deliverables
+    resource_root: team-resources
+    resource_manifest_path: .promax/team-resource-manifest.yml
+  coordinator:
+    member_id: research_lead
+    display_name: 研究负责人
+    module_ref: team-coordinator@1
+    role_instructions: 先建立来源台账，再把分析与复核作为两个边界清晰的子任务委派。
+  members:
+    - member_id: research_agent
+      display_name: 资料分析员
+      module_ref: general-worker@1
+      enabled: true
+      role_instructions: 只整理协调者明确指定的资料，区分事实、推断和缺口。
+    - member_id: review_agent
+      display_name: 独立复核员
+      module_ref: general-worker@1
+      enabled: true
+      role_instructions: 独立复核证据定位、结论边界和未验证项，不替分析员改写原文件。
+  coordination:
+    topology: orchestrator-workers
+    parallelize_independent_tasks: false
+    wait_for_settlement: true
+    retry_owner: original-worker
+  receipt_fields:
+    - 状态
+    - preset
+    - team_revision_id
+    - task-key
+    - 团队成员
+    - 产物
+    - 被阻断项
+    - 未验证项

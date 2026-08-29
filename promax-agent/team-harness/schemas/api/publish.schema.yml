@@ -1,0 +1,29 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://promax.local/schemas/api/publish.schema.yml
+title: Promax GUI Team Publish API
+oneOf:
+  - $ref: '#/$defs/request'
+  - $ref: '#/$defs/response'
+  - $ref: error.schema.yml
+$defs:
+  request:
+    type: object
+    additionalProperties: false
+    required: [api_version, kind, request_id, revision, team_definition]
+    properties:
+      api_version: { const: promax.ai/v1alpha2 }
+      kind: { const: PublishRequest }
+      request_id: { type: string, pattern: '^pub_[a-z0-9]{8,32}$' }
+      revision: { type: integer, minimum: 1 }
+      team_definition: { $ref: ../team-definition.schema.yml }
+  response:
+    type: object
+    additionalProperties: false
+    required: [api_version, kind, request_id, status, team_revision, preset_id]
+    properties:
+      api_version: { const: promax.ai/v1alpha2 }
+      kind: { const: PublishResponse }
+      request_id: { type: string }
+      status: { const: published }
+      team_revision: { $ref: ../team-revision.schema.yml }
+      preset_id: { type: string }

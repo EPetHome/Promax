@@ -1,24 +1,24 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   PromaxProcessAction,
-  PromaxTeamMentionControl,
-  PromaxTeamSessionHeader,
   PromaxSessionBrowser,
+  PromaxTeamMentionControl,
   PromaxTeamRail,
+  PromaxTeamSessionHeader,
   type SessionListState,
-  type WorkspaceView,
   type WorkspaceListState,
   type WorkspaceShellActions,
 } from '../src/client/PromaxWorkspaceShell.tsx'
-import { PRODUCT_TEAM_ID, createTeam, resetTeamStateForTests, selectTeamHome, selectTeamSession, updateTeamDefinition } from '../src/client/team-state.ts'
+import { resetDraftStateForTests } from '../src/client/draft-state.ts'
+import { PRODUCT_PRESET_ID, PRODUCT_TEAM_ID, bindTeamSession, resetTeamStateForTests, runtimeTeamRosterOf, selectTeamHome, selectTeamSession, syncProductTeamRuntimeRoster } from '../src/client/team-state.ts'
 
 const workspaceState: WorkspaceListState = {
   items: [
-    { workspaceId: 'general', title: '通用工作区', path: '/tmp/general', sessionIds: ['general-session'] },
-    { workspaceId: 'product', title: '产品', path: '/tmp/product', sessionIds: ['product-session'] },
-    { workspaceId: 'idaas', title: 'IDaaS', path: '/tmp/idaas', sessionIds: ['idaas-session'] },
+    { workspaceId: 'general', title: '草稿', path: '/tmp/general', sessionIds: ['general-session'] },
+    { workspaceId: 'product', title: '产品', path: '/tmp/Promax/产品', sessionIds: ['product-session'] },
+    { workspaceId: 'internal', title: '内部测试', path: '/tmp/internal', sessionIds: ['internal-session'] },
   ],
   archivedSessionIds: [],
   state: 'idle',
@@ -26,11 +26,11 @@ const workspaceState: WorkspaceListState = {
 }
 
 const sessionState: SessionListState = {
-  ids: ['general-session', 'product-session', 'idaas-session'],
+  ids: ['general-session', 'product-session', 'internal-session'],
   byId: {
-    'general-session': { id: 'general-session', displayTitle: '通用任务', agentPreset: 'general', running: false, blank: false, updatedAt: 3 },
-    'product-session': { id: 'product-session', displayTitle: '产品方案', agentPreset: 'product-solution', running: false, completed: true, blank: false, updatedAt: 2 },
-    'idaas-session': { id: 'idaas-session', displayTitle: 'IDaaS 历史任务', agentPreset: 'cordis', running: false, blank: false, updatedAt: 1 },
+    'general-session': { id: 'general-session', displayTitle: '需求想法', agentPreset: 'general', running: false, blank: false, updatedAt: 3 },
+    'product-session': { id: 'product-session', displayTitle: '产品方案', agentPreset: PRODUCT_PRESET_ID, running: false, completed: true, blank: false, updatedAt: 2 },
+    'internal-session': { id: 'internal-session', displayTitle: 'smoke 残留', agentPreset: 'smoke', running: false, blank: false, updatedAt: 1 },
   },
   current: undefined,
   phase: 'ready',
@@ -42,275 +42,225 @@ function useSessions<Selected>(selector: (state: SessionListState) => Selected):
 function actions(overrides: Partial<WorkspaceShellActions> = {}): WorkspaceShellActions {
   return {
     startSession: vi.fn(async () => 'new-session'),
-    sendPrompt: vi.fn(async () => {}),
-    sendTeamPrompt: vi.fn(async () => {}),
     openSession: vi.fn(),
     clearSession: vi.fn(),
-    createTeamWorkspace: vi.fn(async input => ({ workspaceId: `workspace-${input.teamId}`, title: input.teamName, path: `${input.parentPath}/promax-${input.teamId}`, sessionIds: [] })),
+    createProjectWorkspace: vi.fn(async input => ({ workspaceId: 'project-new', title: input.projectName, path: `${input.parentPath ?? '/Users/test/Promax'}/${input.projectName}`, sessionIds: [] })),
+    pickProjectDirectory: vi.fn(async () => '/tmp/custom'),
+    writeDraftHandoff: vi.fn(async () => ({ handoffPath: '/tmp/handoff.md', transcriptPath: '/tmp/transcript.md' })),
     openWorkspacePath: vi.fn(async () => {}),
     teamRoutingAvailable: true,
     ...overrides,
   }
 }
 
-const closedMenuSnapshot = { open: false }
-const closedMenuStore = { getSnapshot: () => closedMenuSnapshot, subscribe: () => () => {} }
+const closedMenuStore = { getSnapshot: () => ({ open: false }), subscribe: () => () => {} }
 const closedLauncherStore = { getSnapshot: () => null, subscribe: () => () => {} }
 
-function renderNativeHandoff(sessionId = 'new-session') {
-  const setDraft = vi.fn()
-  const submit = vi.fn()
-  render(<PromaxTeamMentionControl
-    sessionId={sessionId}
-    input={{ draft: '', draftRev: 0, phase: 'plain', occurrences: [] }}
-    inputActions={{ setDraft, submit }}
-    menu={closedMenuStore}
-    launcher={closedLauncherStore}
-    toggleTeamMention={vi.fn()}
-  />)
-  return { setDraft, submit }
+function FirstPromptHarness({ shellActions, setDraft, submit, initialDraft = '' }: { shellActions: WorkspaceShellActions; setDraft: (text: string) => void; submit: () => void; initialDraft?: string }) {
+  return <>
+    <PromaxTeamRail useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} />
+    <PromaxTeamMentionControl sessionId="new-session" input={{ draft: initialDraft, draftRev: 0, phase: 'plain', occurrences: [] }} inputActions={{ setDraft, submit }} menu={closedMenuStore} launcher={closedLauncherStore} toggleTeamMention={vi.fn()} />
+  </>
 }
 
-describe('Promax workspace and team shell', () => {
+describe('Promax draft, fixed team, and project shell', () => {
   beforeEach(() => {
     window.localStorage.clear()
     resetTeamStateForTests()
-    workspaceState.items = workspaceState.items.filter(item => ['general', 'product', 'idaas'].includes(item.workspaceId))
+    resetDraftStateForTests()
+    sessionState.current = undefined
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('{"ok":true}', { status: 200 })))
   })
+  afterEach(() => { vi.unstubAllGlobals() })
 
-  it('shows only general sessions in the general entry and hides IDaaS history', () => {
+  it('exposes only drafts and the fixed product team/project hierarchy', () => {
     render(<PromaxSessionBrowser useWorkspaces={useWorkspaces} useSessions={useSessions} {...actions()} />)
-    expect(screen.getByText('通用会话')).toBeVisible()
-    expect(screen.getByText('通用任务')).toBeVisible()
-    expect(screen.queryByText('产品方案')).not.toBeInTheDocument()
-    expect(screen.queryByText('IDaaS 历史任务')).not.toBeInTheDocument()
-  })
-
-  it('switches the left list to product-team sessions with its compatibility configuration', () => {
-    selectTeamHome(PRODUCT_TEAM_ID, 'product')
-    render(<PromaxSessionBrowser useWorkspaces={useWorkspaces} useSessions={useSessions} {...actions()} />)
-    expect(screen.getByText('产品团队的会话')).toBeVisible()
+    expect(screen.getByRole('button', { name: '新建草稿' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: '草稿' })).toBeVisible()
+    expect(screen.getByText('需求想法')).toBeVisible()
+    expect(screen.getByText('产品智能体团队')).toBeVisible()
+    expect(screen.getByRole('heading', { name: '项目组' })).toBeVisible()
     expect(screen.getByText('产品方案')).toBeVisible()
-    expect(screen.getByText('兼容版本')).toBeVisible()
-    expect(screen.queryByText('通用任务')).not.toBeInTheDocument()
+    expect(screen.queryByText('smoke 残留')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '创建团队' })).not.toBeInTheDocument()
+    expect(screen.queryByText('团队设置')).not.toBeInTheDocument()
   })
 
-  it('releases the center to the native dsh Conversation after opening a team session', () => {
+  it('shows the one-time tracking notice before the first draft', async () => {
     const shellActions = actions()
-    render(<PromaxTeamRail useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} />)
-    fireEvent.click(screen.getByRole('button', { name: /产品团队/ }))
-    fireEvent.click(screen.getByRole('button', { name: /产品方案/ }))
-    expect(screen.queryByRole('main', { name: '产品团队团队专用界面' })).not.toBeInTheDocument()
-    expect(shellActions.openSession).toHaveBeenCalledWith('product-session')
+    render(<PromaxSessionBrowser useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} />)
+    fireEvent.click(screen.getByRole('button', { name: '新建草稿' }))
+    expect(screen.getByRole('heading', { name: 'Promax 会同步整理交底草稿' })).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: '知道了，开始草稿' }))
+    await waitFor(() => { expect(shellActions.startSession).toHaveBeenCalledWith('general', 'general') })
   })
 
-  it('creates an empty team, then configures it from the team chat composer', async () => {
-    const provisionTeam = vi.fn(async () => ({
-      coordinator: { memberId: 'growth_lead', displayName: '增长负责人', objective: '拆解与终审', role: 'coordinator' as const, enabled: true },
-      members: [{ memberId: 'growth_worker', displayName: '增长研究员', objective: '研究和复核', role: 'worker' as const, enabled: true }],
-      state: 'ready' as const,
-      revision: { revision: 1 as const, presetId: 'promax-growth-r1', status: 'published' as const },
-    }))
-    const createTeamWorkspace = vi.fn(async (input: { teamId: string; teamName: string; parentPath: string }) => {
-      const workspace: WorkspaceView = { workspaceId: `workspace-${input.teamId}`, title: input.teamName, path: `${input.parentPath}/promax-${input.teamId}`, sessionIds: [] }
-      workspaceState.items = [...workspaceState.items, workspace]
-      return workspace
-    })
-    const shellActions = actions({ provisionTeam, createTeamWorkspace })
-    render(<PromaxTeamRail useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} />)
-    fireEvent.click(screen.getByRole('button', { name: '创建团队' }))
-    fireEvent.change(screen.getByLabelText('团队名称'), { target: { value: '增长团队' } })
-    fireEvent.change(screen.getByLabelText(/团队简介/u), { target: { value: '负责增长策略研究' } })
-    fireEvent.click(screen.getByRole('button', { name: '创建并进入' }))
-    await waitFor(() => { expect(screen.getByRole('main', { name: '增长团队团队专用界面' })).toBeVisible() })
-    expect(shellActions.createTeamWorkspace).toHaveBeenCalledWith(expect.objectContaining({ teamName: '增长团队', parentPath: '/tmp' }))
-    expect(provisionTeam).not.toHaveBeenCalled()
-    expect(screen.getByText('还没有配置团队成员')).toBeVisible()
-    const setupComposer = screen.getByPlaceholderText(/描述你希望这个团队负责什么/u)
-    expect(setupComposer).toBeEnabled()
-    fireEvent.change(setupComposer, { target: { value: '组建一个负责增长研究和复核的团队' } })
-    fireEvent.click(screen.getByRole('button', { name: '配置团队' }))
-    await waitFor(() => { expect(provisionTeam).toHaveBeenCalledTimes(1) })
-    expect(provisionTeam).toHaveBeenCalledWith(expect.objectContaining({ teamName: '增长团队', workspaceRef: expect.stringMatching(/^workspace-team-/u) }))
-    await waitFor(() => { expect(screen.getByText('增长负责人统筹 · 1 名团队成员 · 团队首页')).toBeVisible() })
-    expect(screen.getByPlaceholderText(/描述任务/u)).toBeEnabled()
+  it('creates a named project with the default path unless an advanced parent is selected', async () => {
+    const createProjectWorkspace = vi.fn(async (input: { projectName: string; parentPath?: string }) => ({ workspaceId: 'cloud', title: input.projectName, path: `${input.parentPath ?? '/Users/test/Promax'}/${input.projectName}`, sessionIds: [] }))
+    const shellActions = actions({ createProjectWorkspace })
+    render(<PromaxSessionBrowser useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} />)
+    fireEvent.click(screen.getByRole('button', { name: '新建项目组' }))
+    fireEvent.change(screen.getByLabelText('项目组名称'), { target: { value: '云盘项目' } })
+    expect(screen.getByText('~/Promax/云盘项目/')).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: '创建项目组' }))
+    await waitFor(() => { expect(createProjectWorkspace).toHaveBeenCalledWith({ projectName: '云盘项目' }) })
   })
 
-  it('uploads an Agents package from the chat composer and enables it without another form', async () => {
-    const pendingDefinition = { api_version: 'promax.ai/v1alpha2', kind: 'TeamDefinition' }
-    const provisionTeam = vi.fn(async () => ({
-      coordinator: { memberId: 'review_lead', displayName: '复核负责人', objective: '审核配置', role: 'coordinator' as const, enabled: true },
-      members: [{ memberId: 'review_worker', displayName: '复核成员', objective: '执行任务', role: 'worker' as const, enabled: true }],
-      state: 'review' as const,
-      message: '配置文档已生成团队草稿；确认后才会冻结运行配置。',
-      pendingDefinition,
-    }))
-    const publishTeamDraft = vi.fn(async () => ({
-      coordinator: { memberId: 'review_lead', displayName: '复核负责人', objective: '审核配置', role: 'coordinator' as const, enabled: true },
-      members: [{ memberId: 'review_worker', displayName: '复核成员', objective: '执行任务', role: 'worker' as const, enabled: true }],
-      state: 'ready' as const,
-      revision: { revision: 1 as const, presetId: 'promax-review-r1', status: 'published' as const },
-    }))
-    const createTeamWorkspace = vi.fn(async (input: { teamId: string; teamName: string; parentPath: string }) => {
-      const workspace: WorkspaceView = { workspaceId: `workspace-${input.teamId}`, title: input.teamName, path: `${input.parentPath}/promax-${input.teamId}`, sessionIds: [] }
-      workspaceState.items = [...workspaceState.items, workspace]
-      return workspace
-    })
-    const shellActions = actions({ provisionTeam, publishTeamDraft, createTeamWorkspace })
-    render(<PromaxTeamRail useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} />)
-    fireEvent.click(screen.getByRole('button', { name: '创建团队' }))
-    fireEvent.change(screen.getByLabelText('团队名称'), { target: { value: '文档团队' } })
-    fireEvent.click(screen.getByRole('button', { name: '创建并进入' }))
-    await waitFor(() => { expect(screen.getByRole('main', { name: '文档团队团队专用界面' })).toBeVisible() })
-    const file = new File(['```promax-team\nname: demo\n```'], 'AGENTS.md', { type: 'text/markdown' })
-    fireEvent.change(screen.getByLabelText('上传 Agents 包'), { target: { files: [file] } })
-    await waitFor(() => { expect(publishTeamDraft).toHaveBeenCalledWith(pendingDefinition) })
-    expect(screen.queryByRole('button', { name: '确认并启用团队' })).not.toBeInTheDocument()
-    expect(screen.getByPlaceholderText(/描述任务/u)).toBeEnabled()
-  })
-
-  it('hands the first product-team prompt to the native input machine', async () => {
-    const sendTeamPrompt = vi.fn(async () => {})
-    render(<PromaxTeamRail useWorkspaces={useWorkspaces} useSessions={useSessions} {...actions({ sendTeamPrompt })} />)
-    fireEvent.click(screen.getByRole('button', { name: /产品团队/ }))
-    fireEvent.change(screen.getByPlaceholderText(/描述任务/u), { target: { value: '生成产品方案' } })
-    fireEvent.click(screen.getByRole('button', { name: '发送给团队' }))
-    await waitFor(() => { expect(screen.queryByRole('main', { name: '产品团队团队专用界面' })).not.toBeInTheDocument() })
-    const native = renderNativeHandoff()
-    await waitFor(() => { expect(native.setDraft).toHaveBeenCalledWith('生成产品方案') })
-    expect(native.submit).toHaveBeenCalledTimes(1)
-    expect(sendTeamPrompt).not.toHaveBeenCalled()
-  })
-
-  it('sends on Enter, keeps Shift+Enter as a newline, ignores IME confirmation, and prevents duplicate submit', async () => {
-    let resolveStart: ((sessionId: string) => void) | undefined
-    const startSession = vi.fn(() => new Promise<string>(resolve => { resolveStart = resolve }))
-    render(<PromaxTeamRail useWorkspaces={useWorkspaces} useSessions={useSessions} {...actions({ startSession })} />)
-    fireEvent.click(screen.getByRole('button', { name: /产品团队/ }))
-    const composer = screen.getByPlaceholderText(/描述任务/u)
-    fireEvent.change(composer, { target: { value: '生成产品方案' } })
-    fireEvent.keyDown(composer, { key: 'Enter', shiftKey: true })
-    expect(startSession).not.toHaveBeenCalled()
-    fireEvent.keyDown(composer, { key: 'Enter', keyCode: 229, isComposing: true })
-    expect(startSession).not.toHaveBeenCalled()
-    fireEvent.keyDown(composer, { key: 'Enter' })
-    fireEvent.keyDown(composer, { key: 'Enter' })
-    expect(startSession).toHaveBeenCalledTimes(1)
-    resolveStart?.('new-session')
-    await waitFor(() => { expect(screen.queryByRole('main', { name: '产品团队团队专用界面' })).not.toBeInTheDocument() })
-    const native = renderNativeHandoff()
-    await waitFor(() => { expect(native.setDraft).toHaveBeenCalledWith('生成产品方案') })
-    expect(native.submit).toHaveBeenCalledTimes(1)
-  })
-
-  it('turns @ selection into stable member ids instead of prompt text', async () => {
-    const sendTeamPrompt = vi.fn(async () => {})
-    render(<PromaxTeamRail useWorkspaces={useWorkspaces} useSessions={useSessions} {...actions({ sendTeamPrompt })} />)
-    fireEvent.click(screen.getByRole('button', { name: /产品团队/ }))
-    fireEvent.change(screen.getByPlaceholderText(/描述任务/u), { target: { value: '@' } })
-    fireEvent.click(screen.getByRole('option', { name: /PRD 专员/ }))
-    expect(screen.getByPlaceholderText(/描述任务/u)).toHaveValue('')
-    fireEvent.change(screen.getByPlaceholderText(/描述任务/u), { target: { value: '补全验收口径' } })
-    fireEvent.click(screen.getByRole('button', { name: '发送给团队' }))
-    await waitFor(() => { expect(screen.queryByRole('main', { name: '产品团队团队专用界面' })).not.toBeInTheDocument() })
-    const native = renderNativeHandoff()
-    await waitFor(() => { expect(native.setDraft).toHaveBeenCalledWith('@product_prd_agent 补全验收口径') })
-    expect(native.submit).toHaveBeenCalledTimes(1)
-    expect(sendTeamPrompt).not.toHaveBeenCalled()
-  })
-
-  it('closes the team @ menu by button, Escape, outside pointer, or selection and restores focus', () => {
+  it('opens a dedicated project-team home without exposing team editing', () => {
+    selectTeamHome(PRODUCT_TEAM_ID, 'product')
     render(<PromaxTeamRail useWorkspaces={useWorkspaces} useSessions={useSessions} {...actions()} />)
-    fireEvent.click(screen.getByRole('button', { name: /产品团队/ }))
-    const composer = screen.getByPlaceholderText(/描述任务/u)
-    const mentionButton = screen.getByRole('button', { name: '指定团队成员' })
-
-    fireEvent.click(mentionButton)
-    expect(screen.getByRole('listbox', { name: '选择团队成员' })).toBeVisible()
-    fireEvent.click(mentionButton)
-    expect(screen.queryByRole('listbox', { name: '选择团队成员' })).not.toBeInTheDocument()
-    expect(composer).toHaveFocus()
-
-    fireEvent.click(mentionButton)
-    fireEvent.keyDown(document, { key: 'Escape' })
-    expect(screen.queryByRole('listbox', { name: '选择团队成员' })).not.toBeInTheDocument()
-    expect(composer).toHaveFocus()
-
-    fireEvent.click(mentionButton)
-    fireEvent.pointerDown(document.body)
-    expect(screen.queryByRole('listbox', { name: '选择团队成员' })).not.toBeInTheDocument()
-    expect(composer).toHaveFocus()
-
-    fireEvent.click(mentionButton)
-    fireEvent.click(screen.getByRole('option', { name: /PRD 专员/ }))
-    expect(screen.queryByRole('listbox', { name: '选择团队成员' })).not.toBeInTheDocument()
-    expect(composer).toHaveFocus()
-    const chip = screen.getByRole('button', { name: /@PRD 专员/ })
-    fireEvent.click(chip)
-    expect(screen.queryByRole('button', { name: /@PRD 专员/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('main', { name: '产品智能体团队项目组界面' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: '产品' })).toBeVisible()
+    expect(screen.getByText('团队已配置')).toBeVisible()
+    expect(screen.queryByText('团队设置')).not.toBeInTheDocument()
+    expect(screen.queryByText('模板导入')).not.toBeInTheDocument()
   })
 
-  it('paginates stable team members at six per page without rendering fake runtime states', () => {
-    updateTeamDefinition(PRODUCT_TEAM_ID, team => ({
-      ...team,
-      members: [...team.members, ...Array.from({ length: 4 }, (_, index) => ({
-        memberId: `extra_${index + 1}`,
-        displayName: `扩展成员 ${index + 1}`,
-        objective: '补充专业工作',
-        role: 'worker' as const,
-        enabled: true,
-      }))],
-    }))
-    selectTeamSession(PRODUCT_TEAM_ID, 'product-session', 'product')
-    const nativeSnapshot = { nodes: [], turnTimings: new Map<number, { startTime: number; endTime?: number }>(), running: false }
+  it('renders the r2-defined result tree with honest empty states and opens both top drawers', () => {
+    syncProductTeamRuntimeRoster(runtimeTeamRosterOf(`
+      ## 已发布团队快照
+      - team revision：\`team-mtcjsbcz-04tpe2@r2\`
+      - preset：\`promax-team-mtcjsbcz-04tpe2-r2\`
+      成员：
+      - \`solution_design\`（产品需求方案智能体）：生成并验证 PRD。
+      - \`quality_judge\`（独立 Judge）：独立判定最终产物。
+      ## 稳定消息路由
+      文件责任：
+      - \`deliverables/{task_key}/prd.md\`：solution_design
+      - \`.promax/judge/{task_key}/judge.md\`：quality_judge
+      稳定回执字段（按顺序）：\`状态\`、\`产物\`、\`Judge判定\`
+    `))
+    selectTeamHome(PRODUCT_TEAM_ID, 'product')
+    render(<PromaxTeamRail useWorkspaces={useWorkspaces} useSessions={useSessions} {...actions()} />)
+
+    expect(screen.getByRole('complementary', { name: '团队进度' })).toBeVisible()
+    expect(screen.getByText('当前会话 0 turn：尚未开始')).toBeVisible()
+    expect(screen.getByText('生成·尚未生成')).toBeVisible()
+    expect(screen.getByText('判定·未判定')).toBeVisible()
+    expect(screen.getByRole('button', { name: '成员·2' })).toBeVisible()
+
+    fireEvent.click(screen.getByRole('button', { name: '文件' }))
+    expect(screen.getByRole('complementary', { name: '产品项目文件' })).toBeVisible()
+    expect(screen.getByText('deliverables/{task_key}/prd.md')).toBeVisible()
+    expect(screen.getByText('未判定')).toBeVisible()
+  })
+
+  it('makes both native team-session breadcrumb levels actionable', () => {
+    bindTeamSession({ sessionId: 'product-session', teamId: PRODUCT_TEAM_ID, revision: 2, presetId: PRODUCT_PRESET_ID, workspaceId: 'product' })
+    const clearSession = vi.fn()
+    render(<PromaxTeamRail useWorkspaces={useWorkspaces} useSessions={useSessions} {...actions({ clearSession })} />)
+
+    const breadcrumb = screen.getByRole('navigation', { name: '团队会话层级' })
+    fireEvent.click(within(breadcrumb).getByRole('button', { name: '产品' }))
+    expect(clearSession).toHaveBeenCalledTimes(1)
+    act(() => { selectTeamSession(PRODUCT_TEAM_ID, 'product-session', 'product') })
+    const reopenedBreadcrumb = screen.getByRole('navigation', { name: '团队会话层级' })
+    fireEvent.click(within(reopenedBreadcrumb).getByRole('button', { name: '产品智能体团队' }))
+    expect(clearSession).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps the navigation node mounted and provides clickable team/project exits', async () => {
+    const shellActions = actions()
+    render(<>
+      <PromaxSessionBrowser useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} />
+      <PromaxTeamRail useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} />
+    </>)
+    const navigation = screen.getByRole('navigation', { name: 'Promax 工作入口' })
+
+    fireEvent.click(screen.getByText('产品智能体团队').closest('button')!)
+    expect(screen.getByRole('heading', { name: '选择项目组' })).toBeVisible()
+    expect(screen.getByRole('navigation', { name: 'Promax 工作入口' })).toBe(navigation)
+
+    fireEvent.click(screen.getByText('产品', { selector: '.promax-project-row > span' }).closest('button')!)
+    expect(screen.getByRole('button', { name: '返回产品智能体团队' })).toBeVisible()
+    expect(screen.getByRole('button', { name: '当前项目组：产品' })).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: '当前项目组：产品' }))
+    expect(screen.getByRole('heading', { name: '产品' })).toBeVisible()
+
+    fireEvent.click(screen.getByRole('button', { name: '返回产品智能体团队' }))
+    expect(screen.getByRole('heading', { name: '选择项目组' })).toBeVisible()
+    expect(screen.getByRole('navigation', { name: 'Promax 工作入口' })).toBe(navigation)
+
+    fireEvent.click(screen.getByRole('button', { name: '新建草稿' }))
+    fireEvent.click(screen.getByRole('button', { name: '知道了，开始草稿' }))
+    await waitFor(() => { expect(shellActions.startSession).toHaveBeenCalledWith('general', 'general') })
+    expect(screen.getByRole('navigation', { name: 'Promax 工作入口' })).toBe(navigation)
+  })
+
+  it('wakes an already-mounted native composer after staging the first team prompt', async () => {
+    selectTeamHome(PRODUCT_TEAM_ID, 'product')
+    const shellActions = actions()
+    const setDraft = vi.fn()
+    const submit = vi.fn()
+    render(<FirstPromptHarness shellActions={shellActions} setDraft={setDraft} submit={submit} />)
+    fireEvent.change(screen.getByPlaceholderText(/描述要交给产品团队的任务/u), { target: { value: '生成产品方案' } })
+    fireEvent.click(screen.getByRole('button', { name: '发送给团队' }))
+    await waitFor(() => { expect(setDraft).toHaveBeenCalledWith('生成产品方案') })
+    expect(submit).toHaveBeenCalledTimes(1)
+    expect(shellActions.openSession).toHaveBeenCalledTimes(1)
+    expect(shellActions.openSession).toHaveBeenCalledWith('new-session')
+  })
+
+  it('drops a staged prompt instead of submitting it later when the native composer is already non-empty', async () => {
+    selectTeamHome(PRODUCT_TEAM_ID, 'product')
+    const shellActions = actions()
+    const setDraft = vi.fn()
+    const submit = vi.fn()
+    render(<FirstPromptHarness shellActions={shellActions} setDraft={setDraft} submit={submit} initialDraft="用户已有输入" />)
+    fireEvent.change(screen.getByPlaceholderText(/描述要交给产品团队的任务/u), { target: { value: '不应延迟提交' } })
+    fireEvent.click(screen.getByRole('button', { name: '发送给团队' }))
+    await waitFor(() => { expect(shellActions.openSession).toHaveBeenCalledWith('new-session') })
+    expect(setDraft).not.toHaveBeenCalled()
+    expect(submit).not.toHaveBeenCalled()
+  })
+
+  it('offers transfer after three draft rounds, saves both files, and starts a new team session', async () => {
+    sessionState.current = 'general-session'
+    const writeDraftHandoff = vi.fn(async () => ({ handoffPath: '/tmp/需求交底.md', transcriptPath: '/tmp/原始对话.md' }))
+    const shellActions = actions({ writeDraftHandoff })
+    const nativeSnapshot = {
+      nodes: [
+        { kind: 'user', seq: 1, content: [{ type: 'text', text: '做一个云盘方案' }] },
+        { kind: 'assistant', messageId: 'a1', turn: 1, blocks: [{ kind: 'text', text: '先确认范围' }] },
+        { kind: 'user', seq: 2, content: [{ type: 'text', text: '面向企业管理员' }] },
+        { kind: 'user', seq: 3, content: [{ type: 'text', text: '一期不做外链' }] },
+      ],
+      turnTimings: new Map<number, { startTime: number; endTime?: number }>(),
+      running: false,
+    }
     const useSession = <Selected,>(selector: (state: typeof nativeSnapshot) => Selected): Selected => selector(nativeSnapshot)
-    render(<PromaxTeamSessionHeader sessionId="product-session" useSession={useSession} />)
-    fireEvent.click(screen.getByRole('button', { name: '团队成员 · 8' }))
-    expect(screen.getAllByText('已配置')).toHaveLength(6)
-    expect(screen.queryByText('等待分派')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: '下一页' }))
-    expect(screen.getAllByText('已配置')).toHaveLength(2)
-    expect(screen.getByText('2 / 2 · 共 8 名')).toBeVisible()
+    render(<>
+      <PromaxTeamSessionHeader sessionId="general-session" useSession={useSession} />
+      <PromaxTeamRail useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} />
+      <PromaxTeamMentionControl sessionId="general-session" input={{ draft: '', draftRev: 0, phase: 'plain', occurrences: [] }} inputActions={{ setDraft: vi.fn(), submit: vi.fn() }} menu={closedMenuStore} launcher={closedLauncherStore} toggleTeamMention={vi.fn()} />
+    </>)
+    await waitFor(() => { expect(screen.getByRole('button', { name: '交给团队 →' })).toBeVisible() })
+    fireEvent.click(screen.getByRole('button', { name: '交给团队 →' }))
+    expect(screen.getByRole('heading', { name: '交给团队' })).toBeVisible()
+    expect((screen.getByLabelText('需求交底（可编辑）') as HTMLTextAreaElement).value).toContain('## 还没定的')
+    fireEvent.click(screen.getByRole('button', { name: '保存并交给团队' }))
+    await waitFor(() => { expect(writeDraftHandoff).toHaveBeenCalledTimes(1) })
+    expect(writeDraftHandoff).toHaveBeenCalledWith(expect.objectContaining({
+      workspaceId: 'product',
+      projectPath: '/tmp/Promax/产品',
+      handoff: expect.stringContaining('## 要解决什么') as string,
+      transcript: expect.stringContaining('先确认范围') as string,
+    }))
+    expect(shellActions.startSession).toHaveBeenCalledWith('product', PRODUCT_PRESET_ID)
   })
 
-  it('exposes a safe per-turn process summary while leaving full evidence to native Trajectory', () => {
+  it('keeps the stable team header and safe per-turn process summary', () => {
     selectTeamSession(PRODUCT_TEAM_ID, 'product-session', 'product')
     const nativeSnapshot = {
-      nodes: [{ kind: 'assistant', messageId: 'message-1', turn: 3, blocks: [{ kind: 'tool-call' }, { kind: 'text' }] }],
+      nodes: [{ kind: 'assistant', messageId: 'message-1', turn: 3, blocks: [{ kind: 'tool-call' }, { kind: 'text', text: '完成' }] }],
       turnTimings: new Map([[3, { startTime: 1_000, endTime: 3_500 }]]),
       running: false,
     }
     const useSession = <Selected,>(selector: (state: typeof nativeSnapshot) => Selected): Selected => selector(nativeSnapshot)
-    render(<PromaxProcessAction sessionId="product-session" messageId="message-1" useSession={useSession} />)
+    render(<><PromaxTeamSessionHeader sessionId="product-session" useSession={useSession} /><PromaxTeamRail useWorkspaces={useWorkspaces} useSessions={useSessions} {...actions()} /><PromaxProcessAction sessionId="product-session" messageId="message-1" useSession={useSession} /></>)
+    expect(screen.getByText('产品智能体团队')).toBeVisible()
     fireEvent.click(screen.getByText('处理过程'))
-    expect(screen.getByText('第 3 轮 · 完成')).toBeVisible()
     expect(screen.getByText('成员/工具调用：1 项')).toBeVisible()
-    expect(screen.getByText(/耗时 2.5 秒；详细时间线可在 Trajectory 查看/u)).toBeVisible()
-  })
-
-  it('paginates the right team navigation at eight teams per page', () => {
-    for (let index = 1; index <= 9; index += 1) createTeam({ name: `脱敏团队 ${index}`, description: '' })
-    selectTeamHome(PRODUCT_TEAM_ID, 'product')
-    render(<PromaxTeamRail useWorkspaces={useWorkspaces} useSessions={useSessions} {...actions()} />)
-    expect(screen.getByText('1 / 2 · 共 10 个')).toBeVisible()
-    expect(screen.getByText('脱敏团队 7')).toBeVisible()
-    expect(screen.queryByText('脱敏团队 8')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: '下一页' }))
-    expect(screen.getByText('脱敏团队 8')).toBeVisible()
-    expect(screen.getByText('脱敏团队 9')).toBeVisible()
-    expect(screen.getByText('2 / 2 · 共 10 个')).toBeVisible()
-  })
-
-  it('keeps ordinary team settings compact and workspace read-only', () => {
-    render(<PromaxTeamRail useWorkspaces={useWorkspaces} useSessions={useSessions} {...actions()} />)
-    fireEvent.click(screen.getByRole('button', { name: /产品团队/ }))
-    fireEvent.click(screen.getByRole('button', { name: '团队设置' }))
-    expect(screen.getByRole('heading', { name: '基本信息' })).toBeVisible()
-    expect(screen.getByRole('button', { name: '打开位置' })).toBeVisible()
-    expect(screen.queryByText(/^高级设置/u)).not.toBeInTheDocument()
-    expect(screen.queryByText('配置来源')).not.toBeInTheDocument()
-    expect(screen.queryByRole('tab')).not.toBeInTheDocument()
-    expect(screen.queryByText('发布与版本')).not.toBeInTheDocument()
-    expect(screen.queryByText('TeamDefinition 草稿')).not.toBeInTheDocument()
+    expect(screen.getByText(/耗时 2.5 秒/u)).toBeVisible()
   })
 })

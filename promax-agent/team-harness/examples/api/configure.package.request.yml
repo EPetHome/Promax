@@ -1,0 +1,18 @@
+team_id: team-content-review
+display_name: 内容审校团队
+workspace_ref: workspace-team-content-review
+message: 按上传的角色资料配置团队；未知 Skill 不要安装。
+configuration_session_id: null
+agents_package:
+  package_id: pkg_agents0001
+  package_sha256: fede87edb4541c5be9115ef7a4aadef7f373a488a2a08a2ff9839ac50586a534
+  files:
+    - relative_path: team/AGENTS.md
+      media_type: text/markdown
+      content: |-
+        # 内容审校团队
+
+        - 负责人：拆解任务并终审。
+        - 事实核验员：核对来源。
+        - 结论编辑：只汇总已核验内容。
+      sha256: 756a675ef978806c93338f6d2dfcb039df991cfbe9949c2e00b1b812fcebfee4

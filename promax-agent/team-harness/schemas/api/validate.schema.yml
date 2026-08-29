@@ -1,0 +1,38 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://promax.local/schemas/api/validate.schema.yml
+title: Promax GUI Team Validation API
+oneOf:
+  - $ref: '#/$defs/request'
+  - $ref: '#/$defs/response'
+  - $ref: error.schema.yml
+$defs:
+  issue:
+    type: object
+    additionalProperties: false
+    required: [code, severity, field_path, message]
+    properties:
+      code: { type: string }
+      severity: { enum: [error, warning] }
+      field_path: { type: string }
+      message: { type: string }
+      hint: { type: string }
+  request:
+    type: object
+    additionalProperties: false
+    required: [api_version, kind, request_id, team_definition]
+    properties:
+      api_version: { const: promax.ai/v1alpha2 }
+      kind: { const: ValidateRequest }
+      request_id: { type: string, pattern: '^val_[a-z0-9]{8,32}$' }
+      team_definition: { $ref: ../team-definition.schema.yml }
+  response:
+    type: object
+    additionalProperties: false
+    required: [api_version, kind, request_id, valid, errors, warnings]
+    properties:
+      api_version: { const: promax.ai/v1alpha2 }
+      kind: { const: ValidateResponse }
+      request_id: { type: string }
+      valid: { type: boolean }
+      errors: { type: array, items: { $ref: '#/$defs/issue' } }
+      warnings: { type: array, items: { $ref: '#/$defs/issue' } }

@@ -1,0 +1,52 @@
+api_version: promax.ai/v1alpha2
+kind: PromptRecipe
+metadata:
+  recipe_id: product-studio
+  revision: 1
+  status: published
+  display_name: 产品方案团队
+  description: 一键配置产品负责人、PRD、流程图和交互原型四个数字员工。
+spec:
+  team_defaults:
+    display_name: 我的产品方案团队
+    description: 从脱敏需求生成 PRD、业务流程图和交互原型。
+  workspace:
+    mode: team-folder
+    default_output_root: deliverables
+    resource_root: team-resources
+    resource_manifest_path: .promax/team-resource-manifest.yml
+  coordinator:
+    member_id: product_studio_lead
+    display_name: 产品负责人
+    module_ref: team-coordinator@1
+    persona_fragment: 以产品负责人视角组织需求澄清、产物一致性和交付说明。
+    role_instructions: |-
+      启动成员前先建立 source-ledger；给每个成员明确唯一产物路径、共享证据路径和 G0-G6 验收要求。
+  members:
+    - member_id: product_prd_agent
+      display_name: PRD 专员
+      module_ref: product-prd@1
+      enabled: true
+    - member_id: product_diagram_agent
+      display_name: 业务流程专员
+      module_ref: product-diagram@1
+      enabled: true
+    - member_id: product_prototype_agent
+      display_name: 交互原型专员
+      module_ref: product-prototype@1
+      enabled: true
+  coordination:
+    topology: orchestrator-workers
+    parallelize_independent_tasks: true
+    wait_for_settlement: true
+    retry_owner: original-worker
+  receipt_fields:
+    - 状态
+    - preset
+    - team_revision_id
+    - task-key
+    - 团队成员
+    - 产物
+    - G0-G6
+    - 被阻断项
+    - 未验证项

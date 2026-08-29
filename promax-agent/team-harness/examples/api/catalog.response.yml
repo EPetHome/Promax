@@ -1,0 +1,28 @@
+api_version: promax.ai/v1alpha2
+kind: CatalogResponse
+modules:
+  - module_ref: team-coordinator@1
+    display_name: 团队协调者
+    description: 动态团队的不可覆盖协调、安全、结算与真实文件交付基线。
+    role: coordinator
+    objective: 建立共享证据、拆分任务、调度成员、等待结算、回读文件并交付稳定回执。
+    skill_refs: []
+    artifact_kinds: [other]
+  - module_ref: general-worker@1
+    display_name: 通用执行成员
+    description: 可通过追加职责重复实例化的通用数字员工。
+    role: worker
+    objective: 按协调者给出的边界完成独立子任务并真实写入文件。
+    skill_refs: []
+    artifact_kinds: [other]
+skills:
+  - skill_ref: prd-document-generator@1
+    display_name: PRD 文档
+    description: 生成并验证 Markdown PRD。
+    content_sha256: a42a6858eae45238dc1eeb557ee2ed202e2acffd3eafeb9e862fd190d1f0d990
+prompt_recipes:
+  - recipe_ref: research-review@1
+    display_name: 资料研究与复核团队
+    description: 一键配置协调者、资料分析员和独立复核员。
+    coordinator_count: 1
+    worker_count: 2

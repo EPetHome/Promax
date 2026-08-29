@@ -4,6 +4,7 @@ import {
   GENERAL_PRESET_ID,
   PRODUCT_PRESET_ID,
   PRODUCT_TEAM_ID,
+  PRODUCT_TEAM_REVISION,
   addTeamWorker,
   applyTeamProvisioningResult,
   attachWorkspace,
@@ -13,6 +14,8 @@ import {
   importTeamPromptSource,
   readTeamState,
   resetTeamStateForTests,
+  runtimeTeamRosterOf,
+  syncProductTeamRuntimeRoster,
   updateTeamDefinition,
   updateTeamMember,
   writeTeamState,
@@ -24,20 +27,54 @@ describe('Promax dynamic team state', () => {
     resetTeamStateForTests()
   })
 
-  it('seeds the general entry and the published product compatibility team', () => {
+  it('seeds the general entry and routes the fixed product team to r2 without a GUI-owned worker roster', () => {
     const state = readTeamState()
     const product = state.teams.find(team => team.id === PRODUCT_TEAM_ID)
 
     expect(GENERAL_PRESET_ID).toBe('general')
     expect(state.selected).toEqual({ kind: 'general' })
     expect(product).toMatchObject({
+      name: '产品智能体团队',
       status: 'published',
-      activeRevision: { revision: 'compat', presetId: PRODUCT_PRESET_ID },
+      coordinator: { memberId: 'team_lead', displayName: '主智能体' },
+      activeRevision: { revision: PRODUCT_TEAM_REVISION, presetId: PRODUCT_PRESET_ID },
     })
-    expect(product?.members.map(member => member.memberId)).toEqual([
-      'product_prd_agent',
-      'product_diagram_agent',
-      'product_prototype_agent',
+    expect(PRODUCT_PRESET_ID).toBe('promax-team-mtcjsbcz-04tpe2-r2')
+    expect(product?.members).toEqual([])
+  })
+
+  it('parses and syncs the installed r2 roster instead of hardcoding three GUI members', () => {
+    const roster = runtimeTeamRosterOf(`
+      ## 已发布团队快照
+
+      - team revision：\`team-mtcjsbcz-04tpe2@r2\`
+      - preset：\`promax-team-mtcjsbcz-04tpe2-r2\`
+
+      成员：
+      - \`customer_research\`（客研管理智能体）：完成客户研究。
+      - \`solution_design\`（产品需求方案智能体）：生成并验证 PRD。
+      - \`quality_judge\`（独立 Judge）：独立判定最终产物。
+
+      ## 稳定消息路由
+
+      文件责任：
+      - \`deliverables/{task_key}/prd.md\`：solution_design
+      - \`.promax/judge/{task_key}/judge.md\`：quality_judge
+
+      稳定回执字段（按顺序）：\`状态\`、\`产物\`、\`Judge判定\`
+    `)
+
+    syncProductTeamRuntimeRoster(roster)
+    const product = readTeamState().teams.find(team => team.id === PRODUCT_TEAM_ID)
+    expect(product?.activeRevision).toEqual({ revision: 2, presetId: PRODUCT_PRESET_ID, status: 'published' })
+    expect(product?.members.map(member => [member.memberId, member.displayName])).toEqual([
+      ['customer_research', '客研管理智能体'],
+      ['solution_design', '产品需求方案智能体'],
+      ['quality_judge', '独立 Judge'],
+    ])
+    expect(product?.artifacts).toEqual([
+      { relativePath: 'deliverables/{task_key}/prd.md', producedBy: 'solution_design' },
+      { relativePath: '.promax/judge/{task_key}/judge.md', producedBy: 'quality_judge' },
     ])
   })
 

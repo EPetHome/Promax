@@ -1,0 +1,69 @@
+api_version: promax.ai/v1alpha2
+kind: DshConversationIntegrationFixture
+case_id: pending-question-with-queued-message
+description: >-
+  当前 turn 等待用户回答一个脱敏选择题；用户随后发送的普通任务已被 dsh 接收，
+  但只能排队，不能冒充该问题的答案，也不能从 GUI 消失。
+
+team_context:
+  team_id: team-demo-research
+  team_revision_id: team-demo-research@r1
+  preset_id: promax-team-demo-research-r1
+  coordinator_member_id: team_lead
+
+snapshot:
+  sessionId: session-demo-0001
+  openState: open
+  running: true
+  runningCalls:
+    - callId: call-question-0001
+      name: ask_user_question
+      turn: 1
+      step: 2
+  pending:
+    - kind: question
+      key: q:question-demo-0001
+      sessionId: session-demo-0001
+      payload:
+        questions:
+          - id: start_point
+            header: 起步方式
+            question: 你希望从哪个阶段开始？
+            options:
+              - label: 从零开始（推荐）
+                description: 从需求分析开始。
+              - label: 已有需求描述
+                description: 先整理已有需求。
+  queue:
+    - id: message-queued-0001
+      messageId: message-queued-0001
+      placement: queued
+      preview: 帮我完成一次脱敏的全链路需求分析。
+      text: 帮我完成一次脱敏的全链路需求分析。
+  partial: null
+  removed: false
+  promptError: null
+  lastAgentError: null
+
+expected_gui:
+  composer_owner: dsh-question-composer
+  ordinary_composer_enabled: false
+  question_visible: true
+  queued_message_visible: true
+  queued_message_status: 已排队，等待你先回答当前问题
+  process_status: 等待你的回答
+  raw_reasoning_dumped: false
+
+expected_protocol:
+  accepted_means_turn_started: false
+  ordinary_prompt_answers_question: false
+  answer_transport: pending-wait-respond
+  after_answer:
+    current_turn_resumes: true
+    queued_message_starts_only_after_current_turn_ends: true
+
+forbidden_behaviors:
+  - 发送 Promise 成功后清空输入，但不显示 queue 中的消息。
+  - 把用户下一条普通任务当作 question 的自定义答案。
+  - 只隐藏问题卡，不向 PendingWait 发送回答或取消响应。
+  - 因为 running=true 就把所有 worker 标记为正在执行或等待分派。

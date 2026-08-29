@@ -1,0 +1,10 @@
+api_version: promax.ai/v1alpha2
+kind: ErrorResponse
+operation: publish
+request_id: pub_demo0003
+errors:
+  - code: REVISION_IMMUTABLE
+    severity: error
+    field_path: /revision
+    message: product-studio@r1 已存在，禁止覆盖。
+    hint: 保留旧 revision，并为配置变化选择下一个 revision。

@@ -1,0 +1,11 @@
+api_version: promax.ai/v1alpha2
+kind: ValidateResponse
+request_id: val_demo0002
+valid: false
+errors:
+  - code: SCHEMA_VALIDATION
+    severity: error
+    field_path: /spec/coordinator/persona
+    message: must NOT have additional properties
+    hint: 删除 persona；GUI 只能提交 persona_fragment 或 role_instructions。
+warnings: []

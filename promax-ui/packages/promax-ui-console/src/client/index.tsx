@@ -2,19 +2,25 @@ import type { ComponentType } from 'react'
 import { AgentStatusDock, type AgentStatusSnapshot } from '../components/AgentStatusDock.tsx'
 import { PromaxConsole } from '../components/PromaxConsole.tsx'
 import { ConsoleLauncher } from './ConsoleLauncher.tsx'
-import { configurePromaxTeam, publishPromaxTeamDraft, routedTeamPrompt } from './team-api.ts'
 import {
   EmptyHeroSeat,
+  PromaxConversationInputControl,
+  PromaxDraftSettings,
   PromaxProcessAction,
   PromaxSessionBrowser,
-  PromaxTeamMentionControl,
   PromaxTeamRail,
   PromaxTeamSessionHeader,
   type SessionListState,
   type WorkspaceListState,
   type WorkspaceShellActions,
 } from './PromaxWorkspaceShell.tsx'
-import { readTeamState, teamForSession } from './team-state.ts'
+import {
+  PRODUCT_PRESET_ID,
+  readTeamState,
+  runtimeTeamRosterOf,
+  syncProductTeamRuntimeRoster,
+  teamForSession,
+} from './team-state.ts'
 
 interface SlotService {
   inject(name: string, setup: () => unknown): void
@@ -60,6 +66,16 @@ interface Observable<State> {
 interface ConnectionService {
   api: {
     agentPresets: {
+      list(input: Record<string, never>): Promise<{
+        result:
+          | { ok: true; value: { presets: Array<{ id: string; broken?: string }> } }
+          | { ok: false; error: { message: string } }
+      }>
+      read(input: { agentPreset: string }): Promise<{
+        result:
+          | { ok: true; value: { agentPreset: string; content: string } }
+          | { ok: false; error: { message: string } }
+      }>
       select(input: { sessionId: string; agentPreset: string }): Promise<{
         result:
           | { ok: true; value: { agentPreset: string } }
@@ -124,9 +140,30 @@ function PromaxAgentStatusDock(props: Record<string, unknown>) {
   return <AgentStatusDock session={props.session as AgentStatusSnapshot} />
 }
 
+async function readProductTeamRoster(connection: ConnectionService) {
+  const listed = await connection.api.agentPresets.list({})
+  if (!listed.result.ok) throw new Error(listed.result.error.message)
+  const preset = listed.result.value.presets.find(item => item.id === PRODUCT_PRESET_ID)
+  if (preset === undefined) throw new Error(`运行时未安装固定团队 preset：${PRODUCT_PRESET_ID}`)
+  if (preset.broken !== undefined) throw new Error(`固定团队 preset 不可用：${preset.broken}`)
+  const read = await connection.api.agentPresets.read({ agentPreset: PRODUCT_PRESET_ID })
+  if (!read.result.ok) throw new Error(read.result.error.message)
+  if (read.result.value.agentPreset !== PRODUCT_PRESET_ID) throw new Error('运行时返回了错误的固定团队 preset')
+  return runtimeTeamRosterOf(read.result.value.content)
+}
+
 export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
   const connection = ctx.get('connection')
   const inputTriggers = ctx.get('inputTriggers')
+  ctx.effect(() => {
+    let active = true
+    void readProductTeamRoster(connection).then(roster => {
+      if (active) syncProductTeamRuntimeRoster(roster)
+    }).catch(reason => {
+      console.error('[Promax] 固定产品团队 roster 同步失败', reason)
+    })
+    return () => { active = false }
+  }, 'promax: sync fixed product-team roster from runtime preset')
   const teamMemberSource: InputTriggerSource = {
     trigger: '@',
     name: 'promax-team-member',
@@ -177,47 +214,37 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
         if (!response.result.ok) throw new Error(response.result.error.message)
         ctx.sessions.noteAgentPreset(sessionId, response.result.value.agentPreset)
       }
-      ctx.sessions.open(sessionId)
       return sessionId
-    },
-    sendPrompt: async (sessionId, prompt) => {
-      const session = ctx.sessions.binding(sessionId)?.session
-      if (session === undefined) throw new Error(`会话 ${sessionId} 尚未就绪`)
-      const result = await session.prompt([{ type: 'text', text: prompt }], 'queue')
-      if (!result.ok) throw new Error(result.error.message)
-    },
-    sendTeamPrompt: async input => {
-      const session = ctx.sessions.binding(input.sessionId)?.session
-      if (session === undefined) throw new Error(`会话 ${input.sessionId} 尚未就绪`)
-      const result = await session.prompt([{ type: 'text', text: routedTeamPrompt(input.text, input.targetMemberIds) }], 'queue')
-      if (!result.ok) throw new Error(result.error.message)
     },
     openSession: sessionId => { ctx.sessions.open(sessionId) },
     clearSession: () => { ctx.sessions.clear() },
-    createTeamWorkspace: async input => {
-      const response = await fetch('/promax-workspace-api/team', {
+    createProjectWorkspace: async input => {
+      const response = await fetch('/promax-workspace-api/project', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ teamId: input.teamId, teamName: input.teamName }),
+        body: JSON.stringify(input),
       })
       const value = await response.json() as Record<string, unknown>
-      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `团队工作区创建失败（HTTP ${response.status}）`)
+      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `项目组创建失败（HTTP ${response.status}）`)
       if (
         typeof value.workspaceId !== 'string' || typeof value.path !== 'string' || typeof value.title !== 'string'
         || !Array.isArray(value.sessionIds) || !value.sessionIds.every(item => typeof item === 'string')
-      ) throw new Error('团队工作区响应格式无效')
+      ) throw new Error('项目组响应格式无效')
       return { workspaceId: value.workspaceId, path: value.path, title: value.title, sessionIds: value.sessionIds as string[] }
     },
-    openWorkspacePath: async path => { await ctx.workspaces.openPath(path) },
-    provisionTeam: async input => {
-      if (input.workspaceRef === undefined) throw new Error('团队工作区标识尚未就绪')
-      return configurePromaxTeam({
-        ...input,
-        workspaceRef: input.workspaceRef,
-        ...(input.configurationSessionId === undefined ? {} : { configurationSessionId: input.configurationSessionId }),
+    pickProjectDirectory: () => ctx.workspaces.pickDirectory(),
+    writeDraftHandoff: async input => {
+      const response = await fetch('/promax-workspace-api/handoff', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(input),
       })
+      const value = await response.json() as Record<string, unknown>
+      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `交底保存失败（HTTP ${response.status}）`)
+      if (typeof value.handoffPath !== 'string' || typeof value.transcriptPath !== 'string') throw new Error('交底保存响应格式无效')
+      return { handoffPath: value.handoffPath, transcriptPath: value.transcriptPath }
     },
-    publishTeamDraft: publishPromaxTeamDraft,
+    openWorkspacePath: async path => { await ctx.workspaces.openPath(path) },
     teamRoutingAvailable: true,
   }
   const shellInjected = () => ({
@@ -238,6 +265,12 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
     label: '管理控制台',
     inject: () => ({ apiBaseUrl: config.apiBaseUrl }),
   }, ConsoleSection))
+  ctx.slots.inject('settings.section', () => ctx.slots.register({
+    name: 'settings.section',
+    id: 'promax-preferences',
+    order: 6,
+    label: 'Promax 偏好',
+  }, PromaxDraftSettings as unknown as ComponentType<Record<string, unknown>>))
   ctx.slots.inject('conversation.input.dock', () => ctx.slots.register({
     name: 'conversation.input.dock',
     id: 'promax-agent-status',
@@ -271,7 +304,7 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
         },
       }
     },
-  }, PromaxTeamMentionControl as unknown as ComponentType<Record<string, unknown>>))
+  }, PromaxConversationInputControl as unknown as ComponentType<Record<string, unknown>>))
   ctx.slots.inject('conversation.chat.assistant-actions', () => ctx.slots.register({
     name: 'conversation.chat.assistant-actions',
     id: 'promax-process',

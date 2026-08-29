@@ -1,0 +1,134 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://promax.local/schemas/api/configure.schema.yml
+title: Promax Conversational Team Configuration API
+oneOf:
+  - $ref: '#/$defs/request'
+  - $ref: '#/$defs/response'
+  - $ref: error.schema.yml
+$defs:
+  issue:
+    type: object
+    additionalProperties: false
+    required: [code, severity, field_path, message]
+    properties:
+      code: { type: string }
+      severity: { enum: [error, warning] }
+      field_path: { type: string }
+      message: { type: string }
+      hint: { type: string }
+  packageFile:
+    type: object
+    additionalProperties: false
+    required: [relative_path, media_type, content, sha256]
+    properties:
+      relative_path:
+        type: string
+        minLength: 1
+        maxLength: 240
+        pattern: '^(?!/)(?!.*(?:^|/)\.\.(?:/|$))(?!.*\\).+$'
+      media_type: { const: text/markdown }
+      content: { type: string, maxLength: 262144 }
+      sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+  agentsPackage:
+    type: object
+    additionalProperties: false
+    required: [package_id, package_sha256, files]
+    properties:
+      package_id: { type: string, pattern: '^pkg_[a-z0-9]{8,32}$' }
+      package_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+      files:
+        type: array
+        minItems: 1
+        maxItems: 32
+        items: { $ref: '#/$defs/packageFile' }
+  request:
+    type: object
+    additionalProperties: false
+    required: [team_id, configuration_session_id]
+    anyOf:
+      - required: [message]
+      - required: [agents_package]
+    properties:
+      team_id: { type: string, pattern: '^[a-z][a-z0-9-]{2,47}$' }
+      display_name: { type: string, minLength: 1, maxLength: 80 }
+      description: { type: string, minLength: 1, maxLength: 500 }
+      workspace_ref:
+        description: GUI-owned stable workspace identifier; never a filesystem path.
+        type: string
+        pattern: '^[a-z0-9][a-z0-9-]{2,95}$'
+      message: { type: string, minLength: 1, maxLength: 4000 }
+      configuration_session_id:
+        type: [string, 'null']
+        pattern: '^promax-config-[a-f0-9-]{36}$'
+      agents_package: { $ref: '#/$defs/agentsPackage' }
+  member:
+    type: object
+    additionalProperties: false
+    required: [member_id, display_name, role, capabilities]
+    properties:
+      member_id: { type: string }
+      display_name: { type: string }
+      role: { enum: [coordinator, worker] }
+      capabilities:
+        type: array
+        uniqueItems: true
+        items: { type: string }
+  teamProjection:
+    type: object
+    additionalProperties: false
+    required: [team_id, display_name, description, coordinator, workers, capabilities]
+    properties:
+      team_id: { type: string }
+      display_name: { type: string }
+      description: { type: string }
+      coordinator: { $ref: '#/$defs/member' }
+      workers:
+        type: array
+        minItems: 1
+        items: { $ref: '#/$defs/member' }
+      capabilities:
+        type: array
+        uniqueItems: true
+        items: { type: string }
+  runtimeBinding:
+    description: GUI persistence field; it is never rendered as a user-facing configuration concept.
+    type: object
+    additionalProperties: false
+    required: [team_revision_id, revision, preset_id, applies_to]
+    properties:
+      team_revision_id: { type: string }
+      revision: { type: integer, minimum: 1 }
+      preset_id: { type: string }
+      applies_to: { const: new-sessions-only }
+  response:
+    type: object
+    additionalProperties: false
+    required: [status, configuration_session_id, assistant_message, team, runtime_binding, warnings, review_items, next_action]
+    properties:
+      status: { enum: [collecting, configured, configured-with-warnings] }
+      configuration_session_id: { type: string }
+      assistant_message: { type: string }
+      team:
+        oneOf:
+          - $ref: '#/$defs/teamProjection'
+          - type: 'null'
+      runtime_binding:
+        oneOf:
+          - $ref: '#/$defs/runtimeBinding'
+          - type: 'null'
+      warnings: { type: array, items: { $ref: '#/$defs/issue' } }
+      review_items:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [review_id, kind, relative_path, claimed_name, content_sha256, reason_code, action]
+          properties:
+            review_id: { type: string }
+            kind: { const: unknown-skill }
+            relative_path: { type: string }
+            claimed_name: { type: [string, 'null'] }
+            content_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+            reason_code: { enum: [SKILL_HASH_MISMATCH, SKILL_NOT_IN_ALLOWED_CATALOG] }
+            action: { const: manual-review-required }
+      next_action: { enum: [continue-configuration, start-team-chat] }

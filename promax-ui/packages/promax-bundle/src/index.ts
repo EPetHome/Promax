@@ -1,7 +1,7 @@
-import { mkdir } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { homedir } from 'node:os'
-import { join, resolve, sep } from 'node:path'
+import { basename, join, resolve, sep } from 'node:path'
 
 import { createApiProxy } from '../../promax-ui-console/src/host/api-proxy.ts'
 
@@ -14,6 +14,7 @@ interface WorkspaceRecord {
 
 interface WorkspaceRegistry {
   create(path: string, title?: string): Promise<WorkspaceRecord>
+  get?(workspaceId: string): WorkspaceRecord | undefined
 }
 
 interface WebServer {
@@ -47,7 +48,7 @@ async function readJson(request: IncomingMessage): Promise<Record<string, unknow
   for await (const chunk of request) {
     const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
     bytes += buffer.byteLength
-    if (bytes > 16 * 1024) throw new Error('请求体过大')
+    if (bytes > 1024 * 1024) throw new Error('请求体过大')
     chunks.push(buffer)
   }
   const value = JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown
@@ -65,20 +66,85 @@ function writeJson(response: ServerResponse, status: number, value: Record<strin
   response.end(body)
 }
 
-export async function ensureTeamWorkspace(
+function projectNameOf(value: unknown): string {
+  const name = typeof value === 'string' ? value.trim() : ''
+  if (name === '' || name.length > 80 || name === '.' || name === '..' || /[/\\\0]/u.test(name)) {
+    throw new Error('项目组名称格式无效')
+  }
+  return name
+}
+
+async function scaffoldProject(path: string): Promise<void> {
+  await Promise.all([
+    mkdir(join(path, '输入', '草稿'), { recursive: true }),
+    mkdir(join(path, '输入', '源文件'), { recursive: true }),
+    mkdir(join(path, '产出'), { recursive: true }),
+    mkdir(join(path, '.promax', 'drafts'), { recursive: true }),
+    mkdir(join(path, '.promax', 'judge'), { recursive: true }),
+  ])
+  try {
+    await writeFile(
+      join(path, '.promax', 'source-ledger.md'),
+      '# 来源台账\n\n> 由 Promax 管理。团队只读取“输入”，正式结果写入“产出”。\n',
+      { encoding: 'utf8', flag: 'wx' },
+    )
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
+  }
+}
+
+export async function ensureProjectWorkspace(
   workspaceRegistry: WorkspaceRegistry,
   root: string,
-  teamId: string,
-  teamName: string,
+  projectName: string,
 ): Promise<WorkspaceRecord> {
-  if (!/^[a-z][a-z0-9-]{2,47}$/u.test(teamId)) throw new Error('teamId 格式无效')
-  const trimmedName = teamName.trim()
-  if (trimmedName === '' || trimmedName.length > 80) throw new Error('团队名称格式无效')
+  const trimmedName = projectNameOf(projectName)
   const normalizedRoot = resolve(root)
-  const workspacePath = resolve(normalizedRoot, `promax-${teamId}`)
-  if (!workspacePath.startsWith(`${normalizedRoot}${sep}`)) throw new Error('团队工作区路径越界')
-  await mkdir(workspacePath, { recursive: true })
+  const workspacePath = resolve(normalizedRoot, trimmedName)
+  if (!workspacePath.startsWith(`${normalizedRoot}${sep}`)) throw new Error('项目组路径越界')
+  await scaffoldProject(workspacePath)
   return workspaceRegistry.create(workspacePath, trimmedName)
+}
+
+function localDate(): string {
+  const now = new Date()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  return `${now.getFullYear()}-${month}-${day}`
+}
+
+async function writeUniqueMarkdown(directory: string, stem: string, content: string): Promise<string> {
+  for (let ordinal = 1; ordinal <= 999; ordinal += 1) {
+    const suffix = ordinal === 1 ? '' : `-${ordinal}`
+    const path = join(directory, `${stem}${suffix}.md`)
+    try {
+      await writeFile(path, `${content.trim()}\n`, { encoding: 'utf8', flag: 'wx' })
+      return path
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
+    }
+  }
+  throw new Error('当天交底文件数量超过上限')
+}
+
+export async function writeHandoffFiles(
+  workspacePath: string,
+  handoff: string,
+  transcript: string,
+): Promise<{ handoffPath: string; transcriptPath: string }> {
+  const normalizedHandoff = handoff.trim()
+  const normalizedTranscript = transcript.trim()
+  if (normalizedHandoff === '' || normalizedTranscript === '') throw new Error('交底或原始对话为空')
+  await scaffoldProject(workspacePath)
+  const draftDirectory = join(workspacePath, '输入', '草稿')
+  const date = localDate()
+  const handoffPath = await writeUniqueMarkdown(draftDirectory, `${date}-需求交底`, normalizedHandoff)
+  const transcriptPath = await writeUniqueMarkdown(draftDirectory, `${date}-原始对话`, normalizedTranscript)
+  return { handoffPath, transcriptPath }
+}
+
+function requestPath(request: IncomingMessage): string {
+  return (request.url ?? '').split('?')[0]?.replace(/\/+$/u, '') ?? ''
 }
 
 export async function apply(ctx: HostContext, config: Config): Promise<void> {
@@ -95,15 +161,20 @@ export async function apply(ctx: HostContext, config: Config): Promise<void> {
       html: '<meta name="promax-api-base-url" content="/promax-api">',
     })
   })
+
   const dshHome = process.env.DSH_HOME?.trim() || join(homedir(), '.dsh')
   const generalWorkspacePath = resolve(process.env.PROMAX_GENERAL_WORKSPACE?.trim() || join(dshHome, 'workspaces', 'general'))
-  const workspacePath = resolve(process.env.PROMAX_PRODUCT_WORKSPACE?.trim() || join(dshHome, 'workspaces', 'product'))
-  const teamWorkspaceRoot = resolve(process.env.PROMAX_TEAM_WORKSPACE_ROOT?.trim() || join(dshHome, 'workspaces', 'teams'))
+  const projectRoot = resolve(process.env.PROMAX_PROJECT_ROOT?.trim() || join(homedir(), 'Promax'))
+  const compatibilityProductPath = resolve(process.env.PROMAX_PRODUCT_WORKSPACE?.trim() || join(projectRoot, '产品'))
+  const knownWorkspaces = new Map<string, WorkspaceRecord>()
+
   await mkdir(generalWorkspacePath, { recursive: true })
-  await mkdir(workspacePath, { recursive: true })
-  await mkdir(teamWorkspaceRoot, { recursive: true })
-  await ctx.workspaceRegistry.create(generalWorkspacePath, '通用工作区')
-  await ctx.workspaceRegistry.create(workspacePath, '产品')
+  const general = await ctx.workspaceRegistry.create(generalWorkspacePath, '草稿')
+  knownWorkspaces.set(general.id, general)
+  await scaffoldProject(compatibilityProductPath)
+  const product = await ctx.workspaceRegistry.create(compatibilityProductPath, '产品')
+  knownWorkspaces.set(product.id, product)
+
   ctx.effect(() => ctx.webServer.register({
     kind: 'prefix',
     path: WORKSPACE_API_PREFIX,
@@ -113,22 +184,49 @@ export async function apply(ctx: HostContext, config: Config): Promise<void> {
           writeJson(response, 405, { error: '只接受 POST 请求' })
           return
         }
+        const path = requestPath(request)
         const input = await readJson(request)
-        const workspace = await ensureTeamWorkspace(
-          ctx.workspaceRegistry,
-          teamWorkspaceRoot,
-          String(input.teamId ?? ''),
-          String(input.teamName ?? ''),
-        )
-        writeJson(response, 200, {
-          workspaceId: workspace.id,
-          path: workspace.path,
-          title: workspace.title,
-          sessionIds: [...workspace.sessionIds],
-        })
+
+        if (path.endsWith('/draft')) {
+          const draftDirectory = join(dshHome, 'promax', 'drafts')
+          await mkdir(draftDirectory, { recursive: true })
+          await writeFile(join(draftDirectory, 'state.json'), `${JSON.stringify(input, null, 2)}\n`, 'utf8')
+          writeJson(response, 200, { ok: true })
+          return
+        }
+
+        if (path.endsWith('/project')) {
+          const customParent = typeof input.parentPath === 'string' && input.parentPath.trim() !== ''
+            ? resolve(input.parentPath.trim())
+            : projectRoot
+          const workspace = await ensureProjectWorkspace(ctx.workspaceRegistry, customParent, String(input.projectName ?? ''))
+          knownWorkspaces.set(workspace.id, workspace)
+          writeJson(response, 200, {
+            workspaceId: workspace.id,
+            path: workspace.path,
+            title: workspace.title,
+            sessionIds: [...workspace.sessionIds],
+          })
+          return
+        }
+
+        if (path.endsWith('/handoff')) {
+          const workspaceId = typeof input.workspaceId === 'string' ? input.workspaceId : ''
+          const registered = ctx.workspaceRegistry.get?.(workspaceId) ?? knownWorkspaces.get(workspaceId)
+          const claimedPath = typeof input.projectPath === 'string' ? resolve(input.projectPath) : undefined
+          const workspacePath = registered?.path ?? claimedPath
+          if (workspaceId === '' || workspacePath === undefined || basename(workspacePath) === '') throw new Error('目标项目组无效')
+          const handoff = typeof input.handoff === 'string' ? input.handoff : ''
+          const transcript = typeof input.transcript === 'string' ? input.transcript : ''
+          const { handoffPath, transcriptPath } = await writeHandoffFiles(workspacePath, handoff, transcript)
+          writeJson(response, 200, { handoffPath, transcriptPath })
+          return
+        }
+
+        writeJson(response, 404, { error: '未知的 Promax 工作区操作' })
       } catch (error) {
         writeJson(response, 400, { error: error instanceof Error ? error.message : String(error) })
       }
     },
-  }), 'promax-team-workspace-api')
+  }), 'promax-project-workspace-api')
 }

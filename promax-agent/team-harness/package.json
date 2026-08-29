@@ -1,0 +1,40 @@
+{
+  "name": "@promax/team-harness",
+  "version": "0.4.1",
+  "private": true,
+  "type": "module",
+  "main": "src/dsh-adapter.mjs",
+  "exports": {
+    ".": "./src/dsh-adapter.mjs",
+    "./configurator": "./src/configurator-tool.mjs",
+    "./harness": "./src/harness.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "agents",
+    "catalogs",
+    "modules",
+    "recipes",
+    "schemas",
+    "src/configuration.mjs",
+    "src/configurator-tool.mjs",
+    "src/dsh-adapter.mjs",
+    "src/harness.mjs",
+    "README.md"
+  ],
+  "description": "Promax 动态 Agent 团队契约、编译器与静态校验。",
+  "scripts": {
+    "catalog": "node src/cli.mjs catalog",
+    "compile:example": "node src/cli.mjs compile --definition examples/dynamic-product-team.yml --revision 1 --output generated",
+    "validate": "node src/cli.mjs validate --definition examples/dynamic-product-team.yml",
+    "validate:resources": "node src/cli.mjs validate-resources --manifest examples/team-resource-manifest.yml --definition examples/dynamic-product-team.yml",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "ajv": "8.17.1",
+    "yaml": "2.8.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

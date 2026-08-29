@@ -1,0 +1,42 @@
+api_version: promax.ai/v1alpha2
+kind: PromptRecipe
+metadata:
+  recipe_id: general-collaboration
+  revision: 1
+  status: published
+  display_name: 通用协作团队
+  description: 为一句话建队或资料导入提供安全的协调者与通用执行成员基线。
+spec:
+  team_defaults:
+    display_name: 我的协作团队
+    description: 由协调者拆分目标并委派给通用执行成员完成文件交付。
+  workspace:
+    mode: team-folder
+    default_output_root: deliverables
+    resource_root: team-resources
+    resource_manifest_path: .promax/team-resource-manifest.yml
+  coordinator:
+    member_id: team_lead
+    display_name: 团队负责人
+    module_ref: team-coordinator@1
+    role_instructions: 根据用户目标明确任务边界、文件责任和验收标准，再委派给执行成员。
+  members:
+    - member_id: execution_agent
+      display_name: 执行专员
+      module_ref: general-worker@1
+      enabled: true
+      role_instructions: 完成协调者分派的单一子任务，并把结果写入自己的稳定相对路径。
+  coordination:
+    topology: orchestrator-workers
+    parallelize_independent_tasks: true
+    wait_for_settlement: true
+    retry_owner: original-worker
+  receipt_fields:
+    - 状态
+    - preset
+    - team_revision_id
+    - task-key
+    - 团队成员
+    - 产物
+    - 被阻断项
+    - 未验证项

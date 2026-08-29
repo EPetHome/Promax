@@ -2,7 +2,8 @@ import { useSyncExternalStore } from 'react'
 
 export const PRODUCT_TEAM_ID = 'product-team'
 export const GENERAL_PRESET_ID = 'general'
-export const PRODUCT_PRESET_ID = 'product-solution'
+export const PRODUCT_PRESET_ID = 'promax-team-mtcjsbcz-04tpe2-r2'
+export const PRODUCT_TEAM_REVISION = 2
 
 export type TeamRevisionNumber = number | 'compat'
 export type TeamStatus = 'draft' | 'published'
@@ -22,6 +23,18 @@ export interface TeamMember {
   enabled: boolean
   moduleRef?: string
   instructions?: string
+}
+
+export interface TeamArtifactDefinition {
+  relativePath: string
+  producedBy: string
+}
+
+export interface RuntimeTeamRoster {
+  presetId: string
+  revision: number
+  members: TeamMember[]
+  artifacts: TeamArtifactDefinition[]
 }
 
 export interface TeamPromptDraft {
@@ -49,6 +62,7 @@ export interface PromaxTeam {
   status: TeamStatus
   coordinator: TeamMember
   members: TeamMember[]
+  artifacts: TeamArtifactDefinition[]
   workspaceIds: string[]
   configurationSource: TeamConfigurationSource
   provisioning: { state: TeamProvisioningState; message?: string }
@@ -79,52 +93,29 @@ export interface PromaxTeamState {
 
 const PRODUCT_TEAM: PromaxTeam = {
   id: PRODUCT_TEAM_ID,
-  name: '产品团队',
+  name: '产品智能体团队',
   description: '产品方案、流程与原型的专用 Agent 团队。',
   status: 'published',
   coordinator: {
-    memberId: 'product_lead',
-    displayName: '产品负责人',
-    objective: '拆解任务、委派三名专员、等待结算并完成终审。',
+    memberId: 'team_lead',
+    displayName: '主智能体',
+    objective: '理解需求、路由成员、等待结算并完成终审。',
     role: 'coordinator',
     enabled: true,
+    moduleRef: 'team-coordinator@1',
   },
-  members: [
-    {
-      memberId: 'product_prd_agent',
-      displayName: 'PRD 专员',
-      objective: '需求定义、范围、业务规则与验收口径。',
-      role: 'worker',
-      enabled: true,
-      moduleRef: 'prd-document-generator@1',
-    },
-    {
-      memberId: 'product_diagram_agent',
-      displayName: '业务流程专员',
-      objective: '业务流程、状态变化和异常路径。',
-      role: 'worker',
-      enabled: true,
-      moduleRef: 'business-diagram-generator@1',
-    },
-    {
-      memberId: 'product_prototype_agent',
-      displayName: '交互原型专员',
-      objective: '单 HTML 可交互原型与界面反馈。',
-      role: 'worker',
-      enabled: true,
-      moduleRef: 'interactive-prototype-generator@1',
-    },
-  ],
+  members: [],
+  artifacts: [],
   workspaceIds: [],
-  configurationSource: { kind: 'compat', label: '产品团队兼容配置' },
+  configurationSource: { kind: 'compat', label: '产品团队 r2 运行配置' },
   provisioning: { state: 'ready' },
   promptDraft: {
     recipeId: 'product-compat',
-    teamInstructions: '沿用 product-solution 的已发布协调规则、成员职责和产物契约。',
-    coordinatorInstructions: '兼容配置保持只读，不由 GUI 覆盖已发布 persona。',
+    teamInstructions: '成员名单由运行时已发布 r2 preset 同步，GUI 不另存一份静态 roster。',
+    coordinatorInstructions: '固定团队配置保持只读，不由 GUI 覆盖已发布 persona。',
     importedSources: [],
   },
-  activeRevision: { revision: 'compat', presetId: PRODUCT_PRESET_ID, status: 'published' },
+  activeRevision: { revision: PRODUCT_TEAM_REVISION, presetId: PRODUCT_PRESET_ID, status: 'published' },
 }
 
 const DEFAULT_STATE: PromaxTeamState = {
@@ -143,6 +134,46 @@ let cachedState: PromaxTeamState = DEFAULT_STATE
 
 function nonEmpty(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() !== '' ? value.trim() : undefined
+}
+
+/**
+ * Read the deterministic "已发布团队快照" block emitted by team-harness.
+ * The browser obtains this text through dsh's agentPreset.read API, so the
+ * member list follows the installed preset instead of a GUI-owned duplicate.
+ */
+export function runtimeTeamRosterOf(content: string, expectedPresetId = PRODUCT_PRESET_ID): RuntimeTeamRoster {
+  const snapshot = content.match(/## 已发布团队快照[\s\S]*?- team revision：`[^`]+@r(\d+)`[\s\S]*?- preset：`([^`]+)`[\s\S]*?\n\s*成员：\s*\n([\s\S]*?)\n\s*## 稳定消息路由/u)
+  if (snapshot === null) throw new Error('r2 preset 未包含可读取的已发布团队快照')
+  const revision = Number(snapshot[1])
+  const presetId = snapshot[2]
+  if (!Number.isSafeInteger(revision) || revision < 1 || presetId !== expectedPresetId) {
+    throw new Error('r2 preset 的团队版本或 preset id 不匹配')
+  }
+  const rows = snapshot[3] ?? ''
+  const members = [...rows.matchAll(/^\s*-\s+`([^`]+)`（([^）\n]+)）：(.+)$/gmu)].map(match => ({
+    memberId: match[1]!.trim(),
+    displayName: match[2]!.trim(),
+    objective: match[3]!.trim(),
+    role: 'worker' as const,
+    enabled: true,
+  }))
+  if (members.length === 0 || new Set(members.map(member => member.memberId)).size !== members.length) {
+    throw new Error('r2 preset 的成员名单为空或含重复 member_id')
+  }
+  const responsibilities = content.match(/\n\s*文件责任：\s*\n([\s\S]*?)(?:\n\s*稳定回执字段|\n\s*##\s|$)/u)?.[1] ?? ''
+  const artifacts = [...responsibilities.matchAll(/^\s*-\s+`([^`]+)`：([a-z][a-z0-9_]*)\s*$/gmu)].map(match => ({
+    relativePath: match[1]!.trim(),
+    producedBy: match[2]!.trim(),
+  }))
+  return { presetId, revision, members, artifacts }
+}
+
+function artifactOf(value: unknown): TeamArtifactDefinition | null {
+  if (typeof value !== 'object' || value === null) return null
+  const row = value as Record<string, unknown>
+  const relativePath = nonEmpty(row.relativePath)
+  const producedBy = nonEmpty(row.producedBy)
+  return relativePath === undefined || producedBy === undefined ? null : { relativePath, producedBy }
 }
 
 function memberOf(value: unknown, role: TeamMember['role']): TeamMember | null {
@@ -211,6 +242,9 @@ function teamOf(value: unknown): PromaxTeam | null {
   const members = Array.isArray(row.members)
     ? row.members.map(member => memberOf(member, 'worker')).filter((member): member is TeamMember => member !== null)
     : []
+  const artifacts = Array.isArray(row.artifacts)
+    ? row.artifacts.map(artifactOf).filter((artifact): artifact is TeamArtifactDefinition => artifact !== null)
+    : []
   if (
     id === undefined || name === undefined || coordinator === null
     || (row.status !== 'draft' && row.status !== 'published')
@@ -230,6 +264,7 @@ function teamOf(value: unknown): PromaxTeam | null {
     status: row.status,
     coordinator,
     members,
+    artifacts,
     workspaceIds: [...new Set(row.workspaceIds as string[])],
     configurationSource: configurationSourceOf(row.configurationSource, id),
     provisioning: provisioningOf(row.provisioning, activeRevision),
@@ -314,8 +349,17 @@ function parseV2(raw: string): PromaxTeamState | null {
     if (typeof value !== 'object' || value === null) return null
     const row = value as Record<string, unknown>
     if (row.version !== 2 || !Array.isArray(row.teams) || !Array.isArray(row.sessionBindings)) return null
-    const parsedTeams = row.teams.map(teamOf).filter((team): team is PromaxTeam => team !== null)
-    const teams = parsedTeams.some(team => team.id === PRODUCT_TEAM_ID) ? parsedTeams : [PRODUCT_TEAM, ...parsedTeams]
+    const storedProduct = row.teams.map(teamOf).find((team): team is PromaxTeam => team?.id === PRODUCT_TEAM_ID)
+    const storedRuntimeProduct = storedProduct?.activeRevision?.presetId === PRODUCT_PRESET_ID
+      ? storedProduct
+      : undefined
+    const teams = [{
+      ...PRODUCT_TEAM,
+      workspaceIds: storedProduct?.workspaceIds ?? [],
+      members: storedRuntimeProduct?.members ?? [],
+      artifacts: storedRuntimeProduct?.artifacts ?? [],
+      activeRevision: storedRuntimeProduct?.activeRevision ?? PRODUCT_TEAM.activeRevision!,
+    }]
     const bindings = row.sessionBindings
       .map(binding => bindingOf(binding, teams))
       .filter((binding): binding is TeamSessionBinding => binding !== null)
@@ -335,18 +379,11 @@ function migrateLegacy(raw: string | null): PromaxTeamState {
   try {
     const value = JSON.parse(raw) as { teams?: unknown[]; selected?: unknown }
     const legacyTeams = Array.isArray(value.teams) ? value.teams : []
-    const migrated: PromaxTeam[] = [PRODUCT_TEAM]
-    for (const item of legacyTeams) {
-      if (typeof item !== 'object' || item === null) continue
-      const row = item as Record<string, unknown>
-      const id = nonEmpty(row.id)
-      const name = nonEmpty(row.name)
-      if (id === undefined || name === undefined || id === PRODUCT_TEAM_ID) continue
-      const workspaceIds = Array.isArray(row.workspaceIds)
-        ? row.workspaceIds.filter((workspaceId): workspaceId is string => nonEmpty(workspaceId) !== undefined)
-        : []
-      migrated.push(draftTeam(id, name, workspaceIds))
-    }
+    const storedProduct = legacyTeams.find(item => typeof item === 'object' && item !== null && (item as Record<string, unknown>).id === PRODUCT_TEAM_ID)
+    const workspaceIds = typeof storedProduct === 'object' && storedProduct !== null && Array.isArray((storedProduct as Record<string, unknown>).workspaceIds)
+      ? ((storedProduct as Record<string, unknown>).workspaceIds as unknown[]).filter((workspaceId): workspaceId is string => nonEmpty(workspaceId) !== undefined)
+      : []
+    const migrated: PromaxTeam[] = [{ ...PRODUCT_TEAM, workspaceIds }]
     return { version: 2, selected: contextOf(value.selected, migrated), teams: migrated, sessionBindings: [] }
   } catch {
     return DEFAULT_STATE
@@ -373,6 +410,7 @@ function draftTeam(
       enabled: true,
     },
     members: [],
+    artifacts: [],
     workspaceIds: [...new Set(workspaceIds)],
     configurationSource,
     provisioning: { state: 'draft' },
@@ -406,6 +444,19 @@ export function writeTeamState(next: PromaxTeamState): void {
 
 export function updateTeamState(change: (current: PromaxTeamState) => PromaxTeamState): void {
   writeTeamState(change(readTeamState()))
+}
+
+export function syncProductTeamRuntimeRoster(roster: RuntimeTeamRoster): void {
+  if (roster.presetId !== PRODUCT_PRESET_ID) throw new Error('不能把其他 preset 的 roster 同步到固定产品团队')
+  updateTeamDefinition(PRODUCT_TEAM_ID, team => ({
+    ...team,
+    status: 'published',
+    coordinator: PRODUCT_TEAM.coordinator,
+    members: roster.members,
+    artifacts: roster.artifacts,
+    provisioning: { state: 'ready' },
+    activeRevision: { revision: roster.revision, presetId: roster.presetId, status: 'published' },
+  }))
 }
 
 export function subscribeTeamState(listener: () => void): () => void {

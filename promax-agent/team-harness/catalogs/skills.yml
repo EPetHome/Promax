@@ -1,0 +1,57 @@
+schema_version: 1
+
+# Agent 线维护的唯一允许目录。GUI 和导入器只能引用 skill_ref，不能提交路径或 package。
+skills:
+  - skill_ref: business-diagram-generator@1
+    skill_id: business-diagram-generator
+    revision: 1
+    display_name: 业务流程图
+    description: 生成并验证 Mermaid 业务流程图。
+    status: allowed
+    source_path: ../agents/product-solution/skills-v1/business-diagram-generator
+    content_sha256: 275c399fc06eb0b33d9e4352f1c6eb2618b0aa6615d740dddd575ec3b1766a9a
+
+  - skill_ref: business-diagram-generator@2
+    skill_id: business-diagram-generator
+    revision: 2
+    display_name: 业务流程图
+    description: 生成并验证 Mermaid 业务流程图；数量变化统一按操作后值判断。
+    status: allowed
+    source_path: ../../agents/product-solution/skills/business-diagram-generator
+    content_sha256: eaa7ab939651d9b9c98d809e616b280a276d822e8b6692b10dc221aa66766bd8
+
+  - skill_ref: interactive-prototype-generator@1
+    skill_id: interactive-prototype-generator
+    revision: 1
+    display_name: 交互原型
+    description: 生成并验证单 HTML 可交互原型。
+    status: allowed
+    source_path: ../agents/product-solution/skills-v1/interactive-prototype-generator
+    content_sha256: 07834a8182b0802293f8631a4372d08b530a3734fdd71dc7e9155051ae002eee
+
+  - skill_ref: interactive-prototype-generator@2
+    skill_id: interactive-prototype-generator
+    revision: 2
+    display_name: 交互原型
+    description: 生成并验证单 HTML 可交互原型；数量变化统一按操作后值判断。
+    status: allowed
+    source_path: ../../agents/product-solution/skills/interactive-prototype-generator
+    content_sha256: b478ac4c6ee214c01a201f7f848454a6fd2856e5e2e583b42ad977f8e859ebbc
+
+  - skill_ref: prd-document-generator@1
+    skill_id: prd-document-generator
+    revision: 1
+    display_name: PRD 文档
+    description: 生成并验证 Markdown PRD。
+    status: allowed
+    source_path: ../agents/product-solution/skills-v1/prd-document-generator
+    content_sha256: a42a6858eae45238dc1eeb557ee2ed202e2acffd3eafeb9e862fd190d1f0d990
+
+  - skill_ref: prd-document-generator@2
+    skill_id: prd-document-generator
+    revision: 2
+    display_name: PRD 文档
+    description: 生成并验证 Markdown PRD；数量变化统一按操作后值判断。
+    status: allowed
+    source_path: ../../agents/product-solution/skills/prd-document-generator
+    content_sha256: aa0b7330d275523fb0009686ebedc5369565d6a94d6a90aac4e7b019347c94b2

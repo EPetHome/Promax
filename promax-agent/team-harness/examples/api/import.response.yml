@@ -1,0 +1,76 @@
+api_version: promax.ai/v1alpha2
+kind: ImportResponse
+import_id: imp_demo0001
+status: draft-ready
+publish_allowed: false
+skill_install_performed: false
+execution_performed: false
+draft:
+  api_version: promax.ai/v1alpha2
+  kind: TeamDefinition
+  metadata:
+    team_id: demo-research
+    display_name: 脱敏研究小组
+    description: 对指定资料进行证据整理、分析与独立复核。
+    source_recipe_ref: research-review@1
+  spec:
+    workspace:
+      mode: team-folder
+      default_output_root: deliverables
+      resource_root: team-resources
+      resource_manifest_path: .promax/team-resource-manifest.yml
+    coordinator:
+      member_id: research_lead
+      display_name: 研究负责人
+      module_ref: team-coordinator@1
+      role_instructions: 先做来源登记，再安排分析和复核。
+    members:
+      - member_id: research_agent
+        display_name: 资料分析员
+        module_ref: general-worker@1
+        enabled: true
+        role_instructions: 只分析明确列入来源台账的脱敏资料。
+      - member_id: review_agent
+        display_name: 独立复核员
+        module_ref: general-worker@1
+        enabled: true
+      - member_id: compliance_agent
+        display_name: 合规复核员
+        module_ref: general-worker@1
+        enabled: true
+        role_instructions: 只标记证据缺口和表述风险。
+    coordination:
+      topology: orchestrator-workers
+      parallelize_independent_tasks: false
+      wait_for_settlement: true
+      retry_owner: original-worker
+    receipt_fields: [状态, preset, team_revision_id, task-key, 团队成员, 产物, 被阻断项, 未验证项]
+validation:
+  valid: true
+  errors: []
+warnings:
+  - code: IMPORT_CONTENT_UNTRUSTED
+    severity: warning
+    field_path: /documents
+    message: 导入文档按不受信任数据解析；不会执行、发布、安装 Skill 或覆盖基础 persona。
+  - code: AGENTS_NATIVE_AUTOLOAD_RISK
+    severity: warning
+    field_path: /documents/0
+    message: 不得把导入件以 AGENTS.md 写入活动 workspace 根。
+  - code: SOUL_NOT_NATIVE_DSH_INSTRUCTION
+    severity: warning
+    field_path: /documents/2
+    message: SOUL.md 不是 dsh 默认 instruction 文件；只解析显式配置块。
+  - code: IMPORT_NO_STRUCTURED_BLOCK
+    severity: warning
+    field_path: /documents/2
+    message: 没有结构化配置块，自由文本未映射到提示词。
+matched_skill_refs: []
+review_items:
+  - review_id: skill-doc_demo0002
+    kind: unknown-skill
+    document_id: doc_demo0002
+    claimed_name: unreviewed-helper
+    content_sha256: acee0b734a408338b5e87df1d3a680efca2c89cab863e9a8f1bb85911fe4b597
+    reason_code: SKILL_NOT_IN_ALLOWED_CATALOG
+    action: manual-review-required

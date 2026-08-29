@@ -1,0 +1,281 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://promax.local/schemas/team-revision.schema.yml
+title: Promax TeamRevision
+type: object
+additionalProperties: false
+required: [api_version, kind, metadata, spec]
+properties:
+  api_version:
+    const: promax.ai/v1alpha2
+  kind:
+    const: TeamRevision
+  metadata:
+    type: object
+    additionalProperties: false
+    required: [team_revision_id, team_id, revision, status, definition_sha256, display_name, description]
+    properties:
+      team_revision_id:
+        type: string
+        pattern: ^[a-z][a-z0-9-]{2,47}@r[1-9][0-9]*$
+      team_id:
+        type: string
+        pattern: ^[a-z][a-z0-9-]{2,47}$
+      revision:
+        type: integer
+        minimum: 1
+      status:
+        const: published
+      definition_sha256:
+        type: string
+        pattern: ^[a-f0-9]{64}$
+      display_name:
+        type: string
+        minLength: 1
+      description:
+        type: string
+        minLength: 1
+      source_recipe_ref:
+        type: string
+        pattern: ^[a-z][a-z0-9-]{2,47}@[1-9][0-9]*$
+  spec:
+    type: object
+    additionalProperties: false
+    required: [preset_id, workspace_policy, coordinator, members, skills, capabilities, artifacts, coordination, receipt_fields, session_policy, compiled_files]
+    properties:
+      preset_id:
+        type: string
+        pattern: ^promax-[a-z][a-z0-9-]{2,47}-r[1-9][0-9]*$
+      workspace_policy:
+        type: object
+        additionalProperties: false
+        required: [mode, default_output_root, resource_root, resource_manifest_path]
+        properties:
+          mode:
+            const: team-folder
+          default_output_root:
+            const: deliverables
+          resource_root:
+            const: team-resources
+          resource_manifest_path:
+            const: .promax/team-resource-manifest.yml
+      coordinator:
+        $ref: '#/$defs/member'
+      members:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/member'
+      skills:
+        type: array
+        uniqueItems: true
+        items:
+          type: object
+          additionalProperties: false
+          required: [skill_ref, skill_id, revision, content_sha256]
+          properties:
+            skill_ref:
+              type: string
+            skill_id:
+              type: string
+            revision:
+              type: integer
+              minimum: 1
+            content_sha256:
+              type: string
+              pattern: ^[a-f0-9]{64}$
+      capabilities:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          additionalProperties: false
+          required: [capability_id, member_id, skill_refs, artifact_kinds]
+          properties:
+            capability_id:
+              type: string
+              pattern: ^[a-z][a-z0-9-]{1,63}$
+            member_id:
+              type: string
+            skill_refs:
+              type: array
+              items:
+                type: string
+            artifact_kinds:
+              type: array
+              minItems: 1
+              items:
+                type: string
+      artifacts:
+        type: array
+        minItems: 1
+        items:
+          type: object
+          additionalProperties: false
+          required: [kind, relative_path, produced_by, required]
+          properties:
+            kind:
+              type: string
+            relative_path:
+              type: string
+            produced_by:
+              type: string
+            required:
+              type: boolean
+      coordination:
+        type: object
+      routing:
+        type: object
+        additionalProperties: false
+        required: [default_target_member_id, mention_syntax, mention_match, unknown_mention, multiple_mentions, members]
+        properties:
+          default_target_member_id:
+            type: string
+          mention_syntax:
+            const: '@<member_id|display_name>'
+          mention_match:
+            const: leading-longest-exact
+          unknown_mention:
+            const: reject-before-send
+          multiple_mentions:
+            const: coordinator-mediated
+          members:
+            type: array
+            minItems: 2
+            items:
+              type: object
+              additionalProperties: false
+              required: [member_id, display_name, role, mention_aliases, target_kind, runtime_tool_id]
+              properties:
+                member_id:
+                  type: string
+                display_name:
+                  type: string
+                role:
+                  enum: [orchestrator, worker]
+                mention_aliases:
+                  type: array
+                  minItems: 1
+                  uniqueItems: true
+                  items:
+                    type: string
+                    minLength: 1
+                target_kind:
+                  enum: [root-session, subagent-session]
+                runtime_tool_id:
+                  type: [string, 'null']
+      runtime_mapping:
+        type: object
+        additionalProperties: false
+        required: [driver, scope, worker_instance_cardinality, instance_key_fields, root, worker_observation, workers]
+        properties:
+          driver:
+            const: dsh-tool-subagent
+          scope:
+            const: session
+          worker_instance_cardinality:
+            const: zero-or-many-per-member
+          instance_key_fields:
+            const: [team_revision_id, parent_session_id, child_session_id]
+          root:
+            type: object
+            additionalProperties: false
+            required: [member_id, instance_kind, session_id_source]
+            properties:
+              member_id:
+                type: string
+              instance_kind:
+                const: root-session
+              session_id_source:
+                const: sessions.create.sessionId
+          worker_observation:
+            type: object
+            additionalProperties: false
+            required: [runtime_tool_id_source, child_session_id_source, parent_session_id_source, lineage_parent_source]
+            properties:
+              runtime_tool_id_source:
+                const: parent.tool_call.name
+              child_session_id_source:
+                const: parent.tool_result.subagentId
+              parent_session_id_source:
+                const: root.sessionId
+              lineage_parent_source:
+                const: child.header.parentSession
+          workers:
+            type: array
+            minItems: 1
+            items:
+              type: object
+              additionalProperties: false
+              required: [member_id, runtime_tool_id, provider, background_mode, max_depth]
+              properties:
+                member_id:
+                  type: string
+                runtime_tool_id:
+                  type: string
+                provider:
+                  type: string
+                background_mode:
+                  type: string
+                max_depth:
+                  type: integer
+                  minimum: 1
+                  maximum: 1
+      receipt_fields:
+        type: array
+        items:
+          type: string
+      session_policy:
+        type: object
+        additionalProperties: false
+        required: [preset_binding, allow_preset_rebind, silent_migration, configuration_change_effect, resource_change_effect]
+        properties:
+          preset_binding:
+            const: create-time
+          allow_preset_rebind:
+            const: false
+          silent_migration:
+            const: forbidden
+          configuration_change_effect:
+            const: publish-new-team-revision
+          resource_change_effect:
+            const: update-workspace-manifest-without-team-revision
+      compiled_files:
+        type: array
+        minItems: 2
+        items:
+          type: object
+          additionalProperties: false
+          required: [relative_path, sha256]
+          properties:
+            relative_path:
+              type: string
+            sha256:
+              type: string
+              pattern: ^[a-f0-9]{64}$
+$defs:
+  member:
+    type: object
+    additionalProperties: false
+    required: [member_id, display_name, role, runtime_tool_id, module_ref, skill_refs]
+    properties:
+      member_id:
+        type: string
+      display_name:
+        type: string
+      role:
+        enum: [orchestrator, worker]
+      runtime_tool_id:
+        type: [string, 'null']
+      mention_aliases:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: string
+          minLength: 1
+      module_ref:
+        type: string
+      skill_refs:
+        type: array
+        items:
+          type: string

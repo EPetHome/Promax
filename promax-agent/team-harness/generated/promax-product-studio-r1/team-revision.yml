@@ -1,0 +1,130 @@
+api_version: promax.ai/v1alpha2
+kind: TeamRevision
+metadata:
+  team_revision_id: product-studio@r1
+  team_id: product-studio
+  revision: 1
+  status: published
+  definition_sha256: 8571bb953855b02904df6da2a1adbc1b74265df7bf6aa0cacb55eec799037b3b
+  display_name: 动态产品方案团队
+  description: 使用三个可插拔 AgentModule 复现产品团队的 PRD、流程图和原型协作能力。
+  source_recipe_ref: product-studio@1
+spec:
+  preset_id: promax-product-studio-r1
+  workspace_policy:
+    mode: team-folder
+    default_output_root: deliverables
+    resource_root: team-resources
+    resource_manifest_path: .promax/team-resource-manifest.yml
+  coordinator:
+    member_id: product_studio_lead
+    display_name: 产品负责人
+    role: orchestrator
+    runtime_tool_id: null
+    module_ref: team-coordinator@1
+    skill_refs: []
+  members:
+    - member_id: product_prd_agent
+      display_name: PRD 专员
+      role: worker
+      runtime_tool_id: product_prd_agent
+      module_ref: product-prd@1
+      skill_refs:
+        - prd-document-generator@1
+    - member_id: product_diagram_agent
+      display_name: 业务流程专员
+      role: worker
+      runtime_tool_id: product_diagram_agent
+      module_ref: product-diagram@1
+      skill_refs:
+        - business-diagram-generator@1
+    - member_id: product_prototype_agent
+      display_name: 交互原型专员
+      role: worker
+      runtime_tool_id: product_prototype_agent
+      module_ref: product-prototype@1
+      skill_refs:
+        - interactive-prototype-generator@1
+  skills:
+    - skill_ref: business-diagram-generator@1
+      skill_id: business-diagram-generator
+      revision: 1
+      content_sha256: 275c399fc06eb0b33d9e4352f1c6eb2618b0aa6615d740dddd575ec3b1766a9a
+    - skill_ref: interactive-prototype-generator@1
+      skill_id: interactive-prototype-generator
+      revision: 1
+      content_sha256: 07834a8182b0802293f8631a4372d08b530a3734fdd71dc7e9155051ae002eee
+    - skill_ref: prd-document-generator@1
+      skill_id: prd-document-generator
+      revision: 1
+      content_sha256: a42a6858eae45238dc1eeb557ee2ed202e2acffd3eafeb9e862fd190d1f0d990
+  capabilities:
+    - capability_id: product-prd-agent
+      member_id: product_prd_agent
+      skill_refs:
+        - prd-document-generator@1
+      artifact_kinds:
+        - prd
+    - capability_id: product-diagram-agent
+      member_id: product_diagram_agent
+      skill_refs:
+        - business-diagram-generator@1
+      artifact_kinds:
+        - diagram
+    - capability_id: product-prototype-agent
+      member_id: product_prototype_agent
+      skill_refs:
+        - interactive-prototype-generator@1
+      artifact_kinds:
+        - prototype
+  artifacts:
+    - kind: other
+      relative_path: deliverables/{task_key}/source-ledger.md
+      required: true
+      produced_by: product_studio_lead
+    - kind: prd
+      relative_path: deliverables/{task_key}/prd.md
+      required: true
+      produced_by: product_prd_agent
+    - kind: diagram
+      relative_path: deliverables/{task_key}/business-diagram.md
+      required: true
+      produced_by: product_diagram_agent
+    - kind: prototype
+      relative_path: deliverables/{task_key}/prototype.html
+      required: true
+      produced_by: product_prototype_agent
+  coordination:
+    topology: orchestrator-workers
+    parallelize_independent_tasks: true
+    wait_for_settlement: true
+    retry_owner: original-worker
+    orchestrator_member_id: product_studio_lead
+    max_depth: 1
+  receipt_fields:
+    - 状态
+    - preset
+    - team_revision_id
+    - task-key
+    - 团队成员
+    - 产物
+    - G0-G6
+    - 被阻断项
+    - 未验证项
+  session_policy:
+    preset_binding: create-time
+    allow_preset_rebind: false
+    silent_migration: forbidden
+    configuration_change_effect: publish-new-team-revision
+    resource_change_effect: update-workspace-manifest-without-team-revision
+  compiled_files:
+    - relative_path: agent.cordis.yml
+      sha256: ce5ee3f831960569ffeb5d9cb9ed7795e0ca798099c4d5b464f99f6aea77a979
+    - relative_path: preset.yml
+      sha256: c5696c76090f7c382239a56bd9108239af84eae34d85ddb892ef3289255a7b1e
+    - relative_path: skills/business-diagram-generator/SKILL.md
+      sha256: 275c399fc06eb0b33d9e4352f1c6eb2618b0aa6615d740dddd575ec3b1766a9a
+    - relative_path: skills/interactive-prototype-generator/SKILL.md
+      sha256: 07834a8182b0802293f8631a4372d08b530a3734fdd71dc7e9155051ae002eee
+    - relative_path: skills/prd-document-generator/SKILL.md
+      sha256: a42a6858eae45238dc1eeb557ee2ed202e2acffd3eafeb9e862fd190d1f0d990
