@@ -1,0 +1,48 @@
+api_version: promax.ai/v1alpha2
+kind: ImportRequest
+import_id: imp_demo0001
+recipe_ref: research-review@1
+team_id: demo-research
+documents:
+  - document_id: doc_demo0001
+    filename: AGENTS.md
+    media_type: text/markdown
+    sha256: eb1128f267dc91c767b3c721caac7c78d6ecce016ab408da888b57dc5a134f33
+    content: |
+      # 脱敏团队说明
+
+      自由文本不会进入提示词。
+
+      ```promax-team
+      team:
+        display_name: 脱敏研究小组
+      coordinator:
+        role_instructions: 先做来源登记，再安排分析和复核。
+      members:
+        - member_id: research_agent
+          role_instructions: 只分析明确列入来源台账的脱敏资料。
+        - member_id: compliance_agent
+          display_name: 合规复核员
+          module_ref: general-worker@1
+          enabled: true
+          role_instructions: 只标记证据缺口和表述风险。
+      ```
+  - document_id: doc_demo0002
+    filename: SKILL.md
+    media_type: text/markdown
+    sha256: acee0b734a408338b5e87df1d3a680efca2c89cab863e9a8f1bb85911fe4b597
+    content: |
+      ---
+      name: unreviewed-helper
+      description: 脱敏的未知候选能力。
+      ---
+
+      # 未审核能力
+  - document_id: doc_demo0003
+    filename: SOUL.md
+    media_type: text/markdown
+    sha256: 2de5a20469a53ad7650432c108bc00db4d9f7297115312fbe7dc09c6a6e0b5aa
+    content: |
+      # 脱敏风格说明
+
+      这段自由文本不会自动成为系统 persona。

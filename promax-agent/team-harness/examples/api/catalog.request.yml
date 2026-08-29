@@ -1,0 +1,2 @@
+api_version: promax.ai/v1alpha2
+kind: CatalogRequest

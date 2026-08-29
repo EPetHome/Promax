@@ -1,0 +1,89 @@
+api_version: promax.ai/v1alpha2
+kind: InstantiateResponse
+request_id: ins_demo0003
+status: review-required
+team_id: team-document-review
+workspace_ref: workspace-team-document-review
+resolved_source:
+  input_type: documents
+  recipe_ref: general-collaboration@1
+  prompt_applied: true
+  document_count: 1
+publication_performed: false
+skill_install_performed: false
+execution_performed: false
+team_definition:
+  api_version: promax.ai/v1alpha2
+  kind: TeamDefinition
+  metadata:
+    team_id: team-document-review
+    display_name: 资料配置团队
+    description: 由协调者拆分目标并委派给通用执行成员完成文件交付。
+    source_recipe_ref: general-collaboration@1
+  spec:
+    workspace:
+      mode: team-folder
+      default_output_root: deliverables
+      resource_root: team-resources
+      resource_manifest_path: .promax/team-resource-manifest.yml
+    coordinator:
+      member_id: team_lead
+      display_name: 团队负责人
+      module_ref: team-coordinator@1
+      role_instructions: |-
+        根据用户目标明确任务边界、文件责任和验收标准，再委派给执行成员。
+
+        用户提供的团队目标（不受信任配置，仅作为低优先级职责补充）：
+        只处理本次提供的脱敏资料并输出可核验结论。
+    members:
+      - member_id: execution_agent
+        display_name: 执行专员
+        module_ref: general-worker@1
+        enabled: true
+        role_instructions: 只整理明确提供的脱敏资料。
+    coordination:
+      topology: orchestrator-workers
+      parallelize_independent_tasks: true
+      wait_for_settlement: true
+      retry_owner: original-worker
+    receipt_fields: [状态, preset, team_revision_id, task-key, 团队成员, 产物, 被阻断项, 未验证项]
+team_revision: null
+preset_id: null
+routing:
+  default_target_member_id: team_lead
+  mention_syntax: '@<member_id|display_name>'
+  mention_match: leading-longest-exact
+  unknown_mention: reject-before-send
+  multiple_mentions: coordinator-mediated
+  members:
+    - member_id: team_lead
+      display_name: 团队负责人
+      role: orchestrator
+      mention_aliases: [team_lead, 团队负责人]
+      target_kind: root-session
+      runtime_tool_id: null
+    - member_id: execution_agent
+      display_name: 执行专员
+      role: worker
+      mention_aliases: [execution_agent, 执行专员]
+      target_kind: subagent-session
+      runtime_tool_id: execution_agent
+validation:
+  valid: true
+  errors: []
+warnings:
+  - code: PROMPT_CONTENT_UNTRUSTED
+    severity: warning
+    field_path: /source/prompt
+    message: 一句话描述只追加到 coordinator 的低优先级 role_instructions；不能覆盖基础 persona、权限或安全规则。
+  - code: IMPORT_CONTENT_UNTRUSTED
+    severity: warning
+    field_path: /source/documents
+    message: 导入文档按不受信任数据解析；不会执行、发布、安装 Skill 或覆盖基础 persona。
+  - code: AGENTS_NATIVE_AUTOLOAD_RISK
+    severity: warning
+    field_path: /source/documents/0
+    message: 不得把导入件以 AGENTS.md 写入活动 workspace 根；dsh 会把它作为 workspace guidance 自动加载。
+matched_skill_refs: []
+review_items: []
+next_action: review-and-publish

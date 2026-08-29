@@ -1,0 +1,59 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://promax.local/schemas/team-resource-manifest.schema.yml
+title: Promax TeamResourceManifest
+type: object
+additionalProperties: false
+required: [api_version, kind, metadata, spec]
+properties:
+  api_version:
+    const: promax.ai/v1alpha2
+  kind:
+    const: TeamResourceManifest
+  metadata:
+    type: object
+    additionalProperties: false
+    required: [team_id, manifest_revision]
+    properties:
+      team_id:
+        type: string
+        pattern: ^[a-z][a-z0-9-]{2,47}$
+      manifest_revision:
+        description: 资源清单自身版本；变化不产生 TeamRevision。
+        type: integer
+        minimum: 1
+  spec:
+    type: object
+    additionalProperties: false
+    required: [resource_root, resources]
+    properties:
+      resource_root:
+        const: team-resources
+      resources:
+        type: array
+        maxItems: 1024
+        items:
+          type: object
+          additionalProperties: false
+          required: [resource_id, relative_path, sha256, media_type, readable_by]
+          properties:
+            resource_id:
+              type: string
+              pattern: ^[a-z][a-z0-9-]{2,63}$
+            relative_path:
+              description: 团队 workspace 相对路径；必须位于 team-resources/ 下。
+              type: string
+              pattern: ^team-resources/[A-Za-z0-9._/-]+$
+            sha256:
+              type: string
+              pattern: ^[a-f0-9]{64}$
+            media_type:
+              type: string
+              pattern: ^[a-z0-9!#$&^_.+-]+/[a-z0-9!#$&^_.+-]+$
+            readable_by:
+              description: "'*' 表示全体成员；成员级 ACL 在当前 dsh 文件工具中仅为声明性元数据。"
+              type: array
+              minItems: 1
+              uniqueItems: true
+              items:
+                type: string
+                pattern: ^(\*|[a-z][a-z0-9_]{2,47})$

@@ -1,0 +1,24 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://promax.local/schemas/api/error.schema.yml
+title: Promax GUI Field Error Response
+type: object
+additionalProperties: false
+required: [api_version, kind, operation, errors]
+properties:
+  api_version: { const: promax.ai/v1alpha2 }
+  kind: { const: ErrorResponse }
+  operation: { enum: [catalog, configure, instantiate, import, validate, publish] }
+  request_id: { type: string }
+  errors:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required: [code, severity, field_path, message]
+      properties:
+        code: { type: string }
+        severity: { const: error }
+        field_path: { type: string }
+        message: { type: string }
+        hint: { type: string }

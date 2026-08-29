@@ -1,0 +1,20 @@
+api_version: promax.ai/v1alpha2
+kind: TeamResourceManifest
+metadata:
+  team_id: product-studio
+  manifest_revision: 3
+spec:
+  resource_root: team-resources
+  resources:
+    - resource_id: anonymized-requirement
+      relative_path: team-resources/input/anonymized-requirement.md
+      sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      media_type: text/markdown
+      readable_by:
+        - '*'
+    - resource_id: review-checklist
+      relative_path: team-resources/reference/review-checklist.pdf
+      sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      media_type: application/pdf
+      readable_by:
+        - product_prd_agent

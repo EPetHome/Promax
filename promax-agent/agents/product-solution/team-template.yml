@@ -19,21 +19,25 @@ members:
     display_name: 产品负责人
     role: orchestrator
     runtime_tool_id: null
+    mention_aliases: [product_solution_lead, 产品负责人]
 
   - member_id: product_prd_agent
     display_name: PRD 专员
     role: worker
     runtime_tool_id: product_prd_agent
+    mention_aliases: [product_prd_agent, PRD 专员]
 
   - member_id: product_diagram_agent
     display_name: 业务流程专员
     role: worker
     runtime_tool_id: product_diagram_agent
+    mention_aliases: [product_diagram_agent, 业务流程专员]
 
   - member_id: product_prototype_agent
     display_name: 交互原型专员
     role: worker
     runtime_tool_id: product_prototype_agent
+    mention_aliases: [product_prototype_agent, 交互原型专员]
 
 skills:
   - skill_id: prd-document-generator
@@ -79,9 +83,24 @@ coordination:
     write_owner: product_solution_lead
     worker_access: read-only
   routing:
+    default_target_member_id: product_solution_lead
+    mention_syntax: '@<member_id|display_name>'
+    mention_match: leading-longest-exact
+    unknown_mention: reject-before-send
+    multiple_mentions: coordinator-mediated
     prd: product_prd_agent
     diagram: product_diagram_agent
     prototype: product_prototype_agent
+  runtime_mapping:
+    driver: dsh-tool-subagent
+    scope: session
+    worker_instance_cardinality: zero-or-many-per-member
+    instance_key_fields: [template_revision, parent_session_id, child_session_id]
+    worker_observation:
+      runtime_tool_id_source: parent.tool_call.name
+      child_session_id_source: parent.tool_result.subagentId
+      parent_session_id_source: root.sessionId
+      lineage_parent_source: child.header.parentSession
   execution:
     parallelize_independent_tasks: true
     wait_for_required_members: true

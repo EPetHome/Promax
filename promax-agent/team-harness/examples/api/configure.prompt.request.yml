@@ -1,0 +1,6 @@
+team_id: team-competitive-research
+display_name: 竞品研究团队
+description: 使用脱敏公开资料完成竞品研究、核验与结论汇总。
+workspace_ref: workspace-team-competitive-research
+message: 组建一个负责竞品调研、事实核验和结论汇总的团队。
+configuration_session_id: null

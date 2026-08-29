@@ -1,0 +1,31 @@
+schema_version: 1
+
+# GUI 只能引用这里的稳定 profile_id，不能传 dsh package 名、任意工具名或运行命令。
+profiles:
+  - profile_id: document-worker
+    description: 文档型 worker；保留父 preset 的文件、搜索、Shell 与 skill 工具，但禁止继续编排团队。
+    deny_coordination_tools: true
+    deny:
+      - send_message
+      - interrupt_agent
+      - list_agents
+
+  - profile_id: restricted-document-worker
+    description: 仅文件与 skill 的保守文档 worker；为后续高约束模块预留。
+    deny_coordination_tools: true
+    allow:
+      - read
+      - write
+      - edit
+      - glob
+      - grep
+      - skill
+
+  - profile_id: judge-reviewer
+    description: 独立 Judge；只保留读取最终输入/产物与写入判定报告所需的文件工具，不允许 Shell、Skill、网络、编辑原产物或继续编排团队。
+    deny_coordination_tools: true
+    allow:
+      - read
+      - write
+      - glob
+      - grep

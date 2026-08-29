@@ -1,0 +1,22 @@
+api_version: promax.ai/v1alpha2
+kind: InstantiateRequest
+request_id: ins_demo0003
+team_id: team-document-review
+display_name: 资料配置团队
+workspace_ref: workspace-team-document-review
+source:
+  type: documents
+  prompt: 只处理本次提供的脱敏资料并输出可核验结论。
+  documents:
+    - document_id: doc_demo1001
+      filename: AGENTS.md
+      media_type: text/markdown
+      sha256: bf84dc7d0c474c58b46484f083b52306b0564e24ded1753a6556859cfe55b212
+      content: |
+        # 脱敏团队说明
+
+        ```promax-team
+        members:
+          - member_id: execution_agent
+            role_instructions: 只整理明确提供的脱敏资料。
+        ```

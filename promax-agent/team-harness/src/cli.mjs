@@ -1,0 +1,89 @@
+#!/usr/bin/env node
+import { resolve } from 'node:path'
+import {
+  applyPromptRecipe,
+  catalogResponse,
+  compileTeam,
+  ContractError,
+  HARNESS_DIR,
+  importTeamConfiguration,
+  instantiateTeam,
+  loadAndValidate,
+  readYaml,
+  validateResourceManifest,
+  verifyCompiledRevision,
+} from './harness.mjs'
+
+function parseArgs(argv) {
+  const [command, ...rest] = argv
+  const options = { command }
+  for (let index = 0; index < rest.length; index += 1) {
+    const key = rest[index]
+    if (!key.startsWith('--')) throw new ContractError('无法识别的参数', [key])
+    const value = rest[index + 1]
+    if (!value || value.startsWith('--')) throw new ContractError('参数缺少值', [key])
+    options[key.slice(2)] = value
+    index += 1
+  }
+  return options
+}
+
+function print(value) {
+  process.stdout.write(`${JSON.stringify(value, null, 2)}\n`)
+}
+
+try {
+  const options = parseArgs(process.argv.slice(2))
+  const catalogOptions = {
+    modulesDir: resolve(options.modules ?? resolve(HARNESS_DIR, 'modules')),
+    recipesDir: resolve(options.recipes ?? resolve(HARNESS_DIR, 'recipes')),
+    skillCatalogFile: resolve(options.skills ?? resolve(HARNESS_DIR, 'catalogs/skills.yml')),
+  }
+  const common = {
+    definitionFile: options.definition && resolve(options.definition),
+    modulesDir: catalogOptions.modulesDir,
+    toolProfilesFile: resolve(options['tool-profiles'] ?? resolve(HARNESS_DIR, 'catalogs/tool-profiles.yml')),
+    skillCatalogFile: catalogOptions.skillCatalogFile,
+  }
+  if (options.command === 'catalog') {
+    print(catalogResponse(catalogOptions))
+  } else if (options.command === 'apply-recipe') {
+    if (!options.recipe || !options['team-id']) throw new ContractError('apply-recipe 需要 --recipe 与 --team-id')
+    print(applyPromptRecipe({
+      recipeRef: options.recipe,
+      teamId: options['team-id'],
+      displayName: options.name,
+      description: options.description,
+      ...catalogOptions,
+    }))
+  } else if (options.command === 'import') {
+    if (!options.request) throw new ContractError('import 需要 --request <YAML/JSON>')
+    print(importTeamConfiguration(readYaml(resolve(options.request)), catalogOptions))
+  } else if (options.command === 'instantiate') {
+    if (!options.request) throw new ContractError('instantiate 需要 --request <YAML/JSON>')
+    print(instantiateTeam(readYaml(resolve(options.request)), {
+      outputDir: resolve(options.output ?? resolve(HARNESS_DIR, 'generated')),
+      ...catalogOptions,
+    }))
+  } else if (options.command === 'validate') {
+    const result = loadAndValidate(common)
+    print({ status: 'valid', team_id: result.definition.metadata.team_id, enabled_members: result.resolvedMembers.map(item => item.member.member_id) })
+  } else if (options.command === 'validate-resources') {
+    if (!options.manifest || !options.definition) throw new ContractError('validate-resources 需要 --manifest 与 --definition')
+    const result = validateResourceManifest({ manifest: readYaml(resolve(options.manifest)), definition: readYaml(resolve(options.definition)) })
+    print(result)
+    if (!result.valid) process.exitCode = 1
+  } else if (options.command === 'compile' || options.command === 'publish') {
+    print(compileTeam({ ...common, revision: Number(options.revision), outputDir: resolve(options.output ?? resolve(HARNESS_DIR, 'generated')) }))
+  } else if (options.command === 'verify') {
+    if (!options.revision) throw new ContractError('verify 需要 --revision <目录>')
+    print({ status: 'valid', ...verifyCompiledRevision(resolve(options.revision)) })
+  } else {
+    throw new ContractError('命令必须是 catalog、apply-recipe、instantiate、import、validate、validate-resources、publish/compile 或 verify')
+  }
+} catch (error) {
+  const details = error instanceof ContractError ? error.details : []
+  process.stderr.write(`${error.name ?? 'Error'}: ${error.message}\n`)
+  for (const detail of details) process.stderr.write(`- ${JSON.stringify(detail)}\n`)
+  process.exitCode = 1
+}

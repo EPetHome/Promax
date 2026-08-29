@@ -1,0 +1,9 @@
+api_version: promax.ai/v1alpha2
+kind: InstantiateRequest
+request_id: ins_demo0001
+team_id: team-product
+display_name: 产品团队
+workspace_ref: workspace-team-product
+source:
+  type: recipe
+  recipe_ref: product-team

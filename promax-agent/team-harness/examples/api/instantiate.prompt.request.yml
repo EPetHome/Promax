@@ -1,0 +1,9 @@
+api_version: promax.ai/v1alpha2
+kind: InstantiateRequest
+request_id: ins_demo0002
+team_id: team-content
+display_name: 内容协作团队
+workspace_ref: workspace-team-content
+source:
+  type: prompt
+  prompt: 建立一个负责整理脱敏材料并输出可核验摘要的团队。

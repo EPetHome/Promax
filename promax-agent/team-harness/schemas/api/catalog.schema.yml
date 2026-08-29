@@ -1,0 +1,59 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://promax.local/schemas/api/catalog.schema.yml
+title: Promax GUI Catalog API
+oneOf:
+  - $ref: '#/$defs/request'
+  - $ref: '#/$defs/response'
+  - $ref: error.schema.yml
+$defs:
+  request:
+    type: object
+    additionalProperties: false
+    required: [api_version, kind]
+    properties:
+      api_version: { const: promax.ai/v1alpha2 }
+      kind: { const: CatalogRequest }
+  response:
+    type: object
+    additionalProperties: false
+    required: [api_version, kind, modules, skills, prompt_recipes]
+    properties:
+      api_version: { const: promax.ai/v1alpha2 }
+      kind: { const: CatalogResponse }
+      modules:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [module_ref, display_name, description, role, objective, skill_refs, artifact_kinds]
+          properties:
+            module_ref: { type: string }
+            display_name: { type: string }
+            description: { type: string }
+            role: { enum: [coordinator, worker] }
+            objective: { type: string }
+            skill_refs: { type: array, items: { type: string } }
+            artifact_kinds: { type: array, items: { type: string } }
+      skills:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [skill_ref, display_name, description, content_sha256]
+          properties:
+            skill_ref: { type: string }
+            display_name: { type: string }
+            description: { type: string }
+            content_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+      prompt_recipes:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [recipe_ref, display_name, description, coordinator_count, worker_count]
+          properties:
+            recipe_ref: { type: string }
+            display_name: { type: string }
+            description: { type: string }
+            coordinator_count: { const: 1 }
+            worker_count: { type: integer, minimum: 1, maximum: 12 }

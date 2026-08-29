@@ -1,0 +1,86 @@
+schema_version: 1
+
+# 只放按 artifact_kind 选择的领域规则。五项通用检查与三条放行硬规则由
+# independent-judge AgentModule 固定持有，不能由团队配置或用户输入覆盖。
+selection:
+  source: AgentModule.spec.artifacts[].kind
+  strategy: exact-match
+  no_match: common-checks-only
+  task_field: artifact_kind
+
+domain_rubrics:
+  prd:
+    display_name: PRD
+    rules:
+      - rule_id: PRD_REQUIRED_SECTIONS
+        defect_type: PRD_STRUCTURE_MISSING
+        check: 逐字检查最终 Markdown 是否包含 PRD skill 规定的 0–11 节标题；输入无依据的可选内容可以写“未提供”，不能直接漏节。
+        fail_evidence:
+          - 最终产物路径
+          - 缺失的标题原文
+          - 相邻标题及行号
+      - rule_id: PRD_TRACEABILITY_TABLE
+        defect_type: PRD_TRACEABILITY_MISSING
+        check: 逐字检查每个输入硬信息是否在“输入硬信息保留表”或“追溯矩阵”中有来源编号、正文去向和允许状态。
+        fail_evidence:
+          - 输入原文及位置
+          - 产物中对应表格的行号范围
+          - 缺失的来源编号、去向或状态
+      - rule_id: PRD_BOUNDARY_TRUTH
+        defect_type: PRD_BOUNDARY_MISMATCH
+        check: 输入含阈值时，逐行核对三点表；数量变化必须先算 after=before+delta，再以 after<=N 判定。before=N、delta=1 必须为 false 并拒绝。
+        fail_evidence:
+          - 规则位置
+          - 三点表位置
+          - 具体代入式、布尔结果和文档分支
+
+  diagram:
+    display_name: 业务流程图
+    rules:
+      - rule_id: DIAGRAM_REQUIRED_BLOCKS
+        defect_type: DIAGRAM_STRUCTURE_MISSING
+        check: 逐字检查最终 Markdown 是否包含图表类型、参与者/节点/证据映射、Mermaid 图、流程说明、矛盾与缺口、验证记录六类区块。
+        fail_evidence:
+          - 最终产物路径
+          - 缺失的区块名
+          - 相邻标题及行号
+      - rule_id: DIAGRAM_ELEMENT_MAPPING
+        defect_type: DIAGRAM_ELEMENT_UNMAPPED
+        check: 逐字核对 Mermaid 中每个业务参与者、节点、条件和边是否在映射表中出现，并带输入事实、明确推导、设计选择、矛盾或缺口编号。
+        fail_evidence:
+          - Mermaid 元素原文及行号
+          - 映射表检索结果
+          - 缺失或不匹配的编号
+      - rule_id: DIAGRAM_DECISION_PATH
+        defect_type: DIAGRAM_DECISION_MISMATCH
+        check: 逐个条件节点代入边界值，核对节点谓词、是/否或 true/false 边和结果节点。数量变化使用 after<=N；before=N、delta=1 必须沿 false/否边进入拒绝。
+        fail_evidence:
+          - 条件节点位置
+          - 两条边及结果节点位置
+          - 具体代入式与应走分支
+
+  prototype:
+    display_name: 单 HTML 交互原型
+    rules:
+      - rule_id: PROTOTYPE_SINGLE_FILE
+        defect_type: PROTOTYPE_EXTERNAL_DEPENDENCY
+        check: 逐字检查最终交付是否只有一个 HTML，CSS 与 JavaScript 均内联，且不存在 http、https、协议相对 URL 或其他外部资源引用。
+        fail_evidence:
+          - 最终产物路径
+          - 外部引用原文及行号
+          - 被引用资源类型
+      - rule_id: PROTOTYPE_CONTROL_HANDLER
+        defect_type: PROTOTYPE_CONTROL_UNWIRED
+        check: 逐个核对未禁用的按钮、链接和表单控件是否能在内联 JavaScript 中定位到对应处理逻辑；没有实现的控件必须逐字标为 disabled 或不可用。
+        fail_evidence:
+          - 控件原文及行号
+          - 处理逻辑检索结果
+          - 缺失或不匹配的绑定
+      - rule_id: PROTOTYPE_RULE_FEEDBACK
+        defect_type: PROTOTYPE_RULE_MISMATCH
+        check: 逐个核对可见条件标签、JavaScript 判断和用户反馈是否表达同一规则。数量变化使用 after<=N；before=N、delta=1 必须显示拒绝且数量不增加。
+        fail_evidence:
+          - 可见标签位置
+          - JavaScript 判断位置
+          - 反馈位置
+          - 具体代入式与实际结果

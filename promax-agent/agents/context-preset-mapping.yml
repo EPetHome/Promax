@@ -1,28 +1,31 @@
-schema_version: 1
+schema_version: 2
 
 contexts:
   - context_type: general-workspace
-    description: Promax 的通用工作区，不属于任何 Agent 团队实例。
+    description: Promax 通用工作区，不属于任何 Agent 团队实例。
     preset_resolution:
       mode: fixed
       preset_id: general
-    team_template_required: false
+    team_revision_required: false
     ordinary_user_visible: true
 
   - context_type: team-instance
-    description: 由 GUI 创建的 Agent 团队实例；实例引用一个已发布 TeamTemplate。
+    description: GUI 管理的 Agent 团队实例；新架构必须显式引用一个已发布且不可变的 TeamRevision。
     preset_resolution:
-      mode: team-template-field
+      mode: team-revision-field
+      reference_field: team_revision_id
       field: preset_id
-    team_template_required: true
+      accepted_revision_statuses:
+        - published
+    team_revision_required: true
     ordinary_user_visible: true
 
   - context_type: preset-authoring
-    description: 为后续二开预留的 preset 创作上下文，不承载普通业务会话。
+    description: 为高级 AgentModule/preset 作者预留的创作上下文，不承载普通业务会话。
     preset_resolution:
       mode: fixed
       preset_id: cordis
-    team_template_required: false
+    team_revision_required: false
     ordinary_user_visible: false
     availability: administrator-only
 
@@ -31,16 +34,23 @@ session_binding:
   resume_preset: use-session-record
   allow_preset_rebind: false
   silent_migration: forbidden
-  template_change_effect: new-sessions-only
+  team_definition_change_effect: publish-new-revision
+  team_revision_change_effect: new-sessions-only
 
 failure_policy:
   missing_context_mapping: reject-session-create
-  missing_team_template: reject-session-create
+  missing_team_revision: reject-session-create
+  unpublished_team_revision: reject-session-create
   missing_preset: reject-session-create
   fallback_preset: none
 
-p0_team_creation:
-  mode: instantiate-published-template
-  create_preset_during_team_creation: false
-  allowed_template_statuses:
-    - published
+# 周五 P0 兼容层。只为现有 product-solution TeamTemplate/TeamInstance 保留，
+# 不作为新动态团队缺少 TeamRevision 时的通用回退。
+compatibility:
+  legacy_team_templates:
+    - team_template_id: product-solution
+      template_revision: 1
+      preset_id: product-solution
+      allowed_for_new_p0_instances: true
+  existing_session_policy: keep-recorded-preset
+  sunset_condition: product-solution-template-migrated-to-team-revision
