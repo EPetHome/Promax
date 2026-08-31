@@ -1,13 +1,16 @@
 {
   "name": "@promax/team-harness",
-  "version": "0.4.1",
+  "version": "0.5.3",
   "private": true,
   "type": "module",
   "main": "src/dsh-adapter.mjs",
   "exports": {
     ".": "./src/dsh-adapter.mjs",
     "./configurator": "./src/configurator-tool.mjs",
+    "./customer-research-validation": "./src/customer-research-validation.mjs",
+    "./external-capabilities": "./src/external-capabilities.mjs",
     "./harness": "./src/harness.mjs",
+    "./member-skill-provider": "./src/member-skill-provider.mjs",
     "./package.json": "./package.json"
   },
   "files": [
@@ -18,9 +21,14 @@
     "schemas",
     "src/configuration.mjs",
     "src/configurator-tool.mjs",
+    "src/cli.mjs",
+    "src/customer-research-validation.mjs",
     "src/dsh-adapter.mjs",
+    "src/external-capabilities.mjs",
     "src/harness.mjs",
-    "README.md"
+    "src/member-skill-provider.mjs",
+    "README.md",
+    "generated/promax-team-mtcjsbcz-04tpe2-r9"
   ],
   "description": "Promax 动态 Agent 团队契约、编译器与静态校验。",
   "scripts": {
@@ -33,6 +41,9 @@
   "dependencies": {
     "ajv": "8.17.1",
     "yaml": "2.8.1"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-tools": "*"
   },
   "engines": {
     "node": ">=20"

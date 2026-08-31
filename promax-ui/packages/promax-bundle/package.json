@@ -1,6 +1,6 @@
 {
   "name": "@promax/promax-bundle",
-  "version": "0.1.3",
+  "version": "0.1.5",
   "private": true,
   "type": "module",
   "main": "lib/index.mjs",
@@ -24,6 +24,7 @@
   "devDependencies": {
     "@promax/promax-report": "file:../../../promax-end/packages/promax-report",
     "@promax/promax-ui-brand": "file:../promax-ui-brand",
-    "@promax/promax-ui-console": "file:../promax-ui-console"
+    "@promax/promax-ui-console": "file:../promax-ui-console",
+    "@promax/promax-ui-layout": "file:../promax-ui-layout"
   }
 }

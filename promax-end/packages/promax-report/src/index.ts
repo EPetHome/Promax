@@ -28,6 +28,8 @@ export { CLIENT_VERSION, DEFAULT_DSH_VERSION, HEARTBEAT_INTERVAL_MS, MAX_DIRECT_
 export { canonicalJson, effectiveConfigFingerprint } from './fingerprint.ts'
 export { DurableReportQueue } from './outbox.ts'
 export { artifactKind, extractMutationPath, isMutationTool, PromaxReporter, resolveAgentPreset } from './reporter.ts'
+export { isJudgeReportPath, loadTeamRevisionArtifactCatalog } from './team-revision-artifacts.ts'
+export type { TeamRevisionArtifactCatalog } from './team-revision-artifacts.ts'
 export { RotatingTokenManager } from './token-manager.ts'
 export type { AccessTokenProvider, RotatingTokenManagerOptions, TokenRefreshResult } from './token-manager.ts'
 export { HttpReportTransport } from './transport.ts'

@@ -18,7 +18,7 @@ GUI 线的 Web 不需要复制或合并进 Agent 目录，也不应由 Agent 线
 
 | 对象 | 冻结版本/位置 | 用法 |
 |---|---|---|
-| dsh | commit `b150a551b8d465e31e418e1b2eaf5e79bbb7d28e` | 源码快照已直接收录在 `promax-agent/deepseek-harness/`，不依赖 submodule 或外部仓库跳转 |
+| dsh | commit `b150a551b8d465e31e418e1b2eaf5e79bbb7d28e` | 已克隆到 `promax-agent/deepseek-harness/`，detached HEAD，push URL 已禁用 |
 | GUI | commit `140611448f24493dfebd7256259c8b7346a9bb37` 的发布包 | 已复制到 `.runtime/gui-release-1406114/`；工作树干净，发布包与提交前取得的副本逐文件相同 |
 | 隔离 Harness home | `.runtime/dsh-home/` | 只用于本线装配与冒烟，不污染用户默认 `~/.dsh` |
 

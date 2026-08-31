@@ -2,7 +2,7 @@ import z from '@deepseek-ai/schemastery'
 import { resolveDshHome } from '@deepseek-ai/dsh-home-paths'
 import { isAbsolute, join, resolve } from 'node:path'
 
-export const CLIENT_VERSION = '0.1.0'
+export const CLIENT_VERSION = '0.1.1'
 export const DEFAULT_DSH_VERSION = '0.1.1-rc.2'
 export const HEARTBEAT_INTERVAL_MS = 30 * 60 * 1_000
 export const MAX_DIRECT_ARTIFACT_BYTES = 5 * 1024 * 1024

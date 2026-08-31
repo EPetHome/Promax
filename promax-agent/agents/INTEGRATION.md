@@ -43,7 +43,7 @@ Agent 契约不包含界面颜色/布局、本地绝对路径、多人组织、�
 
 稳定引用为 `<module_id>@<revision>`。模块的 `base_persona` 只由 Agent 线维护，GUI catalog 不返回该字段。TeamDefinition 只能提交 `persona_fragment` 与 `role_instructions`，编译器把它们以低优先级追加到基础 persona 之后。
 
-当前内置 `team-coordinator@1`、`general-worker@1`、`product-prd@1`、`product-diagram@1`、`product-prototype@1`。
+当前内置 `team-coordinator@1`、`general-worker@1`、`customer-research@1`、`product-discovery@1`、`requirement-management@1`、`product-solution@1`、`requirement-review@1`、`user-analysis@1`、`independent-judge@1`，并保留 `product-prd@1`、`product-diagram@1`、`product-prototype@1` 作为历史独立模块。
 
 ### SkillCatalog
 
@@ -187,6 +187,21 @@ GUI 至少消费 `nodes/chat`、`partial`、`running`、`runningCalls`、`pendin
 | Skill 内容 | 先发新 skill revision，再发新 TeamRevision |
 
 GUI 新建会话时解析一次 `TeamRevision.spec.preset_id` 并显式传给 dsh；恢复旧会话使用会话头记录。revision/preset 缺失时拒绝创建，不回退到 cordis、general、standard、code 或默认值。旧会话不得静默迁移。
+
+### 7.1 r5 全链路装配模式
+
+`team-mtcjsbcz-04tpe2@r5` 是负责人选择的新不可变 revision，用于优先装配固定六业务角色的完整生产链。它不迁移 r3/r4 会话，也不代表原步骤二预案中的外部能力阶段已经完成。
+
+用户明确要求“全链路”“完整流程”“六个业务角色”或“8 份业务产物”时，coordinator 使用同一个 `task_key` 按四阶段编排：
+
+1. 并行启动 `customer_research`、`product_discovery`、`user_analysis`；
+2. 三者结算后启动 `requirement_management`；
+3. 前两阶段结算后启动 `solution_design`，并要求同轮生成 `prd.md`、`business-diagram.md`、`prototype.html`；
+4. 三份方案产物落盘后启动 `requirement_review`。
+
+八份业务产物全部存在且非空后，coordinator 集中调用 `quality_judge` 一次。Judge 只接收原始输入与八份最终产物，在 `.promax/judge/<task-key>/judge.md` 内分别给出八条 artifact verdict 和一个整体 verdict；任一 artifact fail 即整体 fail。原 worker 修复、最多两轮、带反证申诉交人、达上限交人和强制放行留痕等硬约束不变。
+
+TeamRevision 对外仍声明固定 7 名成员和 8 份业务产物，Judge 报告不计入业务产物。`business-diagram.md` 与 `prototype.html` 的 `required: false` 保留给普通任务和 GUI 展示契约；显式全链路任务由 coordinator 提示词要求三份方案产物全部生成。该编排当前由冻结的 YAML/preset 驱动，不是底座状态机级的机械工作流；完成真实端到端运行前只能称为“已装配”，不能称为“全链路已通过”。
 
 ## 8. 上下文到 preset
 

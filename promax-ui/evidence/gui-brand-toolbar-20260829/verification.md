@@ -1,7 +1,7 @@
 # GUI 品牌位与团队工具条复验
 
-> 时间：2026-08-29 13:08 EDT
-> 安装版本：`@promax/promax-ui-console@0.3.8`
+> 时间：2026-08-29 13:08 EDT  
+> 安装版本：`@promax/promax-ui-console@0.3.8`  
 > 环境：`/Users/Admin/.dsh-promax`，隔离端口 3184；未调用模型
 
 ## 结论

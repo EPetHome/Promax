@@ -1,3 +1,5 @@
+import { PROMAX_WORKBENCH_CSS } from './workbench-styles.ts'
+
 const STYLE_ID = 'promax-ui-console-styles'
 let consumers = 0
 
@@ -7,7 +9,7 @@ export function installPromaxConsoleStyles(): () => void {
   if (existing === null) {
     const style = document.createElement('style')
     style.id = STYLE_ID
-    style.textContent = PROMAX_CONSOLE_CSS
+    style.textContent = `${PROMAX_CONSOLE_CSS}\n${PROMAX_WORKBENCH_CSS}`
     document.head.append(style)
   }
   return () => {
@@ -21,7 +23,7 @@ export const PROMAX_CONSOLE_CSS = String.raw`
 .promax-app, .promax-sidebar, .promax-console, .promax-dialog { font-family: var(--dsw-font-family, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif); }
 button, input, select { font: inherit; }
 .promax-icon-button, .promax-nav-button, .promax-sidebar-button, .promax-button { color: var(--dsw-alias-label-primary); }
-.promax-icon-button:focus-visible, .promax-nav-button:focus-visible, .promax-sidebar-button:focus-visible, .promax-button:focus-visible, .promax-input:focus-visible, .promax-select:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 2px; }
+.promax-icon-button:focus-visible, .promax-nav-button:focus-visible, .promax-sidebar-button:focus-visible, .promax-button:focus-visible, .promax-input:focus-visible, .promax-select:focus-visible, .promax-session-actions:focus-visible, .promax-session-menu button:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 2px; }
 
 .promax-app { min-height: 100vh; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); }
 .promax-console { display: grid; grid-template-columns: 216px minmax(0, 1fr); min-height: 100%; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); }
@@ -53,6 +55,8 @@ button, input, select { font: inherit; }
 .promax-button:hover, .promax-icon-button:hover { background: var(--dsw-alias-interactive-bg-hover); }
 .promax-button--primary { border-color: var(--dsw-alias-brand-primary); background: var(--dsw-alias-brand-primary); color: var(--dsw-promax-on-accent); }
 .promax-button--primary:hover { background: var(--dsw-alias-button-primary-hover); color: var(--dsw-promax-on-accent); }
+.promax-button--danger { border-color: var(--dsw-alias-state-error-primary); background: var(--dsw-alias-state-error-primary); color: var(--dsw-promax-on-accent); }
+.promax-button--danger:hover { filter: brightness(.92); }
 .promax-button:disabled, .promax-icon-button:disabled { cursor: not-allowed; opacity: .52; }
 .promax-input, .promax-select { width: 100%; height: 36px; border: 1px solid var(--dsw-alias-border-l2); border-radius: 8px; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); padding: 0 10px; }
 .promax-field { display: grid; gap: 6px; min-width: 0; }
@@ -127,6 +131,10 @@ button, input, select { font: inherit; }
 .promax-shell-layer button:focus-visible, .promax-shell-layer input:focus-visible, .promax-shell-layer textarea:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 2px; }
 
 body:has(.promax-shell-layer) [class*="_composerHero"] [class*="_heroWorkspaceRow"] { display: none; }
+body:has(.app-shell) [class*="_composerHero"] [class*="_headline"]:has(> [class*="_fishHitbox"]) { grid-template-columns: auto auto; }
+body:has(.app-shell) [class*="_composerHero"] [class*="_headline"]:has(> [class*="_fishHitbox"]) > [class*="_fishHitbox"] { display: none; }
+body:has(.app-shell) [class*="_composerHero"] [class*="_headline"]:has(> [class*="_fishHitbox"]) > [class*="_headlineText"] { grid-column: 1; }
+body:has(.app-shell) [class*="_composerHero"] [class*="_headline"]:has(> [class*="_fishHitbox"]) > [class*="_previewBadge"] { grid-column: 2; }
 
 *:has(> [data-shell-overlay] .promax-team-rail--open) > :nth-child(2) { padding-inline-end: 288px; transition: padding-inline-end var(--ds-transition-duration-fast) var(--ds-ease-in-out); }
 *:has(> [data-shell-overlay] .promax-team-rail--collapsed) > :nth-child(2) { padding-inline-end: 56px; transition: padding-inline-end var(--ds-transition-duration-fast) var(--ds-ease-in-out); }
@@ -144,6 +152,8 @@ body:has(.promax-shell-layer) [class*="_composerHero"] [class*="_heroWorkspaceRo
 .promax-new-session:disabled { cursor: not-allowed; opacity: .48; }
 .promax-session-note { padding: 7px 9px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 8px; background: var(--dsw-alias-bg-layer-1); color: var(--dsw-alias-label-secondary); font-size: 10px; line-height: 1.45; }
 .promax-session-list { display: grid; min-height: 0; align-content: start; gap: 5px; overflow: auto; }
+.promax-session-row-shell { position: relative; display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr) 30px; align-items: center; gap: 2px; border-radius: 11px; }
+.promax-session-row-shell--menu-open { z-index: 12; }
 .promax-session-row { display: flex; width: 100%; min-height: 48px; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px 7px 12px; border: 1px solid transparent; border-radius: 11px; background: transparent; color: var(--dsw-alias-label-primary); cursor: pointer; text-align: left; }
 .promax-session-row:hover { background: var(--dsw-alias-interactive-bg-hover); }
 .promax-session-row[aria-current="page"] { border-color: var(--dsw-promax-accent); background: var(--dsw-promax-accent-soft); box-shadow: inset 3px 0 0 var(--dsw-promax-accent); }
@@ -153,8 +163,15 @@ body:has(.promax-shell-layer) [class*="_composerHero"] [class*="_heroWorkspaceRo
 .promax-session-indicator { width: 7px; height: 7px; flex: none; border-radius: 50%; background: var(--dsw-alias-border-l2); }
 .promax-session-indicator--running { background: var(--dsw-promax-accent); animation: promax-working-pulse 1.3s ease-in-out infinite; }
 .promax-session-indicator--done { background: var(--dsw-alias-state-success-primary); }
+.promax-session-actions { display: grid; width: 30px; height: 30px; place-items: center; padding: 0; border: 0; border-radius: 7px; background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; }
+.promax-session-actions:hover, .promax-session-actions[aria-expanded="true"] { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); }
+.promax-session-menu { position: absolute; z-index: 20; top: calc(100% - 3px); right: 0; display: grid; width: 136px; padding: 4px; border: 1px solid var(--dsw-alias-border-l2); border-radius: 9px; background: var(--dsw-alias-bg-base); box-shadow: 0 12px 30px var(--dsw-promax-shadow); }
+.promax-session-menu button { display: flex; width: 100%; min-height: 34px; align-items: center; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; cursor: pointer; font-size: 11px; font-weight: 650; text-align: left; }
+.promax-session-menu-delete { color: var(--dsw-alias-state-error-primary); }
+.promax-session-menu-delete:hover { background: var(--dsw-promax-status-never-bg); }
 .promax-session-empty { padding: 20px 8px; color: var(--dsw-alias-label-secondary); font-size: 11px; text-align: center; }
 .promax-session-error, .promax-team-page-error { padding: 8px 9px; border: 1px solid var(--dsw-alias-state-error-primary); border-radius: 8px; background: var(--dsw-promax-status-never-bg); color: var(--dsw-alias-state-error-primary); font-size: 10px; }
+.promax-session-success { padding: 8px 9px; border: 1px solid var(--dsw-alias-state-success-primary); border-radius: 8px; background: var(--dsw-promax-status-ok-bg); color: var(--dsw-alias-state-success-primary); font-size: 10px; }
 .promax-session-browser-foot { margin: auto 5px 0; padding-top: 10px; border-top: 1px solid var(--dsw-alias-border-l1); color: var(--dsw-alias-label-secondary); font-size: 9px; line-height: 1.55; }
 
 .promax-team-rail { position: absolute; inset-block: 0; inset-inline-end: 0; z-index: 10; pointer-events: auto; border-left: 1px solid var(--dsw-alias-border-l1); background: var(--dsw-promax-rail); box-shadow: -10px 0 34px var(--dsw-promax-shadow); transition: width var(--ds-transition-duration-fast) var(--ds-ease-in-out); }
@@ -443,6 +460,7 @@ body:has(.promax-native-room-context) [data-composer-card] { border-color: var(-
 @keyframes promax-working-pulse { 0%, 100% { opacity: .35; transform: scale(.85); } 50% { opacity: 1; transform: scale(1); } }
 .promax-team-create-backdrop { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 24px; pointer-events: auto; background: var(--dsw-promax-backdrop); }
 .promax-team-create-dialog { width: min(520px, 100%); max-height: min(720px, calc(100vh - 48px)); overflow: auto; padding: 24px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 16px; background: var(--dsw-alias-bg-base); box-shadow: 0 24px 70px var(--dsw-promax-shadow); }
+.promax-session-delete-dialog { width: min(430px, 100%); }
 .promax-team-create-dialog > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
 .promax-team-create-dialog h2 { margin: 0; font-size: 21px; letter-spacing: -.025em; }
 .promax-team-create-dialog header p { margin: 6px 0 0; color: var(--dsw-alias-label-secondary); font-size: 11px; }
@@ -526,8 +544,9 @@ body:has(.promax-session-browser) button[class*="_newSession"][aria-label="æ–°å»
 body:has(.promax-session-browser) button[class*="_newSession"][aria-label="New session"] { display: none; }
 .promax-session-browser { overflow: auto; }
 .promax-nav-section { display: grid; gap: 7px; }
-.promax-nav-section > h2, .promax-project-tree > h3 { margin: 0; padding: 2px 8px; color: var(--dsw-alias-label-secondary); font-size: 10px; font-weight: 700; letter-spacing: .04em; }
+.promax-nav-section > h2, .promax-project-tree-header > h3 { margin: 0; padding: 2px 8px; color: var(--dsw-alias-label-secondary); font-size: 10px; font-weight: 700; letter-spacing: .04em; }
 .promax-nav-divider { height: 1px; margin: 4px 3px; background: var(--dsw-alias-border-l1); }
+.promax-team-root-row { display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr) 32px; align-items: center; gap: 2px; }
 .promax-team-root { display: grid; width: 100%; min-height: 52px; grid-template-columns: 34px minmax(0, 1fr); align-items: center; gap: 9px; padding: 7px 8px; border: 1px solid transparent; border-radius: 11px; background: transparent; color: var(--dsw-alias-label-primary); cursor: pointer; text-align: left; }
 .promax-team-root:hover { background: var(--dsw-alias-interactive-bg-hover); }
 .promax-team-root[aria-current="page"] { border-color: var(--dsw-promax-accent); background: var(--dsw-promax-accent-soft); }
@@ -535,14 +554,21 @@ body:has(.promax-session-browser) button[class*="_newSession"][aria-label="New s
 .promax-team-root strong { overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .promax-team-root small { color: var(--dsw-alias-label-secondary); font-size: 9px; }
 .promax-project-tree { display: grid; gap: 4px; margin-left: 17px; padding-left: 10px; border-left: 1px solid var(--dsw-alias-border-l1); }
-.promax-project-node { display: grid; gap: 2px; }
-.promax-project-row, .promax-project-create { display: flex; width: 100%; min-height: 34px; align-items: center; gap: 7px; padding: 5px 8px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--dsw-alias-label-primary); cursor: pointer; text-align: left; }
-.promax-project-row:hover, .promax-project-create:hover { background: var(--dsw-alias-interactive-bg-hover); }
-.promax-project-row[aria-current="page"] { border-color: var(--dsw-promax-accent); background: var(--dsw-promax-accent-soft); }
-.promax-project-row > span { min-width: 0; flex: 1; overflow: hidden; font-size: 11px; font-weight: 620; text-overflow: ellipsis; white-space: nowrap; }
-.promax-project-row > small { color: var(--dsw-alias-label-secondary); font-size: 9px; }
-.promax-project-create { color: var(--dsw-promax-accent-strong); font-size: 10px; font-weight: 650; }
-.promax-project-sessions { display: grid; gap: 2px; padding-left: 10px; }
+.promax-project-tree-header { display: flex; min-height: 32px; align-items: center; }
+.promax-project-node { display: grid; gap: 3px; border-radius: 9px; }
+.promax-project-header { display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr) 32px; align-items: center; gap: 2px; }
+.promax-project-heading { min-width: 0; margin: 0; }
+.promax-project-row { display: flex; width: 100%; min-height: 34px; align-items: center; gap: 7px; padding: 5px 6px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--dsw-alias-label-primary); cursor: pointer; text-align: left; }
+.promax-project-row:hover { background: var(--dsw-alias-interactive-bg-hover); }
+.promax-project-chevron { display: grid; width: 14px; flex: none; place-items: center; color: var(--dsw-alias-label-secondary); }
+.promax-project-chevron svg { transition: transform var(--ds-transition-duration-fast) var(--ds-ease-in-out); }
+.promax-project-row[aria-expanded="true"] .promax-project-chevron svg { transform: rotate(90deg); }
+.promax-project-title { min-width: 0; flex: 1; overflow: hidden; font-size: 11px; font-weight: 680; text-overflow: ellipsis; white-space: nowrap; }
+.promax-project-create, .promax-project-new-session { display: grid; width: 30px; height: 30px; place-items: center; padding: 0; border: 0; border-radius: 7px; background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; }
+.promax-project-create:hover, .promax-project-new-session:hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-promax-accent-strong); }
+.promax-project-sessions { display: grid; gap: 2px; padding: 2px 0 3px 26px; }
+.promax-project-new-session:disabled { cursor: not-allowed; opacity: .48; }
+.promax-project-session-empty { padding: 8px 10px; color: var(--dsw-alias-label-secondary); font-size: 9px; }
 .promax-project-sessions .promax-session-row { min-height: 38px; padding-block: 5px; }
 .promax-link-button { margin-top: 12px; padding: 0; border: 0; background: transparent; color: var(--dsw-promax-accent-strong); cursor: pointer; font-size: 11px; font-weight: 650; }
 .promax-custom-path { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 9px; padding: 10px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 9px; background: var(--dsw-alias-bg-layer-1); }

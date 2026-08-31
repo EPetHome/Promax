@@ -30,6 +30,22 @@ describe('Promax browser brand', () => {
     document.title = 'DSH Local Build'
   })
 
+  it('installs and removes the locked workbench background layers', () => {
+    const cleanup = applyBrand()
+    const style = document.querySelector<HTMLStyleElement>('style#promax-global-theme')
+
+    expect(style?.textContent).toContain('background: var(--dsw-promax-body-background)')
+    expect(style?.textContent).toContain('background-size: 12px 12px')
+    expect(style?.textContent).toContain('.main-column::before')
+    expect(style?.textContent).toContain('html { overflow: clip; color-scheme: light; }')
+    expect(style?.textContent).toContain('overflow: clip;')
+    expect(style?.textContent).toContain('position: fixed;')
+    expect(style?.textContent).toContain('inset: 0;')
+
+    cleanup()
+    expect(document.querySelector('style#promax-global-theme')).toBeNull()
+  })
+
   it('replaces the dsh favicon and rejects a later host favicon', async () => {
     const cleanup = applyBrand()
 
@@ -53,14 +69,14 @@ describe('Promax browser brand', () => {
     expect(document.head.querySelector('link[href="/dsh-favicon.svg"]')).not.toBeNull()
   })
 
-  it('rebuilds the Promax favicon from the dark-mode brand token', async () => {
+  it('keeps the locked Promax palette when the host switches mode', async () => {
     const cleanup = applyBrand()
     const lightHref = document.head.querySelector<HTMLLinkElement>('link[data-promax-favicon="true"]')?.href
 
     document.documentElement.dataset.dsDarkTheme = 'true'
 
     await waitFor(() => {
-      expect(document.head.querySelector<HTMLLinkElement>('link[data-promax-favicon="true"]')?.href).not.toBe(lightHref)
+      expect(document.head.querySelector<HTMLLinkElement>('link[data-promax-favicon="true"]')?.href).toBe(lightHref)
     })
     cleanup()
   })

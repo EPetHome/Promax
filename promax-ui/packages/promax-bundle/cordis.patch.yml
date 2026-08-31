@@ -1,6 +1,14 @@
-# Promax is the third profile layer after dsh-base and dsh-web-app.
-# This layer is additive by policy: it may only insert Promax-owned rows and
-# must never target, replace, disable, or delete an existing dsh row.
+# Promax is the third profile layer after dsh-base and dsh-web-app. The GUI
+# shell takeover disables only the three explicitly approved dsh UI rows.
+- id: ui-layout
+  disabled: true
+
+- id: ui-sidebar
+  disabled: true
+
+- id: ui-brand-official
+  disabled: true
+
 - insert:
     - id: promax-workspace-bootstrap
       name: '@promax/promax-bundle'
@@ -12,6 +20,9 @@
 
     - id: promax-ui-console
       name: '@promax/promax-ui-console'
+
+    - id: promax-ui-layout
+      name: '@promax/promax-ui-layout'
 
     - id: promax-ui-brand
       name: '@promax/promax-ui-brand'

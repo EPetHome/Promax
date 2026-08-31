@@ -1,0 +1,636 @@
+api_version: promax.ai/v1alpha2
+kind: TeamRevision
+metadata:
+  team_revision_id: team-mtcjsbcz-04tpe2@r3
+  team_id: team-mtcjsbcz-04tpe2
+  revision: 3
+  status: published
+  definition_sha256: bf7141e212e9b5e75183095664310d97eec10dee3a3091dbb8e53549ee22fc8e
+  display_name: "123"
+  description: "141"
+  source_recipe_ref: general-collaboration@1
+spec:
+  preset_id: promax-team-mtcjsbcz-04tpe2-r3
+  workspace_policy:
+    mode: team-folder
+    default_output_root: deliverables
+    resource_root: team-resources
+    resource_manifest_path: .promax/team-resource-manifest.yml
+  coordinator:
+    member_id: team_lead
+    display_name: 主智能体
+    role: orchestrator
+    runtime_tool_id: null
+    mention_aliases:
+      - team_lead
+      - 主智能体
+    module_ref: team-coordinator@1
+    skill_refs: []
+  members:
+    - member_id: customer_research
+      display_name: 客研管理智能体
+      role: worker
+      runtime_tool_id: customer_research
+      mention_aliases:
+        - customer_research
+        - 客研管理智能体
+      module_ref: general-worker@1
+      skill_refs:
+        - customer-research@1
+    - member_id: product_discovery
+      display_name: 产品探索智能体
+      role: worker
+      runtime_tool_id: product_discovery
+      mention_aliases:
+        - product_discovery
+        - 产品探索智能体
+      module_ref: general-worker@1
+      skill_refs:
+        - difference-panel@1
+        - report-generator@1
+    - member_id: requirement_management
+      display_name: 需求管理智能体
+      role: worker
+      runtime_tool_id: requirement_management
+      mention_aliases:
+        - requirement_management
+        - 需求管理智能体
+      module_ref: general-worker@1
+      skill_refs: []
+    - member_id: solution_design
+      display_name: 产品需求方案智能体
+      role: worker
+      runtime_tool_id: solution_design
+      mention_aliases:
+        - solution_design
+        - 产品需求方案智能体
+      module_ref: product-solution@1
+      skill_refs:
+        - business-diagram-generator@2
+        - interaction-design@1
+        - interactive-prototype-generator@2
+        - prd-document-generator@2
+        - prototype-quality-audit@1
+        - rd-handoff-package@1
+        - requirement-clarifier@1
+        - ui-design-system@1
+    - member_id: requirement_review
+      display_name: 需求评审智能体
+      role: worker
+      runtime_tool_id: requirement_review
+      mention_aliases:
+        - requirement_review
+        - 需求评审智能体
+      module_ref: general-worker@1
+      skill_refs:
+        - issue-tracker@1
+        - logic-detector@1
+        - requirement-review@1
+    - member_id: user_analysis
+      display_name: 用户分析智能体
+      role: worker
+      runtime_tool_id: user_analysis
+      mention_aliases:
+        - user_analysis
+        - 用户分析智能体
+      module_ref: general-worker@1
+      skill_refs:
+        - app-market-sentiment@1
+        - core-metrics-analysis@1
+        - data-visualization@1
+        - user-feedback-processor@1
+    - member_id: quality_judge
+      display_name: 独立 Judge
+      role: worker
+      runtime_tool_id: quality_judge
+      mention_aliases:
+        - quality_judge
+        - 独立 Judge
+      module_ref: independent-judge@1
+      skill_refs: []
+  skills:
+    - skill_ref: app-market-sentiment@1
+      skill_id: app-market-sentiment
+      revision: 1
+      content_sha256: b5cd96b37ac8f5e26b95876832cbc6d5d3c198c174b5b45148e1b1c58339b5b7
+    - skill_ref: business-diagram-generator@2
+      skill_id: business-diagram-generator
+      revision: 2
+      content_sha256: 59822e5f52d36f46fbaa4cdb1206b04b5fa2749151ae46b192f1816f763eb55f
+    - skill_ref: core-metrics-analysis@1
+      skill_id: core-metrics-analysis
+      revision: 1
+      content_sha256: ddd66bfd2c938cf1f9927f4359e39ccfca3495185c491367c48a190bd833d0f1
+    - skill_ref: customer-research@1
+      skill_id: customer-research
+      revision: 1
+      content_sha256: a154f6149a1c47769561261d89f1fc536c1e030b943fab2ca75dc7cc9c80ea89
+    - skill_ref: data-visualization@1
+      skill_id: data-visualization
+      revision: 1
+      content_sha256: ef90cf27c4c73f45a13a0857ed6a0ec7a80ce17a8cf42b5b31a8330c7e2d7c74
+    - skill_ref: difference-panel@1
+      skill_id: difference-panel
+      revision: 1
+      content_sha256: 8892fde6554f6f3d544d1610edffdca11560ac6e29ba60c5eb80c2d1ef5a2787
+    - skill_ref: interaction-design@1
+      skill_id: interaction-design
+      revision: 1
+      content_sha256: 2beba8819ad4fc64bc1dc8c6bb681b4151cd15f28e4b53cf68106fc3fdd6a488
+    - skill_ref: interactive-prototype-generator@2
+      skill_id: interactive-prototype-generator
+      revision: 2
+      content_sha256: c3f8214603aeecec033e6f96a4adb457af0dd126d9d592ee01dc47b1dbd1b658
+    - skill_ref: issue-tracker@1
+      skill_id: issue-tracker
+      revision: 1
+      content_sha256: b5a001f8bdcfe8a7dc66d1b17dced3bd42f357b0847cbc70a50f01a5dc3ce1cb
+    - skill_ref: logic-detector@1
+      skill_id: logic-detector
+      revision: 1
+      content_sha256: e53cf9ba3b9ea8c1bc1a8832e547c7cf9bbfef40bad0ee6320fa5c8428c821e4
+    - skill_ref: prd-document-generator@2
+      skill_id: prd-document-generator
+      revision: 2
+      content_sha256: 2b5e34b98beecd0610b2381c2e7053b0c8d666a243526457036255296fa4f535
+    - skill_ref: prototype-quality-audit@1
+      skill_id: prototype-quality-audit
+      revision: 1
+      content_sha256: ecc91ba99116433a1513630c4ab7c7f3e82e96a6579d29b6a685701dda590754
+    - skill_ref: rd-handoff-package@1
+      skill_id: rd-handoff-package
+      revision: 1
+      content_sha256: df9e00d921215a88c912f393942259fbd193d66137b5df52994fbed634c101c1
+    - skill_ref: report-generator@1
+      skill_id: report-generator
+      revision: 1
+      content_sha256: bb18e769f47b8bccae6a78c363744bcb97051e2436ad5c02b75036930bf9319a
+    - skill_ref: requirement-clarifier@1
+      skill_id: requirement-clarifier
+      revision: 1
+      content_sha256: 0822de5558e2a92ae1a06d7d9dac886f20dd1d8d2c0d5bce8c763713f7020702
+    - skill_ref: requirement-review@1
+      skill_id: requirement-review
+      revision: 1
+      content_sha256: 93bfe2baa5b043dd0f5a2e17e67dad17c8b36d7841581653653bcb565427734c
+    - skill_ref: ui-design-system@1
+      skill_id: ui-design-system
+      revision: 1
+      content_sha256: 9efd85be1a19dcded398ed803328da108247cd653fbf9d4fba2803decc054568
+    - skill_ref: user-feedback-processor@1
+      skill_id: user-feedback-processor
+      revision: 1
+      content_sha256: 5c8f3213ddf06a2e6d457de3acc702fc6484f46388d16bf219b11b2aee2f0f73
+  capabilities:
+    - capability_id: customer-research
+      member_id: customer_research
+      skill_refs:
+        - customer-research@1
+      artifact_kinds:
+        - other
+    - capability_id: product-discovery
+      member_id: product_discovery
+      skill_refs:
+        - difference-panel@1
+        - report-generator@1
+      artifact_kinds:
+        - other
+    - capability_id: requirement-management
+      member_id: requirement_management
+      skill_refs: []
+      artifact_kinds:
+        - other
+    - capability_id: solution-design
+      member_id: solution_design
+      skill_refs:
+        - business-diagram-generator@2
+        - interaction-design@1
+        - interactive-prototype-generator@2
+        - prd-document-generator@2
+        - prototype-quality-audit@1
+        - rd-handoff-package@1
+        - requirement-clarifier@1
+        - ui-design-system@1
+      artifact_kinds:
+        - prd
+        - diagram
+        - prototype
+    - capability_id: requirement-review
+      member_id: requirement_review
+      skill_refs:
+        - issue-tracker@1
+        - logic-detector@1
+        - requirement-review@1
+      artifact_kinds:
+        - other
+    - capability_id: user-analysis
+      member_id: user_analysis
+      skill_refs:
+        - app-market-sentiment@1
+        - core-metrics-analysis@1
+        - data-visualization@1
+        - user-feedback-processor@1
+      artifact_kinds:
+        - other
+    - capability_id: quality-judge
+      member_id: quality_judge
+      skill_refs: []
+      artifact_kinds:
+        - judge-report
+  artifacts:
+    - kind: other
+      relative_path: deliverables/{task_key}/customer_research.md
+      required: true
+      produced_by: customer_research
+    - kind: other
+      relative_path: deliverables/{task_key}/product_discovery.md
+      required: true
+      produced_by: product_discovery
+    - kind: other
+      relative_path: deliverables/{task_key}/requirement_management.md
+      required: true
+      produced_by: requirement_management
+    - kind: prd
+      relative_path: deliverables/{task_key}/prd.md
+      required: true
+      produced_by: solution_design
+    - kind: diagram
+      relative_path: deliverables/{task_key}/business-diagram.md
+      required: false
+      produced_by: solution_design
+    - kind: prototype
+      relative_path: deliverables/{task_key}/prototype.html
+      required: false
+      produced_by: solution_design
+    - kind: other
+      relative_path: deliverables/{task_key}/requirement_review.md
+      required: true
+      produced_by: requirement_review
+    - kind: other
+      relative_path: deliverables/{task_key}/user_analysis.md
+      required: true
+      produced_by: user_analysis
+    - kind: judge-report
+      relative_path: .promax/judge/{task_key}/judge.md
+      required: true
+      produced_by: quality_judge
+  coordination:
+    topology: orchestrator-workers
+    parallelize_independent_tasks: true
+    wait_for_settlement: true
+    retry_owner: original-worker
+    orchestrator_member_id: team_lead
+    max_depth: 1
+  routing:
+    default_target_member_id: team_lead
+    mention_syntax: "@<member_id|display_name>"
+    mention_match: leading-longest-exact
+    unknown_mention: reject-before-send
+    multiple_mentions: coordinator-mediated
+    members:
+      - member_id: team_lead
+        display_name: 主智能体
+        role: orchestrator
+        mention_aliases:
+          - team_lead
+          - 主智能体
+        target_kind: root-session
+        runtime_tool_id: null
+      - member_id: customer_research
+        display_name: 客研管理智能体
+        role: worker
+        mention_aliases:
+          - customer_research
+          - 客研管理智能体
+        target_kind: subagent-session
+        runtime_tool_id: customer_research
+      - member_id: product_discovery
+        display_name: 产品探索智能体
+        role: worker
+        mention_aliases:
+          - product_discovery
+          - 产品探索智能体
+        target_kind: subagent-session
+        runtime_tool_id: product_discovery
+      - member_id: requirement_management
+        display_name: 需求管理智能体
+        role: worker
+        mention_aliases:
+          - requirement_management
+          - 需求管理智能体
+        target_kind: subagent-session
+        runtime_tool_id: requirement_management
+      - member_id: solution_design
+        display_name: 产品需求方案智能体
+        role: worker
+        mention_aliases:
+          - solution_design
+          - 产品需求方案智能体
+        target_kind: subagent-session
+        runtime_tool_id: solution_design
+      - member_id: requirement_review
+        display_name: 需求评审智能体
+        role: worker
+        mention_aliases:
+          - requirement_review
+          - 需求评审智能体
+        target_kind: subagent-session
+        runtime_tool_id: requirement_review
+      - member_id: user_analysis
+        display_name: 用户分析智能体
+        role: worker
+        mention_aliases:
+          - user_analysis
+          - 用户分析智能体
+        target_kind: subagent-session
+        runtime_tool_id: user_analysis
+      - member_id: quality_judge
+        display_name: 独立 Judge
+        role: worker
+        mention_aliases:
+          - quality_judge
+          - 独立 Judge
+        target_kind: subagent-session
+        runtime_tool_id: quality_judge
+  runtime_mapping:
+    driver: dsh-tool-subagent
+    scope: session
+    worker_instance_cardinality: zero-or-many-per-member
+    instance_key_fields:
+      - team_revision_id
+      - parent_session_id
+      - child_session_id
+    root:
+      member_id: team_lead
+      instance_kind: root-session
+      session_id_source: sessions.create.sessionId
+    worker_observation:
+      runtime_tool_id_source: parent.tool_call.name
+      child_session_id_source: parent.tool_result.subagentId
+      parent_session_id_source: root.sessionId
+      lineage_parent_source: child.header.parentSession
+    workers:
+      - member_id: customer_research
+        runtime_tool_id: customer_research
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: product_discovery
+        runtime_tool_id: product_discovery
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: requirement_management
+        runtime_tool_id: requirement_management
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: solution_design
+        runtime_tool_id: solution_design
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: requirement_review
+        runtime_tool_id: requirement_review
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: user_analysis
+        runtime_tool_id: user_analysis
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: quality_judge
+        runtime_tool_id: quality_judge
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+  receipt_fields:
+    - 状态
+    - preset
+    - team_revision_id
+    - task-key
+    - 团队成员
+    - 产物
+    - Judge判定
+    - 修复轮次
+    - 人工处理
+    - 被阻断项
+    - 未验证项
+  session_policy:
+    preset_binding: create-time
+    allow_preset_rebind: false
+    silent_migration: forbidden
+    configuration_change_effect: publish-new-team-revision
+    resource_change_effect: update-workspace-manifest-without-team-revision
+  compiled_files:
+    - relative_path: agent.cordis.yml
+      sha256: 33c95fed2e03ac2063c730a5d9e673da332321e0c99e5756fac12b16790a3a9f
+    - relative_path: preset.yml
+      sha256: c117149cdcf876da976fcc55df31081bf0f529d6d65f85c5fb9a683a37e716ed
+    - relative_path: skills/app-market-sentiment/SKILL.md
+      sha256: b5cd96b37ac8f5e26b95876832cbc6d5d3c198c174b5b45148e1b1c58339b5b7
+    - relative_path: skills/app-market-sentiment/resources/examples/sample_output.md
+      sha256: b95b8c10d33aef64c9cd2132bc3a147f9cfcd17f69a15d4224c246db1d58df1d
+    - relative_path: skills/app-market-sentiment/resources/examples/sample_reviews.json
+      sha256: 4ad1283a2e228747b5380d3b523ade80ac4177553815766ac205f006652ab5c2
+    - relative_path: skills/app-market-sentiment/resources/references/alert_rules.md
+      sha256: 20c085b66257ca60b7ada9f86ec6ba48723622e0b2bd05adffc4e99d2b27602a
+    - relative_path: skills/app-market-sentiment/resources/references/pain_point_taxonomy.md
+      sha256: 51f2b9517e710ce8816f19b9a7ee0027a1be4d56125e7aac774d9fb3e8fc25f3
+    - relative_path: skills/app-market-sentiment/resources/references/review_sources.md
+      sha256: ba43b84e872c3c4d7d04d6c00143966d53dcffa9ba37e6727fdef8a4998bce35
+    - relative_path: skills/app-market-sentiment/resources/references/sentiment_analysis_framework.md
+      sha256: 6524afce4ad1d69f4bef38ad2ecf00ea7a3e5e0ac1cb40582f58769ccc09b1d4
+    - relative_path: skills/app-market-sentiment/resources/scripts/analyze_app_reviews.py
+      sha256: 79a7c99730f11591f585d2d19ee2f49c5a295758ba4e8f29d1cd56bf7c36155f
+    - relative_path: skills/business-diagram-generator/SKILL.md
+      sha256: 59822e5f52d36f46fbaa4cdb1206b04b5fa2749151ae46b192f1816f763eb55f
+    - relative_path: skills/core-metrics-analysis/SKILL.md
+      sha256: ddd66bfd2c938cf1f9927f4359e39ccfca3495185c491367c48a190bd833d0f1
+    - relative_path: skills/core-metrics-analysis/resources/examples/sample_metrics.json
+      sha256: 8f418f3ebb70ba85df366f7acda261cd23b39614af451eacc066f9342e6fa03f
+    - relative_path: skills/core-metrics-analysis/resources/examples/sample_output.md
+      sha256: 93ff37f2dd113dfe40592a6dddac0c4f2cb3c1dfb7b9eec8694cc15171f8db02
+    - relative_path: skills/core-metrics-analysis/resources/references/anomaly_detection_rules.md
+      sha256: 9ddbfdb08710a14ebabceb38595b19662bb3aa2b94fb3f457f01030e335a00f1
+    - relative_path: skills/core-metrics-analysis/resources/references/divergence_analysis_framework.md
+      sha256: 0f3e390298f34cc20acc65e1fbb6f659919ac0254bec4e57b900ce0f041e77eb
+    - relative_path: skills/core-metrics-analysis/resources/references/metrics_definition.md
+      sha256: 1d7b98ccc91a5a21648795f7e9249e891ac378e59274f1c61652c78c156537f3
+    - relative_path: skills/core-metrics-analysis/resources/scripts/analyze_core_metrics.py
+      sha256: fa128b86b2ae657ca390363a22acae84c8c8ed2912a8bb512729c20a16eebfa6
+    - relative_path: skills/customer-research/SKILL.md
+      sha256: a154f6149a1c47769561261d89f1fc536c1e030b943fab2ca75dc7cc9c80ea89
+    - relative_path: skills/customer-research/resources/examples/customer_profiles/sample_customer_profile.txt
+      sha256: 0cbad3d126d26bda03289f767b3da2a057e8aed5bf289577f38843593b886338
+    - relative_path: skills/customer-research/resources/examples/evidence/app_reviews.json
+      sha256: fa74abb4c96d02f42bfccabac30c7c336645f5ada6ba77ab0c6a63571e2b165a
+    - relative_path: skills/customer-research/resources/examples/evidence/metrics.csv
+      sha256: 08fdae67c266fb0cf571beab01476a701ee17c8ee5e8bf81f4c6df102671c450
+    - relative_path: skills/customer-research/resources/examples/interviews/sample_interview_1.txt
+      sha256: 46e154b6c105b0af3aae7d14cf32f17f7c405d98a18eac299fa2317433a1deb8
+    - relative_path: skills/customer-research/resources/examples/interviews/sample_interview_2.txt
+      sha256: abad97b9e49a7307d14fee98320d5e68f40a8d93022e573a881c05f5526a3daf
+    - relative_path: skills/customer-research/resources/examples/sample_output.md
+      sha256: add1f63fcd2b8742d675e7458435f3314c067eb5131bbc031fd0c9c2f12fe75f
+    - relative_path: skills/customer-research/resources/examples/sample_shell.md
+      sha256: 812d993414f61ab83d11d37a4446d4a0617e9500601a4278e93ea123a92e4c64
+    - relative_path: skills/customer-research/resources/examples/sample_triangulation.md
+      sha256: 99f28e0095f3054cdaf6d0dfb18c5f8299d3766b3a800a9a550fb50f38679426
+    - relative_path: skills/customer-research/resources/references/customer_shell.md
+      sha256: 0aa5d9d999443229c99f7e1c2720f914f706f84474abded1aaa64ce5e6778c98
+    - relative_path: skills/customer-research/resources/references/demand_extraction_rules.md
+      sha256: ab34a6b59818ec8ee4e05e6c4dd08e7f27992ba9ce25e442a4aafa9abe0a4272
+    - relative_path: skills/customer-research/resources/references/demand_layering.md
+      sha256: b46daf31982a22e5658b80162a50b2fd9f95de336ab1327065dd8d0f248309d9
+    - relative_path: skills/customer-research/resources/references/interview_framework.md
+      sha256: 63edbcfa3f991f5859bc6503b6299d0caaa9a518d19c81fe7e9495ea23ec9bd3
+    - relative_path: skills/customer-research/resources/references/output_templates.md
+      sha256: 1091b8bcaa08125801411790a548d36081814a7827feefafcbcf8ffc1ade97cd
+    - relative_path: skills/customer-research/resources/references/pain_point_taxonomy.md
+      sha256: d56bc7955e82c3632da0f7287744bb58d9857e7da0b84e9fb48d73355fbdfd82
+    - relative_path: skills/customer-research/resources/references/triangulation_guide.md
+      sha256: 7a58b03e4ff84a7481a7b3d11363d467c3ee39e9b3bac95075cc36dff4c201b7
+    - relative_path: skills/customer-research/resources/references/user_metrics_framework.md
+      sha256: 9dd1c802a586569e4bfbef68052223fb3841b65b7c63d46f3bf00c068829ae3c
+    - relative_path: skills/customer-research/resources/references/user_persona.md
+      sha256: 7e45f740a43be148e34a3aeed683db1e4b1c74cbcac568c598db9fe96ff1e505
+    - relative_path: skills/customer-research/resources/scripts/analyze_interview.py
+      sha256: 8996b0e187d3b6c17ae2994590941742906da221c558b19f9a32dc859da316a9
+    - relative_path: skills/customer-research/resources/scripts/build_customer_shell.py
+      sha256: 14ad0e52d1b3bd8287347c39826596d8daf01dc800d1bde155685507d8ce43ce
+    - relative_path: skills/customer-research/resources/scripts/extract_pain_points.py
+      sha256: 9fc39458d4e87a1db6165631945dab994b5b31e5e062cec142a09178193cc274
+    - relative_path: skills/customer-research/resources/scripts/triangulate_insights.py
+      sha256: 098a07b6847692b4ade70542dbe1257ca7fb11e87391bcd229855d563a39a6eb
+    - relative_path: skills/data-visualization/SKILL.md
+      sha256: ef90cf27c4c73f45a13a0857ed6a0ec7a80ce17a8cf42b5b31a8330c7e2d7c74
+    - relative_path: skills/data-visualization/resources/examples/sample_metrics_data.json
+      sha256: 333fdbcb23b1186fea4a23ebace56db9f9233f9d6346b960948b6fe814a82881
+    - relative_path: skills/data-visualization/resources/examples/sample_sentiment_data.json
+      sha256: 2fe9f50cf84d46b08c1c9985b142d61b8bfcbf92722096efceb0098240f5cb93
+    - relative_path: skills/data-visualization/resources/references/chart_types.md
+      sha256: 9994bf1d5766e4af4ef5d900cd3316d745751eecd1b414f9842560a8122e4843
+    - relative_path: skills/data-visualization/resources/references/color_themes.md
+      sha256: 787e91411234a28858c9d4ba9d68fe2bdceed99e08a0f156dfe49366e64cd306
+    - relative_path: skills/data-visualization/resources/references/dashboard_design.md
+      sha256: a3141fc3d77098e6514460b1a387159d849e3e274ebf21af211c9b4de0bf736f
+    - relative_path: skills/data-visualization/resources/scripts/generate_dashboard.py
+      sha256: 79272a321b9989ec4c6aa19d41f7bcf743d22e9239331c69b77d7b7e8c19fa26
+    - relative_path: skills/difference-panel/SKILL.md
+      sha256: 8892fde6554f6f3d544d1610edffdca11560ac6e29ba60c5eb80c2d1ef5a2787
+    - relative_path: skills/difference-panel/references/panel_template.md
+      sha256: 06a8d9e4148919b0f13e225afbdcc8ca6378d1beb0280070e16e8f4c247efb8e
+    - relative_path: skills/interaction-design/SKILL.md
+      sha256: 2beba8819ad4fc64bc1dc8c6bb681b4151cd15f28e4b53cf68106fc3fdd6a488
+    - relative_path: skills/interaction-design/agents/openai.yaml
+      sha256: 6bce162f8a28fe563b8a6ee9f52e95d1d2c8341c7eea4321ca27db58f2a3c54b
+    - relative_path: skills/interaction-design/references/interaction-spec-template.md
+      sha256: 4424aabb4ecbdfcb33d2223242424a58dceebd03bc001142abd928ed5e97cbda
+    - relative_path: skills/interactive-prototype-generator/SKILL.md
+      sha256: c3f8214603aeecec033e6f96a4adb457af0dd126d9d592ee01dc47b1dbd1b658
+    - relative_path: skills/interactive-prototype-generator/assets/single-html-shell.html
+      sha256: e82e9aabdeef9a955554351e211d6ba276293249e5965d18bf3893bd57b9a259
+    - relative_path: skills/interactive-prototype-generator/references/prototype-contract.md
+      sha256: b3fb6a9b6adff6c91beb5be4f0adabc0b37982057dc6d8bbe8051c3adeb20e87
+    - relative_path: skills/issue-tracker/SKILL.md
+      sha256: b5a001f8bdcfe8a7dc66d1b17dced3bd42f357b0847cbc70a50f01a5dc3ce1cb
+    - relative_path: skills/issue-tracker/references/diff-engine-guide.md
+      sha256: 4003e044b96c727ca110b97aad7cbc0b49acae588aa324a492f7a4caf623e5b4
+    - relative_path: skills/issue-tracker/references/remediation-report-template.md
+      sha256: 01ca49fba35dd0a420c7da9eca4ee67c7910823ebc7c9e1687d29a2036c346d4
+    - relative_path: skills/issue-tracker/references/tracking-workflow.md
+      sha256: 09b37fce4697428ed694469b821ca9aeccf0619df1b38907ce2d2eca241f4c51
+    - relative_path: skills/logic-detector/SKILL.md
+      sha256: e53cf9ba3b9ea8c1bc1a8832e547c7cf9bbfef40bad0ee6320fa5c8428c821e4
+    - relative_path: skills/logic-detector/references/contradiction-patterns.md
+      sha256: 52537ca718723cfabdfe844016a8cf8eec6d828e1e90e82de76394dfee62d7e4
+    - relative_path: skills/logic-detector/references/data-flow-checklist.md
+      sha256: 30dafa3dabfbd2967dcdee686ccb1abac9e2f4542330748124056aba4439b58a
+    - relative_path: skills/logic-detector/references/logic-report-template.md
+      sha256: 5b5a8a5bc97819484fa1ea37da5e3f814dd645b6847557fb71ffd936070520cf
+    - relative_path: skills/logic-detector/references/state-machine-patterns.md
+      sha256: 5db72ab111a3a743fdc524e374c7e2cc42d8d0f7bc9b2a178078805e9cd3c1b8
+    - relative_path: skills/prd-document-generator/SKILL.md
+      sha256: 2b5e34b98beecd0610b2381c2e7053b0c8d666a243526457036255296fa4f535
+    - relative_path: skills/prd-document-generator/test-prd-example.md
+      sha256: e3a4a5eabfd9ce321525bd5e6d4286d553a055129537f9a9d437940d5a068909
+    - relative_path: skills/prd-document-generator/test-prd-output.md
+      sha256: a5a0366b316cc1fbdb4df6c9a4991decea16617ff0f1d3ec8a0c88b7e5736089
+    - relative_path: skills/prototype-quality-audit/SKILL.md
+      sha256: ecc91ba99116433a1513630c4ab7c7f3e82e96a6579d29b6a685701dda590754
+    - relative_path: skills/prototype-quality-audit/agents/openai.yaml
+      sha256: ac8d891a096b61a7492a1f5c401930b7f53fe3c55de478c2de2c95731fd76869
+    - relative_path: skills/prototype-quality-audit/references/browser-checklist.md
+      sha256: 06db85c19284243bc47bef83cc41a2fe592d9c127b3c636d53029934601abb29
+    - relative_path: skills/prototype-quality-audit/scripts/audit_html.py
+      sha256: bf27ee42b34a96c3380407431bd56617d981ac7abf23f6502d615238eab77361
+    - relative_path: skills/rd-handoff-package/SKILL.md
+      sha256: df9e00d921215a88c912f393942259fbd193d66137b5df52994fbed634c101c1
+    - relative_path: skills/rd-handoff-package/agents/openai.yaml
+      sha256: e9d26efc93a26174435ebe2a59456988a933bc68bc6b7e7195981edb69a03381
+    - relative_path: skills/rd-handoff-package/assets/handoff-manifest.template.json
+      sha256: 45ed0e1a9186b3febf5f23240f135091bf18731a91fa012dfdc990169b761c8f
+    - relative_path: skills/rd-handoff-package/references/handoff-schema.md
+      sha256: 28b0c95c75e23f42825af9ee6788df9c87bcf7659de69df3d348678204f198d6
+    - relative_path: skills/rd-handoff-package/references/manifest-schema.md
+      sha256: 58d1a1c9d49e4881a990d67e9178c5baaa235fa778b1c82f691cfbf7e055f813
+    - relative_path: skills/rd-handoff-package/scripts/validate_handoff.py
+      sha256: 421499abe26d8dc9d8bd480838e5fce0316557d9657a8cbb9ac9ff04417d3ffb
+    - relative_path: skills/report-generator/SKILL.md
+      sha256: bb18e769f47b8bccae6a78c363744bcb97051e2436ad5c02b75036930bf9319a
+    - relative_path: skills/report-generator/references/data_cleaning.md
+      sha256: 4fba0be87f5cd6c2762c3e8a7e3a728a04cabd2fc413c51f6f2a87fb261bd47c
+    - relative_path: skills/report-generator/references/example_output.md
+      sha256: 79ff0a8f67c425c60931548e0d3c5b5858126a32f46aa6ceb1f6cd40245a2988
+    - relative_path: skills/report-generator/references/report_template.md
+      sha256: dcf47c76238e91177f3e3fa8cb951b7fb5d3addc942dea6893b3caec50b0b3d9
+    - relative_path: skills/requirement-clarifier/SKILL.md
+      sha256: 0822de5558e2a92ae1a06d7d9dac886f20dd1d8d2c0d5bce8c763713f7020702
+    - relative_path: skills/requirement-clarifier/agents/openai.yaml
+      sha256: ad052ed36d3938329660a255fe687c97f2f0d38845bd86cabd6b6230b251ba0a
+    - relative_path: skills/requirement-clarifier/assets/product-solution-intake.yaml
+      sha256: eb9992b0567f4057bb1fd2e89e7872a6e78da054c255d333886f07c6c55a34dd
+    - relative_path: skills/requirement-clarifier/references/clarification-schema.md
+      sha256: 52774ab1b570770e89001798f6bd115a7aa46ee1a9d489264cf902f086797dc9
+    - relative_path: skills/requirement-review/SKILL.md
+      sha256: 93bfe2baa5b043dd0f5a2e17e67dad17c8b36d7841581653653bcb565427734c
+    - relative_path: skills/requirement-review/references/common-issues.md
+      sha256: 0402c1a3c69dac947cb7d7bfa9637182a58db4253cebb768571bae4cad98b044
+    - relative_path: skills/requirement-review/references/quality-criteria.md
+      sha256: 247312aae37b6080a1e4d3e29eebdc001d76e82f0948285b0b33de158d4e3783
+    - relative_path: skills/requirement-review/references/report-template.md
+      sha256: 05ea4f197068ea0bb0344dfc291d296043f6e67312d74facc92d76e8cae1cd22
+    - relative_path: skills/requirement-review/references/review-checklist.md
+      sha256: f3505502a1ec81210b771a9b45d30c0cd493eee558d78bcaab87eea2e2e97579
+    - relative_path: skills/requirement-review/references/review-standards.md
+      sha256: 50c94fe89aec2e2b6f808358fa957354f95e4861442a08733fb81d3b360e3b2f
+    - relative_path: skills/ui-design-system/SKILL.md
+      sha256: 9efd85be1a19dcded398ed803328da108247cd653fbf9d4fba2803decc054568
+    - relative_path: skills/ui-design-system/agents/openai.yaml
+      sha256: eba72c22b1a033ebcfa9c2d03f27bba7573ab40082960f66c93910877013e36e
+    - relative_path: skills/ui-design-system/assets/baseline-tokens.css
+      sha256: 32d9ecc9786d4a8622ecffd4394b7ab39346f7a6a7ee917d907592c6ec864fce
+    - relative_path: skills/ui-design-system/references/baseline-guidelines.md
+      sha256: 1d5f7b785fdb225844ffa823b99f50c9ccf7f38dfa1fe3012de91362eff2a1af
+    - relative_path: skills/ui-design-system/references/component-patterns.md
+      sha256: effbf3dbfdcf7c9291ab230a1a67076b806100617ca74c6a8e0ec87d332dd996
+    - relative_path: skills/ui-design-system/references/internal-prototype-corpus.md
+      sha256: 907b9e61fbf780eab5f8d861ecad18674c4be65efe8818db3e40a5724a55cf69
+    - relative_path: skills/ui-design-system/references/page-patterns.md
+      sha256: f7ed48c25416b9eb6de7a9daab660e1b63377c8ea3a8ba2365b5ed8804b8bf00
+    - relative_path: skills/user-feedback-processor/SKILL.md
+      sha256: 5c8f3213ddf06a2e6d457de3acc702fc6484f46388d16bf219b11b2aee2f0f73
+    - relative_path: skills/user-feedback-processor/resources/examples/sample_feedback.json
+      sha256: 3e43edbc3e8c0d115a4703cdfe556da33a41ee4edcdb4120116ec3c81f9f97f8
+    - relative_path: skills/user-feedback-processor/resources/examples/sample_output.md
+      sha256: c7d642d532f90b73294594b1878b3abed2ad3ceaf23290d60ab1613e540847cb
+    - relative_path: skills/user-feedback-processor/resources/references/classification_taxonomy.md
+      sha256: de658e864aabab304d087dce192d20f4de88e410e01c0cf74873f883e2ac86ab
+    - relative_path: skills/user-feedback-processor/resources/references/feedback_sources.md
+      sha256: 98ae1034ab0b9b0f067f662c42c715c7164f4f366fd7d30df55cf4b3fda9040f
+    - relative_path: skills/user-feedback-processor/resources/references/sentiment_analysis_guide.md
+      sha256: 75e2348a0ffcf60e473e91419773ee8128640add17ae245f6f1b1808414df3bd
+    - relative_path: skills/user-feedback-processor/resources/scripts/process_feedback.py
+      sha256: a1ca302c8184198d61b5cdc262c92cccfaecb4767fab899f7aba245ed9fca495

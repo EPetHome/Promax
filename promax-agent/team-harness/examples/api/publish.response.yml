@@ -57,14 +57,17 @@ team_revision:
         skill_id: business-diagram-generator
         revision: 1
         content_sha256: 275c399fc06eb0b33d9e4352f1c6eb2618b0aa6615d740dddd575ec3b1766a9a
+        tree_sha256: b2bbcc5c96dd22c293ef7033268277072ea40a674991587718c87eeb3cf9a218
       - skill_ref: interactive-prototype-generator@1
         skill_id: interactive-prototype-generator
         revision: 1
         content_sha256: 07834a8182b0802293f8631a4372d08b530a3734fdd71dc7e9155051ae002eee
+        tree_sha256: 1aceda8848b1939e3da36c517bcfbc2c08b0aefa3988e3eaa7ce7ebf5261c261
       - skill_ref: prd-document-generator@1
         skill_id: prd-document-generator
         revision: 1
         content_sha256: a42a6858eae45238dc1eeb557ee2ed202e2acffd3eafeb9e862fd190d1f0d990
+        tree_sha256: 65ffee8cbdf3e1bb1ac6fd519b61db3d8fb6e7eee8e9bd16b0459cfd8b2a5deb
     capabilities:
       - capability_id: product-prd-agent
         member_id: product_prd_agent
@@ -80,21 +83,34 @@ team_revision:
         artifact_kinds: [prototype]
     artifacts:
       - kind: other
+        validation_kind: general-report
         relative_path: deliverables/{task_key}/source-ledger.md
         required: true
         produced_by: product_studio_lead
       - kind: prd
+        validation_kind: prd
         relative_path: deliverables/{task_key}/prd.md
         required: true
         produced_by: product_prd_agent
       - kind: diagram
+        validation_kind: diagram
         relative_path: deliverables/{task_key}/business-diagram.md
         required: true
         produced_by: product_diagram_agent
       - kind: prototype
+        validation_kind: prototype
         relative_path: deliverables/{task_key}/prototype.html
         required: true
         produced_by: product_prototype_agent
+    domain_rubrics:
+      prd:
+        display_name: PRD 领域规则
+        rules:
+          - rule_id: PRD-DEMO-001
+            defect_type: completeness
+            check: 关键需求必须包含可验证的验收标准。
+            fail_evidence:
+              - 任一关键需求缺少验收标准。
     coordination:
       topology: orchestrator-workers
       parallelize_independent_tasks: true

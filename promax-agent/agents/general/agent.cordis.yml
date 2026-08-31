@@ -48,6 +48,9 @@
 
 - id: skill-filesystem
   name: '@deepseek-ai/dsh-skill-filesystem'
+  config:
+    providerName: general-filesystem
+    includeDefaultRoots: false
 
 - id: tool-skill
   name: '@deepseek-ai/dsh-tool-skill'

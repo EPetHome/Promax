@@ -23,6 +23,7 @@ spec:
     max_depth: 1
   artifacts:
     - kind: prototype
+      validation_kind: prototype
       relative_path: deliverables/{task_key}/prototype.html
       required: true
   validation_profile_id: product-g0-g6

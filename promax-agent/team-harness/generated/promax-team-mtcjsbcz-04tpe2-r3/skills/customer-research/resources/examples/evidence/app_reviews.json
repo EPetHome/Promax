@@ -1,0 +1,11 @@
+[
+  {"text": "每天手工统计各店销量太耗时，订货要花两个多小时", "count": 12, "channel": "appstore"},
+  {"text": "周末销量波动大，经常订多订少，损耗浪费严重", "count": 8, "channel": "appstore"},
+  {"text": "月底跟供应商对账老是金额对不上，来回核对特别麻烦", "count": 6, "channel": "客服工单"},
+  {"text": "经营报表要等 IT 导数据，活动结束了才知道效果", "count": 5, "channel": "社群反馈"},
+  {"text": "导出的报表字段不统一，每次都要手工整理很久", "count": 4, "channel": "客服工单"},
+  {"text": "希望有自动订货建议，不用打电话下单", "count": 7, "channel": "appstore"},
+  {"text": "想要自助报表平台，业务人员自己就能配置", "count": 3, "channel": "社群反馈"},
+  {"text": "Excel 模板录入太麻烦，数据要一家家填，根本坚持不下来", "count": 3, "channel": "客服工单"},
+  {"text": "系统操作界面太老，找功能要翻半天", "count": 2, "channel": "appstore"}
+]

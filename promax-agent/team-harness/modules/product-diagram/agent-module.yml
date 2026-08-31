@@ -23,6 +23,7 @@ spec:
     max_depth: 1
   artifacts:
     - kind: diagram
+      validation_kind: diagram
       relative_path: deliverables/{task_key}/business-diagram.md
       required: true
   validation_profile_id: product-g0-g6

@@ -16,7 +16,7 @@ $defs:
   response:
     type: object
     additionalProperties: false
-    required: [api_version, kind, modules, skills, prompt_recipes]
+    required: [api_version, kind, modules, skills, rubric_rule_count, prompt_recipes]
     properties:
       api_version: { const: promax.ai/v1alpha2 }
       kind: { const: CatalogResponse }
@@ -39,12 +39,14 @@ $defs:
         items:
           type: object
           additionalProperties: false
-          required: [skill_ref, display_name, description, content_sha256]
+          required: [skill_ref, display_name, description, content_sha256, tree_sha256]
           properties:
             skill_ref: { type: string }
             display_name: { type: string }
             description: { type: string }
             content_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+            tree_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+      rubric_rule_count: { type: integer, minimum: 0 }
       prompt_recipes:
         type: array
         items:

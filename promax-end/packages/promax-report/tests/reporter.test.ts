@@ -37,6 +37,26 @@ function agent(cwd: string): AgentLike {
   }
 }
 
+async function installTeamRevision(home: string): Promise<void> {
+  const directory = join(home, '.agent-presets', 'product-solution')
+  await mkdir(directory, { recursive: true })
+  await writeFile(join(directory, 'team-revision.yml'), `kind: TeamRevision
+spec:
+  preset_id: product-solution
+  artifacts:
+    - kind: other
+      relative_path: deliverables/{task_key}/customer_research.md
+    - kind: prd
+      relative_path: deliverables/{task_key}/prd.md
+    - kind: diagram
+      relative_path: deliverables/{task_key}/business-diagram.md
+    - kind: prototype
+      relative_path: deliverables/{task_key}/prototype.html
+    - kind: judge-report
+      relative_path: .promax/judge/{task_key}/judge.md
+`)
+}
+
 test('native file-tool result uploads bytes and emits a separate hook telemetry event', async () => {
   const root = await mkdtemp(join(tmpdir(), 'promax-reporter-'))
   const home = join(root, 'dsh-home')
@@ -128,6 +148,52 @@ test('artifact above 5MB uses a durable file snapshot and chunk transport reques
   }
 })
 
+test('TeamRevision declarations classify markdown artifacts and exclude judge and undeclared files', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'promax-reporter-team-revision-'))
+  const home = join(root, 'dsh-home')
+  const workspace = join(root, 'workspace')
+  const deliverables = join(workspace, 'deliverables', 'task-1')
+  const judge = join(workspace, '.promax', 'judge', 'task-1')
+  await mkdir(deliverables, { recursive: true })
+  await mkdir(judge, { recursive: true })
+  await installTeamRevision(home)
+  try {
+    const transport = new RecordingTransport()
+    const queue = new DurableReportQueue(home, transport, logger)
+    const reporter = new PromaxReporter(resolveConfig({
+      baseUrl: 'http://127.0.0.1:3000', accessToken: 'access-token', refreshToken: 'refresh-token', employeeId: '10086', dshHome: home,
+    }), queue, () => `sha256:${'d'.repeat(64)}`, logger)
+    const subject = agent(workspace)
+    reporter.startSession(subject)
+
+    await writeFile(join(deliverables, 'prd.md'), '# PRD\n')
+    await writeFile(join(deliverables, 'business-diagram.md'), '# Diagram\n')
+    await writeFile(join(deliverables, 'prototype.html'), '<main>Prototype</main>')
+    await writeFile(join(deliverables, 'customer_research.md'), '# Research\n')
+    await writeFile(join(deliverables, 'undeclared.md'), '# Undeclared\n')
+    await writeFile(join(judge, 'judge.md'), '# Judge\n')
+
+    reporter.scanTurnArtifacts(subject)
+    await reporter.idle()
+
+    const artifacts = transport.requests
+      .filter(request => request.path === '/api/v1/artifacts')
+      .map(request => request.body as Record<string, unknown>)
+    assert.deepEqual(
+      artifacts.map(artifact => [artifact.filename, artifact.kind]).sort(([left], [right]) => String(left).localeCompare(String(right))),
+      [
+        ['business-diagram.md', 'diagram'],
+        ['customer_research.md', 'other'],
+        ['prd.md', 'prd'],
+        ['prototype.html', 'prototype'],
+      ],
+    )
+    assert.equal(transport.requests.filter(request => request.path === '/api/v1/telemetry').length, 4)
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
 test('chat, skill, heartbeat, failed mutation, and turn-end scanning stay on hook source', async () => {
   const root = await mkdtemp(join(tmpdir(), 'promax-reporter-events-'))
   const home = join(root, 'dsh-home')
@@ -159,7 +225,7 @@ test('chat, skill, heartbeat, failed mutation, and turn-end scanning stay on hoo
     assert(telemetry.every(row => row.source === 'hook'))
     assert.equal(transport.requests.filter(request => request.path === '/api/v1/artifacts').length, 1)
     const heartbeat = transport.requests.find(request => request.path === '/api/v1/heartbeat')?.body as Record<string, unknown>
-    assert.equal(heartbeat.client_version, '0.1.0')
+    assert.equal(heartbeat.client_version, '0.1.1')
     assert.equal(heartbeat.dsh_version, '0.1.1-rc.2')
     assert.equal(heartbeat.config_fingerprint, `sha256:${'b'.repeat(64)}`)
   } finally {

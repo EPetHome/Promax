@@ -40,7 +40,7 @@ properties:
   spec:
     type: object
     additionalProperties: false
-    required: [preset_id, workspace_policy, coordinator, members, skills, capabilities, artifacts, coordination, receipt_fields, session_policy, compiled_files]
+    required: [preset_id, workspace_policy, coordinator, members, skills, capabilities, artifacts, domain_rubrics, coordination, receipt_fields, session_policy, compiled_files]
     properties:
       preset_id:
         type: string
@@ -71,7 +71,7 @@ properties:
         items:
           type: object
           additionalProperties: false
-          required: [skill_ref, skill_id, revision, content_sha256]
+          required: [skill_ref, skill_id, revision, content_sha256, tree_sha256]
           properties:
             skill_ref:
               type: string
@@ -81,6 +81,10 @@ properties:
               type: integer
               minimum: 1
             content_sha256:
+              type: string
+              pattern: ^[a-f0-9]{64}$
+            tree_sha256:
+              description: Skill 目录内全部普通文件按相对路径排序后的确定性树哈希；覆盖 references、resources 与脚本。
               type: string
               pattern: ^[a-f0-9]{64}$
       capabilities:
@@ -115,12 +119,45 @@ properties:
           properties:
             kind:
               type: string
+            validation_kind:
+              type: string
+              pattern: ^[a-z][a-z0-9-]{1,63}$
             relative_path:
               type: string
             produced_by:
               type: string
             required:
               type: boolean
+      domain_rubrics:
+        description: 当前 TeamRevision 冻结的领域判定规则；协调者按 artifact.validation_kind 精确取组后交给 Judge。
+        type: object
+        minProperties: 1
+        additionalProperties:
+          type: object
+          required: [display_name, rules]
+          additionalProperties: false
+          properties:
+            display_name:
+              type: string
+            rules:
+              type: array
+              minItems: 1
+              items:
+                type: object
+                required: [rule_id, defect_type, check, fail_evidence]
+                additionalProperties: false
+                properties:
+                  rule_id:
+                    type: string
+                  defect_type:
+                    type: string
+                  check:
+                    type: string
+                  fail_evidence:
+                    type: array
+                    minItems: 1
+                    items:
+                      type: string
       coordination:
         type: object
       routing:
@@ -252,6 +289,26 @@ properties:
             sha256:
               type: string
               pattern: ^[a-f0-9]{64}$
+allOf:
+  - if:
+      properties:
+        metadata:
+          type: object
+          required: [revision]
+          properties:
+            revision:
+              type: integer
+              minimum: 4
+    then:
+      properties:
+        spec:
+          type: object
+          properties:
+            artifacts:
+              type: array
+              items:
+                type: object
+                required: [kind, validation_kind, relative_path, produced_by, required]
 $defs:
   member:
     type: object
