@@ -4,6 +4,7 @@ import { createServer } from 'node:http'
 import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 import test from 'node:test'
+import Ajv2020 from 'ajv/dist/2020.js'
 import YAML from 'yaml'
 import {
   apiValidators,
@@ -11,6 +12,7 @@ import {
   catalogResponse,
   compileTeam,
   ContractError,
+  freezeEvidenceInput,
   HARNESS_DIR,
   importTeamConfiguration,
   instantiateTeam,
@@ -34,6 +36,7 @@ import {
 } from '../src/configuration.mjs'
 import { createConfiguratorTool } from '../src/configurator-tool.mjs'
 import { createPromaxTeamApiHandler, TEAM_API_PREFIX } from '../src/dsh-adapter.mjs'
+import { apply as applyMemberSkillProvider } from '../src/member-skill-provider.mjs'
 
 const definitionFile = resolve(HARNESS_DIR, 'examples/dynamic-product-team.yml')
 
@@ -71,6 +74,7 @@ test('编译生成不可变 TeamRevision、固定 preset 与版本化 Skill 快�
     assert.equal(revision.api_version, 'promax.ai/v1alpha2')
     assert.equal(revision.spec.preset_id, 'promax-product-studio-r1')
     assert.equal(revision.spec.workspace_policy.default_output_root, 'deliverables')
+    assert.deepEqual(revision.spec.artifacts.map(artifact => artifact.validation_kind), ['prd', 'diagram', 'prototype'])
     assert.equal(revision.spec.session_policy.silent_migration, 'forbidden')
     assert.equal(revision.spec.session_policy.resource_change_effect, 'update-workspace-manifest-without-team-revision')
     assert.deepEqual(revision.spec.skills.map(skill => skill.skill_ref), [
@@ -82,6 +86,32 @@ test('编译生成不可变 TeamRevision、固定 preset 与版本化 Skill 快�
       () => compileTeam({ definitionFile, revision: 1, outputDir: root }),
       error => error instanceof ContractError && error.details.some(detail => detail.code === 'REVISION_IMMUTABLE'),
     )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('TeamRevision 从 r4 起强制 validation_kind，同时保持冻结 r3 可校验', () => {
+  const root = temporaryRoot()
+  try {
+    const result = compileTeam({ definitionFile, revision: 4, outputDir: root })
+    const r4 = readYaml(join(result.outputPath, 'team-revision.yml'))
+    const schema = readYaml(resolve(HARNESS_DIR, 'schemas/team-revision.schema.yml'))
+    const validate = new Ajv2020({ allErrors: true, strict: true, strictRequired: false }).compile(schema)
+
+    assert.equal(validate(r4), true)
+
+    const r4MissingValidationKind = structuredClone(r4)
+    delete r4MissingValidationKind.spec.artifacts[0].validation_kind
+    assert.equal(validate(r4MissingValidationKind), false)
+    assert.ok(validate.errors.some(error => error.keyword === 'required' && error.params.missingProperty === 'validation_kind'))
+
+    const frozenR3 = structuredClone(r4)
+    frozenR3.metadata.revision = 3
+    frozenR3.metadata.team_revision_id = 'product-studio@r3'
+    frozenR3.spec.preset_id = 'promax-product-studio-r3'
+    for (const artifact of frozenR3.spec.artifacts) delete artifact.validation_kind
+    assert.equal(validate(frozenR3), true)
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
@@ -111,6 +141,93 @@ test('基础 persona 不可由 GUI 覆盖，允许字段只追加在其后', () 
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
+})
+
+test('编译器拒绝 toolFilter 中未由本轮 preset 生成的工具名', () => {
+  const root = temporaryRoot()
+  const profiles = readYaml(resolve(HARNESS_DIR, 'catalogs/tool-profiles.yml'))
+  profiles.profiles.find(profile => profile.profile_id === 'document-worker').deny.push('fake_tool')
+  const toolProfilesFile = join(root, 'tool-profiles.yml')
+  writeFileSync(toolProfilesFile, YAML.stringify(profiles))
+  try {
+    assert.throws(
+      () => compileTeam({ definitionFile, revision: 1, outputDir: root, toolProfilesFile }),
+      error => error instanceof ContractError
+        && error.message.startsWith('TOOL_FILTER_UNKNOWN_NAME: member "product_prd_agent"')
+        && error.message.includes('未生成的工具名 "fake_tool"')
+        && error.details.some(detail => detail.code === 'TOOL_FILTER_UNKNOWN_NAME'),
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('领域规则正文按 validation_kind 注入对应 worker，独立 Judge 收到全部已匹配规则', () => {
+  const root = temporaryRoot()
+  const productTeamDefinition = resolve(HARNESS_DIR, 'definitions/team-mtcjsbcz-04tpe2.yml')
+  try {
+    const result = compileTeam({ definitionFile: productTeamDefinition, revision: 8, outputDir: root })
+    const plugins = parseGeneratedCordis(join(result.outputPath, 'agent.cordis.yml'))
+    const delegation = plugins.find(plugin => plugin.id === 'delegation')
+    const workers = new Map(delegation.config
+      .filter(plugin => plugin.name === '@deepseek-ai/dsh-tool-subagent')
+      .map(plugin => [plugin.config.toolName, plugin.config]))
+
+    assert.ok(workers.get('customer_research').persona.includes('CUSTOMER_RESEARCH_REQUIRED_SECTIONS'))
+    assert.ok(!workers.get('customer_research').persona.includes('PRD_REQUIRED_SECTIONS'))
+    assert.ok(workers.get('solution_design').persona.includes('PRD_REQUIRED_SECTIONS'))
+    assert.ok(workers.get('solution_design').persona.includes('DIAGRAM_REQUIRED_BLOCKS'))
+    assert.ok(workers.get('solution_design').persona.includes('PROTOTYPE_SINGLE_FILE'))
+    assert.ok(!workers.get('requirement_management').persona.includes('本 preset 冻结并送达的领域规则正文'))
+
+    const judge = workers.get('quality_judge').persona
+    for (const ruleId of [
+      'PRD_REQUIRED_SECTIONS',
+      'DIAGRAM_REQUIRED_BLOCKS',
+      'PROTOTYPE_SINGLE_FILE',
+      'CUSTOMER_RESEARCH_REQUIRED_SECTIONS',
+      'PRODUCT_DISCOVERY_REQUIRED_SECTIONS',
+      'USER_ANALYSIS_REQUIRED_SECTIONS',
+      'REQUIREMENT_REVIEW_REQUIRED_SECTIONS',
+    ]) assert.ok(judge.includes(ruleId), ruleId)
+    assert.ok(Buffer.byteLength(judge, 'utf8') < 65536)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('成员 Skill provider 在 child scope 通过 get 获取 skills service', () => {
+  let setup
+  let providerRegistered = false
+  applyMemberSkillProvider({
+    subagents: {
+      registerContinuableSetup(contribution) {
+        setup = contribution
+      },
+    },
+  }, { memberSkills: {} })
+  const dispose = setup({
+    get(name) {
+      assert.equal(name, 'skills')
+      return {
+        registerProvider() {
+          providerRegistered = true
+          return () => {}
+        },
+      }
+    },
+  })
+  assert.equal(providerRegistered, true)
+  assert.equal(typeof dispose, 'function')
+})
+
+test('外接能力源码同时覆盖 continuable 与 one-shot 子会话安装路径', () => {
+  const source = readFileSync(resolve(HARNESS_DIR, 'src/external-capabilities.mjs'), 'utf8')
+  assert.ok(source.includes("ctx.subagents.registerContinuableSetup((childCtx) =>"))
+  assert.ok(source.includes("ctx.on('agent/created', ({ agent }) =>"))
+  assert.ok(source.includes("agent.session.header.origin !== 'subagent'"))
+  assert.ok(source.includes("'promax-external-capabilities.one-shot-child'"))
+  assert.equal(source.match(/render: renderJson/g)?.length, 2)
 })
 
 test('PromptRecipe 通过 recipe_id@revision 一键生成 coordinator + N worker 草稿', () => {
@@ -298,7 +415,7 @@ test('AGENTS.md/SOUL.md 导入只生成草稿；未知 SKILL.md 进入待审核'
 })
 
 test('已知 SKILL.md 只有 name 与 SHA256 精确匹配时才返回允许引用，仍不安装', () => {
-  const content = readFileSync(resolve(HARNESS_DIR, '../agents/product-solution/skills/prd-document-generator/SKILL.md'), 'utf8')
+  const content = readFileSync(resolve(HARNESS_DIR, 'agents/product-solution/skills-v1/prd-document-generator/SKILL.md'), 'utf8')
   const request = {
     api_version: 'promax.ai/v1alpha2',
     kind: 'ImportRequest',
@@ -314,7 +431,7 @@ test('已知 SKILL.md 只有 name 与 SHA256 精确匹配时才返回允许引�
     }],
   }
   const response = importTeamConfiguration(request)
-  assert.deepEqual(response.matched_skill_refs, ['prd-document-generator@2'])
+  assert.deepEqual(response.matched_skill_refs, ['prd-document-generator@1'])
   assert.deepEqual(response.review_items, [])
   assert.equal(response.skill_install_performed, false)
 })
@@ -351,6 +468,27 @@ test('TeamResourceManifest 只接受 workspace 相对路径，成员 ACL 当前�
     () => validateResourceManifest({ manifest, definition }),
     error => error instanceof ContractError && error.details.some(detail => detail.field_path.endsWith('/relative_path')),
   )
+})
+
+test('不可变输入包使用与中文会话名称相同的 task_key 目录', () => {
+  const root = temporaryRoot()
+  try {
+    const source = join(root, 'source.txt')
+    writeFileSync(source, 'fixture')
+    const frozen = freezeEvidenceInput({
+      workspaceRoot: root,
+      taskKey: '图书馆座位预约',
+      sources: [{ source_id: 'SRC-001', path: source, media_type: 'text/plain', origin_kind: 'user-provided' }],
+    })
+    assert.equal(frozen.task_key, '图书馆座位预约')
+    assert.ok(frozen.manifest.endsWith('.promax/input/图书馆座位预约/manifest.yml'))
+    assert.throws(
+      () => freezeEvidenceInput({ workspaceRoot: root, taskKey: '../越界', sources: [{ source_id: 'SRC-002', path: source, media_type: 'text/plain', origin_kind: 'user-provided' }] }),
+      error => error instanceof ContractError && error.details.some(detail => detail.code === 'TASK_KEY_INVALID'),
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
 })
 
 test('资源清单不参与 TeamRevision 定义哈希，配置变化才发布新 revision', () => {

@@ -20,6 +20,8 @@ skills:
     display_name: PRD 文档
     description: 生成并验证 Markdown PRD。
     content_sha256: a42a6858eae45238dc1eeb557ee2ed202e2acffd3eafeb9e862fd190d1f0d990
+    tree_sha256: 65ffee8cbdf3e1bb1ac6fd519b61db3d8fb6e7eee8e9bd16b0459cfd8b2a5deb
+rubric_rule_count: 21
 prompt_recipes:
   - recipe_ref: research-review@1
     display_name: 资料研究与复核团队

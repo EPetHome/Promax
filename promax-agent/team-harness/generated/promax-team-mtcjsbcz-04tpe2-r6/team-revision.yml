@@ -1,0 +1,871 @@
+api_version: promax.ai/v1alpha2
+kind: TeamRevision
+metadata:
+  team_revision_id: team-mtcjsbcz-04tpe2@r6
+  team_id: team-mtcjsbcz-04tpe2
+  revision: 6
+  status: published
+  definition_sha256: f73c9bb51cd5dc0182de0caa342375b41b22b758f2ccd1a28be789aaaba1e44e
+  display_name: "123"
+  description: "141"
+  source_recipe_ref: general-collaboration@1
+spec:
+  preset_id: promax-team-mtcjsbcz-04tpe2-r6
+  workspace_policy:
+    mode: team-folder
+    default_output_root: deliverables
+    resource_root: team-resources
+    resource_manifest_path: .promax/team-resource-manifest.yml
+  coordinator:
+    member_id: team_lead
+    display_name: 主智能体
+    role: orchestrator
+    runtime_tool_id: null
+    mention_aliases:
+      - team_lead
+      - 主智能体
+    module_ref: team-coordinator@2
+    skill_refs: []
+  members:
+    - member_id: customer_research
+      display_name: 客研管理智能体
+      role: worker
+      runtime_tool_id: customer_research
+      mention_aliases:
+        - customer_research
+        - 客研管理智能体
+      module_ref: customer-research@1
+      skill_refs:
+        - customer-research@2
+    - member_id: product_discovery
+      display_name: 产品探索智能体
+      role: worker
+      runtime_tool_id: product_discovery
+      mention_aliases:
+        - product_discovery
+        - 产品探索智能体
+      module_ref: product-discovery@2
+      skill_refs:
+        - difference-panel@2
+        - report-generator@2
+    - member_id: requirement_management
+      display_name: 需求管理智能体
+      role: worker
+      runtime_tool_id: requirement_management
+      mention_aliases:
+        - requirement_management
+        - 需求管理智能体
+      module_ref: requirement-management@2
+      skill_refs:
+        - feishu-requirement-archive@1
+        - feishu-requirement-board@1
+        - feishu-requirement-entry@1
+        - pm-weekly-monitor@1
+    - member_id: solution_design
+      display_name: 产品需求方案智能体
+      role: worker
+      runtime_tool_id: solution_design
+      mention_aliases:
+        - solution_design
+        - 产品需求方案智能体
+      module_ref: product-solution@2
+      skill_refs:
+        - business-diagram-generator@3
+        - interaction-design@2
+        - interactive-prototype-generator@3
+        - prd-document-generator@3
+        - prototype-quality-audit@2
+        - rd-handoff-package@2
+        - requirement-clarifier@2
+        - ui-design-system@2
+    - member_id: requirement_review
+      display_name: 需求评审智能体
+      role: worker
+      runtime_tool_id: requirement_review
+      mention_aliases:
+        - requirement_review
+        - 需求评审智能体
+      module_ref: requirement-review@2
+      skill_refs:
+        - issue-tracker@2
+        - logic-detector@2
+        - requirement-review@2
+    - member_id: user_analysis
+      display_name: 用户分析智能体
+      role: worker
+      runtime_tool_id: user_analysis
+      mention_aliases:
+        - user_analysis
+        - 用户分析智能体
+      module_ref: user-analysis@2
+      skill_refs:
+        - app-market-sentiment@2
+        - core-metrics-analysis@2
+        - data-visualization@2
+        - user-feedback-processor@2
+    - member_id: quality_judge
+      display_name: 独立 Judge
+      role: worker
+      runtime_tool_id: quality_judge
+      mention_aliases:
+        - quality_judge
+        - 独立 Judge
+      module_ref: independent-judge@2
+      skill_refs: []
+  skills:
+    - skill_ref: app-market-sentiment@2
+      skill_id: app-market-sentiment
+      revision: 2
+      content_sha256: 2efa566fb91f37d4aa45ac6817fe149743b2ee97725b469fde44b7b0d21cea0c
+      tree_sha256: 1c6ada3577b9b5d7cc3d0e20fd25ebce54e4f9fe56bfe43af4c617c08edb302f
+    - skill_ref: business-diagram-generator@3
+      skill_id: business-diagram-generator
+      revision: 3
+      content_sha256: 8399de1ff4487786152bbe0d5845d0618c6485dd3320d84959cf9ce3b1b407b1
+      tree_sha256: 26b3d00699bf5635c42e987b48a0f7013d4b958031ea00a2dff58633e31df056
+    - skill_ref: core-metrics-analysis@2
+      skill_id: core-metrics-analysis
+      revision: 2
+      content_sha256: 131703ad762ef6ba7df20658bfdb6e1224dc3a0c153c50e73c8d35cab5332483
+      tree_sha256: 45aeed04247cc962434ac70de624ab5adc6c65d5dbf6f127e3a0b115f02d5079
+    - skill_ref: customer-research@2
+      skill_id: customer-research
+      revision: 2
+      content_sha256: 146458b71246b6d8783fdfc5d256015845b2ae3f7104fc974501a30a475ac935
+      tree_sha256: 20429b25a94418305a1a33f498e9a5af5aef5a83a0286a199457caed82ae5958
+    - skill_ref: data-visualization@2
+      skill_id: data-visualization
+      revision: 2
+      content_sha256: 67ea68e7c4f495b57ba041b2d3edccc03ce048b8f076e10cb63871b8b4a72fa5
+      tree_sha256: d447b19dc0ba5aa7f0b9065b942f6d789c2b57a071ea767ddf2da63dab69bc12
+    - skill_ref: difference-panel@2
+      skill_id: difference-panel
+      revision: 2
+      content_sha256: 50a67687132cf81285d7b0d102f19f9aa69642da2c5e1513e7ecf6ed1dcca390
+      tree_sha256: 518d61fa8abd2ba1c17a1934f9f849101a363bb06ea272c4b04216cd5fe84225
+    - skill_ref: feishu-requirement-archive@1
+      skill_id: feishu-requirement-archive
+      revision: 1
+      content_sha256: da00688cfd8492b4458a26418a10af0f804c5f2352741b2f6903c31e60f20993
+      tree_sha256: 40946c4c4330ef189af980b1264b799719270c90bf1ddea95dabcc7e4652ea29
+    - skill_ref: feishu-requirement-board@1
+      skill_id: feishu-requirement-board
+      revision: 1
+      content_sha256: 1d3e7c1255ac1ed7787ba7e1504c00613b86b10e9bc3d1180c530c49f541d903
+      tree_sha256: 120df43fcf8c2c61476eb6feda1189f33b575d663bed865699eaedf8262f695a
+    - skill_ref: feishu-requirement-entry@1
+      skill_id: feishu-requirement-entry
+      revision: 1
+      content_sha256: 4458927ae610361c8193c10f74454204d0cc02b428b2b99e987f9968f42a2b73
+      tree_sha256: 56d4f256f34a8f65c744486d9abd6f1db737ddac7056b50348abbd8941b3b6b3
+    - skill_ref: interaction-design@2
+      skill_id: interaction-design
+      revision: 2
+      content_sha256: 1f0c9a44800131b7737c0cc7aea125fbae657cd7f6b92f4806a1580beb3baf8e
+      tree_sha256: 2d80124c204b585cbbc374c0ccc7937499c86459d8919411597107353854b0c8
+    - skill_ref: interactive-prototype-generator@3
+      skill_id: interactive-prototype-generator
+      revision: 3
+      content_sha256: 284c3668fdffc345cde7cf50d7cc801e05c7fa30d8979eba26e5ba2ebf3c4fe8
+      tree_sha256: b7788c3509f1b14707c5986d8a34b708fa934ac99d215d555d5122e1d88c6153
+    - skill_ref: issue-tracker@2
+      skill_id: issue-tracker
+      revision: 2
+      content_sha256: 37bde221553d5afb3767eb3d522831cb173cfb56b75c9179deb6ab84097f3ffc
+      tree_sha256: 2f3e2608428934c9215e132bb91f8884d8c17245d3c5830f1e2aaf2a855aa345
+    - skill_ref: logic-detector@2
+      skill_id: logic-detector
+      revision: 2
+      content_sha256: 6161ece01faef7beef7d082d1a8e444ec5235967cf963ca8fb988c6b21385df6
+      tree_sha256: 71e8c07f22f9f1bd5da4e42b624ba84bc7dbff77705f44e67039cb6c381919b0
+    - skill_ref: pm-weekly-monitor@1
+      skill_id: pm-weekly-monitor
+      revision: 1
+      content_sha256: 26f1e69d3bfa71949ec580df86a496320ae8511faf1cb78d29210384436449c1
+      tree_sha256: 9878e9ce76f2ff3b3d1e582a7732fc5274bb8044fee6f3750bdd571c7268650f
+    - skill_ref: prd-document-generator@3
+      skill_id: prd-document-generator
+      revision: 3
+      content_sha256: f14519bce70171712dd3cf6d2cd63a8519e2359693e7d0b4b75a5f6c8abf3a54
+      tree_sha256: 46f15faa39b091390bd91e33e9e190d43b88ac8281f8221d7b21207ef87dc6bc
+    - skill_ref: prototype-quality-audit@2
+      skill_id: prototype-quality-audit
+      revision: 2
+      content_sha256: 551a774a16fa93e30ce56fe93db4ddc894f25fa783e1aeb0be6dc2149e8eeb47
+      tree_sha256: 31351e2bfaf2ca88aaed1faaf5526035544d5fb4ec0fc8e14acdcc83236ebdcc
+    - skill_ref: rd-handoff-package@2
+      skill_id: rd-handoff-package
+      revision: 2
+      content_sha256: 5f4bc082bdfa12ceaeec352b370df79bfc0ed5a172977fc13a31841775fa3ec6
+      tree_sha256: af547cd08e9c550e97e1a4d2f1735af275f84f8a917daced8513be84e88fb5fc
+    - skill_ref: report-generator@2
+      skill_id: report-generator
+      revision: 2
+      content_sha256: d2c553fb89228893c3fec04574ee3d272f8c99ecdb1017e0ba891ddc02aa0edb
+      tree_sha256: 0b492cdaa4ab2b8c44f7a944fc02bbf9218632cbe1aad862cab6259b65dba245
+    - skill_ref: requirement-clarifier@2
+      skill_id: requirement-clarifier
+      revision: 2
+      content_sha256: 1486b9bcbff6df32414971aeac13173ef55627114c9b10d64841c5d8a019cfdc
+      tree_sha256: cb8a073db0da41d9efeab4684a33f481b7ea4cd7bbe156af2e4f33883d36da0c
+    - skill_ref: requirement-review@2
+      skill_id: requirement-review
+      revision: 2
+      content_sha256: 59dd4398100ead120012c0f02655e77c88fc129de7a9a07842aadb9062dc2178
+      tree_sha256: 3eebd057ceb0b68c652b0a132158cf8343aa8bbdfe14075ceb6463376669438f
+    - skill_ref: ui-design-system@2
+      skill_id: ui-design-system
+      revision: 2
+      content_sha256: b9cdaafc795efbe7430eb32dd8fcd89a675c0514524561306b2fdb1dd0691de9
+      tree_sha256: ba99a9ad2ea77cf17e4838daab2567dbb7c2d322a5f5a7144493485dde05af23
+    - skill_ref: user-feedback-processor@2
+      skill_id: user-feedback-processor
+      revision: 2
+      content_sha256: 523778c3dca01c2bbef476fab3508ce49790d52f349d30d1cf33b5f46439ddb7
+      tree_sha256: 544354d26da4bb28a267204412a0e5c490505f7d4d1eae94b88c53df800fdace
+  capabilities:
+    - capability_id: customer-research
+      member_id: customer_research
+      skill_refs:
+        - customer-research@2
+      artifact_kinds:
+        - other
+    - capability_id: product-discovery
+      member_id: product_discovery
+      skill_refs:
+        - difference-panel@2
+        - report-generator@2
+      artifact_kinds:
+        - other
+    - capability_id: requirement-management
+      member_id: requirement_management
+      skill_refs:
+        - feishu-requirement-archive@1
+        - feishu-requirement-board@1
+        - feishu-requirement-entry@1
+        - pm-weekly-monitor@1
+      artifact_kinds:
+        - other
+    - capability_id: solution-design
+      member_id: solution_design
+      skill_refs:
+        - business-diagram-generator@3
+        - interaction-design@2
+        - interactive-prototype-generator@3
+        - prd-document-generator@3
+        - prototype-quality-audit@2
+        - rd-handoff-package@2
+        - requirement-clarifier@2
+        - ui-design-system@2
+      artifact_kinds:
+        - prd
+        - diagram
+        - prototype
+    - capability_id: requirement-review
+      member_id: requirement_review
+      skill_refs:
+        - issue-tracker@2
+        - logic-detector@2
+        - requirement-review@2
+      artifact_kinds:
+        - other
+    - capability_id: user-analysis
+      member_id: user_analysis
+      skill_refs:
+        - app-market-sentiment@2
+        - core-metrics-analysis@2
+        - data-visualization@2
+        - user-feedback-processor@2
+      artifact_kinds:
+        - other
+    - capability_id: quality-judge
+      member_id: quality_judge
+      skill_refs: []
+      artifact_kinds:
+        - judge-report
+  artifacts:
+    - kind: other
+      validation_kind: customer-research-report
+      relative_path: deliverables/{task_key}/customer_research.md
+      required: true
+      produced_by: customer_research
+    - kind: other
+      validation_kind: product-discovery-report
+      relative_path: deliverables/{task_key}/product_discovery.md
+      required: true
+      produced_by: product_discovery
+    - kind: other
+      validation_kind: requirement-management-report
+      relative_path: deliverables/{task_key}/requirement_management.md
+      required: true
+      produced_by: requirement_management
+    - kind: prd
+      validation_kind: prd
+      relative_path: deliverables/{task_key}/prd.md
+      required: true
+      produced_by: solution_design
+    - kind: diagram
+      validation_kind: diagram
+      relative_path: deliverables/{task_key}/business-diagram.md
+      required: false
+      produced_by: solution_design
+    - kind: prototype
+      validation_kind: prototype
+      relative_path: deliverables/{task_key}/prototype.html
+      required: false
+      produced_by: solution_design
+    - kind: other
+      validation_kind: requirement-review-report
+      relative_path: deliverables/{task_key}/requirement_review.md
+      required: true
+      produced_by: requirement_review
+    - kind: other
+      validation_kind: user-analysis-report
+      relative_path: deliverables/{task_key}/user_analysis.md
+      required: true
+      produced_by: user_analysis
+    - kind: judge-report
+      validation_kind: judge-report
+      relative_path: .promax/judge/{task_key}/judge.md
+      required: true
+      produced_by: quality_judge
+  domain_rubrics:
+    prd:
+      display_name: PRD
+      rules:
+        - rule_id: PRD_REQUIRED_SECTIONS
+          defect_type: PRD_STRUCTURE_MISSING
+          check: 逐字检查最终 Markdown 是否按顺序包含 0. 文档控制与闭集输入、1. 背景/问题与证据、2. 目标/成功指标与非目标、3. 用户与场景、4. 范围及优先级、5. 需求清单、6. 业务规则与边界真值表、7. 流程/状态与异常、8. 权限与产品级数据需求、9. 验收标准、10. 输入硬信息保留表与追溯矩阵、11. 假设/矛盾/未决项与未验证项；无依据内容写“未提供”，不能漏节。
+          fail_evidence:
+            - 最终产物路径
+            - 缺失的标题原文
+            - 相邻标题及行号
+        - rule_id: PRD_TRACEABILITY_TABLE
+          defect_type: PRD_TRACEABILITY_MISSING
+          check: 逐字检查每个输入硬信息是否在“输入硬信息保留表”或“追溯矩阵”中有来源编号、正文去向和允许状态。
+          fail_evidence:
+            - 输入原文及位置
+            - 产物中对应表格的行号范围
+            - 缺失的来源编号、去向或状态
+        - rule_id: PRD_BOUNDARY_TRUTH
+          defect_type: PRD_BOUNDARY_MISMATCH
+          check: 输入含阈值时，逐行核对三点表；数量变化必须先算 after=before+delta，再以 after<=N 判定。before=N、delta=1 必须为 false 并拒绝。
+          fail_evidence:
+            - 规则位置
+            - 三点表位置
+            - 具体代入式、布尔结果和文档分支
+    diagram:
+      display_name: 业务流程图
+      rules:
+        - rule_id: DIAGRAM_REQUIRED_BLOCKS
+          defect_type: DIAGRAM_STRUCTURE_MISSING
+          check: 逐字检查最终 Markdown 是否按顺序包含 1. 图表类型与业务问题、2. 参与者/节点/条件/边与证据映射、3. Mermaid 图、4. 主流程/异常与补偿说明、5. 矛盾/缺口与设计选择、6. 边界真值表与验证记录六个区块。
+          fail_evidence:
+            - 最终产物路径
+            - 缺失的区块名
+            - 相邻标题及行号
+        - rule_id: DIAGRAM_ELEMENT_MAPPING
+          defect_type: DIAGRAM_ELEMENT_UNMAPPED
+          check: 逐字核对 Mermaid 中每个业务参与者、节点、条件和边是否在映射表中出现，并带输入事实、明确推导、设计选择、矛盾或缺口编号。
+          fail_evidence:
+            - Mermaid 元素原文及行号
+            - 映射表检索结果
+            - 缺失或不匹配的编号
+        - rule_id: DIAGRAM_DECISION_PATH
+          defect_type: DIAGRAM_DECISION_MISMATCH
+          check: 逐个条件节点代入边界值，核对节点谓词、是/否或 true/false 边和结果节点。数量变化使用 after<=N；before=N、delta=1 必须沿 false/否边进入拒绝。
+          fail_evidence:
+            - 条件节点位置
+            - 两条边及结果节点位置
+            - 具体代入式与应走分支
+    prototype:
+      display_name: 单 HTML 交互原型
+      rules:
+        - rule_id: PROTOTYPE_SINGLE_FILE
+          defect_type: PROTOTYPE_EXTERNAL_DEPENDENCY
+          check: 逐字检查最终交付是否只有一个 HTML，CSS 与 JavaScript 均内联，不存在 http、https、协议相对 URL、CDN、外链字体或运行时资源；head 内 PROMAX_TRACE 注释须含闭集输入、页面/任务映射、控件/处理器映射、状态覆盖、边界真值表、浏览器取证、未验证项和自检。
+          fail_evidence:
+            - 最终产物路径
+            - 外部引用原文及行号
+            - 被引用资源类型
+        - rule_id: PROTOTYPE_CONTROL_HANDLER
+          defect_type: PROTOTYPE_CONTROL_UNWIRED
+          check: 逐个核对未禁用的按钮、链接和表单控件是否能在内联 JavaScript 中定位到对应处理逻辑；没有实现的控件必须逐字标为 disabled 或不可用。
+          fail_evidence:
+            - 控件原文及行号
+            - 处理逻辑检索结果
+            - 缺失或不匹配的绑定
+        - rule_id: PROTOTYPE_RULE_FEEDBACK
+          defect_type: PROTOTYPE_RULE_MISMATCH
+          check: 逐个核对可见条件标签、JavaScript 判断和用户反馈是否表达同一规则。数量变化使用 after<=N；before=N、delta=1 必须显示拒绝且数量不增加。
+          fail_evidence:
+            - 可见标签位置
+            - JavaScript 判断位置
+            - 反馈位置
+            - 具体代入式与实际结果
+    customer-research-report:
+      display_name: 客户研究报告
+      rules:
+        - rule_id: CUSTOMER_RESEARCH_REQUIRED_SECTIONS
+          defect_type: CUSTOMER_RESEARCH_STRUCTURE_MISSING
+          check: 逐字检查最终 Markdown 是否按顺序包含 customer-research Skill 规定的 0–10 节标题；输入无依据的内容写“未提供”或“不适用”，不能删节。
+          fail_evidence:
+            - 最终产物路径
+            - 缺失或乱序的标题原文
+            - 相邻标题及行号
+        - rule_id: CUSTOMER_RESEARCH_EVIDENCE_TRACE
+          defect_type: CUSTOMER_RESEARCH_EVIDENCE_UNMAPPED
+          check: 逐项核对关键发现、痛点和候选需求是否引用 E-*，并能在证据追溯矩阵回到 SRC-*、输入原文及位置；事实、推断、建议和未验证项不得混写。
+          fail_evidence:
+            - 结论原文及行号
+            - E-* 与 SRC-* 检索结果
+            - 缺失的输入原文、位置或分类
+        - rule_id: CUSTOMER_RESEARCH_SAMPLE_BOUNDARY
+          defect_type: CUSTOMER_RESEARCH_SAMPLE_BOUNDARY_MISMATCH
+          check: 逐行核对样本边界实际代入表；必须满足 0<=observed_count<=sample_size，未知时不计算比例，observed_count=1 只标个案，跨样本结论只描述本批样本，不得外推总体，存在相反证据时必须并列标冲突。
+          fail_evidence:
+            - 样本边界表位置
+            - observed_count、sample_size 与具体代入式
+            - 越界计数、总体外推或被覆盖的相反证据原文
+    product-discovery-report:
+      display_name: 产品探索报告
+      rules:
+        - rule_id: PRODUCT_DISCOVERY_REQUIRED_SECTIONS
+          defect_type: PRODUCT_DISCOVERY_STRUCTURE_MISSING
+          check: 逐字检查最终 Markdown 是否按顺序包含 0. 任务与闭集输入、1. 来源登记与口径、2. 竞品覆盖矩阵、3. 维度化差异面板、4. 关键差异及证据、5. 机会假设、6. 风险与反证、7. 边界真值表、8. 未验证项、9. 证据追溯矩阵；无依据内容不能删节。
+          fail_evidence:
+            - 最终产物路径
+            - 缺失或乱序标题及行号
+            - 相邻标题原文
+        - rule_id: PRODUCT_DISCOVERY_EVIDENCE_TRACE
+          defect_type: PRODUCT_DISCOVERY_EVIDENCE_UNMAPPED
+          check: 逐项核对差异事实是否引用 E-* 并回到 SRC-*、原文与位置；事实、分析推断、机会假设和未知必须分开，机会假设必须回指差异证据。
+          fail_evidence:
+            - 差异或机会原文及行号
+            - E-* 与 SRC-* 检索结果
+            - 缺失分类或来源位置
+        - rule_id: PRODUCT_DISCOVERY_SCOPE_BOUNDARY
+          defect_type: PRODUCT_DISCOVERY_SCOPE_OR_BOUNDARY_MISMATCH
+          check: 核对来源覆盖、时间窗、字段口径和竞品范围没有超出不可变输入清单；逐行核对边界真值表三点代入，无可求值边界时必须明确写不适用，不能编造阈值。
+          fail_evidence:
+            - 输入清单与超范围结论
+            - 边界表位置
+            - 具体代入式或被编造阈值
+    user-analysis-report:
+      display_name: 用户分析报告
+      rules:
+        - rule_id: USER_ANALYSIS_REQUIRED_SECTIONS
+          defect_type: USER_ANALYSIS_STRUCTURE_MISSING
+          check: 逐字检查最终 Markdown 至少按顺序包含输入与样本/口径、数据质量与清洗、结构化反馈或指标基线、趋势与异常、归因假设与替代解释、反例与冲突、边界真值表、限制与未验证项、证据追溯矩阵；不适用内容保留标题说明原因。
+          fail_evidence:
+            - 最终产物路径
+            - 缺失或乱序标题及行号
+            - 对应 Skill 的固定输出契约
+        - rule_id: USER_ANALYSIS_NUMBER_TRACE
+          defect_type: USER_ANALYSIS_NUMBER_UNTRACEABLE
+          check: 逐项核对数字、比例、趋势、引文和图表是否回到 E-*、SRC-*、输入位置、时间窗、分母与公式；脚本结果不得被当成新的原始事实源。
+          fail_evidence:
+            - 数字/引文/图表原文及行号
+            - E-*、SRC-* 与输入位置检索结果
+            - 缺失时间窗、分母或公式
+        - rule_id: USER_ANALYSIS_INFERENCE_BOUNDARY
+          defect_type: USER_ANALYSIS_INFERENCE_OR_BOUNDARY_MISMATCH
+          check: 核对评论声量未外推用户总体、相关性未写成因果、归因假设列出替代解释；逐行复算样本/时间窗/阈值真值表，未知阈值不得自创。
+          fail_evidence:
+            - 外推或因果化原文及行号
+            - 替代解释检索结果
+            - 边界代入式与应有结论
+    requirement-review-report:
+      display_name: 需求评审报告
+      rules:
+        - rule_id: REQUIREMENT_REVIEW_REQUIRED_SECTIONS
+          defect_type: REQUIREMENT_REVIEW_STRUCTURE_MISSING
+          check: 逐字检查最终 Markdown 是否按顺序包含 0. 评审对象与版本、1. 闭集输入覆盖、2. 总体结论、3. 完整性、4. 歧义与冲突、5. 跨产物逻辑、6. 状态/数据流与时序、7. 边界真值表、8. 验收可测性、9. 问题跟踪表、10. 限制与未验证项。
+          fail_evidence:
+            - 最终产物路径
+            - 缺失或乱序标题及行号
+            - 相邻标题原文
+        - rule_id: REQUIREMENT_REVIEW_ISSUE_EVIDENCE
+          defect_type: REQUIREMENT_REVIEW_ISSUE_UNLOCATABLE
+          check: 每个 RR-* 问题必须含级别、文件位置、原文、判断依据、影响、整改建议、状态和责任人，并明确分类为已证实缺陷、风险、建议或未验证；没有可定位证据不得制造问题。
+          fail_evidence:
+            - RR-* 原文及行号
+            - 缺失字段
+            - 被评审产物中的定位检索结果
+        - rule_id: REQUIREMENT_REVIEW_CROSS_ARTIFACT_BOUNDARY
+          defect_type: REQUIREMENT_REVIEW_CROSS_ARTIFACT_MISMATCH
+          check: 逐项核对 PRD、业务图与原型的术语、角色、状态、谓词和结果分支；边界表必须实际代入三点，数量变化先算 after，before=N、delta=1 必须判拒绝。未提供某产物时只能标未验证。
+          fail_evidence:
+            - 三份产物中的对应原文与行号
+            - 具体代入式和实际分支
+            - 缺失产物或不一致项
+  coordination:
+    topology: orchestrator-workers
+    parallelize_independent_tasks: true
+    wait_for_settlement: true
+    retry_owner: original-worker
+    orchestrator_member_id: team_lead
+    max_depth: 1
+  routing:
+    default_target_member_id: team_lead
+    mention_syntax: "@<member_id|display_name>"
+    mention_match: leading-longest-exact
+    unknown_mention: reject-before-send
+    multiple_mentions: coordinator-mediated
+    members:
+      - member_id: team_lead
+        display_name: 主智能体
+        role: orchestrator
+        mention_aliases:
+          - team_lead
+          - 主智能体
+        target_kind: root-session
+        runtime_tool_id: null
+      - member_id: customer_research
+        display_name: 客研管理智能体
+        role: worker
+        mention_aliases:
+          - customer_research
+          - 客研管理智能体
+        target_kind: subagent-session
+        runtime_tool_id: customer_research
+      - member_id: product_discovery
+        display_name: 产品探索智能体
+        role: worker
+        mention_aliases:
+          - product_discovery
+          - 产品探索智能体
+        target_kind: subagent-session
+        runtime_tool_id: product_discovery
+      - member_id: requirement_management
+        display_name: 需求管理智能体
+        role: worker
+        mention_aliases:
+          - requirement_management
+          - 需求管理智能体
+        target_kind: subagent-session
+        runtime_tool_id: requirement_management
+      - member_id: solution_design
+        display_name: 产品需求方案智能体
+        role: worker
+        mention_aliases:
+          - solution_design
+          - 产品需求方案智能体
+        target_kind: subagent-session
+        runtime_tool_id: solution_design
+      - member_id: requirement_review
+        display_name: 需求评审智能体
+        role: worker
+        mention_aliases:
+          - requirement_review
+          - 需求评审智能体
+        target_kind: subagent-session
+        runtime_tool_id: requirement_review
+      - member_id: user_analysis
+        display_name: 用户分析智能体
+        role: worker
+        mention_aliases:
+          - user_analysis
+          - 用户分析智能体
+        target_kind: subagent-session
+        runtime_tool_id: user_analysis
+      - member_id: quality_judge
+        display_name: 独立 Judge
+        role: worker
+        mention_aliases:
+          - quality_judge
+          - 独立 Judge
+        target_kind: subagent-session
+        runtime_tool_id: quality_judge
+  runtime_mapping:
+    driver: dsh-tool-subagent
+    scope: session
+    worker_instance_cardinality: zero-or-many-per-member
+    instance_key_fields:
+      - team_revision_id
+      - parent_session_id
+      - child_session_id
+    root:
+      member_id: team_lead
+      instance_kind: root-session
+      session_id_source: sessions.create.sessionId
+    worker_observation:
+      runtime_tool_id_source: parent.tool_call.name
+      child_session_id_source: parent.tool_result.subagentId
+      parent_session_id_source: root.sessionId
+      lineage_parent_source: child.header.parentSession
+    workers:
+      - member_id: customer_research
+        runtime_tool_id: customer_research
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: product_discovery
+        runtime_tool_id: product_discovery
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: requirement_management
+        runtime_tool_id: requirement_management
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: solution_design
+        runtime_tool_id: solution_design
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: requirement_review
+        runtime_tool_id: requirement_review
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: user_analysis
+        runtime_tool_id: user_analysis
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+      - member_id: quality_judge
+        runtime_tool_id: quality_judge
+        provider: spawn
+        background_mode: continuable
+        max_depth: 1
+  receipt_fields:
+    - 状态
+    - preset
+    - team_revision_id
+    - task-key
+    - 团队成员
+    - 产物
+    - Judge判定
+    - 修复轮次
+    - 人工处理
+    - 被阻断项
+    - 未验证项
+  session_policy:
+    preset_binding: create-time
+    allow_preset_rebind: false
+    silent_migration: forbidden
+    configuration_change_effect: publish-new-team-revision
+    resource_change_effect: update-workspace-manifest-without-team-revision
+  compiled_files:
+    - relative_path: agent.cordis.yml
+      sha256: a79ae53c3598801a6ca7d921d7801a07ea768dbf3d6490d90ac57f8890957b71
+    - relative_path: preset.yml
+      sha256: 67ff8ab953ff5ba2170f74714907657f60b803d29119ce9661b70e60c6defda9
+    - relative_path: rubrics.yml
+      sha256: 46ad0f2ab77325ac005c08f47b5c95ebcd982c15f2a3f21bca9f6bcf586f34e0
+    - relative_path: skills/app-market-sentiment/SKILL.md
+      sha256: 2efa566fb91f37d4aa45ac6817fe149743b2ee97725b469fde44b7b0d21cea0c
+    - relative_path: skills/app-market-sentiment/resources/examples/sample_output.md
+      sha256: b95b8c10d33aef64c9cd2132bc3a147f9cfcd17f69a15d4224c246db1d58df1d
+    - relative_path: skills/app-market-sentiment/resources/examples/sample_reviews.json
+      sha256: 4ad1283a2e228747b5380d3b523ade80ac4177553815766ac205f006652ab5c2
+    - relative_path: skills/app-market-sentiment/resources/references/alert_rules.md
+      sha256: 20c085b66257ca60b7ada9f86ec6ba48723622e0b2bd05adffc4e99d2b27602a
+    - relative_path: skills/app-market-sentiment/resources/references/pain_point_taxonomy.md
+      sha256: 51f2b9517e710ce8816f19b9a7ee0027a1be4d56125e7aac774d9fb3e8fc25f3
+    - relative_path: skills/app-market-sentiment/resources/references/review_sources.md
+      sha256: ba43b84e872c3c4d7d04d6c00143966d53dcffa9ba37e6727fdef8a4998bce35
+    - relative_path: skills/app-market-sentiment/resources/references/sentiment_analysis_framework.md
+      sha256: 6524afce4ad1d69f4bef38ad2ecf00ea7a3e5e0ac1cb40582f58769ccc09b1d4
+    - relative_path: skills/app-market-sentiment/resources/scripts/analyze_app_reviews.py
+      sha256: 79a7c99730f11591f585d2d19ee2f49c5a295758ba4e8f29d1cd56bf7c36155f
+    - relative_path: skills/business-diagram-generator/SKILL.md
+      sha256: 8399de1ff4487786152bbe0d5845d0618c6485dd3320d84959cf9ce3b1b407b1
+    - relative_path: skills/core-metrics-analysis/SKILL.md
+      sha256: 131703ad762ef6ba7df20658bfdb6e1224dc3a0c153c50e73c8d35cab5332483
+    - relative_path: skills/core-metrics-analysis/resources/examples/sample_metrics.json
+      sha256: 8f418f3ebb70ba85df366f7acda261cd23b39614af451eacc066f9342e6fa03f
+    - relative_path: skills/core-metrics-analysis/resources/examples/sample_output.md
+      sha256: 93ff37f2dd113dfe40592a6dddac0c4f2cb3c1dfb7b9eec8694cc15171f8db02
+    - relative_path: skills/core-metrics-analysis/resources/references/anomaly_detection_rules.md
+      sha256: 9ddbfdb08710a14ebabceb38595b19662bb3aa2b94fb3f457f01030e335a00f1
+    - relative_path: skills/core-metrics-analysis/resources/references/divergence_analysis_framework.md
+      sha256: 0f3e390298f34cc20acc65e1fbb6f659919ac0254bec4e57b900ce0f041e77eb
+    - relative_path: skills/core-metrics-analysis/resources/references/metrics_definition.md
+      sha256: 1d7b98ccc91a5a21648795f7e9249e891ac378e59274f1c61652c78c156537f3
+    - relative_path: skills/core-metrics-analysis/resources/scripts/analyze_core_metrics.py
+      sha256: fa128b86b2ae657ca390363a22acae84c8c8ed2912a8bb512729c20a16eebfa6
+    - relative_path: skills/customer-research/SKILL.md
+      sha256: 146458b71246b6d8783fdfc5d256015845b2ae3f7104fc974501a30a475ac935
+    - relative_path: skills/customer-research/resources/examples/customer_profiles/sample_customer_profile.txt
+      sha256: 0cbad3d126d26bda03289f767b3da2a057e8aed5bf289577f38843593b886338
+    - relative_path: skills/customer-research/resources/examples/evidence/app_reviews.json
+      sha256: fa74abb4c96d02f42bfccabac30c7c336645f5ada6ba77ab0c6a63571e2b165a
+    - relative_path: skills/customer-research/resources/examples/evidence/metrics.csv
+      sha256: 08fdae67c266fb0cf571beab01476a701ee17c8ee5e8bf81f4c6df102671c450
+    - relative_path: skills/customer-research/resources/examples/interviews/sample_interview_1.txt
+      sha256: 46e154b6c105b0af3aae7d14cf32f17f7c405d98a18eac299fa2317433a1deb8
+    - relative_path: skills/customer-research/resources/examples/interviews/sample_interview_2.txt
+      sha256: abad97b9e49a7307d14fee98320d5e68f40a8d93022e573a881c05f5526a3daf
+    - relative_path: skills/customer-research/resources/examples/sample_output.md
+      sha256: add1f63fcd2b8742d675e7458435f3314c067eb5131bbc031fd0c9c2f12fe75f
+    - relative_path: skills/customer-research/resources/examples/sample_shell.md
+      sha256: 812d993414f61ab83d11d37a4446d4a0617e9500601a4278e93ea123a92e4c64
+    - relative_path: skills/customer-research/resources/examples/sample_triangulation.md
+      sha256: 99f28e0095f3054cdaf6d0dfb18c5f8299d3766b3a800a9a550fb50f38679426
+    - relative_path: skills/customer-research/resources/references/customer_shell.md
+      sha256: 0aa5d9d999443229c99f7e1c2720f914f706f84474abded1aaa64ce5e6778c98
+    - relative_path: skills/customer-research/resources/references/demand_extraction_rules.md
+      sha256: ab34a6b59818ec8ee4e05e6c4dd08e7f27992ba9ce25e442a4aafa9abe0a4272
+    - relative_path: skills/customer-research/resources/references/demand_layering.md
+      sha256: b46daf31982a22e5658b80162a50b2fd9f95de336ab1327065dd8d0f248309d9
+    - relative_path: skills/customer-research/resources/references/interview_framework.md
+      sha256: 63edbcfa3f991f5859bc6503b6299d0caaa9a518d19c81fe7e9495ea23ec9bd3
+    - relative_path: skills/customer-research/resources/references/output_templates.md
+      sha256: 1091b8bcaa08125801411790a548d36081814a7827feefafcbcf8ffc1ade97cd
+    - relative_path: skills/customer-research/resources/references/pain_point_taxonomy.md
+      sha256: d56bc7955e82c3632da0f7287744bb58d9857e7da0b84e9fb48d73355fbdfd82
+    - relative_path: skills/customer-research/resources/references/triangulation_guide.md
+      sha256: 7a58b03e4ff84a7481a7b3d11363d467c3ee39e9b3bac95075cc36dff4c201b7
+    - relative_path: skills/customer-research/resources/references/user_metrics_framework.md
+      sha256: 9dd1c802a586569e4bfbef68052223fb3841b65b7c63d46f3bf00c068829ae3c
+    - relative_path: skills/customer-research/resources/references/user_persona.md
+      sha256: 7e45f740a43be148e34a3aeed683db1e4b1c74cbcac568c598db9fe96ff1e505
+    - relative_path: skills/customer-research/resources/scripts/analyze_interview.py
+      sha256: 8996b0e187d3b6c17ae2994590941742906da221c558b19f9a32dc859da316a9
+    - relative_path: skills/customer-research/resources/scripts/build_customer_shell.py
+      sha256: 14ad0e52d1b3bd8287347c39826596d8daf01dc800d1bde155685507d8ce43ce
+    - relative_path: skills/customer-research/resources/scripts/extract_pain_points.py
+      sha256: 9fc39458d4e87a1db6165631945dab994b5b31e5e062cec142a09178193cc274
+    - relative_path: skills/customer-research/resources/scripts/triangulate_insights.py
+      sha256: 098a07b6847692b4ade70542dbe1257ca7fb11e87391bcd229855d563a39a6eb
+    - relative_path: skills/data-visualization/SKILL.md
+      sha256: 67ea68e7c4f495b57ba041b2d3edccc03ce048b8f076e10cb63871b8b4a72fa5
+    - relative_path: skills/data-visualization/resources/examples/sample_metrics_data.json
+      sha256: 333fdbcb23b1186fea4a23ebace56db9f9233f9d6346b960948b6fe814a82881
+    - relative_path: skills/data-visualization/resources/examples/sample_sentiment_data.json
+      sha256: 2fe9f50cf84d46b08c1c9985b142d61b8bfcbf92722096efceb0098240f5cb93
+    - relative_path: skills/data-visualization/resources/references/chart_types.md
+      sha256: 9994bf1d5766e4af4ef5d900cd3316d745751eecd1b414f9842560a8122e4843
+    - relative_path: skills/data-visualization/resources/references/color_themes.md
+      sha256: 787e91411234a28858c9d4ba9d68fe2bdceed99e08a0f156dfe49366e64cd306
+    - relative_path: skills/data-visualization/resources/references/dashboard_design.md
+      sha256: a3141fc3d77098e6514460b1a387159d849e3e274ebf21af211c9b4de0bf736f
+    - relative_path: skills/data-visualization/resources/scripts/generate_dashboard.py
+      sha256: 79272a321b9989ec4c6aa19d41f7bcf743d22e9239331c69b77d7b7e8c19fa26
+    - relative_path: skills/difference-panel/SKILL.md
+      sha256: 50a67687132cf81285d7b0d102f19f9aa69642da2c5e1513e7ecf6ed1dcca390
+    - relative_path: skills/difference-panel/references/panel_template.md
+      sha256: 06a8d9e4148919b0f13e225afbdcc8ca6378d1beb0280070e16e8f4c247efb8e
+    - relative_path: skills/feishu-requirement-archive/SKILL.md
+      sha256: da00688cfd8492b4458a26418a10af0f804c5f2352741b2f6903c31e60f20993
+    - relative_path: skills/feishu-requirement-board/SKILL.md
+      sha256: 1d3e7c1255ac1ed7787ba7e1504c00613b86b10e9bc3d1180c530c49f541d903
+    - relative_path: skills/feishu-requirement-entry/SKILL.md
+      sha256: 4458927ae610361c8193c10f74454204d0cc02b428b2b99e987f9968f42a2b73
+    - relative_path: skills/interaction-design/SKILL.md
+      sha256: 1f0c9a44800131b7737c0cc7aea125fbae657cd7f6b92f4806a1580beb3baf8e
+    - relative_path: skills/interaction-design/agents/openai.yaml
+      sha256: 6bce162f8a28fe563b8a6ee9f52e95d1d2c8341c7eea4321ca27db58f2a3c54b
+    - relative_path: skills/interaction-design/references/interaction-spec-template.md
+      sha256: 4424aabb4ecbdfcb33d2223242424a58dceebd03bc001142abd928ed5e97cbda
+    - relative_path: skills/interactive-prototype-generator/SKILL.md
+      sha256: 284c3668fdffc345cde7cf50d7cc801e05c7fa30d8979eba26e5ba2ebf3c4fe8
+    - relative_path: skills/interactive-prototype-generator/assets/single-html-shell.html
+      sha256: e82e9aabdeef9a955554351e211d6ba276293249e5965d18bf3893bd57b9a259
+    - relative_path: skills/interactive-prototype-generator/references/prototype-contract.md
+      sha256: b3fb6a9b6adff6c91beb5be4f0adabc0b37982057dc6d8bbe8051c3adeb20e87
+    - relative_path: skills/issue-tracker/SKILL.md
+      sha256: 37bde221553d5afb3767eb3d522831cb173cfb56b75c9179deb6ab84097f3ffc
+    - relative_path: skills/issue-tracker/references/diff-engine-guide.md
+      sha256: 4003e044b96c727ca110b97aad7cbc0b49acae588aa324a492f7a4caf623e5b4
+    - relative_path: skills/issue-tracker/references/remediation-report-template.md
+      sha256: 01ca49fba35dd0a420c7da9eca4ee67c7910823ebc7c9e1687d29a2036c346d4
+    - relative_path: skills/issue-tracker/references/tracking-workflow.md
+      sha256: 09b37fce4697428ed694469b821ca9aeccf0619df1b38907ce2d2eca241f4c51
+    - relative_path: skills/logic-detector/SKILL.md
+      sha256: 6161ece01faef7beef7d082d1a8e444ec5235967cf963ca8fb988c6b21385df6
+    - relative_path: skills/logic-detector/references/contradiction-patterns.md
+      sha256: 52537ca718723cfabdfe844016a8cf8eec6d828e1e90e82de76394dfee62d7e4
+    - relative_path: skills/logic-detector/references/data-flow-checklist.md
+      sha256: 30dafa3dabfbd2967dcdee686ccb1abac9e2f4542330748124056aba4439b58a
+    - relative_path: skills/logic-detector/references/logic-report-template.md
+      sha256: 5b5a8a5bc97819484fa1ea37da5e3f814dd645b6847557fb71ffd936070520cf
+    - relative_path: skills/logic-detector/references/state-machine-patterns.md
+      sha256: 5db72ab111a3a743fdc524e374c7e2cc42d8d0f7bc9b2a178078805e9cd3c1b8
+    - relative_path: skills/pm-weekly-monitor/SKILL.md
+      sha256: 26f1e69d3bfa71949ec580df86a496320ae8511faf1cb78d29210384436449c1
+    - relative_path: skills/prd-document-generator/SKILL.md
+      sha256: f14519bce70171712dd3cf6d2cd63a8519e2359693e7d0b4b75a5f6c8abf3a54
+    - relative_path: skills/prd-document-generator/test-prd-example.md
+      sha256: e3a4a5eabfd9ce321525bd5e6d4286d553a055129537f9a9d437940d5a068909
+    - relative_path: skills/prd-document-generator/test-prd-output.md
+      sha256: a5a0366b316cc1fbdb4df6c9a4991decea16617ff0f1d3ec8a0c88b7e5736089
+    - relative_path: skills/prototype-quality-audit/SKILL.md
+      sha256: 551a774a16fa93e30ce56fe93db4ddc894f25fa783e1aeb0be6dc2149e8eeb47
+    - relative_path: skills/prototype-quality-audit/agents/openai.yaml
+      sha256: ac8d891a096b61a7492a1f5c401930b7f53fe3c55de478c2de2c95731fd76869
+    - relative_path: skills/prototype-quality-audit/references/browser-checklist.md
+      sha256: 06db85c19284243bc47bef83cc41a2fe592d9c127b3c636d53029934601abb29
+    - relative_path: skills/prototype-quality-audit/scripts/audit_html.py
+      sha256: bf27ee42b34a96c3380407431bd56617d981ac7abf23f6502d615238eab77361
+    - relative_path: skills/rd-handoff-package/SKILL.md
+      sha256: 5f4bc082bdfa12ceaeec352b370df79bfc0ed5a172977fc13a31841775fa3ec6
+    - relative_path: skills/rd-handoff-package/agents/openai.yaml
+      sha256: e9d26efc93a26174435ebe2a59456988a933bc68bc6b7e7195981edb69a03381
+    - relative_path: skills/rd-handoff-package/assets/handoff-manifest.template.json
+      sha256: 45ed0e1a9186b3febf5f23240f135091bf18731a91fa012dfdc990169b761c8f
+    - relative_path: skills/rd-handoff-package/references/handoff-schema.md
+      sha256: 28b0c95c75e23f42825af9ee6788df9c87bcf7659de69df3d348678204f198d6
+    - relative_path: skills/rd-handoff-package/references/manifest-schema.md
+      sha256: 58d1a1c9d49e4881a990d67e9178c5baaa235fa778b1c82f691cfbf7e055f813
+    - relative_path: skills/rd-handoff-package/scripts/validate_handoff.py
+      sha256: 421499abe26d8dc9d8bd480838e5fce0316557d9657a8cbb9ac9ff04417d3ffb
+    - relative_path: skills/report-generator/SKILL.md
+      sha256: d2c553fb89228893c3fec04574ee3d272f8c99ecdb1017e0ba891ddc02aa0edb
+    - relative_path: skills/report-generator/references/data_cleaning.md
+      sha256: 4fba0be87f5cd6c2762c3e8a7e3a728a04cabd2fc413c51f6f2a87fb261bd47c
+    - relative_path: skills/report-generator/references/example_output.md
+      sha256: 79ff0a8f67c425c60931548e0d3c5b5858126a32f46aa6ceb1f6cd40245a2988
+    - relative_path: skills/report-generator/references/report_template.md
+      sha256: dcf47c76238e91177f3e3fa8cb951b7fb5d3addc942dea6893b3caec50b0b3d9
+    - relative_path: skills/requirement-clarifier/SKILL.md
+      sha256: 1486b9bcbff6df32414971aeac13173ef55627114c9b10d64841c5d8a019cfdc
+    - relative_path: skills/requirement-clarifier/agents/openai.yaml
+      sha256: ad052ed36d3938329660a255fe687c97f2f0d38845bd86cabd6b6230b251ba0a
+    - relative_path: skills/requirement-clarifier/assets/product-solution-intake.yaml
+      sha256: eb9992b0567f4057bb1fd2e89e7872a6e78da054c255d333886f07c6c55a34dd
+    - relative_path: skills/requirement-clarifier/references/clarification-schema.md
+      sha256: 52774ab1b570770e89001798f6bd115a7aa46ee1a9d489264cf902f086797dc9
+    - relative_path: skills/requirement-review/SKILL.md
+      sha256: 59dd4398100ead120012c0f02655e77c88fc129de7a9a07842aadb9062dc2178
+    - relative_path: skills/requirement-review/references/common-issues.md
+      sha256: 0402c1a3c69dac947cb7d7bfa9637182a58db4253cebb768571bae4cad98b044
+    - relative_path: skills/requirement-review/references/quality-criteria.md
+      sha256: 247312aae37b6080a1e4d3e29eebdc001d76e82f0948285b0b33de158d4e3783
+    - relative_path: skills/requirement-review/references/report-template.md
+      sha256: 05ea4f197068ea0bb0344dfc291d296043f6e67312d74facc92d76e8cae1cd22
+    - relative_path: skills/requirement-review/references/review-checklist.md
+      sha256: f3505502a1ec81210b771a9b45d30c0cd493eee558d78bcaab87eea2e2e97579
+    - relative_path: skills/requirement-review/references/review-standards.md
+      sha256: 50c94fe89aec2e2b6f808358fa957354f95e4861442a08733fb81d3b360e3b2f
+    - relative_path: skills/ui-design-system/SKILL.md
+      sha256: b9cdaafc795efbe7430eb32dd8fcd89a675c0514524561306b2fdb1dd0691de9
+    - relative_path: skills/ui-design-system/agents/openai.yaml
+      sha256: eba72c22b1a033ebcfa9c2d03f27bba7573ab40082960f66c93910877013e36e
+    - relative_path: skills/ui-design-system/assets/baseline-tokens.css
+      sha256: 32d9ecc9786d4a8622ecffd4394b7ab39346f7a6a7ee917d907592c6ec864fce
+    - relative_path: skills/ui-design-system/references/baseline-guidelines.md
+      sha256: 1d5f7b785fdb225844ffa823b99f50c9ccf7f38dfa1fe3012de91362eff2a1af
+    - relative_path: skills/ui-design-system/references/component-patterns.md
+      sha256: effbf3dbfdcf7c9291ab230a1a67076b806100617ca74c6a8e0ec87d332dd996
+    - relative_path: skills/ui-design-system/references/internal-prototype-corpus.md
+      sha256: 907b9e61fbf780eab5f8d861ecad18674c4be65efe8818db3e40a5724a55cf69
+    - relative_path: skills/ui-design-system/references/page-patterns.md
+      sha256: f7ed48c25416b9eb6de7a9daab660e1b63377c8ea3a8ba2365b5ed8804b8bf00
+    - relative_path: skills/user-feedback-processor/SKILL.md
+      sha256: 523778c3dca01c2bbef476fab3508ce49790d52f349d30d1cf33b5f46439ddb7
+    - relative_path: skills/user-feedback-processor/resources/examples/sample_feedback.json
+      sha256: 3e43edbc3e8c0d115a4703cdfe556da33a41ee4edcdb4120116ec3c81f9f97f8
+    - relative_path: skills/user-feedback-processor/resources/examples/sample_output.md
+      sha256: c7d642d532f90b73294594b1878b3abed2ad3ceaf23290d60ab1613e540847cb
+    - relative_path: skills/user-feedback-processor/resources/references/classification_taxonomy.md
+      sha256: de658e864aabab304d087dce192d20f4de88e410e01c0cf74873f883e2ac86ab
+    - relative_path: skills/user-feedback-processor/resources/references/feedback_sources.md
+      sha256: 98ae1034ab0b9b0f067f662c42c715c7164f4f366fd7d30df55cf4b3fda9040f
+    - relative_path: skills/user-feedback-processor/resources/references/sentiment_analysis_guide.md
+      sha256: 75e2348a0ffcf60e473e91419773ee8128640add17ae245f6f1b1808414df3bd
+    - relative_path: skills/user-feedback-processor/resources/scripts/process_feedback.py
+      sha256: a1ca302c8184198d61b5cdc262c92cccfaecb4767fab899f7aba245ed9fca495

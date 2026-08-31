@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { homedir } from 'node:os'
 import { basename, join, resolve, sep } from 'node:path'
@@ -72,6 +72,67 @@ function projectNameOf(value: unknown): string {
     throw new Error('项目组名称格式无效')
   }
   return name
+}
+
+const SESSION_SCOPE_MAX_LENGTH = 40
+
+function sessionScopeNameOf(value: unknown): string {
+  const name = typeof value === 'string' ? value.normalize('NFC').trim() : ''
+  if (
+    name === '' || Array.from(name).length > SESSION_SCOPE_MAX_LENGTH || name === '.' || name === '..'
+    || /[<>:"/\\|?*\u0000-\u001F\u007F]/u.test(name) || /[. ]$/u.test(name)
+    || /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?$/iu.test(name)
+  ) throw new Error('会话名称不能安全地用作产出目录')
+  return name
+}
+
+function sessionIdOf(value: unknown): string {
+  const sessionId = typeof value === 'string' ? value.trim() : ''
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/u.test(sessionId)) throw new Error('会话标识格式无效')
+  return sessionId
+}
+
+function numberedSessionScopeName(base: string, ordinal: number): string {
+  if (ordinal === 1) return base
+  const suffix = `（${String(ordinal)}）`
+  const available = SESSION_SCOPE_MAX_LENGTH - Array.from(suffix).length
+  return `${Array.from(base).slice(0, available).join('').replace(/[. ]+$/u, '')}${suffix}`
+}
+
+/** Claims one immutable per-session output folder; duplicate names receive the same suffix in UI and on disk. */
+export async function ensureSessionOutputDirectory(
+  workspacePath: string,
+  sessionIdValue: string,
+  requestedNameValue: string,
+): Promise<{ sessionName: string; taskKey: string; relativePath: string }> {
+  const root = resolve(workspacePath)
+  const sessionId = sessionIdOf(sessionIdValue)
+  const requestedName = sessionScopeNameOf(requestedNameValue)
+  const mappingDirectory = join(root, '.promax', 'session-scopes')
+  const mappingPath = join(mappingDirectory, `${sessionId}.json`)
+  await mkdir(mappingDirectory, { recursive: true })
+
+  try {
+    const stored = JSON.parse(await readFile(mappingPath, 'utf8')) as { sessionName?: unknown }
+    const sessionName = sessionScopeNameOf(stored.sessionName)
+    await mkdir(join(root, 'deliverables', sessionName), { recursive: true })
+    return { sessionName, taskKey: sessionName, relativePath: join('deliverables', sessionName) }
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+  }
+
+  await mkdir(join(root, 'deliverables'), { recursive: true })
+  for (let ordinal = 1; ordinal <= 999; ordinal += 1) {
+    const sessionName = numberedSessionScopeName(requestedName, ordinal)
+    try {
+      await mkdir(join(root, 'deliverables', sessionName))
+      await writeFile(mappingPath, `${JSON.stringify({ sessionId, sessionName, taskKey: sessionName }, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' })
+      return { sessionName, taskKey: sessionName, relativePath: join('deliverables', sessionName) }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
+    }
+  }
+  throw new Error('同名会话产出目录数量超过上限')
 }
 
 async function scaffoldProject(path: string): Promise<void> {
@@ -220,6 +281,17 @@ export async function apply(ctx: HostContext, config: Config): Promise<void> {
           const transcript = typeof input.transcript === 'string' ? input.transcript : ''
           const { handoffPath, transcriptPath } = await writeHandoffFiles(workspacePath, handoff, transcript)
           writeJson(response, 200, { handoffPath, transcriptPath })
+          return
+        }
+
+        if (path.endsWith('/session-scope')) {
+          const workspaceId = typeof input.workspaceId === 'string' ? input.workspaceId : ''
+          const registered = ctx.workspaceRegistry.get?.(workspaceId) ?? knownWorkspaces.get(workspaceId)
+          const claimedPath = typeof input.projectPath === 'string' ? resolve(input.projectPath) : undefined
+          const workspacePath = registered?.path ?? claimedPath
+          if (workspaceId === '' || workspacePath === undefined || basename(workspacePath) === '') throw new Error('目标项目组无效')
+          const scope = await ensureSessionOutputDirectory(workspacePath, String(input.sessionId ?? ''), String(input.sessionName ?? ''))
+          writeJson(response, 200, scope)
           return
         }
 

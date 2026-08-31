@@ -25,7 +25,7 @@ importers:
         version: 18.3.7(@types/react@18.3.31)
       '@vitejs/plugin-react':
         specifier: ^4.0.0
-        version: 4.7.0(vite@6.4.3(@types/node@22.20.1))
+        version: 4.7.0(vite@6.4.3(@types/node@22.20.1)(yaml@2.8.1))
       jsdom:
         specifier: ^29.0.0
         version: 29.1.1
@@ -43,10 +43,10 @@ importers:
         version: 6.0.3
       vite:
         specifier: ^6.0.0
-        version: 6.4.3(@types/node@22.20.1)
+        version: 6.4.3(@types/node@22.20.1)(yaml@2.8.1)
       vitest:
         specifier: ^4.1.8
-        version: 4.1.11(@types/node@22.20.1)(jsdom@29.1.1)(vite@6.4.3(@types/node@22.20.1))
+        version: 4.1.11(@types/node@22.20.1)(jsdom@29.1.1)(vite@6.4.3(@types/node@22.20.1)(yaml@2.8.1))
 
   packages/promax-bundle:
     devDependencies:
@@ -59,6 +59,9 @@ importers:
       '@promax/promax-ui-console':
         specifier: file:../promax-ui-console
         version: link:../promax-ui-console
+      '@promax/promax-ui-layout':
+        specifier: file:../promax-ui-layout
+        version: link:../promax-ui-layout
 
   packages/promax-ui-brand:
     dependencies:
@@ -81,6 +84,15 @@ importers:
       '@promax/promax-ui-brand':
         specifier: file:../promax-ui-brand
         version: link:../promax-ui-brand
+      '@promax/promax-ui-layout':
+        specifier: file:../promax-ui-layout
+        version: link:../promax-ui-layout
+
+  packages/promax-ui-layout:
+    dependencies:
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
 
 packages:
 
@@ -1598,6 +1610,11 @@ packages:
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
 
+  yaml@2.8.1:
+    resolution: {integrity: sha512-lcYcMxX2PO9XMGvAJkJ3OsNMw+/7FKes7/hgerGUYWIoWu5j/+YQqcZr5JnPZWzOsEBgMbSbiSTn/dv/69Mkpw==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
+
   yuku-ast@0.8.7:
     resolution: {integrity: sha512-h6+4bDfyootiMB9vckk5uKo5r5j0GHrkr17FQTDNfEsFT3DWlN9uu1HJwQwc64pgmLCI945fWM3lbTIqxjT3GQ==}
 
@@ -2008,6 +2025,7 @@ snapshots:
       '@deepseek-ai/dsh-home-paths': 0.1.1-rc.2(@deepseek-ai/cordis@4.0.1)(@deepseek-ai/dsh-invariants@0.1.1-rc.2(@deepseek-ai/cordis@4.0.1))
       '@deepseek-ai/dsh-tools': 0.1.1-rc.2(119bc70f73f8eddebfaa6b47561adeb3)
       '@deepseek-ai/schemastery': 3.18.1
+      yaml: 2.8.1
 
   '@quansync/fs@1.0.0':
     dependencies:
@@ -2216,7 +2234,7 @@ snapshots:
       '@types/prop-types': 15.7.15
       csstype: 3.2.3
 
-  '@vitejs/plugin-react@4.7.0(vite@6.4.3(@types/node@22.20.1))':
+  '@vitejs/plugin-react@4.7.0(vite@6.4.3(@types/node@22.20.1)(yaml@2.8.1))':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/plugin-transform-react-jsx-self': 7.29.7(@babel/core@7.29.7)
@@ -2224,7 +2242,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.27
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
-      vite: 6.4.3(@types/node@22.20.1)
+      vite: 6.4.3(@types/node@22.20.1)(yaml@2.8.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -2237,13 +2255,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.1
 
-  '@vitest/mocker@4.1.11(vite@6.4.3(@types/node@22.20.1))':
+  '@vitest/mocker@4.1.11(vite@6.4.3(@types/node@22.20.1)(yaml@2.8.1))':
     dependencies:
       '@vitest/spy': 4.1.11
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 6.4.3(@types/node@22.20.1)
+      vite: 6.4.3(@types/node@22.20.1)(yaml@2.8.1)
 
   '@vitest/pretty-format@4.1.11':
     dependencies:
@@ -2754,7 +2772,7 @@ snapshots:
 
   verkit@0.3.2: {}
 
-  vite@6.4.3(@types/node@22.20.1):
+  vite@6.4.3(@types/node@22.20.1)(yaml@2.8.1):
     dependencies:
       esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.7)
@@ -2765,11 +2783,12 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.20.1
       fsevents: 2.3.3
+      yaml: 2.8.1
 
-  vitest@4.1.11(@types/node@22.20.1)(jsdom@29.1.1)(vite@6.4.3(@types/node@22.20.1)):
+  vitest@4.1.11(@types/node@22.20.1)(jsdom@29.1.1)(vite@6.4.3(@types/node@22.20.1)(yaml@2.8.1)):
     dependencies:
       '@vitest/expect': 4.1.11
-      '@vitest/mocker': 4.1.11(vite@6.4.3(@types/node@22.20.1))
+      '@vitest/mocker': 4.1.11(vite@6.4.3(@types/node@22.20.1)(yaml@2.8.1))
       '@vitest/pretty-format': 4.1.11
       '@vitest/runner': 4.1.11
       '@vitest/snapshot': 4.1.11
@@ -2786,7 +2805,7 @@ snapshots:
       tinyexec: 1.3.0
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.1
-      vite: 6.4.3(@types/node@22.20.1)
+      vite: 6.4.3(@types/node@22.20.1)(yaml@2.8.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.20.1
@@ -2820,6 +2839,8 @@ snapshots:
   xmlchars@2.2.0: {}
 
   yallist@3.1.1: {}
+
+  yaml@2.8.1: {}
 
   yuku-ast@0.8.7:
     dependencies:

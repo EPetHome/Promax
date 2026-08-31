@@ -2,8 +2,42 @@ import { useSyncExternalStore } from 'react'
 
 export const PRODUCT_TEAM_ID = 'product-team'
 export const GENERAL_PRESET_ID = 'general'
-export const PRODUCT_PRESET_ID = 'promax-team-mtcjsbcz-04tpe2-r2'
-export const PRODUCT_TEAM_REVISION = 2
+export const PRODUCT_PRESET_ID = 'promax-team-mtcjsbcz-04tpe2-r7'
+export const PRODUCT_TEAM_REVISION = 7
+
+const SESSION_SCOPE_MAX_LENGTH = 40
+const RESERVED_SESSION_SCOPE = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?$/iu
+
+/** One filesystem-safe, user-visible name shared by the dsh session and its output directory. */
+export function sessionScopeNameFromPrompt(text: string): string {
+  const firstLine = text.split(/\r?\n/u).map(line => line.trim()).find(line => line !== '') ?? ''
+  const withoutRouting = firstLine
+    .replace(/^(?:@[a-z][a-z0-9_]*\s+)+/u, '')
+    .replace(/^(?:#{1,6}|[-*+])\s+/u, '')
+    .normalize('NFC')
+  const safe = withoutRouting
+    .replace(/[<>:"/\\|?*\u0000-\u001F\u007F]/gu, ' ')
+    .replace(/\s+/gu, ' ')
+    .replace(/[. ]+$/u, '')
+    .trim()
+  const base = safe === '' || safe === '.' || safe === '..' || RESERVED_SESSION_SCOPE.test(safe) ? '产品任务' : safe
+  const characters = Array.from(base)
+  return characters.length <= SESSION_SCOPE_MAX_LENGTH
+    ? base
+    : `${characters.slice(0, SESSION_SCOPE_MAX_LENGTH - 1).join('')}…`
+}
+
+export function validSessionScopeName(value: string): boolean {
+  return value === value.normalize('NFC')
+    && value === value.trim()
+    && Array.from(value).length >= 1
+    && Array.from(value).length <= SESSION_SCOPE_MAX_LENGTH
+    && value !== '.'
+    && value !== '..'
+    && !RESERVED_SESSION_SCOPE.test(value)
+    && !/[<>:"/\\|?*\u0000-\u001F\u007F]/u.test(value)
+    && !/[. ]$/u.test(value)
+}
 
 export type TeamRevisionNumber = number | 'compat'
 export type TeamStatus = 'draft' | 'published'
@@ -78,6 +112,8 @@ export interface TeamSessionBinding {
   revision: TeamRevisionNumber
   presetId: string
   workspaceId?: string
+  sessionName?: string
+  taskKey?: string
 }
 
 export type PromaxContext =
@@ -107,11 +143,11 @@ const PRODUCT_TEAM: PromaxTeam = {
   members: [],
   artifacts: [],
   workspaceIds: [],
-  configurationSource: { kind: 'compat', label: '产品团队 r2 运行配置' },
+  configurationSource: { kind: 'compat', label: '产品团队 r7 运行配置' },
   provisioning: { state: 'ready' },
   promptDraft: {
     recipeId: 'product-compat',
-    teamInstructions: '成员名单由运行时已发布 r2 preset 同步，GUI 不另存一份静态 roster。',
+    teamInstructions: '成员名单由运行时已发布 r7 preset 同步，GUI 不另存一份静态 roster。',
     coordinatorInstructions: '固定团队配置保持只读，不由 GUI 覆盖已发布 persona。',
     importedSources: [],
   },
@@ -143,11 +179,11 @@ function nonEmpty(value: unknown): string | undefined {
  */
 export function runtimeTeamRosterOf(content: string, expectedPresetId = PRODUCT_PRESET_ID): RuntimeTeamRoster {
   const snapshot = content.match(/## 已发布团队快照[\s\S]*?- team revision：`[^`]+@r(\d+)`[\s\S]*?- preset：`([^`]+)`[\s\S]*?\n\s*成员：\s*\n([\s\S]*?)\n\s*## 稳定消息路由/u)
-  if (snapshot === null) throw new Error('r2 preset 未包含可读取的已发布团队快照')
+  if (snapshot === null) throw new Error('固定 preset 未包含可读取的已发布团队快照')
   const revision = Number(snapshot[1])
   const presetId = snapshot[2]
   if (!Number.isSafeInteger(revision) || revision < 1 || presetId !== expectedPresetId) {
-    throw new Error('r2 preset 的团队版本或 preset id 不匹配')
+    throw new Error('固定 preset 的团队版本或 preset id 不匹配')
   }
   const rows = snapshot[3] ?? ''
   const members = [...rows.matchAll(/^\s*-\s+`([^`]+)`（([^）\n]+)）：(.+)$/gmu)].map(match => ({
@@ -158,7 +194,7 @@ export function runtimeTeamRosterOf(content: string, expectedPresetId = PRODUCT_
     enabled: true,
   }))
   if (members.length === 0 || new Set(members.map(member => member.memberId)).size !== members.length) {
-    throw new Error('r2 preset 的成员名单为空或含重复 member_id')
+    throw new Error('固定 preset 的成员名单为空或含重复 member_id')
   }
   const responsibilities = content.match(/\n\s*文件责任：\s*\n([\s\S]*?)(?:\n\s*稳定回执字段|\n\s*##\s|$)/u)?.[1] ?? ''
   const artifacts = [...responsibilities.matchAll(/^\s*-\s+`([^`]+)`：([a-z][a-z0-9_]*)\s*$/gmu)].map(match => ({
@@ -334,13 +370,18 @@ function bindingOf(value: unknown, teams: readonly PromaxTeam[]): TeamSessionBin
   const teamId = nonEmpty(row.teamId)
   const presetId = nonEmpty(row.presetId)
   const workspaceId = nonEmpty(row.workspaceId)
+  const sessionName = nonEmpty(row.sessionName)
+  const taskKey = nonEmpty(row.taskKey)
   const revision = row.revision
   if (
     sessionId === undefined || teamId === undefined || presetId === undefined
     || !teams.some(team => team.id === teamId)
     || (revision !== 'compat' && !(typeof revision === 'number' && revision > 0))
   ) return null
-  return { sessionId, teamId, revision, presetId, ...(workspaceId === undefined ? {} : { workspaceId }) }
+  const scope = sessionName !== undefined && taskKey === sessionName && validSessionScopeName(sessionName)
+    ? { sessionName, taskKey }
+    : {}
+  return { sessionId, teamId, revision, presetId, ...(workspaceId === undefined ? {} : { workspaceId }), ...scope }
 }
 
 function parseV2(raw: string): PromaxTeamState | null {

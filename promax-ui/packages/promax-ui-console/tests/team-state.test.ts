@@ -15,9 +15,11 @@ import {
   readTeamState,
   resetTeamStateForTests,
   runtimeTeamRosterOf,
+  sessionScopeNameFromPrompt,
   syncProductTeamRuntimeRoster,
   updateTeamDefinition,
   updateTeamMember,
+  validSessionScopeName,
   writeTeamState,
 } from '../src/client/team-state.ts'
 
@@ -27,7 +29,7 @@ describe('Promax dynamic team state', () => {
     resetTeamStateForTests()
   })
 
-  it('seeds the general entry and routes the fixed product team to r2 without a GUI-owned worker roster', () => {
+  it('seeds the general entry and routes the fixed product team to r7 without a GUI-owned worker roster', () => {
     const state = readTeamState()
     const product = state.teams.find(team => team.id === PRODUCT_TEAM_ID)
 
@@ -39,26 +41,44 @@ describe('Promax dynamic team state', () => {
       coordinator: { memberId: 'team_lead', displayName: '主智能体' },
       activeRevision: { revision: PRODUCT_TEAM_REVISION, presetId: PRODUCT_PRESET_ID },
     })
-    expect(PRODUCT_PRESET_ID).toBe('promax-team-mtcjsbcz-04tpe2-r2')
+    expect(PRODUCT_PRESET_ID).toBe('promax-team-mtcjsbcz-04tpe2-r7')
     expect(product?.members).toEqual([])
   })
 
-  it('parses and syncs the installed r2 roster instead of hardcoding three GUI members', () => {
+  it('derives one filesystem-safe Chinese session name for the visible title and output folder', () => {
+    expect(sessionScopeNameFromPrompt('# 图书馆/预约：端到端?')).toBe('图书馆 预约：端到端')
+    expect(sessionScopeNameFromPrompt('@solution_design   完成座位预约方案')).toBe('完成座位预约方案')
+    expect(validSessionScopeName('图书馆座位预约')).toBe(true)
+    expect(validSessionScopeName('../图书馆')).toBe(false)
+  })
+
+  it('parses and syncs the installed r7 roster instead of hardcoding GUI members', () => {
     const roster = runtimeTeamRosterOf(`
       ## 已发布团队快照
 
-      - team revision：\`team-mtcjsbcz-04tpe2@r2\`
-      - preset：\`promax-team-mtcjsbcz-04tpe2-r2\`
+      - team revision：\`team-mtcjsbcz-04tpe2@r7\`
+      - preset：\`promax-team-mtcjsbcz-04tpe2-r7\`
 
       成员：
       - \`customer_research\`（客研管理智能体）：完成客户研究。
+      - \`product_discovery\`（产品探索智能体）：完成产品探索。
+      - \`requirement_management\`（需求管理智能体）：完成需求管理。
       - \`solution_design\`（产品需求方案智能体）：生成并验证 PRD。
+      - \`requirement_review\`（需求评审智能体）：完成需求评审。
+      - \`user_analysis\`（用户分析智能体）：完成用户分析。
       - \`quality_judge\`（独立 Judge）：独立判定最终产物。
 
       ## 稳定消息路由
 
       文件责任：
       - \`deliverables/{task_key}/prd.md\`：solution_design
+      - \`deliverables/{task_key}/business-diagram.md\`：solution_design
+      - \`deliverables/{task_key}/prototype.html\`：solution_design
+      - \`deliverables/{task_key}/customer_research.md\`：customer_research
+      - \`deliverables/{task_key}/product_discovery.md\`：product_discovery
+      - \`deliverables/{task_key}/requirement_management.md\`：requirement_management
+      - \`deliverables/{task_key}/requirement_review.md\`：requirement_review
+      - \`deliverables/{task_key}/user_analysis.md\`：user_analysis
       - \`.promax/judge/{task_key}/judge.md\`：quality_judge
 
       稳定回执字段（按顺序）：\`状态\`、\`产物\`、\`Judge判定\`
@@ -66,16 +86,12 @@ describe('Promax dynamic team state', () => {
 
     syncProductTeamRuntimeRoster(roster)
     const product = readTeamState().teams.find(team => team.id === PRODUCT_TEAM_ID)
-    expect(product?.activeRevision).toEqual({ revision: 2, presetId: PRODUCT_PRESET_ID, status: 'published' })
-    expect(product?.members.map(member => [member.memberId, member.displayName])).toEqual([
-      ['customer_research', '客研管理智能体'],
-      ['solution_design', '产品需求方案智能体'],
-      ['quality_judge', '独立 Judge'],
-    ])
-    expect(product?.artifacts).toEqual([
-      { relativePath: 'deliverables/{task_key}/prd.md', producedBy: 'solution_design' },
-      { relativePath: '.promax/judge/{task_key}/judge.md', producedBy: 'quality_judge' },
-    ])
+    expect(product?.activeRevision).toEqual({ revision: 7, presetId: PRODUCT_PRESET_ID, status: 'published' })
+    expect(product?.members).toHaveLength(7)
+    expect(product?.members.at(-1)).toMatchObject({ memberId: 'quality_judge', displayName: '独立 Judge' })
+    expect(product?.artifacts).toHaveLength(9)
+    expect(product?.artifacts).toContainEqual({ relativePath: 'deliverables/{task_key}/business-diagram.md', producedBy: 'solution_design' })
+    expect(product?.artifacts).toContainEqual({ relativePath: '.promax/judge/{task_key}/judge.md', producedBy: 'quality_judge' })
   })
 
   it('creates an editable draft instead of silently cloning product-solution', () => {
@@ -166,6 +182,54 @@ describe('Promax dynamic team state', () => {
       revision: 1,
       presetId: 'promax-team-growth-r1',
       workspaceId: 'workspace-growth',
+    })
+  })
+
+  it('advances the fixed product team to r7 without migrating stored r3/r4 session bindings', () => {
+    const current = readTeamState()
+    const r3PresetId = 'promax-team-mtcjsbcz-04tpe2-r3'
+    const r4PresetId = 'promax-team-mtcjsbcz-04tpe2-r4'
+    writeTeamState({
+      ...current,
+      teams: current.teams.map(team => team.id === PRODUCT_TEAM_ID ? {
+        ...team,
+        members: [{ memberId: 'legacy_worker', displayName: '旧成员', objective: '旧版任务', role: 'worker', enabled: true }],
+        activeRevision: { revision: 3, presetId: r3PresetId, status: 'published' },
+      } : team),
+      sessionBindings: [{
+        sessionId: 'product-session-r3',
+        teamId: PRODUCT_TEAM_ID,
+        revision: 3,
+        presetId: r3PresetId,
+        workspaceId: 'product',
+      }, {
+        sessionId: 'product-session-r4',
+        teamId: PRODUCT_TEAM_ID,
+        revision: 4,
+        presetId: r4PresetId,
+        workspaceId: 'product',
+      }],
+    })
+
+    resetTeamStateForTests()
+    const restored = readTeamState()
+    const product = restored.teams.find(team => team.id === PRODUCT_TEAM_ID)
+
+    expect(product?.activeRevision).toEqual({ revision: 7, presetId: PRODUCT_PRESET_ID, status: 'published' })
+    expect(product?.members).toEqual([])
+    expect(bindingForSession(restored, 'product-session-r3')).toEqual({
+      sessionId: 'product-session-r3',
+      teamId: PRODUCT_TEAM_ID,
+      revision: 3,
+      presetId: r3PresetId,
+      workspaceId: 'product',
+    })
+    expect(bindingForSession(restored, 'product-session-r4')).toEqual({
+      sessionId: 'product-session-r4',
+      teamId: PRODUCT_TEAM_ID,
+      revision: 4,
+      presetId: r4PresetId,
+      workspaceId: 'product',
     })
   })
 })

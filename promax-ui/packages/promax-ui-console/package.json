@@ -1,6 +1,6 @@
 {
   "name": "@promax/promax-ui-console",
-  "version": "0.3.8",
+  "version": "0.3.55",
   "private": true,
   "type": "module",
   "main": "lib/index.mjs",
@@ -28,9 +28,8 @@
         "@deepseek-ai/dsh-client-ui-agent-preset",
         "@deepseek-ai/dsh-client-ui-conversation",
         "@deepseek-ai/dsh-client-ui-input-trigger",
-        "@deepseek-ai/dsh-client-ui-layout",
-        "@deepseek-ai/dsh-client-ui-settings-general",
-        "@deepseek-ai/dsh-client-ui-sidebar"
+        "@promax/promax-ui-layout",
+        "@deepseek-ai/dsh-client-ui-settings-general"
       ],
       "platform": "web"
     }
@@ -48,6 +47,7 @@
   },
   "devDependencies": {
     "@promax/contracts": "file:../../../promax-end/contracts",
-    "@promax/promax-ui-brand": "file:../promax-ui-brand"
+    "@promax/promax-ui-brand": "file:../promax-ui-brand",
+    "@promax/promax-ui-layout": "file:../promax-ui-layout"
   }
 }

@@ -21,6 +21,17 @@ profiles:
       - grep
       - skill
 
+  - profile_id: requirement-management-worker
+    description: 需求管理 worker；只保留文件、Skill 与受控 Lark CLI 网关，禁止原始 Shell 绕过 dry-run 白名单。
+    deny_coordination_tools: true
+    allow:
+      - read
+      - write
+      - edit
+      - glob
+      - grep
+      - skill
+
   - profile_id: judge-reviewer
     description: 独立 Judge；只保留读取最终输入/产物与写入判定报告所需的文件工具，不允许 Shell、Skill、网络、编辑原产物或继续编排团队。
     deny_coordination_tools: true

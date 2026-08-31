@@ -18,21 +18,24 @@ afterEach(async () => {
 })
 
 describe('Promax bundle config policy', () => {
-  it('only inserts Promax-owned rows and never targets an existing dsh row', () => {
+  it('disables only the approved shell rows and inserts only Promax-owned rows', () => {
     const source = readFileSync(resolve(process.cwd(), 'packages/promax-bundle/cordis.patch.yml'), 'utf8')
     const topLevelOperations = source.split('\n').filter(line => /^-\s/u.test(line))
-    const insertedIds = [...source.matchAll(/^\s+- id:\s+(\S+)\s*$/gmu)].map(match => match[1])
+    const insertedIds = [...source.matchAll(/^[ \t]+- id:\s+(\S+)\s*$/gmu)].map(match => match[1])
 
-    expect(topLevelOperations).toEqual(['- insert:'])
+    expect(topLevelOperations).toEqual(['- id: ui-layout', '- id: ui-sidebar', '- id: ui-brand-official', '- insert:'])
     expect(insertedIds).toEqual([
       'promax-workspace-bootstrap',
       'promax-team-harness',
       'promax-ui-console',
+      'promax-ui-layout',
       'promax-ui-brand',
       'promax-report',
     ])
     expect(insertedIds.every(id => id?.startsWith('promax-'))).toBe(true)
-    expect(source).not.toMatch(/^\s*- id:\s+(?:ui-|agent-|sandbox|approval|code-mode)/gmu)
+    const targetedDshIds = [...source.matchAll(/^- id:\s+(\S+)\s*$/gmu)].map(match => match[1])
+    expect(targetedDshIds).toEqual(['ui-layout', 'ui-sidebar', 'ui-brand-official'])
+    expect(source.match(/^\s+disabled:\s+true$/gmu)).toHaveLength(3)
   })
 
   it('bootstraps the draft boundary and a standard product project tree', async () => {

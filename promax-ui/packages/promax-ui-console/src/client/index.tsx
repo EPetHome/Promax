@@ -1,16 +1,19 @@
 import type { ComponentType } from 'react'
-import { AgentStatusDock, type AgentStatusSnapshot } from '../components/AgentStatusDock.tsx'
 import { PromaxConsole } from '../components/PromaxConsole.tsx'
 import { ConsoleLauncher } from './ConsoleLauncher.tsx'
 import {
   EmptyHeroSeat,
   PromaxConversationInputControl,
+  PromaxComposerBar,
+  PromaxDetailsSidebar,
   PromaxDraftSettings,
+  PromaxLeftSidebar,
   PromaxProcessAction,
   PromaxSessionBrowser,
-  PromaxTeamRail,
   PromaxTeamSessionHeader,
+  PromaxWorkspaceOverlay,
   type SessionListState,
+  type TeamSubagentStopTarget,
   type WorkspaceListState,
   type WorkspaceShellActions,
 } from './PromaxWorkspaceShell.tsx'
@@ -38,8 +41,18 @@ interface ClientContext {
     scope(sessionId: string): unknown | undefined
     binding(sessionId: string): {
       session: {
+        getSnapshot(): { running: boolean }
+        subscribe(listener: () => void): () => void
         prompt(content: Array<{ type: 'text'; text: string }>, mode: 'queue'): Promise<
           | { ok: true; value: { accepted: true } }
+          | { ok: false; error: { message: string } }
+        >
+        cancel(): Promise<
+          | { ok: true; value: { accepted: true } }
+          | { ok: false; error: { message: string } }
+        >
+        rename(title: string): Promise<
+          | { ok: true; value: { title: string; seq: number } }
           | { ok: false; error: { message: string } }
         >
       }
@@ -53,14 +66,41 @@ interface ClientContext {
     openPath(path: string): Promise<void>
     create(input: { path: string }): Promise<{ workspaceId: string }>
     rename(workspaceId: string, title: string): Promise<{ workspaceId: string; path: string; title: string; sessionIds: string[] }>
+    archiveSession(sessionId: string): Promise<void>
   }
   get(name: 'connection'): ConnectionService
   get(name: 'inputTriggers'): InputTriggerService
+  get(name: 'layout'): LayoutService
+}
+
+interface LayoutService {
+  toggleSidebar(): void
+  openDetails(): void
+  closeDetails(): void
 }
 
 interface Observable<State> {
   getSnapshot(): State
   subscribe(listener: () => void): () => void
+}
+
+async function waitForRuntimeState(predicate: () => boolean, subscribe: (listener: () => void) => () => void, label: string, timeoutMs = 15_000): Promise<void> {
+  if (predicate()) return
+  await new Promise<void>((resolve, reject) => {
+    let settled = false
+    let unsubscribe = (): void => {}
+    const finish = (error?: Error): void => {
+      if (settled) return
+      settled = true
+      window.clearTimeout(timeout)
+      unsubscribe()
+      if (error === undefined) resolve()
+      else reject(error)
+    }
+    const timeout = window.setTimeout(() => { finish(new Error(`${label}在 ${String(timeoutMs)}ms 内未静止`)) }, timeoutMs)
+    unsubscribe = subscribe(() => { if (predicate()) finish() })
+    if (predicate()) finish()
+  })
 }
 
 interface ConnectionService {
@@ -76,9 +116,18 @@ interface ConnectionService {
           | { ok: true; value: { agentPreset: string; content: string } }
           | { ok: false; error: { message: string } }
       }>
-      select(input: { sessionId: string; agentPreset: string }): Promise<{
+    }
+    sessions: {
+      create(input: { workspaceId: string; agentPreset: string }): Promise<{
         result:
-          | { ok: true; value: { agentPreset: string } }
+          | { ok: true; value: { sessionId: string; agentPreset?: string } }
+          | { ok: false; error: { message: string } }
+      }>
+    }
+    subagents: {
+      interrupt(input: { parentSessionId: string; childSessionId: string; mode: 'continuable' }): Promise<{
+        result:
+          | { ok: true; value: { accepted: true } }
           | { ok: false; error: { message: string } }
       }>
     }
@@ -114,7 +163,7 @@ interface InputTriggerController {
   menu: { getSnapshot(): { open: boolean }; subscribe(listener: () => void): () => void }
   launcher: { getSnapshot(): string | null; subscribe(listener: () => void): () => void }
   toggleSource(source: string, hit: {
-    trigger: '@'
+    trigger: '@' | '/'
     query: string
     quoted: false
     position: 'leading' | 'inline'
@@ -129,16 +178,14 @@ interface InputTriggerService {
 
 interface PluginConfig { apiBaseUrl?: string }
 
-export const inject = ['slots', 'sessions', 'workspaces', 'connection', 'inputTriggers']
+export const inject = ['slots', 'sessions', 'workspaces', 'connection', 'inputTriggers', 'layout']
 
 function ConsoleSection(props: Record<string, unknown>) {
   const apiBaseUrl = props.apiBaseUrl as string | undefined
   return <PromaxConsole {...(apiBaseUrl === undefined ? {} : { apiBaseUrl })} />
 }
 
-function PromaxAgentStatusDock(props: Record<string, unknown>) {
-  return <AgentStatusDock session={props.session as AgentStatusSnapshot} />
-}
+function EmptyInputDockSeat() { return null }
 
 async function readProductTeamRoster(connection: ConnectionService) {
   const listed = await connection.api.agentPresets.list({})
@@ -155,6 +202,25 @@ async function readProductTeamRoster(connection: ConnectionService) {
 export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
   const connection = ctx.get('connection')
   const inputTriggers = ctx.get('inputTriggers')
+  const layout = ctx.get('layout')
+  const stopTeamDescendants = async (targets: readonly TeamSubagentStopTarget[]): Promise<void> => {
+    const unique = [...new Map(targets.map(target => [`${target.parentSessionId}:${target.sessionId}`, target])).values()]
+    const results = await Promise.all(unique.map(async target => {
+      const response = await connection.api.subagents.interrupt({
+        parentSessionId: target.parentSessionId,
+        childSessionId: target.sessionId,
+        mode: 'continuable',
+      })
+      return response.result.ok ? null : `${target.sessionId}：${response.result.error.message}`
+    }))
+    const failures = results.filter((failure): failure is string => failure !== null)
+    if (failures.length > 0) throw new Error(failures.join('；'))
+    await waitForRuntimeState(
+      () => unique.every(target => ctx.sessions.list.getSnapshot().byId[target.sessionId]?.running !== true),
+      listener => ctx.sessions.list.subscribe(listener),
+      '子 Agent',
+    )
+  }
   ctx.effect(() => {
     let active = true
     void readProductTeamRoster(connection).then(roster => {
@@ -207,17 +273,38 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
   ctx.effect(() => inputTriggers.registerSource(teamMemberSource), 'promax: stable team-member @ source')
   const shellActions: WorkspaceShellActions = {
     startSession: async (workspaceId, presetId) => {
-      const sessionId = await ctx.workspaces.connectWorkspace(workspaceId)
-      const session = ctx.sessions.list.getSnapshot().byId[sessionId]
-      if (session?.blank === true && session.agentPreset !== presetId) {
-        const response = await connection.api.agentPresets.select({ sessionId, agentPreset: presetId })
-        if (!response.result.ok) throw new Error(response.result.error.message)
-        ctx.sessions.noteAgentPreset(sessionId, response.result.value.agentPreset)
-      }
+      const response = await connection.api.sessions.create({ workspaceId, agentPreset: presetId })
+      if (!response.result.ok) throw new Error(response.result.error.message)
+      const { sessionId, agentPreset } = response.result.value
+      if (agentPreset !== presetId) throw new Error(`新会话没有绑定要求的 preset：${presetId}`)
+      await waitForRuntimeState(
+        () => ctx.sessions.list.getSnapshot().byId[sessionId] !== undefined,
+        listener => ctx.sessions.list.subscribe(listener),
+        '新会话',
+      )
+      ctx.sessions.noteAgentPreset(sessionId, agentPreset)
       return sessionId
     },
     openSession: sessionId => { ctx.sessions.open(sessionId) },
     clearSession: () => { ctx.sessions.clear() },
+    archiveSession: async sessionId => { await ctx.workspaces.archiveSession(sessionId) },
+    renameSession: async (sessionId, title) => {
+      const session = ctx.sessions.binding(sessionId)?.session
+      if (session === undefined) throw new Error(`找不到会话“${sessionId}”`)
+      const result = await session.rename(title)
+      if (!result.ok) throw new Error(result.error.message)
+    },
+    prepareSessionScope: async input => {
+      const response = await fetch('/promax-workspace-api/session-scope', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(input),
+      })
+      const value = await response.json() as Record<string, unknown>
+      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `会话产出目录创建失败（HTTP ${response.status}）`)
+      if (typeof value.sessionName !== 'string' || typeof value.taskKey !== 'string' || typeof value.relativePath !== 'string') throw new Error('会话产出目录响应格式无效')
+      return { sessionName: value.sessionName, taskKey: value.taskKey, relativePath: value.relativePath }
+    },
     createProjectWorkspace: async input => {
       const response = await fetch('/promax-workspace-api/project', {
         method: 'POST',
@@ -249,6 +336,8 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
   }
   const shellInjected = () => ({
     ...shellActions,
+    layout,
+    stopTeamDescendants,
     ...(config.apiBaseUrl === undefined ? {} : { apiBaseUrl: config.apiBaseUrl }),
   })
 
@@ -273,9 +362,9 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
   }, PromaxDraftSettings as unknown as ComponentType<Record<string, unknown>>))
   ctx.slots.inject('conversation.input.dock', () => ctx.slots.register({
     name: 'conversation.input.dock',
-    id: 'promax-agent-status',
-    order: -20,
-  }, PromaxAgentStatusDock))
+    id: 'goal',
+    priority: -100,
+  }, EmptyInputDockSeat))
   ctx.slots.inject('conversation.session.header.actions', () => ctx.slots.register({
     name: 'conversation.session.header.actions',
     id: 'promax-team-context',
@@ -323,10 +412,54 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
     name: 'conversation.hero.agentPreset',
     priority: -100,
   }, EmptyHeroSeat))
+  ctx.slots.inject('sidebar', () => ctx.slots.register({
+    name: 'sidebar',
+    priority: -100,
+    inject: shellInjected,
+  }, PromaxLeftSidebar as unknown as ComponentType<Record<string, unknown>>))
+  ctx.slots.inject('conversation.composer.bar', () => ctx.slots.register({
+    name: 'conversation.composer.bar',
+    priority: -100,
+    inject: (sessionId: string | undefined) => {
+      if (sessionId === undefined) return shellInjected()
+      const stop = async (): Promise<void> => {
+        const session = ctx.sessions.binding(sessionId)?.session
+        if (session === undefined) throw new Error(`Promax 团队会话 ${sessionId} 尚未就绪`)
+        const response = await session.cancel()
+        if (!response.ok) throw new Error(response.error.message)
+        await waitForRuntimeState(
+          () => session.getSnapshot().running !== true,
+          listener => session.subscribe(listener),
+          '主会话',
+        )
+      }
+      const scope = ctx.sessions.scope(sessionId)
+      if (scope === undefined) return { ...shellInjected(), stop }
+      const controller = inputTriggers.sessionOf(scope)
+      return {
+        ...shellInjected(),
+        stop,
+        toggleCommand: (draft: string, draftRev: number) => {
+          controller.toggleSource('command', {
+            trigger: '/',
+            query: '',
+            quoted: false,
+            position: draft.slice(0, -1).trim() === '' ? 'leading' : 'inline',
+            span: { start: draft.length - 1, end: draft.length, draftRev },
+          })
+        },
+      }
+    },
+  }, PromaxComposerBar as unknown as ComponentType<Record<string, unknown>>))
+  ctx.slots.inject('details', () => ctx.slots.register({
+    name: 'details',
+    priority: -100,
+    inject: shellInjected,
+  }, PromaxDetailsSidebar as unknown as ComponentType<Record<string, unknown>>))
   ctx.slots.inject('shell.overlay', () => ctx.slots.register({
     name: 'shell.overlay',
-    id: 'promax-team-rail',
+    id: 'promax-workspace',
     order: 50,
     inject: shellInjected,
-  }, PromaxTeamRail as unknown as ComponentType<Record<string, unknown>>))
+  }, PromaxWorkspaceOverlay as unknown as ComponentType<Record<string, unknown>>))
 }

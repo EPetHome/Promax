@@ -1,0 +1,18 @@
+- id: ui-layout
+  disabled: true
+
+- id: ui-sidebar
+  disabled: true
+
+- id: ui-brand-official
+  disabled: true
+
+- insert:
+    - id: promax-ui-layout
+      name: '@promax/promax-ui-layout'
+
+    - id: promax-ui-console
+      name: '@promax/promax-ui-console'
+
+    - id: promax-ui-brand
+      name: '@promax/promax-ui-brand'

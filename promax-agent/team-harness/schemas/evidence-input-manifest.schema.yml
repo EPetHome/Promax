@@ -1,0 +1,68 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://promax.local/schemas/evidence-input-manifest.schema.yml
+title: Promax EvidenceInputManifest
+type: object
+additionalProperties: false
+required: [api_version, kind, metadata, spec]
+properties:
+  api_version:
+    const: promax.ai/v1alpha2
+  kind:
+    const: EvidenceInputManifest
+  metadata:
+    type: object
+    additionalProperties: false
+    required: [task_key, frozen, frozen_at]
+    properties:
+      task_key:
+        type: string
+        pattern: '^(?!\.{1,2}$)[^<>:"/\\|?*\x00-\x1F\x7F]{1,40}$'
+      frozen:
+        const: true
+      frozen_at:
+        type: string
+        pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$
+  spec:
+    type: object
+    additionalProperties: false
+    required: [source_root, sources]
+    properties:
+      source_root:
+        type: string
+        pattern: '^\.promax/input/(?!\.{1,2}/)[^<>:"/\\|?*\x00-\x1F\x7F]{1,40}/sources$'
+      sources:
+        type: array
+        minItems: 1
+        maxItems: 256
+        items:
+          type: object
+          additionalProperties: false
+          required: [source_id, relative_path, sha256, media_type, origin_kind]
+          properties:
+            source_id:
+              type: string
+              pattern: ^SRC-[0-9]{3,6}$
+            relative_path:
+              type: string
+              pattern: '^\.promax/input/(?!\.{1,2}/)[^<>:"/\\|?*\x00-\x1F\x7F]{1,40}/sources/SRC-[0-9]{3,6}/[A-Za-z0-9._-]+$'
+            sha256:
+              type: string
+              pattern: ^[a-f0-9]{64}$
+            media_type:
+              type: string
+              pattern: ^[a-z0-9!#$&^_.+-]+/[a-z0-9!#$&^_.+-]+$
+            origin_kind:
+              enum: [user-provided, web-snapshot]
+            original_url:
+              type: string
+              pattern: ^https?://
+            captured_at:
+              type: string
+              pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}Z$
+          allOf:
+            - if:
+                properties:
+                  origin_kind:
+                    const: web-snapshot
+              then:
+                required: [original_url, captured_at]

@@ -1,0 +1,208 @@
+{
+  "app_id": "com.cloudshare.app",
+  "app_name": "云传",
+  "period": "2026-07-20 ~ 2026-08-18",
+  "total_items": 25,
+  "feedbacks": [
+    {
+      "id": "f001",
+      "channel": "app_store",
+      "content": "升级 2.5.0 之后打开就闪退，重装也没用，之前存的传输记录全没了。",
+      "user_id": "u1001",
+      "timestamp": "2026-08-02T10:23:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "iPhone 15 Pro", "rating": 1}
+    },
+    {
+      "id": "f002",
+      "channel": "customer_service",
+      "content": "客服您好，我上传一个 3 个 G 的压缩包，到 80% 就提示网络异常失败，试了好几次都这样，麻烦帮忙看一下。",
+      "user_id": "u1002",
+      "timestamp": "2026-08-03T14:05:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "小米14 Ultra", "rating": null}
+    },
+    {
+      "id": "f003",
+      "channel": "customer_service",
+      "content": "上传进度条一直卡在 99% 不动，等了 20 分钟还是老样子，取消重试也不行。",
+      "user_id": "u1003",
+      "timestamp": "2026-08-03T16:40:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "iPhone 13", "rating": null}
+    },
+    {
+      "id": "f004",
+      "channel": "wechat_group",
+      "content": "请问有人知道升级后旧的传输记录在哪里找吗？更新完记录全不见了，急。",
+      "user_id": "u1004",
+      "timestamp": "2026-08-04T09:12:00+08:00",
+      "metadata": {"version": "v2.4.0", "device": "HUAWEI Mate 60 Pro", "rating": null}
+    },
+    {
+      "id": "f005",
+      "channel": "survey_nps",
+      "content": "用了两年了，传文件又快又稳，希望继续保持，支持你们！",
+      "user_id": "u1005",
+      "timestamp": "2026-08-04T20:30:00+08:00",
+      "metadata": {"version": "v2.4.0", "device": "iPhone 15 Pro", "rating": 9}
+    },
+    {
+      "id": "f006",
+      "channel": "customer_service",
+      "content": "上传进度条一直卡在 99% 不动，等了 20 分钟还是老样子，取消重试也不行。",
+      "user_id": "u1003",
+      "timestamp": "2026-08-04T11:15:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "iPhone 13", "rating": null}
+    },
+    {
+      "id": "f007",
+      "channel": "email",
+      "content": "您好，我反映一个账号问题：更新后每天都要重新登录，勾了自动登录也没有用，密码没有改动过。",
+      "user_id": "u1006",
+      "timestamp": "2026-08-05T15:50:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "iPhone 14", "rating": null}
+    },
+    {
+      "id": "f008",
+      "channel": "app_store",
+      "content": "新版打开应用好慢，要五六秒，滑动列表也卡，之前那个版本很快的。",
+      "user_id": "u1007",
+      "timestamp": "2026-08-05T21:08:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "HUAWEI P60 Pro", "rating": 2}
+    },
+    {
+      "id": "f009",
+      "channel": "wechat_group",
+      "content": "闪退闪退，今天已经第三次了，进传输记录就崩，你们有没有这种情况？",
+      "user_id": "u1008",
+      "timestamp": "2026-08-06T12:33:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "Redmi K70", "rating": null}
+    },
+    {
+      "id": "f010",
+      "channel": "survey_nps",
+      "content": "界面改版后太难用了，功能藏得深，按钮又小，体验倒退。",
+      "user_id": "u1009",
+      "timestamp": "2026-08-06T19:47:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "iPhone 15", "rating": 3}
+    },
+    {
+      "id": "f011",
+      "channel": "customer_service",
+      "content": "下载一个 800MB 的视频，中途断了两次，每次都要从头下，能不能加个断点续传？",
+      "user_id": "u1010",
+      "timestamp": "2026-08-07T10:26:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "小米14", "rating": null}
+    },
+    {
+      "id": "f012",
+      "channel": "app_store",
+      "content": "老版本一直很好用，传输速度快，界面干净，五星支持。",
+      "user_id": "u1011",
+      "timestamp": "2026-08-07T18:02:00+08:00",
+      "metadata": {"version": "v2.4.0", "device": "iPhone 12", "rating": 5}
+    },
+    {
+      "id": "f013",
+      "channel": "email",
+      "content": "产品建议：希望支持断点续传，公司网速不稳，传大文件太痛苦了，这是很多人共同的诉求。",
+      "user_id": "u1012",
+      "timestamp": "2026-08-08T09:55:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "HUAWEI Mate 60 Pro", "rating": null}
+    },
+    {
+      "id": "f014",
+      "channel": "wechat_group",
+      "content": "新版传小文件速度还挺快的，比之前提升明显，就是偶尔卡一下。",
+      "user_id": "u1013",
+      "timestamp": "2026-08-08T14:18:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "iPhone 15 Pro", "rating": null}
+    },
+    {
+      "id": "f015",
+      "channel": "wechat_group",
+      "content": "又闪退了，今天第三次，进传输记录就崩，真要被逼疯了。",
+      "user_id": "u1008",
+      "timestamp": "2026-08-08T20:41:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "Redmi K70", "rating": null}
+    },
+    {
+      "id": "f016",
+      "channel": "customer_service",
+      "content": "上传 2 个 G 的文件进度条一直不走，过一会儿直接失败，试了 3 次都一样，求尽快修复。",
+      "user_id": "u1014",
+      "timestamp": "2026-08-09T16:20:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "Redmi Note 13 Pro", "rating": null}
+    },
+    {
+      "id": "f017",
+      "channel": "survey_nps",
+      "content": "功能都还行，就是新版有点卡，希望优化一下流畅度。",
+      "user_id": "u1015",
+      "timestamp": "2026-08-09T22:11:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "HUAWEI nova 12", "rating": 7}
+    },
+    {
+      "id": "f018",
+      "channel": "app_store",
+      "content": "新版界面真的一言难尽，颜色刺眼，按钮小得点不到，麻烦改回去。",
+      "user_id": "u1016",
+      "timestamp": "2026-08-10T11:36:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "HUAWEI Pura 70", "rating": 2}
+    },
+    {
+      "id": "f019",
+      "channel": "email",
+      "content": "感谢团队！老版本用得很顺，唯一希望是能加入批量传输和自动备份功能。",
+      "user_id": "u1017",
+      "timestamp": "2026-08-11T08:45:00+08:00",
+      "metadata": {"version": "v2.4.0", "device": "iPhone 14 Pro", "rating": null}
+    },
+    {
+      "id": "f020",
+      "channel": "customer_service",
+      "content": "账号老是自动掉线，一天登三四次，输验证码都输烦了。",
+      "user_id": "u1018",
+      "timestamp": "2026-08-12T13:57:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "小米14", "rating": null}
+    },
+    {
+      "id": "f021",
+      "channel": "wechat_group",
+      "content": "问问大家，免费版的存储空间上限是多少？传太多会不会被清理？",
+      "user_id": "u1019",
+      "timestamp": "2026-08-13T10:09:00+08:00",
+      "metadata": {"version": "v2.4.0", "device": "HUAWEI P50 Pro", "rating": null}
+    },
+    {
+      "id": "f022",
+      "channel": "app_store",
+      "content": "强烈建议加上断点续传，公司网速不稳，传大文件经常白传，太影响效率了。",
+      "user_id": "u1020",
+      "timestamp": "2026-08-14T17:28:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "iPhone 15 Pro", "rating": 3}
+    },
+    {
+      "id": "f023",
+      "channel": "survey_nps",
+      "content": "非常满意，手机电脑互传很方便，免费不限速真的很良心，会推荐给朋友。",
+      "user_id": "u1021",
+      "timestamp": "2026-08-15T09:03:00+08:00",
+      "metadata": {"version": "v2.4.0", "device": "iPhone 15", "rating": 10}
+    },
+    {
+      "id": "f024",
+      "channel": "customer_service",
+      "content": "今天更新后进应用就闪退，重启手机也没用，传输记录和本地缓存是不是都会丢？能不能帮找回？",
+      "user_id": "u1022",
+      "timestamp": "2026-08-16T15:14:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "HUAWEI Mate 60 Pro", "rating": null}
+    },
+    {
+      "id": "f025",
+      "channel": "email",
+      "content": "下载速度太慢了，500MB 的文件要传半小时，比上传还慢，是服务器问题还是我的问题？",
+      "user_id": "u1023",
+      "timestamp": "2026-08-17T19:32:00+08:00",
+      "metadata": {"version": "v2.5.0", "device": "Redmi K70", "rating": null}
+    }
+  ]
+}

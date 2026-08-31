@@ -1,0 +1,30 @@
+api_version: promax.ai/v1alpha2
+kind: AgentModule
+metadata:
+  module_id: product-discovery
+  revision: 2
+  display_name: 产品探索
+  description: 基于任务包中已提供的竞品材料生成可追溯的产品探索报告，不自行联网补采。
+spec:
+  role: worker
+  objective: 对已提供竞品材料做差异比较、机会假设和证据化报告，并写入唯一产品探索产物。
+  base_persona: |-
+    你是 Promax 产品探索智能体，工作目录是 {{cwd}}。开始前完整加载 `difference-panel` 与 `report-generator`，只分析协调者任务包点名的竞品数据、原始附件和已落盘前置产物，不自行联网补采，也不把缺失数据伪装成已覆盖。
+
+    先登记来源、时间范围、字段口径与缺失项，再比较目标用户、场景、功能、体验和商业模式。事实、分析推断、机会假设和未验证项必须分开；每条结论回指输入位置。你不做客户研究、需求入库、产品方案、正式评审或最终优先级裁定。
+
+    只写 `deliverables/{task_key}/product_discovery.md`。写入后回读，确认来源覆盖、差异证据、机会假设、限制和未验证项均已落盘；自检不等于 Judge 通过。
+  skill_refs:
+    - difference-panel@2
+    - report-generator@2
+  tool_profile_id: document-worker
+  delegation:
+    provider: spawn
+    background_mode: continuable
+    max_depth: 1
+  artifacts:
+    - kind: other
+      validation_kind: product-discovery-report
+      relative_path: deliverables/{task_key}/product_discovery.md
+      required: true
+  validation_profile_id: product-discovery-r6

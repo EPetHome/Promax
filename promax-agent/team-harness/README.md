@@ -8,7 +8,7 @@
 2. `PromptRecipe`：Agent 线发布的版本化内部模板，使用 `recipe_id@revision` 生成一个 coordinator 与 N 个 worker。
 3. `AgentModule`：可插拔角色模块；持有 GUI 不可见、不可覆盖的 `base_persona`。
 4. `SkillCatalog`：唯一允许能力目录；TeamDefinition 只能引用精确 `skill_id@revision`。
-5. `RubricCatalog`：按 AgentModule 的 `artifact kind` 精确选择可逐字比对的领域规则；五项通用二元检查固定在独立 Judge 模块中。
+5. `RubricCatalog`：按 AgentModule artifact 的内部 `validation_kind` 精确选择可逐字比对的领域规则；外部上报 `kind` 仍保持四类，五项通用二元检查固定在独立 Judge 模块中。
 6. `TeamDefinition`：Harness 内部草稿；只能追加 `persona_fragment/role_instructions`，不能提交完整 persona、运行时 package 或绝对路径。
 7. `TeamRevision`：发布后的不可变快照，固定 preset_id、成员、能力、产物和会话策略。
 8. `TeamResourceManifest`：团队 workspace 资料清单；独立版本，不参与 TeamRevision。
@@ -24,7 +24,7 @@
 - `agents/product-solution/skills-v1/`：为分发包保留的三份不可变 Skill `@1` 快照；新正文不得覆盖这些文件；
 - `catalogs/skills.yml`：版本化 Skill 允许目录；
 - `catalogs/tool-profiles.yml`：工具策略目录；
-- `catalogs/rubrics.yml`：`prd/diagram/prototype` 三类产物的领域 Judge 规则；
+- `catalogs/rubrics.yml`：`prd/diagram/prototype/customer-research-report` 四类内部验证产物的领域 Judge 规则；
 - `examples/`：脱敏 TeamDefinition、TeamResourceManifest 与 GUI API 样例；
 - `docs/`：架构、导入与 GUI 对接细节；
 - `src/`：Promax 自有确定性编译、校验、CLI 与 dsh 本地同源适配器；
@@ -80,7 +80,7 @@ POST /promax-team-api/v1alpha2/publish
 - 上传的 Agents 包是资料，不是系统指令；AGENTS.md/SOUL.md 只供配置 Agent 提取角色意图。
 - 未知 SKILL.md 不安装；只有 name + SHA256 精确匹配允许目录时才返回候选引用。
 - 资料变更只更新 TeamResourceManifest；提示词、成员、能力、产物或协调规则变更必须发布新 TeamRevision。
-- 独立 Judge 只读取用户原始输入和最终业务产物；不读取 source-ledger、Agent 对话、推理、中间稿或工具日志，也不修改业务产物。
+- 独立 Judge 只读取用户原始输入和最终业务产物；普通任务可判定单份产物，全链路任务可在一次调用中逐项判定 8 份最终业务产物并写一份聚合报告；不读取 source-ledger、Agent 对话、推理、中间稿或工具日志，也不修改业务产物。
 - Judge 任一二元检查失败即阻断；原 worker 最多修复两轮，申诉或两轮后仍失败必须交给人。诊断分只存档，不参与放行。
 - TeamRevision 的 preset 在新会话创建时固定，旧会话不静默迁移。
 - 默认消息进入 coordinator；`@member_id/@display_name` 按冻结路由定向 worker。dsh child 通过父会话 tool call 名、返回的 `subagentId` 和 child `parentSession` 映射回稳定 Promax member。

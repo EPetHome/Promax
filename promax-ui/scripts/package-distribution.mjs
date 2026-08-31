@@ -12,6 +12,7 @@ const archivesByPackage = new Map()
 
 const packageSpecs = [
   { source: join(root, 'packages', 'promax-ui-brand') },
+  { source: join(root, 'packages', 'promax-ui-layout') },
   { source: join(root, 'packages', 'promax-ui-console') },
   { source: resolve(root, '../promax-end/packages/promax-report') },
   { source: resolve(root, '../promax-agent/team-harness') },
@@ -38,16 +39,28 @@ try {
     if (spec.dependencies !== undefined) manifest.dependencies = spec.dependencies
     if (manifest.name === '@promax/team-harness') {
       manifest.version = `${manifest.version}-dist.1`
-      await cp(
-        resolve(root, '../promax-agent/agents/team-configurator'),
-        join(stageDir, 'agents', 'team-configurator'),
-        { recursive: true },
-      )
-      await cp(
-        resolve(root, '../promax-agent/agents/product-solution/skills'),
-        join(stageDir, 'agents', 'product-solution', 'skills'),
-        { recursive: true },
-      )
+      const agentPayloads = [
+        ['team-configurator'],
+        ['product-solution', 'skills-v1'],
+        ['product-solution', 'skills-v2'],
+        ['product-solution', 'skills'],
+        ['customer-research', 'skills-v1'],
+        ['customer-research', 'skills'],
+        ['product-discovery', 'skills'],
+        ['product-discovery', 'skills-v1'],
+        ['requirement-management', 'skills'],
+        ['requirement-review', 'skills'],
+        ['requirement-review', 'skills-v1'],
+        ['user-analysis', 'skills'],
+        ['user-analysis', 'skills-v1'],
+      ]
+      for (const segments of agentPayloads) {
+        await cp(
+          resolve(root, '../promax-agent/agents', ...segments),
+          join(stageDir, 'agents', ...segments),
+          { recursive: true },
+        )
+      }
       const skillCatalogPath = join(stageDir, 'catalogs', 'skills.yml')
       const skillCatalog = await readFile(skillCatalogPath, 'utf8')
       await writeFile(skillCatalogPath, skillCatalog.replaceAll('../../agents/', '../agents/'))
@@ -86,6 +99,7 @@ PROFILE_MANIFEST="$DSH_ROOT/profiles/$PROFILE/package.json"
 REPORT_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/promax-report')}"
 TEAM_HARNESS_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/team-harness')}"
 BRAND_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/promax-ui-brand')}"
+LAYOUT_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/promax-ui-layout')}"
 CONSOLE_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/promax-ui-console')}"
 BUNDLE_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/promax-bundle')}"
 ${dshRunner}if [ -f "$PROFILE_MANIFEST" ]; then
@@ -93,6 +107,7 @@ ${dshRunner}if [ -f "$PROFILE_MANIFEST" ]; then
     "@promax/promax-report=$REPORT_ARCHIVE" \\
     "@promax/team-harness=$TEAM_HARNESS_ARCHIVE" \\
     "@promax/promax-ui-brand=$BRAND_ARCHIVE" \\
+    "@promax/promax-ui-layout=$LAYOUT_ARCHIVE" \\
     "@promax/promax-ui-console=$CONSOLE_ARCHIVE" \\
     "@promax/promax-bundle=$BUNDLE_ARCHIVE" <<'NODE'
 const fs = require('node:fs')
@@ -112,20 +127,31 @@ else
     "$REPORT_ARCHIVE" \\
     "$TEAM_HARNESS_ARCHIVE" \\
     "$BRAND_ARCHIVE" \\
+    "$LAYOUT_ARCHIVE" \\
     "$CONSOLE_ARCHIVE" \\
     "$BUNDLE_ARCHIVE"
 fi
 CONFIGURATOR_SOURCE="$DSH_ROOT/profiles/$PROFILE/node_modules/@promax/team-harness/agents/team-configurator"
 CONFIGURATOR_TARGET="$DSH_ROOT/.agent-presets/promax-team-configurator"
-node - "$CONFIGURATOR_SOURCE" "$CONFIGURATOR_TARGET" <<'NODE'
+PRODUCT_SOURCE="$DSH_ROOT/profiles/$PROFILE/node_modules/@promax/team-harness/generated/promax-team-mtcjsbcz-04tpe2-r7"
+PRODUCT_TARGET="$DSH_ROOT/.agent-presets/promax-team-mtcjsbcz-04tpe2-r7"
+node - "$CONFIGURATOR_SOURCE" "$CONFIGURATOR_TARGET" "$PRODUCT_SOURCE" "$PRODUCT_TARGET" <<'NODE'
 const fs = require('node:fs')
 const path = require('node:path')
-const [source, target] = process.argv.slice(2)
+const [source, target, productSource, productTarget] = process.argv.slice(2)
 fs.mkdirSync(target, { recursive: true })
 for (const name of ['agent.cordis.yml', 'preset.yml']) {
   const sourceFile = path.join(source, name)
   if (!fs.existsSync(sourceFile)) throw new Error('Missing configurator preset file: ' + name)
   fs.copyFileSync(sourceFile, path.join(target, name))
+}
+if (!fs.existsSync(productSource)) throw new Error('Missing fixed product-team preset: ' + productSource)
+if (fs.existsSync(productTarget)) {
+  const sourceManifest = fs.readFileSync(path.join(productSource, 'manifest.sha256'), 'utf8')
+  const targetManifest = fs.readFileSync(path.join(productTarget, 'manifest.sha256'), 'utf8')
+  if (sourceManifest !== targetManifest) throw new Error('Existing fixed product-team preset differs: ' + productTarget)
+} else {
+  fs.cpSync(productSource, productTarget, { recursive: true })
 }
 NODE
 `

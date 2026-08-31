@@ -66,21 +66,25 @@ properties:
             const: 1
       artifacts:
         type: array
-        minItems: 1
         items:
           type: object
           additionalProperties: false
-          required: [kind, relative_path, required]
+          required: [kind, validation_kind, relative_path, required]
           properties:
             kind:
               type: string
               pattern: ^[a-z][a-z0-9-]{1,31}$
+            validation_kind:
+              description: Promax 内部验证分类；与外部上报 kind 分离，RubricCatalog 只按本字段精确匹配。
+              type: string
+              pattern: ^[a-z][a-z0-9-]{1,63}$
             relative_path:
               type: string
               minLength: 1
             required:
               type: boolean
       validation_profile_id:
+        description: 预留标识；当前编译器不消费。本字段不代表 G0–G6 已机械生效，机械判定只来自 RubricCatalog 与静态 CLI 校验。
         type: string
         pattern: ^[a-z][a-z0-9-]{2,47}$
     allOf:
@@ -90,6 +94,10 @@ properties:
               const: worker
         then:
           required: [tool_profile_id, delegation]
+          properties:
+            artifacts:
+              type: array
+              minItems: 1
         else:
           not:
             anyOf:

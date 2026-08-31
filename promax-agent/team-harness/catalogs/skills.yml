@@ -1,7 +1,23 @@
 schema_version: 1
-
-# Agent 线维护的唯一允许目录。GUI 和导入器只能引用 skill_ref，不能提交路径或 package。
 skills:
+  - skill_ref: app-market-sentiment@1
+    skill_id: app-market-sentiment
+    revision: 1
+    display_name: 应用市场舆情
+    description: 分析应用市场评论，提炼痛点、版本趋势与舆情风险。
+    status: allowed
+    source_path: ../../agents/user-analysis/skills-v1/app-market-sentiment
+    content_sha256: b5cd96b37ac8f5e26b95876832cbc6d5d3c198c174b5b45148e1b1c58339b5b7
+    tree_sha256: 19cf60d088ada39e2a3f967ab26d25525a32d6611e24bb84b9123a1f0f0fca9d
+  - skill_ref: app-market-sentiment@2
+    skill_id: app-market-sentiment
+    revision: 2
+    display_name: 应用市场舆情
+    description: 只分析已冻结评论样本，区分个案、声量、反例与总体边界。
+    status: allowed
+    source_path: ../../agents/user-analysis/skills/app-market-sentiment
+    content_sha256: 2efa566fb91f37d4aa45ac6817fe149743b2ee97725b469fde44b7b0d21cea0c
+    tree_sha256: 1c6ada3577b9b5d7cc3d0e20fd25ebce54e4f9fe56bfe43af4c617c08edb302f
   - skill_ref: business-diagram-generator@1
     skill_id: business-diagram-generator
     revision: 1
@@ -10,16 +26,142 @@ skills:
     status: allowed
     source_path: ../agents/product-solution/skills-v1/business-diagram-generator
     content_sha256: 275c399fc06eb0b33d9e4352f1c6eb2618b0aa6615d740dddd575ec3b1766a9a
-
+    tree_sha256: b2bbcc5c96dd22c293ef7033268277072ea40a674991587718c87eeb3cf9a218
   - skill_ref: business-diagram-generator@2
     skill_id: business-diagram-generator
     revision: 2
     display_name: 业务流程图
     description: 生成并验证 Mermaid 业务流程图；数量变化统一按操作后值判断。
     status: allowed
+    source_path: ../../agents/product-solution/skills-v2/business-diagram-generator
+    content_sha256: 59822e5f52d36f46fbaa4cdb1206b04b5fa2749151ae46b192f1816f763eb55f
+    tree_sha256: 3f4b6d2659f624dca03231b7ae07950f28668e1412a55524c2b99e0b6d819ec0
+  - skill_ref: business-diagram-generator@3
+    skill_id: business-diagram-generator
+    revision: 3
+    display_name: 业务流程图
+    description: 生成可追溯、固定区块并含边界真值表的 Mermaid 业务流程图。
+    status: allowed
     source_path: ../../agents/product-solution/skills/business-diagram-generator
-    content_sha256: eaa7ab939651d9b9c98d809e616b280a276d822e8b6692b10dc221aa66766bd8
-
+    content_sha256: 8399de1ff4487786152bbe0d5845d0618c6485dd3320d84959cf9ce3b1b407b1
+    tree_sha256: 26b3d00699bf5635c42e987b48a0f7013d4b958031ea00a2dff58633e31df056
+  - skill_ref: core-metrics-analysis@1
+    skill_id: core-metrics-analysis
+    revision: 1
+    display_name: 核心业务指标分析
+    description: 分析核心业务指标趋势、量价背离、异常与归因假设。
+    status: allowed
+    source_path: ../../agents/user-analysis/skills-v1/core-metrics-analysis
+    content_sha256: ddd66bfd2c938cf1f9927f4359e39ccfca3495185c491367c48a190bd833d0f1
+    tree_sha256: 6e58596ef0cb1865339036be647bad62dec78e3a4bc3be4882a6e668bb17c31d
+  - skill_ref: core-metrics-analysis@2
+    skill_id: core-metrics-analysis
+    revision: 2
+    display_name: 核心业务指标分析
+    description: 按明确口径、时间窗和公式分析指标趋势、异常与替代解释。
+    status: allowed
+    source_path: ../../agents/user-analysis/skills/core-metrics-analysis
+    content_sha256: 131703ad762ef6ba7df20658bfdb6e1224dc3a0c153c50e73c8d35cab5332483
+    tree_sha256: 45aeed04247cc962434ac70de624ab5adc6c65d5dbf6f127e3a0b115f02d5079
+  - skill_ref: customer-research@1
+    skill_id: customer-research
+    revision: 1
+    display_name: 客研管理
+    description: 整理访谈、构建画像、提炼痛点与候选需求并执行多源互证。
+    status: allowed
+    source_path: ../../agents/customer-research/skills-v1/customer-research
+    content_sha256: a154f6149a1c47769561261d89f1fc536c1e030b943fab2ca75dc7cc9c80ea89
+    tree_sha256: 6a47892d8918cdb7c31bbce45c2447f5df508682175dd85a9512b370b1e2458a
+  - skill_ref: customer-research@2
+    skill_id: customer-research
+    revision: 2
+    display_name: 客研管理
+    description: 基于闭集原始输入生成固定章节、证据矩阵和样本边界真值表。
+    status: allowed
+    source_path: ../../agents/customer-research/skills/customer-research
+    content_sha256: 146458b71246b6d8783fdfc5d256015845b2ae3f7104fc974501a30a475ac935
+    tree_sha256: 20429b25a94418305a1a33f498e9a5af5aef5a83a0286a199457caed82ae5958
+  - skill_ref: data-visualization@1
+    skill_id: data-visualization
+    revision: 1
+    display_name: 数据可视化
+    description: 把分析数据转化为 HTML 看板、图表集合与可视化报告。
+    status: allowed
+    source_path: ../../agents/user-analysis/skills-v1/data-visualization
+    content_sha256: ef90cf27c4c73f45a13a0857ed6a0ec7a80ce17a8cf42b5b31a8330c7e2d7c74
+    tree_sha256: 3c18173d27257ca842d9e2a0ed34a371fd898a878f724491ab7cc3a8eb234760
+  - skill_ref: data-visualization@2
+    skill_id: data-visualization
+    revision: 2
+    display_name: 数据可视化
+    description: 把可追溯数据转为诚实尺度、完整口径和可取证的可视化。
+    status: allowed
+    source_path: ../../agents/user-analysis/skills/data-visualization
+    content_sha256: 67ea68e7c4f495b57ba041b2d3edccc03ce048b8f076e10cb63871b8b4a72fa5
+    tree_sha256: d447b19dc0ba5aa7f0b9065b942f6d789c2b57a071ea767ddf2da63dab69bc12
+  - skill_ref: difference-panel@1
+    skill_id: difference-panel
+    revision: 1
+    display_name: 竞品差异面板
+    description: 根据已备好的结构化竞品数据生成可追溯的维度化差异面板。
+    status: allowed
+    source_path: ../../agents/product-discovery/skills-v1/difference-panel
+    content_sha256: 8892fde6554f6f3d544d1610edffdca11560ac6e29ba60c5eb80c2d1ef5a2787
+    tree_sha256: fdaa0db2d29212a37dd6dc52eb0a0df6d44b7d32a822f87be7aeeb6dd854329e
+  - skill_ref: difference-panel@2
+    skill_id: difference-panel
+    revision: 2
+    display_name: 竞品差异面板
+    description: 根据不可变竞品输入生成固定章节、证据化差异与边界真值表。
+    status: allowed
+    source_path: ../../agents/product-discovery/skills/difference-panel
+    content_sha256: 50a67687132cf81285d7b0d102f19f9aa69642da2c5e1513e7ecf6ed1dcca390
+    tree_sha256: 518d61fa8abd2ba1c17a1934f9f849101a363bb06ea272c4b04216cd5fe84225
+  - skill_ref: feishu-requirement-archive@1
+    skill_id: feishu-requirement-archive
+    revision: 1
+    display_name: 飞书需求归档
+    description: 通过固定版 Lark CLI 网关只读生成归档统计，不执行外部写入。
+    status: allowed
+    source_path: ../../agents/requirement-management/skills/feishu-requirement-archive
+    content_sha256: da00688cfd8492b4458a26418a10af0f804c5f2352741b2f6903c31e60f20993
+    tree_sha256: 40946c4c4330ef189af980b1264b799719270c90bf1ddea95dabcc7e4652ea29
+  - skill_ref: feishu-requirement-board@1
+    skill_id: feishu-requirement-board
+    revision: 1
+    display_name: 飞书需求看板
+    description: 通过固定版 Lark CLI 网关只读生成可追溯的需求看板摘要。
+    status: allowed
+    source_path: ../../agents/requirement-management/skills/feishu-requirement-board
+    content_sha256: 1d3e7c1255ac1ed7787ba7e1504c00613b86b10e9bc3d1180c530c49f541d903
+    tree_sha256: 120df43fcf8c2c61476eb6feda1189f33b575d663bed865699eaedf8262f695a
+  - skill_ref: feishu-requirement-entry@1
+    skill_id: feishu-requirement-entry
+    revision: 1
+    display_name: 飞书需求录入
+    description: 通过固定版 Lark CLI 网关执行只读字段检查和写入 dry-run。
+    status: allowed
+    source_path: ../../agents/requirement-management/skills/feishu-requirement-entry
+    content_sha256: 4458927ae610361c8193c10f74454204d0cc02b428b2b99e987f9968f42a2b73
+    tree_sha256: 56d4f256f34a8f65c744486d9abd6f1db737ddac7056b50348abbd8941b3b6b3
+  - skill_ref: interaction-design@1
+    skill_id: interaction-design
+    revision: 1
+    display_name: 交互设计
+    description: 生成页面地图、任务流、状态矩阵与响应式交互规格。
+    status: allowed
+    source_path: ../../agents/product-solution/skills-v1/interaction-design
+    content_sha256: 2beba8819ad4fc64bc1dc8c6bb681b4151cd15f28e4b53cf68106fc3fdd6a488
+    tree_sha256: 47a4383cd549a2b84467ca52feb243ddf5246779a7bb412318c89716ebe97df6
+  - skill_ref: interaction-design@2
+    skill_id: interaction-design
+    revision: 2
+    display_name: 交互设计
+    description: 生成可追溯页面地图、任务流、状态矩阵与边界真值表。
+    status: allowed
+    source_path: ../../agents/product-solution/skills/interaction-design
+    content_sha256: 1f0c9a44800131b7737c0cc7aea125fbae657cd7f6b92f4806a1580beb3baf8e
+    tree_sha256: 2d80124c204b585cbbc374c0ccc7937499c86459d8919411597107353854b0c8
   - skill_ref: interactive-prototype-generator@1
     skill_id: interactive-prototype-generator
     revision: 1
@@ -28,16 +170,70 @@ skills:
     status: allowed
     source_path: ../agents/product-solution/skills-v1/interactive-prototype-generator
     content_sha256: 07834a8182b0802293f8631a4372d08b530a3734fdd71dc7e9155051ae002eee
-
+    tree_sha256: 1aceda8848b1939e3da36c517bcfbc2c08b0aefa3988e3eaa7ce7ebf5261c261
   - skill_ref: interactive-prototype-generator@2
     skill_id: interactive-prototype-generator
     revision: 2
     display_name: 交互原型
     description: 生成并验证单 HTML 可交互原型；数量变化统一按操作后值判断。
     status: allowed
+    source_path: ../../agents/product-solution/skills-v2/interactive-prototype-generator
+    content_sha256: c3f8214603aeecec033e6f96a4adb457af0dd126d9d592ee01dc47b1dbd1b658
+    tree_sha256: 2ac8b218f979cf23bb2a9b87a432e5e155e497836092b190d4931d6717286dcf
+  - skill_ref: interactive-prototype-generator@3
+    skill_id: interactive-prototype-generator
+    revision: 3
+    display_name: 交互原型
+    description: 生成单文件、可追溯并可接受浏览器取证的交互原型。
+    status: allowed
     source_path: ../../agents/product-solution/skills/interactive-prototype-generator
-    content_sha256: b478ac4c6ee214c01a201f7f848454a6fd2856e5e2e583b42ad977f8e859ebbc
-
+    content_sha256: 284c3668fdffc345cde7cf50d7cc801e05c7fa30d8979eba26e5ba2ebf3c4fe8
+    tree_sha256: b7788c3509f1b14707c5986d8a34b708fa934ac99d215d555d5122e1d88c6153
+  - skill_ref: issue-tracker@1
+    skill_id: issue-tracker
+    revision: 1
+    display_name: 评审问题追踪
+    description: 跟踪评审问题整改、执行版本差异与修复效果复检。
+    status: allowed
+    source_path: ../../agents/requirement-review/skills-v1/issue-tracker
+    content_sha256: b5a001f8bdcfe8a7dc66d1b17dced3bd42f357b0847cbc70a50f01a5dc3ce1cb
+    tree_sha256: 11a3a2733e2b08dfb5abfeec97a3ab9260d416a4beeb65d3e53b91239c8a7357
+  - skill_ref: issue-tracker@2
+    skill_id: issue-tracker
+    revision: 2
+    display_name: 评审问题追踪
+    description: 以版本哈希和复检证据跟踪问题状态与边界回归。
+    status: allowed
+    source_path: ../../agents/requirement-review/skills/issue-tracker
+    content_sha256: 37bde221553d5afb3767eb3d522831cb173cfb56b75c9179deb6ab84097f3ffc
+    tree_sha256: 2f3e2608428934c9215e132bb91f8884d8c17245d3c5830f1e2aaf2a855aa345
+  - skill_ref: logic-detector@1
+    skill_id: logic-detector
+    revision: 1
+    display_name: PRD 逻辑检测
+    description: 检查状态机、跨章节矛盾、数据流一致性与时序依赖。
+    status: allowed
+    source_path: ../../agents/requirement-review/skills-v1/logic-detector
+    content_sha256: e53cf9ba3b9ea8c1bc1a8832e547c7cf9bbfef40bad0ee6320fa5c8428c821e4
+    tree_sha256: eb50da0e0e2e013808015cc1be2c1ccfa2d5befad85dd797f50dbf48350e0f9b
+  - skill_ref: logic-detector@2
+    skill_id: logic-detector
+    revision: 2
+    display_name: PRD 逻辑检测
+    description: 检查状态、谓词、数据流、时序与三点边界的一致性。
+    status: allowed
+    source_path: ../../agents/requirement-review/skills/logic-detector
+    content_sha256: 6161ece01faef7beef7d082d1a8e444ec5235967cf963ca8fb988c6b21385df6
+    tree_sha256: 71e8c07f22f9f1bd5da4e42b624ba84bc7dbff77705f44e67039cb6c381919b0
+  - skill_ref: pm-weekly-monitor@1
+    skill_id: pm-weekly-monitor
+    revision: 1
+    display_name: 项目周报被动分析
+    description: 被动接受后端派单，只读分析周报快照，不注册定时或主动推送。
+    status: allowed
+    source_path: ../../agents/requirement-management/skills/pm-weekly-monitor
+    content_sha256: 26f1e69d3bfa71949ec580df86a496320ae8511faf1cb78d29210384436449c1
+    tree_sha256: 9878e9ce76f2ff3b3d1e582a7732fc5274bb8044fee6f3750bdd571c7268650f
   - skill_ref: prd-document-generator@1
     skill_id: prd-document-generator
     revision: 1
@@ -46,12 +242,148 @@ skills:
     status: allowed
     source_path: ../agents/product-solution/skills-v1/prd-document-generator
     content_sha256: a42a6858eae45238dc1eeb557ee2ed202e2acffd3eafeb9e862fd190d1f0d990
-
+    tree_sha256: 65ffee8cbdf3e1bb1ac6fd519b61db3d8fb6e7eee8e9bd16b0459cfd8b2a5deb
   - skill_ref: prd-document-generator@2
     skill_id: prd-document-generator
     revision: 2
     display_name: PRD 文档
     description: 生成并验证 Markdown PRD；数量变化统一按操作后值判断。
     status: allowed
+    source_path: ../../agents/product-solution/skills-v2/prd-document-generator
+    content_sha256: 2b5e34b98beecd0610b2381c2e7053b0c8d666a243526457036255296fa4f535
+    tree_sha256: 3b1030040e190760642fc73ed675fdf3a0591ada2294b464a061bdd02c9199a2
+  - skill_ref: prd-document-generator@3
+    skill_id: prd-document-generator
+    revision: 3
+    display_name: PRD 文档
+    description: 生成固定 0–11 节、可追溯并含边界真值表的 Markdown PRD。
+    status: allowed
     source_path: ../../agents/product-solution/skills/prd-document-generator
-    content_sha256: aa0b7330d275523fb0009686ebedc5369565d6a94d6a90aac4e7b019347c94b2
+    content_sha256: f14519bce70171712dd3cf6d2cd63a8519e2359693e7d0b4b75a5f6c8abf3a54
+    tree_sha256: 46f15faa39b091390bd91e33e9e190d43b88ac8281f8221d7b21207ef87dc6bc
+  - skill_ref: prototype-quality-audit@1
+    skill_id: prototype-quality-audit
+    revision: 1
+    display_name: 原型质量审计
+    description: 对自包含 HTML 原型执行静态、交互、响应式与可访问性审计。
+    status: allowed
+    source_path: ../../agents/product-solution/skills-v1/prototype-quality-audit
+    content_sha256: ecc91ba99116433a1513630c4ab7c7f3e82e96a6579d29b6a685701dda590754
+    tree_sha256: 27205cc95071e53f44c9d4249c3deb2d513254b2cd6791dfac75ed9396b4b3ad
+  - skill_ref: prototype-quality-audit@2
+    skill_id: prototype-quality-audit
+    revision: 2
+    display_name: 原型质量审计
+    description: 执行静态、交互、边界与浏览器证据审计，未实测项诚实标记。
+    status: allowed
+    source_path: ../../agents/product-solution/skills/prototype-quality-audit
+    content_sha256: 551a774a16fa93e30ce56fe93db4ddc894f25fa783e1aeb0be6dc2149e8eeb47
+    tree_sha256: 31351e2bfaf2ca88aaed1faaf5526035544d5fb4ec0fc8e14acdcc83236ebdcc
+  - skill_ref: rd-handoff-package@1
+    skill_id: rd-handoff-package
+    revision: 1
+    display_name: 研发交接包
+    description: 汇总产品方案、交互、原型、验收与审计结果并建立交接追溯。
+    status: allowed
+    source_path: ../../agents/product-solution/skills-v1/rd-handoff-package
+    content_sha256: df9e00d921215a88c912f393942259fbd193d66137b5df52994fbed634c101c1
+    tree_sha256: 5b42928337a29b7b912b097160384999243381622b266c88f216c0babda7d707
+  - skill_ref: rd-handoff-package@2
+    skill_id: rd-handoff-package
+    revision: 2
+    display_name: 研发交接包
+    description: 建立真实文件、版本哈希、跨产物一致性和验收证据交接。
+    status: allowed
+    source_path: ../../agents/product-solution/skills/rd-handoff-package
+    content_sha256: 5f4bc082bdfa12ceaeec352b370df79bfc0ed5a172977fc13a31841775fa3ec6
+    tree_sha256: af547cd08e9c550e97e1a4d2f1735af275f84f8a917daced8513be84e88fb5fc
+  - skill_ref: report-generator@1
+    skill_id: report-generator
+    revision: 1
+    display_name: 产品探索报告
+    description: 根据已备好的竞品数据文件生成结构化 Markdown 分析报告。
+    status: allowed
+    source_path: ../../agents/product-discovery/skills-v1/report-generator
+    content_sha256: bb18e769f47b8bccae6a78c363744bcb97051e2436ad5c02b75036930bf9319a
+    tree_sha256: 7c81473e7388ce29ec2eafd2786e923fd4077880b0ed09e98bc2bd912fe66d8d
+  - skill_ref: report-generator@2
+    skill_id: report-generator
+    revision: 2
+    display_name: 产品探索报告
+    description: 生成固定 0–9 节、可追溯且不外推数据边界的产品探索报告。
+    status: allowed
+    source_path: ../../agents/product-discovery/skills/report-generator
+    content_sha256: d2c553fb89228893c3fec04574ee3d272f8c99ecdb1017e0ba891ddc02aa0edb
+    tree_sha256: 0b492cdaa4ab2b8c44f7a944fc02bbf9218632cbe1aad862cab6259b65dba245
+  - skill_ref: requirement-clarifier@1
+    skill_id: requirement-clarifier
+    revision: 1
+    display_name: 需求澄清
+    description: 识别阻塞性缺口，输出关键问题、默认处理与可追溯假设。
+    status: allowed
+    source_path: ../../agents/product-solution/skills-v1/requirement-clarifier
+    content_sha256: 0822de5558e2a92ae1a06d7d9dac886f20dd1d8d2c0d5bce8c763713f7020702
+    tree_sha256: eae23fa89f03909789e79bf4e4d4e6f049269f9994dab4a8f66575bc40b24783
+  - skill_ref: requirement-clarifier@2
+    skill_id: requirement-clarifier
+    revision: 2
+    display_name: 需求澄清
+    description: 基于不可变输入识别阻塞缺口、冲突和可撤销假设。
+    status: allowed
+    source_path: ../../agents/product-solution/skills/requirement-clarifier
+    content_sha256: 1486b9bcbff6df32414971aeac13173ef55627114c9b10d64841c5d8a019cfdc
+    tree_sha256: cb8a073db0da41d9efeab4684a33f481b7ea4cd7bbe156af2e4f33883d36da0c
+  - skill_ref: requirement-review@1
+    skill_id: requirement-review
+    revision: 1
+    display_name: PRD 需求评审
+    description: 评审 PRD、产品需求、验收标准与多角色需求风险。
+    status: allowed
+    source_path: ../../agents/requirement-review/skills-v1/requirement-review
+    content_sha256: 93bfe2baa5b043dd0f5a2e17e67dad17c8b36d7841581653653bcb565427734c
+    tree_sha256: 5c1c52af65bbfed401c2ee48634765cbd4254a859d72464c420746ca15e72381
+  - skill_ref: requirement-review@2
+    skill_id: requirement-review
+    revision: 2
+    display_name: PRD 需求评审
+    description: 生成固定 0–10 节、问题可定位且含跨产物边界复算的评审报告。
+    status: allowed
+    source_path: ../../agents/requirement-review/skills/requirement-review
+    content_sha256: 59dd4398100ead120012c0f02655e77c88fc129de7a9a07842aadb9062dc2178
+    tree_sha256: 3eebd057ceb0b68c652b0a132158cf8343aa8bbdfe14075ceb6463376669438f
+  - skill_ref: ui-design-system@1
+    skill_id: ui-design-system
+    revision: 1
+    display_name: UI 设计系统
+    description: 定义设计 Token、组件状态、页面模式、响应式与可访问性规则。
+    status: allowed
+    source_path: ../../agents/product-solution/skills-v1/ui-design-system
+    content_sha256: 9efd85be1a19dcded398ed803328da108247cd653fbf9d4fba2803decc054568
+    tree_sha256: f2741c6cd899b8798f74a0a9ac59f0b93b41cee09642290966dbf6b201821adc
+  - skill_ref: ui-design-system@2
+    skill_id: ui-design-system
+    revision: 2
+    display_name: UI 设计系统
+    description: 定义方案级 Token、组件状态、响应式、可访问性与证据映射。
+    status: allowed
+    source_path: ../../agents/product-solution/skills/ui-design-system
+    content_sha256: b9cdaafc795efbe7430eb32dd8fcd89a675c0514524561306b2fdb1dd0691de9
+    tree_sha256: ba99a9ad2ea77cf17e4838daab2567dbb7c2d322a5f5a7144493485dde05af23
+  - skill_ref: user-feedback-processor@1
+    skill_id: user-feedback-processor
+    revision: 1
+    display_name: 用户反馈结构化处理
+    description: 清洗、去重、归类多渠道用户反馈并提取痛点和需求。
+    status: allowed
+    source_path: ../../agents/user-analysis/skills-v1/user-feedback-processor
+    content_sha256: 5c8f3213ddf06a2e6d457de3acc702fc6484f46388d16bf219b11b2aee2f0f73
+    tree_sha256: 5987b172baa6faee3aa9ea3ecc6fe3c7be7be8ac3b9a4d261a06985896a0512f
+  - skill_ref: user-feedback-processor@2
+    skill_id: user-feedback-processor
+    revision: 2
+    display_name: 用户反馈结构化处理
+    description: 在样本边界内清洗、去重、分类反馈并保持原文追溯。
+    status: allowed
+    source_path: ../../agents/user-analysis/skills/user-feedback-processor
+    content_sha256: 523778c3dca01c2bbef476fab3508ce49790d52f349d30d1cf33b5f46439ddb7
+    tree_sha256: 544354d26da4bb28a267204412a0e5c490505f7d4d1eae94b88c53df800fdace

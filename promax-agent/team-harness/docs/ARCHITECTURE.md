@@ -92,11 +92,11 @@ dsh 的 skill provider 先向模型暴露 name/description 目录，只有 Agent
 
 ## 5. 独立 Judge 与 RubricCatalog
 
-Judge 是普通 `worker` 形态的 `independent-judge` AgentModule，由 coordinator 在业务产物完成后串行调用。它只读取用户原始输入与本轮最终业务产物，不读取 `source-ledger.md`、Agent 对话、推理过程、中间稿、委派记录、工具日志或生产者自评；它只写 `.promax/judge/<task-key>/judge.md`，不能修改 `deliverables/`。
+Judge 是普通 `worker` 形态的 `independent-judge` AgentModule。普通任务由 coordinator 在单份业务产物完成后串行调用；显式全链路任务在 8 份业务产物全部落盘后集中调用一次，并在同一份报告中逐产物独立判定。它只读取用户原始输入与本轮最终业务产物，不读取 `source-ledger.md`、Agent 对话、推理过程、中间稿、委派记录、工具日志或生产者自评；它只写 `.promax/judge/<task-key>/judge.md`，不能修改 `deliverables/`。
 
-五项通用检查固定在 Judge 模块中并逐项二元判定：`FABRICATED`、`MISLABELED`、`DROPPED`、`INPUT_CONTRADICTION_UNHANDLED`、`OUTPUT_SELF_CONTRADICTION`。`catalogs/rubrics.yml` 只保存 `prd/diagram/prototype` 的领域规则，选择键来自生产者 AgentModule 的 `spec.artifacts[].kind`，不能由用户覆盖。没有匹配领域规则的其他类型只做通用检查。
+五项通用检查固定在 Judge 模块中并逐项二元判定：`FABRICATED`、`MISLABELED`、`DROPPED`、`INPUT_CONTRADICTION_UNHANDLED`、`OUTPUT_SELF_CONTRADICTION`。`catalogs/rubrics.yml` 保存 `prd/diagram/prototype/customer-research-report` 的领域规则，选择键来自生产者 AgentModule 的 `spec.artifacts[].validation_kind`，不能由用户覆盖；外部 `kind` 不参与领域规则选择。没有匹配领域规则的其他类型只做通用检查。
 
-任一检查 `fail` 就阻断交付，由原 worker 修复并再次提交 Judge，最多两轮。worker 带可定位反证申诉，或两轮后仍失败，流程必须停止并交给人；Judge 不得自行强制放行。0–4 诊断分可以同次生成并存档，但不展示、不参与放行。
+任一检查 `fail` 就阻断交付；全链路聚合报告中任一 artifact fail，整体 verdict 即 fail。缺陷由原 worker 修复并再次提交 Judge，最多两轮。worker 带可定位反证申诉，或两轮后仍失败，流程必须停止并交给人；Judge 不得自行强制放行。0–4 诊断分可以同次生成并存档，但不展示、不参与放行。
 
 ## 6. 配置 Agent、PromptRecipe 与 persona 合并
 

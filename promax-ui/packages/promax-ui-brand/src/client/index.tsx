@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react'
-import { PROMAX_THEME_TOKENS } from '../theme.ts'
+import { installPromaxGlobalTheme, PROMAX_THEME_TOKENS } from '../theme.ts'
 
 interface SlotService {
   inject(name: string, setup: () => unknown): void
@@ -54,6 +54,7 @@ function promaxFaviconHref(): string {
 }
 
 export function apply(ctx: ClientContext): void {
+  ctx.effect(installPromaxGlobalTheme, 'promax-ui-brand: global theme surface')
   ctx.effect(() => {
     const previousTitle = document.title
     const previousFaviconLinks = faviconLinks()

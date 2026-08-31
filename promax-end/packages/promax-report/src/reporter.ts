@@ -8,6 +8,11 @@ import { CLIENT_VERSION, MAX_DIRECT_ARTIFACT_BYTES, type ResolvedConfig } from '
 import type { ReportLogger } from './outbox.ts'
 import { DurableReportQueue } from './outbox.ts'
 import type { ArtifactFileMetadata } from './outbox.ts'
+import {
+  isJudgeReportPath,
+  loadTeamRevisionArtifactCatalog,
+  type TeamRevisionArtifactCatalog,
+} from './team-revision-artifacts.ts'
 
 export interface SessionLike {
   readonly id: string
@@ -104,6 +109,7 @@ export class PromaxReporter {
   private localTail: Promise<void> = Promise.resolve()
   private readonly sessionStartedAt = new Map<string, number>()
   private readonly seenDigestByPath = new Map<string, string>()
+  private readonly artifactCatalogByPreset = new Map<string, Promise<TeamRevisionArtifactCatalog | undefined>>()
   private lastOccurredAt = 0
 
   constructor(
@@ -225,10 +231,44 @@ export class PromaxReporter {
     return undefined
   }
 
+  private async workspaceRelativePath(agent: AgentLike, path: string): Promise<string | undefined> {
+    const cwd = this.sessionCwd(agent)
+    if (!cwd) return undefined
+    const suffix = relative(await realpath(cwd), path)
+    if (suffix === '' || suffix === '..' || suffix.startsWith('../') || suffix.startsWith('..\\') || isAbsolute(suffix)) return undefined
+    return suffix.replaceAll('\\', '/')
+  }
+
+  private artifactCatalog(presetId: string): Promise<TeamRevisionArtifactCatalog | undefined> {
+    let catalog = this.artifactCatalogByPreset.get(presetId)
+    if (!catalog) {
+      catalog = loadTeamRevisionArtifactCatalog(this.config.dshHome, presetId)
+      this.artifactCatalogByPreset.set(presetId, catalog)
+    }
+    return catalog
+  }
+
+  private async reportableArtifactKind(agent: AgentLike, path: string): Promise<ArtifactKind | undefined> {
+    const workspaceRelativePath = await this.workspaceRelativePath(agent, path)
+    if (workspaceRelativePath && isJudgeReportPath(workspaceRelativePath)) return undefined
+
+    const presetId = resolveAgentPreset(agent.session)
+    const catalog = await this.artifactCatalog(presetId)
+    if (!catalog) return artifactKind(basename(path))
+    if (!workspaceRelativePath) return undefined
+    const kind = catalog.kindFor(workspaceRelativePath)
+    if (!kind) {
+      this.logger.debug(`promax-report skipped file not declared by TeamRevision ${presetId}: ${workspaceRelativePath}`)
+    }
+    return kind
+  }
+
   private async reportArtifactPath(agent: AgentLike, reportedPath: string): Promise<void> {
     if (!this.config.artifactExtensions.has(extname(reportedPath).toLowerCase())) return
     const path = await this.allowedCanonicalPath(agent, reportedPath)
     if (!path) return
+    const kind = await this.reportableArtifactKind(agent, path)
+    if (!kind) return
     const metadata = await stat(path)
     if (!metadata.isFile()) return
     const seenKey = `${agent.id}\0${path}`
@@ -245,7 +285,7 @@ export class PromaxReporter {
         employee_id: this.config.employeeId,
         project: this.config.project,
         agent: resolveAgentPreset(agent.session),
-        kind: artifactKind(filename),
+        kind,
         filename,
         created_at: metadata.mtime.toISOString(),
       }
@@ -268,7 +308,7 @@ export class PromaxReporter {
       employee_id: this.config.employeeId,
       project: this.config.project,
       agent: resolveAgentPreset(agent.session),
-      kind: artifactKind(filename),
+      kind,
       filename,
       created_at: metadata.mtime.toISOString(),
       sha256: digest,
