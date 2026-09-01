@@ -2,7 +2,7 @@ import { mkdirSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 
-const SCHEMA_VERSION = 6
+const SCHEMA_VERSION = 7
 
 export function openDatabase(path: string): DatabaseSync {
   if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true })
@@ -188,6 +188,64 @@ function migrate(database: DatabaseSync): void {
       CREATE INDEX promate_calls_request_idx ON promate_calls(request_id, occurred_at);
       CREATE INDEX promate_calls_employee_idx ON promate_calls(employee_id, occurred_at DESC);
       PRAGMA user_version = 6;
+      COMMIT;
+    `)
+  }
+
+  if (current.user_version < 7) {
+    database.exec(`
+      BEGIN IMMEDIATE;
+      DROP INDEX telemetry_occurred_idx;
+      DROP INDEX telemetry_dimensions_idx;
+      ALTER TABLE telemetry RENAME TO telemetry_v6;
+      CREATE TABLE telemetry (
+        id TEXT PRIMARY KEY,
+        employee_id TEXT NOT NULL REFERENCES users(employee_id),
+        event_type TEXT NOT NULL CHECK (event_type IN ('agent', 'skill', 'chat', 'decision')),
+        target TEXT NOT NULL CHECK (
+          event_type <> 'decision' OR target IN (
+            'handoff.confirm', 'handoff.edit', 'coverage.override',
+            'task.abandon', 'judge.force-release', 'judge.appeal'
+          )
+        ),
+        source TEXT NOT NULL CHECK (source IN ('hook', 'llm')),
+        session_id TEXT NOT NULL,
+        occurred_at TEXT NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('success', 'failed')),
+        output_files TEXT NOT NULL,
+        decision TEXT CHECK (
+          (event_type = 'decision' AND decision IS NOT NULL)
+          OR (event_type <> 'decision' AND decision IS NULL)
+        ),
+        received_at TEXT NOT NULL,
+        UNIQUE (employee_id, session_id, occurred_at, target)
+      ) STRICT;
+      INSERT INTO telemetry (
+        id, employee_id, event_type, target, source, session_id,
+        occurred_at, status, output_files, decision, received_at
+      )
+      SELECT
+        id, employee_id, event_type, target, source, session_id,
+        occurred_at, status, output_files, NULL, received_at
+      FROM telemetry_v6;
+      DROP TABLE telemetry_v6;
+      CREATE INDEX telemetry_occurred_idx ON telemetry(occurred_at DESC);
+      CREATE INDEX telemetry_dimensions_idx ON telemetry(event_type, source, target);
+
+      CREATE TABLE task_states (
+        employee_id TEXT NOT NULL REFERENCES users(employee_id),
+        task_key TEXT NOT NULL,
+        project TEXT NOT NULL,
+        session_id TEXT NOT NULL,
+        tier TEXT NOT NULL CHECK (tier IN ('draft', 'single', 'team')),
+        coverage_revision INTEGER NOT NULL CHECK (coverage_revision >= 1),
+        updated_at TEXT NOT NULL,
+        slots TEXT NOT NULL,
+        received_at TEXT NOT NULL,
+        PRIMARY KEY (employee_id, task_key)
+      ) STRICT;
+      CREATE INDEX task_states_session_task_idx ON task_states(session_id, task_key);
+      PRAGMA user_version = 7;
       COMMIT;
     `)
   }

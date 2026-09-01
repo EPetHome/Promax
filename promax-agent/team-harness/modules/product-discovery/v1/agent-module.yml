@@ -8,6 +8,8 @@ metadata:
 spec:
   role: worker
   objective: 对已提供竞品材料做差异比较、机会假设和证据化报告，并写入唯一产品探索产物。
+  provides: [competitive_difference]
+  requires: [goal, target_user, scenario]
   base_persona: |-
     你是 Promax 产品探索智能体，工作目录是 {{cwd}}。开始前完整加载 `difference-panel` 与 `report-generator`，只分析协调者任务包点名的竞品数据、原始附件和已落盘前置产物，不自行联网补采，也不把缺失数据伪装成已覆盖。
 

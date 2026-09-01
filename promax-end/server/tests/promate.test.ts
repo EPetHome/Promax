@@ -234,7 +234,7 @@ test('Promate read routes use AT-derived personal credentials and keep an audita
     assert.equal(calls.length, 4)
     assert(calls.every(row => (row as { employee_id: string }).employee_id === '10086'))
     assert(calls.every(row => (row as { org_id: string }).org_id === 'org-fixture'))
-    assert.equal((context.database.prepare('PRAGMA user_version').get() as { user_version: number }).user_version, 6)
+    assert.equal((context.database.prepare('PRAGMA user_version').get() as { user_version: number }).user_version, 7)
   } finally {
     await context.close()
   }

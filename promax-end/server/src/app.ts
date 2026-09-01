@@ -291,6 +291,12 @@ export function buildApp(dependencies: AppDependencies): FastifyInstance {
     return reply.status(202).send(response)
   })
 
+  app.post('/api/v1/task-state', async (request, reply) => {
+    const user = await dependencies.auth.authenticate(request.headers.authorization)
+    const response = dependencies.reporting.taskState(user.employeeId, request.body)
+    return reply.status(200).send(response)
+  })
+
   app.post('/api/v1/heartbeat', async (request, reply) => {
     const user = await dependencies.auth.authenticate(request.headers.authorization)
     const response = dependencies.reporting.heartbeat(user.employeeId, request.body)
@@ -338,6 +344,11 @@ export function buildApp(dependencies: AppDependencies): FastifyInstance {
   app.get('/api/v1/console/telemetry', async (request, reply) => {
     const user = await dependencies.auth.authenticate(request.headers.authorization)
     return reply.status(200).send(dependencies.console.telemetry(user, request.query))
+  })
+
+  app.get('/api/v1/console/task-state', async (request, reply) => {
+    const user = await dependencies.auth.authenticate(request.headers.authorization)
+    return reply.status(200).send(dependencies.console.taskState(user, request.query))
   })
 
   app.get('/api/v1/console/artifacts/:id/download', async (request, reply) => {

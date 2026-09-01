@@ -1,0 +1,22 @@
+{
+  "employee_id": "10086",
+  "event_type": "decision",
+  "target": "coverage.override",
+  "source": "hook",
+  "session_id": "session_demo_001",
+  "occurred_at": "2026-08-31T12:00:00-04:00",
+  "output_files": [],
+  "status": "success",
+  "decision": {
+    "task_key": "task-20260831-001",
+    "revision": 2,
+    "subject": "target_user",
+    "before": {
+      "covered": true
+    },
+    "after": {
+      "covered": false
+    },
+    "reason": "用户核对公开材料中的定位证据后修正"
+  }
+}

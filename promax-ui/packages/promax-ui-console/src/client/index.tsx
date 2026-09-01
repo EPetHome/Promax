@@ -13,7 +13,6 @@ import {
   PromaxTeamSessionHeader,
   PromaxWorkspaceOverlay,
   type SessionListState,
-  type TeamSubagentStopTarget,
   type WorkspaceListState,
   type WorkspaceShellActions,
 } from './PromaxWorkspaceShell.tsx'
@@ -24,6 +23,7 @@ import {
   syncProductTeamRuntimeRoster,
   teamForSession,
 } from './team-state.ts'
+import type { TaskSlotView } from './task-planning.ts'
 
 interface SlotService {
   inject(name: string, setup: () => unknown): void
@@ -203,8 +203,25 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
   const connection = ctx.get('connection')
   const inputTriggers = ctx.get('inputTriggers')
   const layout = ctx.get('layout')
-  const stopTeamDescendants = async (targets: readonly TeamSubagentStopTarget[]): Promise<void> => {
-    const unique = [...new Map(targets.map(target => [`${target.parentSessionId}:${target.sessionId}`, target])).values()]
+  const descendants = (rootSessionId: string): Array<{ parentSessionId: string; sessionId: string; running: boolean }> => {
+    const state = ctx.sessions.list.getSnapshot()
+    const belongs = (sessionId: string): boolean => {
+      const seen = new Set<string>()
+      let cursor = state.byId[sessionId]
+      while (cursor?.parentId !== undefined && !seen.has(cursor.id)) {
+        seen.add(cursor.id)
+        if (cursor.parentId === rootSessionId) return true
+        cursor = state.byId[cursor.parentId]
+      }
+      return false
+    }
+    return state.ids.flatMap(sessionId => {
+      const session = state.byId[sessionId]
+      return session?.parentId === undefined || !belongs(sessionId) ? [] : [{ parentSessionId: session.parentId, sessionId, running: session.running }]
+    })
+  }
+  const interruptTeamDescendants = async (rootSessionId: string): Promise<void> => {
+    const unique = descendants(rootSessionId).filter(target => target.running)
     const results = await Promise.all(unique.map(async target => {
       const response = await connection.api.subagents.interrupt({
         parentSessionId: target.parentSessionId,
@@ -215,11 +232,40 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
     }))
     const failures = results.filter((failure): failure is string => failure !== null)
     if (failures.length > 0) throw new Error(failures.join('；'))
-    await waitForRuntimeState(
-      () => unique.every(target => ctx.sessions.list.getSnapshot().byId[target.sessionId]?.running !== true),
-      listener => ctx.sessions.list.subscribe(listener),
-      '子 Agent',
-    )
+    await waitForRuntimeState(() => descendants(rootSessionId).every(target => !target.running), listener => ctx.sessions.list.subscribe(listener), '子 Agent')
+  }
+  const controlTaskRun = async (input: { workspaceId: string; projectPath: string; sessionId: string; taskKey: string; runEpoch: number; state: 'stop_requested' | 'draining' | 'cancelled' | 'failed_to_stop' }): Promise<{ state: 'running' | 'stop_requested' | 'draining' | 'cancelled' | 'failed_to_stop'; runEpoch: number }> => {
+    const response = await fetch('/promax-workspace-api/task-run/control', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ...input, updatedAt: new Date().toISOString() }),
+    })
+    const value = await response.json() as Record<string, unknown>
+    if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `任务控制保存失败（HTTP ${response.status}）`)
+    if (!['running', 'stop_requested', 'draining', 'cancelled', 'failed_to_stop'].includes(String(value.state)) || !Number.isSafeInteger(value.runEpoch)) throw new Error('任务控制响应格式无效')
+    return value as { state: 'running' | 'stop_requested' | 'draining' | 'cancelled' | 'failed_to_stop'; runEpoch: number }
+  }
+  const cancelParent = async (sessionId: string): Promise<void> => {
+    const session = ctx.sessions.binding(sessionId)?.session
+    if (session === undefined) throw new Error(`父会话 ${sessionId} 不可用`)
+    const response = await session.cancel()
+    if (!response.ok) throw new Error(response.error.message)
+  }
+  const waitForStableTeamStop = async (rootSessionId: string, stableMs = 600, timeoutMs = 15_000): Promise<void> => {
+    const deadline = Date.now() + timeoutMs
+    let stableSince: number | undefined
+    while (Date.now() < deadline) {
+      const parentRunning = ctx.sessions.list.getSnapshot().byId[rootSessionId]?.running === true
+      const runningChildren = descendants(rootSessionId).filter(target => target.running)
+      if (runningChildren.length > 0) await interruptTeamDescendants(rootSessionId)
+      if (parentRunning) await cancelParent(rootSessionId)
+      if (!parentRunning && runningChildren.length === 0) {
+        stableSince ??= Date.now()
+        if (Date.now() - stableSince >= stableMs) return
+      } else stableSince = undefined
+      await new Promise<void>(resolve => { window.setTimeout(resolve, 50) })
+    }
+    throw new Error(`父会话和 descendants 在 ${String(timeoutMs)}ms 内未稳定停止`)
   }
   ctx.effect(() => {
     let active = true
@@ -320,16 +366,70 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
       return { workspaceId: value.workspaceId, path: value.path, title: value.title, sessionIds: value.sessionIds as string[] }
     },
     pickProjectDirectory: () => ctx.workspaces.pickDirectory(),
-    writeDraftHandoff: async input => {
+    writeTaskPackage: async input => {
       const response = await fetch('/promax-workspace-api/handoff', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(input),
       })
       const value = await response.json() as Record<string, unknown>
-      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `交底保存失败（HTTP ${response.status}）`)
-      if (typeof value.handoffPath !== 'string' || typeof value.transcriptPath !== 'string') throw new Error('交底保存响应格式无效')
-      return { handoffPath: value.handoffPath, transcriptPath: value.transcriptPath }
+      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `任务包保存失败（HTTP ${response.status}）`)
+      if (
+        typeof value.taskPackagePath !== 'string' || typeof value.coveragePath !== 'string'
+        || typeof value.slotsPath !== 'string' || typeof value.inputManifestPath !== 'string'
+        || (value.tier !== 'single' && value.tier !== 'team')
+        || typeof value.coverageRevision !== 'number' || !Number.isSafeInteger(value.coverageRevision)
+        || !Array.isArray(value.artifactPaths) || !value.artifactPaths.every(item => typeof item === 'string')
+        || !Array.isArray(value.slots)
+      ) throw new Error('任务包保存响应格式无效')
+      return {
+        taskPackagePath: value.taskPackagePath,
+        coveragePath: value.coveragePath,
+        slotsPath: value.slotsPath,
+        inputManifestPath: value.inputManifestPath,
+        tier: value.tier,
+        coverageRevision: value.coverageRevision,
+        artifactPaths: value.artifactPaths as string[],
+        slots: value.slots as TaskSlotView[],
+      }
+    },
+    readTaskRunFiles: async input => {
+      const response = await fetch('/promax-workspace-api/task-run/read', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(input),
+      })
+      const value = await response.json() as Record<string, unknown>
+      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `任务状态读取失败（HTTP ${response.status}）`)
+      if (
+        value.taskKey !== input.taskKey || value.parentSessionId !== input.sessionId
+        || !['running', 'stop_requested', 'draining', 'cancelled', 'failed_to_stop'].includes(String(value.cancellation))
+        || typeof value.runEpoch !== 'number' || !Number.isSafeInteger(value.runEpoch)
+        || !Array.isArray(value.artifactStates) || typeof value.judge !== 'object' || value.judge === null
+      ) throw new Error('任务文件快照响应格式无效')
+      return value as unknown as Awaited<ReturnType<WorkspaceShellActions['readTaskRunFiles']>>
+    },
+    stopTeamTask: async input => {
+      let control = await controlTaskRun({ ...input, state: 'stop_requested' })
+      if (control.state === 'cancelled') return { state: 'cancelled' as const, runEpoch: control.runEpoch }
+      if (control.state === 'failed_to_stop') throw new Error('任务此前未能稳定停止，需要人工检查运行树')
+      try {
+        control = await controlTaskRun({ ...input, state: 'draining' })
+        if (control.state === 'cancelled') return { state: 'cancelled' as const, runEpoch: control.runEpoch }
+        if (control.state === 'failed_to_stop') throw new Error('任务此前未能稳定停止，需要人工检查运行树')
+        await interruptTeamDescendants(input.sessionId)
+        // Allow the child-settled event to reach the parent. The task latch is already armed,
+        // so any resulting send_message/member tool call is rejected by the runtime guard.
+        await new Promise<void>(resolve => { window.setTimeout(resolve, 0) })
+        await cancelParent(input.sessionId)
+        await waitForStableTeamStop(input.sessionId)
+        control = await controlTaskRun({ ...input, state: 'cancelled' })
+        if (control.state !== 'cancelled') throw new Error(`任务停止后控制状态异常：${control.state}`)
+        return { state: 'cancelled' as const, runEpoch: control.runEpoch }
+      } catch (error) {
+        try { await controlTaskRun({ ...input, state: 'failed_to_stop' }) } catch { /* preserve the primary failure */ }
+        throw error
+      }
     },
     openWorkspacePath: async path => { await ctx.workspaces.openPath(path) },
     teamRoutingAvailable: true,
@@ -337,7 +437,6 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
   const shellInjected = () => ({
     ...shellActions,
     layout,
-    stopTeamDescendants,
     ...(config.apiBaseUrl === undefined ? {} : { apiBaseUrl: config.apiBaseUrl }),
   })
 

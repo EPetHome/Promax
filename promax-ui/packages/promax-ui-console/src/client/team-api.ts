@@ -119,6 +119,8 @@ function memberOf(value: unknown, role: TeamMember['role']): TeamMember {
     role,
     enabled: role === 'coordinator' || row.enabled !== false,
     moduleRef,
+    provides: [],
+    requires: [],
     ...(instructions === undefined ? {} : { instructions }),
   }
 }
@@ -136,6 +138,8 @@ function projectionMemberOf(value: unknown, role: TeamMember['role']): TeamMembe
       : capabilities.length > 0 ? `负责：${capabilities.join('、')}` : '完成团队负责人分派的专业任务。',
     role,
     enabled: true,
+    provides: [],
+    requires: [],
   }
 }
 

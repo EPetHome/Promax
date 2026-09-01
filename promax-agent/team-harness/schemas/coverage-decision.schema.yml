@@ -1,0 +1,70 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://promax.local/schemas/coverage-decision.schema.yml
+title: Promax CoverageDecision
+type: object
+additionalProperties: false
+required: [api_version, kind, metadata, spec]
+properties:
+  api_version:
+    const: promax.ai/v1alpha2
+  kind:
+    const: CoverageDecision
+  metadata:
+    type: object
+    additionalProperties: false
+    required: [task_key, revision, confirmed_at]
+    properties:
+      task_key:
+        type: string
+        pattern: '^(?!\.{1,2}$)[^<>:"/\\|?*\x00-\x1F\x7F]{1,40}$'
+      revision:
+        type: integer
+        minimum: 1
+      confirmed_at:
+        type: string
+        pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{3})?(?:Z|[+-][0-9]{2}:[0-9]{2})$
+  spec:
+    type: object
+    additionalProperties: false
+    required: [input_manifest_path, sources]
+    properties:
+      input_manifest_path:
+        type: string
+        pattern: '^\.promax/input/(?!\.{1,2}/)[^<>:"/\\|?*\x00-\x1F\x7F]{1,40}/manifest\.yml$'
+      sources:
+        type: array
+        maxItems: 256
+        items:
+          type: object
+          additionalProperties: false
+          required: [source_id, covers]
+          properties:
+            source_id:
+              type: string
+              pattern: ^SRC-[0-9]{3,6}$
+            covers:
+              type: array
+              uniqueItems: true
+              items:
+                type: object
+                additionalProperties: false
+                required: [information_key, locator]
+                properties:
+                  information_key:
+                    $ref: '#/$defs/informationKey'
+                  locator:
+                    type: object
+                    additionalProperties: false
+                    required: [relative_path, location_type, value]
+                    properties:
+                      relative_path:
+                        type: string
+                        minLength: 1
+                      location_type:
+                        enum: [line, paragraph, page]
+                      value:
+                        type: string
+                        minLength: 1
+$defs:
+  informationKey:
+    enum: [goal, target_user, scenario, pain_point, scope, constraint, success_criteria, competitive_difference, requirements_priority]

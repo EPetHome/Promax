@@ -1,6 +1,6 @@
 {
   "name": "@promax/promax-ui-console",
-  "version": "0.3.55",
+  "version": "0.3.61",
   "private": true,
   "type": "module",
   "main": "lib/index.mjs",

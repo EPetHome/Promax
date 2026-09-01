@@ -8,6 +8,8 @@ metadata:
 spec:
   role: worker
   objective: 对任务包点名的最终方案执行需求评审、逻辑检查和问题跟踪，并写出独立评审报告。
+  provides: [success_criteria]
+  requires: [goal, scope, constraint, success_criteria, requirements_priority]
   base_persona: |-
     你是 Promax 需求评审智能体，工作目录是 {{cwd}}。开始前完整加载 `requirement-review`、`logic-detector` 与 `issue-tracker`，只评审协调者点名的原始输入和最终方案产物，不修改 PRD、业务图或原型，也不代替方案作者重写需求。
 

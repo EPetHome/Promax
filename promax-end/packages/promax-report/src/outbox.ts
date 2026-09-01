@@ -149,7 +149,7 @@ export class DurableReportQueue {
     if (!parsed || typeof parsed !== 'object') throw new Error(`invalid outbox envelope ${basename(path)}`)
     const candidate = parsed as Partial<QueueEnvelope>
     if (candidate.version !== 1 || typeof candidate.id !== 'string' || typeof candidate.created_at !== 'string'
-      || !['/api/v1/artifacts', '/api/v1/telemetry', '/api/v1/heartbeat'].includes(candidate.path ?? '')) {
+      || !['/api/v1/artifacts', '/api/v1/telemetry', '/api/v1/heartbeat', '/api/v1/task-state'].includes(candidate.path ?? '')) {
       throw new Error(`invalid outbox envelope ${basename(path)}`)
     }
     if (candidate.file !== undefined) {

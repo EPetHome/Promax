@@ -6,6 +6,7 @@ import type {
   ConsoleArtifactsResponse,
   ConsoleOverviewResponse,
   ConsoleTelemetryResponse,
+  ConsoleTaskStateResponse,
   ConsoleUser,
   ConsoleUsersResponse,
   TelemetryEventType,
@@ -23,7 +24,7 @@ const DEFAULT_PAGE = 1
 const DEFAULT_PAGE_SIZE = 20
 const MAX_PAGE_SIZE = 100
 const artifactKinds = new Set<ArtifactKind>(['prd', 'diagram', 'prototype', 'other'])
-const eventTypes = new Set<TelemetryEventType>(['agent', 'skill', 'chat'])
+const eventTypes = new Set<TelemetryEventType>(['agent', 'skill', 'chat', 'decision'])
 const sources = new Set<TelemetrySource>(['hook', 'llm'])
 const groupings = new Set<TelemetryGroupBy>(['day', 'user', 'target'])
 const isoWithTimezone = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/
@@ -111,6 +112,18 @@ export class ConsoleService {
       ...to === undefined ? {} : { to },
     }
     return { series: this.repository.telemetrySeries(filter) }
+  }
+
+  taskState(user: AuthenticatedUser, value: unknown): ConsoleTaskStateResponse {
+    requireAdmin(user)
+    const query = queryObject(value)
+    const sessionId = optionalString(query.session_id, 'session_id')
+    const taskKey = optionalString(query.task_key, 'task_key')
+    if (sessionId === undefined) throw validation('session_id 不能为空', 'session_id')
+    if (taskKey === undefined) throw validation('task_key 不能为空', 'task_key')
+    const snapshot = this.repository.findTaskState(sessionId, taskKey)
+    if (!snapshot) throw validation('任务槽位快照不存在', 'task_key')
+    return snapshot
   }
 
   async download(user: AuthenticatedUser, artifactId: string): Promise<ArtifactDownload> {

@@ -82,6 +82,12 @@ test('编译生成不可变 TeamRevision、固定 preset 与版本化 Skill 快�
       'interactive-prototype-generator@1',
       'prd-document-generator@1',
     ])
+    const plugins = parseGeneratedCordis(join(result.outputPath, 'agent.cordis.yml'))
+    assert.deepEqual(plugins.find(plugin => plugin.id === 'promax-task-run-guard'), {
+      id: 'promax-task-run-guard',
+      name: '@promax/team-harness/task-run-guard',
+      config: { memberToolNames: ['product_prd_agent', 'product_diagram_agent', 'product_prototype_agent'] },
+    })
     assert.throws(
       () => compileTeam({ definitionFile, revision: 1, outputDir: root }),
       error => error instanceof ContractError && error.details.some(detail => detail.code === 'REVISION_IMMUTABLE'),
@@ -162,7 +168,7 @@ test('编译器拒绝 toolFilter 中未由本轮 preset 生成的工具名', () 
   }
 })
 
-test('领域规则正文按 validation_kind 注入对应 worker，独立 Judge 收到全部已匹配规则', () => {
+test('TeamRevision 产物声明与领域规则按 validation_kind 注入协调者、对应 worker 和独立 Judge', () => {
   const root = temporaryRoot()
   const productTeamDefinition = resolve(HARNESS_DIR, 'definitions/team-mtcjsbcz-04tpe2.yml')
   try {
@@ -172,15 +178,27 @@ test('领域规则正文按 validation_kind 注入对应 worker，独立 Judge �
     const workers = new Map(delegation.config
       .filter(plugin => plugin.name === '@deepseek-ai/dsh-tool-subagent')
       .map(plugin => [plugin.config.toolName, plugin.config]))
+    const coordinator = plugins.find(plugin => plugin.id === 'persona').config.text
 
+    assert.ok(coordinator.includes('artifact_declarations:'))
+    assert.ok(coordinator.includes('relative_path: deliverables/{task_key}/prd.md'))
+    assert.ok(coordinator.includes('kind: prd'))
+    assert.ok(coordinator.includes('validation_kind: prd'))
+    assert.ok(coordinator.includes('PRD_REQUIRED_SECTIONS'))
     assert.ok(workers.get('customer_research').persona.includes('CUSTOMER_RESEARCH_REQUIRED_SECTIONS'))
     assert.ok(!workers.get('customer_research').persona.includes('PRD_REQUIRED_SECTIONS'))
     assert.ok(workers.get('solution_design').persona.includes('PRD_REQUIRED_SECTIONS'))
+    assert.ok(workers.get('solution_design').persona.includes('内部补跑'))
+    assert.ok(workers.get('solution_design').persona.includes('不得加入 Judge 最终交付清单'))
     assert.ok(workers.get('solution_design').persona.includes('DIAGRAM_REQUIRED_BLOCKS'))
     assert.ok(workers.get('solution_design').persona.includes('PROTOTYPE_SINGLE_FILE'))
-    assert.ok(!workers.get('requirement_management').persona.includes('本 preset 冻结并送达的领域规则正文'))
+    assert.ok(workers.get('requirement_management').persona.includes('artifact_declarations:'))
+    assert.ok(!workers.get('requirement_management').persona.includes('PRD_REQUIRED_SECTIONS'))
 
     const judge = workers.get('quality_judge').persona
+    assert.ok(judge.includes('relative_path: deliverables/{task_key}/prd.md'))
+    assert.ok(judge.includes('kind: prd'))
+    assert.ok(judge.includes('validation_kind: prd'))
     for (const ruleId of [
       'PRD_REQUIRED_SECTIONS',
       'DIAGRAM_REQUIRED_BLOCKS',

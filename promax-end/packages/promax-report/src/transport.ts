@@ -4,7 +4,7 @@ import type { ArtifactUploadMetadata } from '@promax/contracts'
 
 import type { AccessTokenProvider } from './token-manager.ts'
 
-export type ReportPath = '/api/v1/artifacts' | '/api/v1/telemetry' | '/api/v1/heartbeat'
+export type ReportPath = '/api/v1/artifacts' | '/api/v1/telemetry' | '/api/v1/heartbeat' | '/api/v1/task-state'
 
 export interface ChunkUploadState {
   upload_id: string

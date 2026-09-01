@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
 import { test } from 'node:test'
 
 import { AuthService, hashPassword } from '../src/auth.ts'
@@ -71,6 +72,10 @@ const hookEvent = {
   status: 'success',
 }
 
+async function fixture(name: string): Promise<Record<string, unknown>> {
+  return JSON.parse(await readFile(new URL(`../../contracts/fixtures/${name}`, import.meta.url), 'utf8')) as Record<string, unknown>
+}
+
 test('telemetry is idempotent and stores hook/llm as separate rows', async () => {
   const context = await testContext()
   try {
@@ -98,6 +103,137 @@ test('telemetry is idempotent and stores hook/llm as separate rows', async () =>
       { source: 'llm', target: 'prd-writer' },
     ])
     assert.deepEqual(JSON.parse(rows[0]?.output_files ?? '[]'), ['需求方案.md'])
+  } finally {
+    await context.app.close()
+    context.database.close()
+  }
+})
+
+test('decision telemetry accepts all approved targets, persists the decision, and rejects undefined payloads', async () => {
+  const context = await testContext()
+  try {
+    const sample = await fixture('telemetry.decision.post.request.json')
+    const targets = [
+      'handoff.confirm', 'handoff.edit', 'coverage.override',
+      'task.abandon', 'judge.force-release', 'judge.appeal',
+    ]
+    for (const [index, target] of targets.entries()) {
+      const response = await context.app.inject({
+        method: 'POST',
+        url: '/api/v1/telemetry',
+        headers: { authorization: `Bearer ${context.token}` },
+        payload: {
+          ...sample,
+          target,
+          occurred_at: `2026-08-31T12:00:0${index}-04:00`,
+        },
+      })
+      assert.equal(response.statusCode, 202, `${target}: ${response.body}`)
+    }
+
+    const rows = context.database.prepare(`
+      SELECT event_type, target, decision FROM telemetry
+      WHERE event_type = 'decision' ORDER BY occurred_at
+    `).all() as Array<{ event_type: string, target: string, decision: string }>
+    assert.deepEqual(rows.map(row => row.target), targets)
+    assert.equal(rows.every(row => row.event_type === 'decision'), true)
+    assert.deepEqual(JSON.parse(rows[2]!.decision), sample.decision)
+
+    const queried = await context.app.inject({
+      method: 'GET',
+      url: '/api/v1/console/telemetry?event_type=decision&group_by=target',
+      headers: { authorization: `Bearer ${context.token}` },
+    })
+    assert.equal(queried.statusCode, 200, queried.body)
+    assert.deepEqual(queried.json().series.map((row: { key: string }) => row.key), [...targets].sort())
+
+    const invalidCases = [
+      { ...sample, target: 'judge.pass' },
+      { ...sample, decision: { reason: '缺少 task_key' } },
+      { ...sample, decision: { task_key: 'task-1', unknown: true } },
+      { ...sample, decision: { task_key: 'task-1', reason: 'x'.repeat(2_001) } },
+      { ...hookEvent, decision: { task_key: 'task-1' } },
+    ]
+    for (const payload of invalidCases) {
+      const response = await context.app.inject({
+        method: 'POST', url: '/api/v1/telemetry',
+        headers: { authorization: `Bearer ${context.token}` }, payload,
+      })
+      assert.equal(response.statusCode, 400, response.body)
+    }
+  } finally {
+    await context.app.close()
+    context.database.close()
+  }
+})
+
+test('task state stores all five slot states, is revision-safe, and is queryable by the console contract', async () => {
+  const context = await testContext()
+  try {
+    const sample = await fixture('task-state.post.request.json')
+    const baseSlot = (sample.slots as Array<Record<string, unknown>>)[0]!
+    const statuses = ['provided', 'produced', 'pending', 'empty_non_blocking', 'gap']
+    const payload = {
+      ...sample,
+      slots: statuses.map((status, index) => ({
+        ...baseSlot,
+        slot_id: `slot-${index}`,
+        member_id: `member-${index}`,
+        label: `槽位 ${index}`,
+        status,
+      })),
+    }
+    const headers = { authorization: `Bearer ${context.token}` }
+    const saved = await context.app.inject({ method: 'POST', url: '/api/v1/task-state', headers, payload })
+    assert.equal(saved.statusCode, 200, saved.body)
+    assert.deepEqual(saved.json(), payload)
+
+    const unchanged = await context.app.inject({ method: 'POST', url: '/api/v1/task-state', headers, payload })
+    assert.equal(unchanged.statusCode, 200, unchanged.body)
+
+    const stale = await context.app.inject({
+      method: 'POST', url: '/api/v1/task-state', headers,
+      payload: { ...payload, coverage_revision: 1 },
+    })
+    assert.equal(stale.statusCode, 409, stale.body)
+
+    const sameRevisionConflict = await context.app.inject({
+      method: 'POST', url: '/api/v1/task-state', headers,
+      payload: { ...payload, tier: 'team' },
+    })
+    assert.equal(sameRevisionConflict.statusCode, 409, sameRevisionConflict.body)
+
+    const query = await context.app.inject({
+      method: 'GET',
+      url: `/api/v1/console/task-state?session_id=${sample.session_id as string}&task_key=${sample.task_key as string}`,
+      headers,
+    })
+    assert.equal(query.statusCode, 200, query.body)
+    assert.deepEqual(query.json(), payload)
+
+    const progressedPayload = {
+      ...payload,
+      updated_at: '2026-08-31T12:05:00-04:00',
+      slots: payload.slots.map((slot, index) => index === 0 ? { ...slot, status: 'produced' } : slot),
+    }
+    const progressed = await context.app.inject({ method: 'POST', url: '/api/v1/task-state', headers, payload: progressedPayload })
+    assert.equal(progressed.statusCode, 200, progressed.body)
+    const progressedQuery = await context.app.inject({
+      method: 'GET',
+      url: `/api/v1/console/task-state?session_id=${sample.session_id as string}&task_key=${sample.task_key as string}`,
+      headers,
+    })
+    assert.deepEqual(progressedQuery.json(), progressedPayload)
+
+    for (const invalid of [
+      { ...payload, slots: [{ ...baseSlot, status: 'unknown' }] },
+      { ...payload, slots: [{ ...baseSlot, satisfied_by: [{ source_id: 'SRC-1', information_key: 'goal', locator: '' }] }] },
+      { ...payload, slots: [{ ...baseSlot, requires: ['not_in_vocabulary'] }] },
+      { ...payload, coverage_revision: 0 },
+    ]) {
+      const response = await context.app.inject({ method: 'POST', url: '/api/v1/task-state', headers, payload: invalid })
+      assert.equal(response.statusCode, 400, response.body)
+    }
   } finally {
     await context.app.close()
     context.database.close()

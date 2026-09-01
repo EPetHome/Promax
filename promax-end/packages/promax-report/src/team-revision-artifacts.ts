@@ -11,11 +11,13 @@ interface ArtifactDeclaration {
   readonly kind: ArtifactKind
   readonly relativePath: string
   readonly pattern: RegExp
+  readonly producedBy: string
 }
 
 export interface TeamRevisionArtifactCatalog {
   readonly presetId: string
   kindFor(workspaceRelativePath: string): ArtifactKind | undefined
+  producerFor(workspaceRelativePath: string): string | undefined
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -66,7 +68,8 @@ function parseCatalog(source: string, expectedPresetId: string): TeamRevisionArt
   const declarations: ArtifactDeclaration[] = []
   const declaredPaths = new Set<string>()
   for (const entry of document.spec.artifacts) {
-    if (!isRecord(entry) || typeof entry.kind !== 'string' || typeof entry.relative_path !== 'string') {
+    if (!isRecord(entry) || typeof entry.kind !== 'string' || typeof entry.relative_path !== 'string'
+      || typeof entry.produced_by !== 'string' || !/^[a-z][a-z0-9_]*$/u.test(entry.produced_by)) {
       throw new Error(`promax-report: TeamRevision ${expectedPresetId} contains an invalid artifact declaration`)
     }
     const relativePath = normalizeRelativePath(entry.relative_path)
@@ -83,7 +86,7 @@ function parseCatalog(source: string, expectedPresetId: string): TeamRevisionArt
     if (!kind) {
       throw new Error(`promax-report: TeamRevision ${expectedPresetId} uses unsupported external artifact kind: ${entry.kind}`)
     }
-    declarations.push({ kind, relativePath, pattern: artifactPattern(relativePath) })
+    declarations.push({ kind, relativePath, pattern: artifactPattern(relativePath), producedBy: entry.produced_by })
   }
 
   return {
@@ -93,11 +96,20 @@ function parseCatalog(source: string, expectedPresetId: string): TeamRevisionArt
       if (!normalized) return undefined
       const matches = declarations.filter(declaration => declaration.pattern.test(normalized))
       if (matches.length === 0) return undefined
-      const kinds = new Set(matches.map(match => match.kind))
-      if (kinds.size !== 1) {
+      if (matches.length !== 1) {
         throw new Error(`promax-report: TeamRevision ${expectedPresetId} has ambiguous artifact declarations for ${normalized}`)
       }
       return matches[0]?.kind
+    },
+    producerFor(workspaceRelativePath: string): string | undefined {
+      const normalized = normalizeRelativePath(workspaceRelativePath)
+      if (!normalized) return undefined
+      const matches = declarations.filter(declaration => declaration.pattern.test(normalized))
+      if (matches.length === 0) return undefined
+      if (matches.length !== 1) {
+        throw new Error(`promax-report: TeamRevision ${expectedPresetId} has ambiguous artifact producers for ${normalized}`)
+      }
+      return matches[0]?.producedBy
     },
   }
 }

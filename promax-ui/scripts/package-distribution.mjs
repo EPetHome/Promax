@@ -133,12 +133,14 @@ else
 fi
 CONFIGURATOR_SOURCE="$DSH_ROOT/profiles/$PROFILE/node_modules/@promax/team-harness/agents/team-configurator"
 CONFIGURATOR_TARGET="$DSH_ROOT/.agent-presets/promax-team-configurator"
-PRODUCT_SOURCE="$DSH_ROOT/profiles/$PROFILE/node_modules/@promax/team-harness/generated/promax-team-mtcjsbcz-04tpe2-r7"
-PRODUCT_TARGET="$DSH_ROOT/.agent-presets/promax-team-mtcjsbcz-04tpe2-r7"
-node - "$CONFIGURATOR_SOURCE" "$CONFIGURATOR_TARGET" "$PRODUCT_SOURCE" "$PRODUCT_TARGET" <<'NODE'
+PRODUCT_SOURCE="$DSH_ROOT/profiles/$PROFILE/node_modules/@promax/team-harness/generated/promax-team-mtcjsbcz-04tpe2-r12"
+PRODUCT_TARGET="$DSH_ROOT/.agent-presets/promax-team-mtcjsbcz-04tpe2-r12"
+GENERAL_SOURCE="$DSH_ROOT/profiles/$PROFILE/node_modules/@promax/promax-bundle/presets/general"
+GENERAL_TARGET="$DSH_ROOT/.agent-presets/general"
+node - "$CONFIGURATOR_SOURCE" "$CONFIGURATOR_TARGET" "$PRODUCT_SOURCE" "$PRODUCT_TARGET" "$GENERAL_SOURCE" "$GENERAL_TARGET" <<'NODE'
 const fs = require('node:fs')
 const path = require('node:path')
-const [source, target, productSource, productTarget] = process.argv.slice(2)
+const [source, target, productSource, productTarget, generalSource, generalTarget] = process.argv.slice(2)
 fs.mkdirSync(target, { recursive: true })
 for (const name of ['agent.cordis.yml', 'preset.yml']) {
   const sourceFile = path.join(source, name)
@@ -152,6 +154,13 @@ if (fs.existsSync(productTarget)) {
   if (sourceManifest !== targetManifest) throw new Error('Existing fixed product-team preset differs: ' + productTarget)
 } else {
   fs.cpSync(productSource, productTarget, { recursive: true })
+}
+if (!fs.existsSync(generalSource)) throw new Error('Missing Promax draft preset: ' + generalSource)
+fs.mkdirSync(generalTarget, { recursive: true })
+for (const name of ['agent.cordis.yml', 'preset.yml']) {
+  const sourceFile = path.join(generalSource, name)
+  if (!fs.existsSync(sourceFile)) throw new Error('Missing Promax draft preset file: ' + name)
+  fs.copyFileSync(sourceFile, path.join(generalTarget, name))
 }
 NODE
 `

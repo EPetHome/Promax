@@ -11,6 +11,7 @@ import type {
   ArtifactUploadRequest,
   ConsoleArtifactsResponse,
   ConsoleOverviewResponse,
+  ConsoleTaskStateResponse,
   ConsoleTelemetryResponse,
   ConsoleUsersResponse,
   HeartbeatPostResponse,
@@ -25,6 +26,8 @@ import type {
   RefreshResponse,
   MeResponse,
   TelemetryPostResponse,
+  TaskStatePostRequest,
+  TaskStatePostResponse,
 } from './types.ts'
 
 interface ErrorFixture extends ApiErrorResponse {
@@ -57,6 +60,8 @@ const responses = {
   users: fixture<ConsoleUsersResponse>('console.users.response.json'),
   artifacts: fixture<ConsoleArtifactsResponse>('console.artifacts.response.json'),
   telemetrySeries: fixture<ConsoleTelemetryResponse>('console.telemetry.response.json'),
+  taskState: fixture<TaskStatePostResponse>('task-state.post.response.json'),
+  consoleTaskState: fixture<ConsoleTaskStateResponse>('console.task-state.response.json'),
   download: fixture<DownloadFixture>('console.artifact-download.response.json'),
   artifactInit: fixture<ArtifactInitResponse>('artifacts.init.response.json'),
   artifactComplete: fixture<ArtifactCreatedResponse>('artifacts.complete.response.json'),
@@ -247,6 +252,16 @@ const server = createServer(async (request, response) => {
     return
   }
 
+  if (request.method === 'POST' && url.pathname === '/api/v1/task-state') {
+    try {
+      await readJson<TaskStatePostRequest>(request)
+      sendJson(response, 200, responses.taskState)
+    } catch {
+      sendError(response, 'VALIDATION')
+    }
+    return
+  }
+
   if (request.method === 'POST' && url.pathname === '/api/v1/heartbeat') {
     await readBody(request)
     sendJson(response, 200, responses.heartbeat)
@@ -270,6 +285,15 @@ const server = createServer(async (request, response) => {
 
   if (request.method === 'GET' && url.pathname === '/api/v1/console/telemetry') {
     sendJson(response, 200, responses.telemetrySeries)
+    return
+  }
+
+  if (request.method === 'GET' && url.pathname === '/api/v1/console/task-state') {
+    if (!url.searchParams.get('session_id') || !url.searchParams.get('task_key')) {
+      sendError(response, 'VALIDATION')
+    } else {
+      sendJson(response, 200, responses.consoleTaskState)
+    }
     return
   }
 

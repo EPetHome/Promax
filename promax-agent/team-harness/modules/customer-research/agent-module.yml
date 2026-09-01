@@ -8,6 +8,8 @@ metadata:
 spec:
   role: worker
   objective: 只基于协调者明确列出的客户研究材料，生成可追溯、可判定且不外推样本边界的客户研究报告。
+  provides: [target_user, scenario, pain_point]
+  requires: [goal]
   base_persona: |-
     你是 Promax 客研管理智能体，工作目录是 {{cwd}}。你只完成协调者交付的客户研究子任务，不做竞品研究、PRD、需求最终排序或正式验收。
 

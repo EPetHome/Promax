@@ -1,8 +1,18 @@
 import { createHash } from 'node:crypto'
-import { readdir, readFile, realpath, stat } from 'node:fs/promises'
+import { readdir, readFile, realpath, stat, writeFile } from 'node:fs/promises'
 import { basename, extname, isAbsolute, relative, resolve } from 'node:path'
+import { parse, stringify } from 'yaml'
 
-import type { ArtifactKind, ArtifactUploadRequest, HeartbeatPostRequest, TelemetryPostRequest } from '@promax/contracts'
+import type {
+  ArtifactKind,
+  ArtifactUploadRequest,
+  DecisionTarget,
+  HeartbeatPostRequest,
+  LegacyTelemetryEventType,
+  TaskStatePostRequest,
+  TelemetryDecision,
+  TelemetryPostRequest,
+} from '@promax/contracts'
 
 import { CLIENT_VERSION, MAX_DIRECT_ARTIFACT_BYTES, type ResolvedConfig } from './config.ts'
 import type { ReportLogger } from './outbox.ts'
@@ -110,6 +120,7 @@ export class PromaxReporter {
   private readonly sessionStartedAt = new Map<string, number>()
   private readonly seenDigestByPath = new Map<string, string>()
   private readonly artifactCatalogByPreset = new Map<string, Promise<TeamRevisionArtifactCatalog | undefined>>()
+  private readonly canonicalSessionByTask = new Map<string, Promise<string | undefined>>()
   private lastOccurredAt = 0
 
   constructor(
@@ -143,6 +154,46 @@ export class PromaxReporter {
   recordChat(agent: AgentLike): void {
     this.startSession(agent)
     this.telemetry(agent, 'chat', '-', [], 'success')
+  }
+
+  recordDecision(
+    agent: AgentLike,
+    target: DecisionTarget,
+    decision: TelemetryDecision,
+    status: TelemetryPostRequest['status'] = 'success',
+  ): void {
+    this.startSession(agent)
+    const body: TelemetryPostRequest = {
+      employee_id: this.config.employeeId,
+      event_type: 'decision',
+      target,
+      source: 'hook',
+      session_id: agent.id,
+      occurred_at: this.occurredAt(),
+      output_files: [],
+      status,
+      decision,
+    }
+    this.queue.submit({ path: '/api/v1/telemetry', body })
+  }
+
+  recordDecisionForSession(
+    sessionId: string,
+    target: DecisionTarget,
+    decision: TelemetryDecision,
+    status: TelemetryPostRequest['status'] = 'success',
+  ): void {
+    this.recordDecision({
+      id: sessionId,
+      session: { id: sessionId, header: {}, events: [] },
+    }, target, decision, status)
+  }
+
+  recordTaskState(snapshot: Omit<TaskStatePostRequest, 'employee_id'>): void {
+    this.queue.submit({
+      path: '/api/v1/task-state',
+      body: { ...snapshot, employee_id: this.config.employeeId },
+    })
   }
 
   recordToolResult(exec: ToolExecutionLike, result: ToolResultLike): void {
@@ -188,7 +239,7 @@ export class PromaxReporter {
 
   private telemetry(
     agent: AgentLike,
-    eventType: TelemetryPostRequest['event_type'],
+    eventType: LegacyTelemetryEventType,
     target: string,
     outputFiles: string[],
     status: TelemetryPostRequest['status'],
@@ -250,7 +301,7 @@ export class PromaxReporter {
 
   private async reportableArtifactKind(agent: AgentLike, path: string): Promise<ArtifactKind | undefined> {
     const workspaceRelativePath = await this.workspaceRelativePath(agent, path)
-    if (workspaceRelativePath && isJudgeReportPath(workspaceRelativePath)) return undefined
+    if (workspaceRelativePath?.startsWith('.promax/') === true || (workspaceRelativePath && isJudgeReportPath(workspaceRelativePath))) return undefined
 
     const presetId = resolveAgentPreset(agent.session)
     const catalog = await this.artifactCatalog(presetId)
@@ -258,9 +309,43 @@ export class PromaxReporter {
     if (!workspaceRelativePath) return undefined
     const kind = catalog.kindFor(workspaceRelativePath)
     if (!kind) {
-      this.logger.debug(`promax-report skipped file not declared by TeamRevision ${presetId}: ${workspaceRelativePath}`)
+      this.logger.debug(`promax-report used extension fallback because TeamRevision ${presetId} has no declaration for ${workspaceRelativePath}`)
+      return artifactKind(basename(path))
     }
     return kind
+  }
+
+  private canonicalTaskSession(cwd: string, taskKey: string): Promise<string | undefined> {
+    const cacheKey = `${cwd}\0${taskKey}`
+    let result = this.canonicalSessionByTask.get(cacheKey)
+    if (result) return result
+    result = (async () => {
+      const directory = resolve(cwd, '.promax', 'session-scopes')
+      let entries
+      try {
+        entries = await readdir(directory, { withFileTypes: true })
+      } catch (error: unknown) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') return undefined
+        throw error
+      }
+      const matches: string[] = []
+      for (const entry of entries) {
+        if (!entry.isFile() || !entry.name.endsWith('.json')) continue
+        try {
+          const value: unknown = JSON.parse(await readFile(resolve(directory, entry.name), 'utf8'))
+          if (!isRecord(value) || value.taskKey !== taskKey || typeof value.sessionId !== 'string' || value.sessionId.trim() === '') continue
+          matches.push(value.sessionId)
+        } catch (error: unknown) {
+          this.logger.warn(`promax-report ignored invalid session scope ${entry.name}: ${error instanceof Error ? error.message : String(error)}`)
+        }
+      }
+      const unique = [...new Set(matches)]
+      if (unique.length === 1) return unique[0]
+      if (unique.length > 1) this.logger.warn(`promax-report found ambiguous parent sessions for task ${taskKey}; retaining worker session id`)
+      return undefined
+    })()
+    this.canonicalSessionByTask.set(cacheKey, result)
+    return result
   }
 
   private async reportArtifactPath(agent: AgentLike, reportedPath: string): Promise<void> {
@@ -291,6 +376,7 @@ export class PromaxReporter {
       }
       this.queue.submitArtifactFile(body, path)
       this.telemetry(agent, 'agent', body.agent, [filename], 'success')
+      await this.reportProducedTaskState(agent, path)
       return
     }
 
@@ -317,6 +403,53 @@ export class PromaxReporter {
     }
     this.queue.submit({ path: '/api/v1/artifacts', body })
     this.telemetry(agent, 'agent', body.agent, [filename], 'success')
+    await this.reportProducedTaskState(agent, path)
+  }
+
+  private async reportProducedTaskState(agent: AgentLike, path: string): Promise<void> {
+    const cwd = this.sessionCwd(agent)
+    const workspacePath = await this.workspaceRelativePath(agent, path)
+    if (!cwd || !workspacePath) return
+    const taskMatch = /^deliverables\/([^/]+)\//u.exec(workspacePath)
+    if (taskMatch === null) return
+    const catalog = await this.artifactCatalog(resolveAgentPreset(agent.session))
+    const producer = catalog?.producerFor(workspacePath)
+    if (!producer) return
+    let document: unknown
+    const slotsPath = resolve(cwd, '.promax', 'tasks', taskMatch[1]!, 'slots.yml')
+    try {
+      document = parse(await readFile(slotsPath, 'utf8'))
+    } catch (error: unknown) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return
+      throw error
+    }
+    if (!isRecord(document) || document.kind !== 'TaskSlots' || !isRecord(document.metadata) || !isRecord(document.spec)
+      || document.metadata.task_key !== taskMatch[1] || typeof document.metadata.coverage_revision !== 'number'
+      || (document.spec.tier !== 'draft' && document.spec.tier !== 'single' && document.spec.tier !== 'team')
+      || !Array.isArray(document.spec.slots)) return
+    let changed = false
+    const slots = document.spec.slots.map(value => {
+      if (!isRecord(value) || value.member_id !== producer || value.status === 'produced') return value
+      changed = true
+      return { ...value, status: 'produced' }
+    })
+    if (!changed) return
+    const updatedAt = this.occurredAt()
+    await writeFile(slotsPath, stringify({
+      ...document,
+      metadata: { ...document.metadata, computed_at: updatedAt },
+      spec: { ...document.spec, slots },
+    }), 'utf8')
+    const canonicalSessionId = await this.canonicalTaskSession(cwd, taskMatch[1]!)
+    this.recordTaskState({
+      project: this.config.project,
+      session_id: canonicalSessionId ?? agent.id,
+      task_key: taskMatch[1]!,
+      tier: document.spec.tier,
+      coverage_revision: document.metadata.coverage_revision,
+      updated_at: updatedAt,
+      slots: slots as TaskStatePostRequest['slots'],
+    })
   }
 
   private async scan(agent: AgentLike): Promise<void> {

@@ -1,6 +1,6 @@
 {
   "name": "@promax/promax-bundle",
-  "version": "0.1.5",
+  "version": "0.1.10",
   "private": true,
   "type": "module",
   "main": "lib/index.mjs",
@@ -16,7 +16,7 @@
   "dsh": {
     "bundle": { "patch": "./cordis.patch.yml" }
   },
-  "files": ["lib", "cordis.patch.yml"],
+  "files": ["lib", "cordis.patch.yml", "presets"],
   "scripts": {
     "build": "tsdown src/index.ts --format esm --platform node --dts --out-dir lib",
     "typecheck": "tsc --noEmit -p ../../tsconfig.json"
