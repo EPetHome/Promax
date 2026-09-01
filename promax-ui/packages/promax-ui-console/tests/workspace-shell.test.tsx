@@ -12,7 +12,6 @@ import {
   PromaxTeamSessionHeader,
   PromaxWorkspaceOverlay,
   deliverableSummary,
-  memberExecutionStateOf,
   teamAvailabilityOf,
   teamProgressOf,
   teamSessionTreeOf,
@@ -25,6 +24,7 @@ import {
 import { resetDraftStateForTests } from '../src/client/draft-state.ts'
 import { PRODUCT_PRESET_ID, PRODUCT_TEAM_ID, PRODUCT_TEAM_REVISION, bindTeamSession, readTeamState, resetTeamStateForTests, runtimeTeamRosterOf, selectTeamHome, selectTeamSession, syncProductTeamRuntimeRoster } from '../src/client/team-state.ts'
 import { PROMAX_WORKBENCH_CSS } from '../src/workbench-styles.ts'
+import { taskRunProjectionOf, type TaskRunFileSnapshot } from '../src/client/task-run-projection.ts'
 
 const workspaceState: WorkspaceListState = {
   items: [
@@ -61,7 +61,26 @@ function actions(overrides: Partial<WorkspaceShellActions> = {}): WorkspaceShell
     prepareSessionScope: vi.fn(async input => ({ sessionName: input.sessionName, taskKey: input.sessionName, relativePath: `deliverables/${input.sessionName}` })),
     createProjectWorkspace: vi.fn(async input => ({ workspaceId: 'project-new', title: input.projectName, path: `${input.parentPath ?? '/Users/test/Promax'}/${input.projectName}`, sessionIds: [] })),
     pickProjectDirectory: vi.fn(async () => '/tmp/custom'),
-    writeDraftHandoff: vi.fn(async () => ({ handoffPath: '/tmp/handoff.md', transcriptPath: '/tmp/transcript.md' })),
+    writeTaskPackage: vi.fn(async (input: Parameters<WorkspaceShellActions['writeTaskPackage']>[0]) => ({
+      taskPackagePath: `.promax/tasks/${input.taskKey}/task-package.yml`,
+      coveragePath: `.promax/tasks/${input.taskKey}/coverage.yml`,
+      slotsPath: `.promax/tasks/${input.taskKey}/slots.yml`,
+      inputManifestPath: `.promax/input/${input.taskKey}/manifest.yml`,
+      tier: 'single' as const,
+      coverageRevision: 1,
+      artifactPaths: [`deliverables/${input.taskKey}/prd.md`],
+      slots: [],
+    })),
+    readTaskRunFiles: vi.fn(async (input: Parameters<WorkspaceShellActions['readTaskRunFiles']>[0]) => ({
+      taskKey: input.taskKey,
+      parentSessionId: input.sessionId,
+      cancellation: 'running' as const,
+      runEpoch: 1,
+      artifactStates: input.artifactPaths.map(path => ({ path, exists: false, nonEmpty: false })),
+      judge: { path: `.promax/judge/${input.taskKey}/judge.md`, state: 'absent' as const, exists: false },
+      observedAt: new Date().toISOString(),
+    })),
+    stopTeamTask: vi.fn(async input => ({ state: 'cancelled' as const, runEpoch: input.runEpoch })),
     openWorkspacePath: vi.fn(async () => {}),
     teamRoutingAvailable: true,
     ...overrides,
@@ -147,7 +166,7 @@ describe('Promax draft, fixed team, and project shell', () => {
     await waitFor(() => { expect(createProjectWorkspace).toHaveBeenCalledWith({ projectName: '云盘项目' }) })
   })
 
-  it('keeps projects as collapsible groups and creates a blank r7 session inside the project', async () => {
+  it('keeps projects as collapsible groups and creates a blank current-revision session inside the project', async () => {
     const shellActions = actions()
     render(<PromaxSessionBrowser useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} />)
     const projectHeading = screen.getByRole('heading', { name: '产品', level: 4 })
@@ -210,8 +229,8 @@ describe('Promax draft, fixed team, and project shell', () => {
   it('renders the runtime-defined result tree with honest empty states and opens both top drawers', () => {
     syncProductTeamRuntimeRoster(runtimeTeamRosterOf(`
       ## 已发布团队快照
-      - team revision：\`team-mtcjsbcz-04tpe2@r7\`
-      - preset：\`promax-team-mtcjsbcz-04tpe2-r7\`
+      - team revision：\`team-mtcjsbcz-04tpe2@r12\`
+      - preset：\`promax-team-mtcjsbcz-04tpe2-r12\`
       成员：
       - \`solution_design\`（产品需求方案智能体）：生成并验证 PRD。
       - \`quality_judge\`（独立 Judge）：独立判定最终产物。
@@ -269,7 +288,7 @@ describe('Promax draft, fixed team, and project shell', () => {
     expect(shellActions.clearSession).toHaveBeenCalledTimes(1)
 
     fireEvent.click(projectRow)
-    fireEvent.click(within(projectRow.closest<HTMLElement>('.promax-project-node')!).getByRole('button', { name: /^产品方案Revision 7 已完成$/ }))
+    fireEvent.click(within(projectRow.closest<HTMLElement>('.promax-project-node')!).getByRole('button', { name: /^产品方案Revision 12 已完成$/ }))
     expect(screen.getByRole('navigation', { name: '团队会话层级' })).toBeVisible()
     fireEvent.click(within(screen.getByRole('navigation', { name: '团队会话层级' })).getByRole('button', { name: '产品' }))
     expect(screen.getByRole('heading', { name: '产品', level: 1 })).toBeVisible()
@@ -321,10 +340,39 @@ describe('Promax draft, fixed team, and project shell', () => {
     expect(screen.getByRole('button', { name: '交给团队' })).toHaveAttribute('title', '先在当前草稿中发送至少一条内容')
   })
 
-  it('offers transfer after one draft message, passes saved input paths, and starts a new team session', async () => {
+  it('confirms four handoff parts, writes only an internal task package, and starts a new blank execution session', async () => {
     sessionState.current = 'general-session'
-    const writeDraftHandoff = vi.fn(async () => ({ handoffPath: '/tmp/需求交底.md', transcriptPath: '/tmp/原始对话.md' }))
-    const shellActions = actions({ writeDraftHandoff, startSession: vi.fn(async () => 'handoff-team-session') })
+    syncProductTeamRuntimeRoster(runtimeTeamRosterOf(`
+      ## 已发布团队快照
+      - team revision：\`team-mtcjsbcz-04tpe2@r12\`
+      - preset：\`promax-team-mtcjsbcz-04tpe2-r12\`
+      成员：
+      - \`solution_design\`（产品需求方案智能体）：生成 PRD。
+      - \`quality_judge\`（独立 Judge）：独立判定。
+      ## 稳定消息路由
+      文件责任：
+      - \`deliverables/{task_key}/prd.md\`：solution_design
+      - \`.promax/judge/{task_key}/judge.md\`：quality_judge
+      信息契约：
+      - \`solution_design\`：provides=\`goal,scope\`；requires=\`goal\`
+      - \`quality_judge\`：provides=\`\`；requires=\`\`
+      产物契约：
+      - \`deliverables/{task_key}/prd.md\`：required=\`true\`
+      - \`.promax/judge/{task_key}/judge.md\`：required=\`true\`
+      稳定回执字段（按顺序）：\`状态\`、\`产物\`、\`Judge判定\`
+    `))
+    let coverageRevision = 0
+    const writeTaskPackage = vi.fn(async (input: Parameters<WorkspaceShellActions['writeTaskPackage']>[0]) => ({
+      taskPackagePath: `.promax/tasks/${input.taskKey}/task-package.yml`,
+      coveragePath: `.promax/tasks/${input.taskKey}/coverage.yml`,
+      slotsPath: `.promax/tasks/${input.taskKey}/slots.yml`,
+      inputManifestPath: `.promax/input/${input.taskKey}/manifest.yml`,
+      tier: 'single' as const,
+      coverageRevision: ++coverageRevision,
+      artifactPaths: [`deliverables/${input.taskKey}/prd.md`],
+      slots: [{ slot_id: 'solution_design', member_id: 'solution_design', label: '产品需求方案智能体', status: 'pending' as const, provides: ['goal' as const], requires: ['goal' as const], satisfied_by: [], missing: [] }],
+    }))
+    const shellActions = actions({ writeTaskPackage, startSession: vi.fn(async () => 'handoff-team-session') })
     const setDraft = vi.fn()
     const submit = vi.fn()
     const nativeSnapshot = {
@@ -345,23 +393,64 @@ describe('Promax draft, fixed team, and project shell', () => {
     expect(screen.getByLabelText('草稿运行边界')).toHaveTextContent('草稿不会调用产品团队成员，也不能直接 @')
     expect(screen.queryByRole('button', { name: '指定团队成员' })).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /交给团队/u }))
-    expect(screen.getByRole('heading', { name: '交给团队' })).toBeVisible()
-    expect((screen.getByLabelText('需求交底（可编辑）') as HTMLTextAreaElement).value).toContain('## 还没定的')
-    fireEvent.click(screen.getByRole('button', { name: '保存并交给团队' }))
-    await waitFor(() => { expect(writeDraftHandoff).toHaveBeenCalledTimes(1) })
-    expect(writeDraftHandoff).toHaveBeenCalledWith(expect.objectContaining({
+    expect(screen.getByRole('heading', { name: '确认任务' })).toBeVisible()
+    expect((screen.getByLabelText('系统理解的任务') as HTMLTextAreaElement).value).toContain('## 还没定的')
+    expect(screen.getByRole('heading', { name: '2. 还缺什么' })).toBeVisible()
+    expect(screen.getByText('尚未说明：')).toBeVisible()
+    expect(screen.getByRole('heading', { name: '3. 推荐交付结果' })).toBeVisible()
+    expect(screen.getByRole('checkbox', { name: /产品需求文档（PRD）.*推荐理由/u })).toBeChecked()
+    expect(screen.getByText('推荐理由：任务需要形成产品需求或完整产品方案')).toBeVisible()
+    expect(screen.getByRole('heading', { name: '4. 执行计划' })).toBeVisible()
+    expect(screen.getByText(/预计由 1 个专业角色协作/u)).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: '确认并开始' }))
+    await waitFor(() => { expect(writeTaskPackage).toHaveBeenCalledTimes(1) })
+    expect(writeTaskPackage).toHaveBeenCalledWith(expect.objectContaining({
       workspaceId: 'product',
       projectPath: '/tmp/Promax/产品',
-      handoff: expect.stringContaining('## 要解决什么') as string,
-      transcript: expect.stringContaining('先确认范围') as string,
+      sessionId: 'handoff-team-session',
+      confirmedHandoff: expect.stringContaining('## 已知缺口') as string,
+      requestedArtifactPaths: ['deliverables/{task_key}/prd.md'],
+      coverageInformationKeys: ['goal'],
     }))
     expect(shellActions.startSession).toHaveBeenCalledWith('product', PRODUCT_PRESET_ID)
     await waitFor(() => { expect(setDraft).toHaveBeenCalled() })
     const stagedPrompt = String(setDraft.mock.calls.at(-1)?.[0] ?? '')
-    expect(stagedPrompt).toContain('需求交底：/tmp/需求交底.md')
-    expect(stagedPrompt).toContain('原始对话：/tmp/原始对话.md')
-    expect(stagedPrompt).toContain('## 本次交底')
+    expect(stagedPrompt).toBe('请读取并执行内部任务包：.promax/tasks/需求想法/task-package.yml')
+    expect(stagedPrompt).not.toContain('先确认范围')
     expect(submit).toHaveBeenCalledTimes(1)
+    expect(screen.getByText('2 Members')).toBeVisible()
+    expect(screen.getByText('2 MEMBERS')).toBeVisible()
+
+    fireEvent.click(screen.getByRole('button', { name: '修正系统理解' }))
+    expect(screen.getByRole('heading', { name: '修正系统理解' })).toBeVisible()
+    expect(screen.getByText('当前是第 1 版理解结果')).toBeVisible()
+    fireEvent.click(screen.getByText('查看识别依据'))
+    const evidenceLocation = screen.getByLabelText('覆盖证据位置')
+    expect(within(evidenceLocation).getByText('SRC-001')).toBeVisible()
+    expect(within(evidenceLocation).getByText('.promax/input/需求想法/sources/SRC-001/confirmed-handoff.md')).toBeVisible()
+    expect(within(evidenceLocation).getByText(/第 1–\d+ 行/u)).toBeVisible()
+    expect(screen.getByText('调整后的执行计划 · 1 项最终交付')).toBeVisible()
+    fireEvent.click(screen.getByLabelText('目标用户'))
+    fireEvent.click(screen.getByRole('button', { name: '确认修改' }))
+    await waitFor(() => { expect(writeTaskPackage).toHaveBeenCalledTimes(2) })
+    expect(writeTaskPackage).toHaveBeenLastCalledWith(expect.objectContaining({
+      workspaceId: 'product',
+      projectPath: '/tmp/Promax/产品',
+      sessionId: 'handoff-team-session',
+      taskKey: '需求想法',
+      confirmedHandoff: expect.stringContaining('## 已知缺口') as string,
+      handoffEdited: false,
+      requestedArtifactPaths: ['deliverables/{task_key}/prd.md'],
+      coverageInformationKeys: ['goal', 'target_user'],
+      coverageWasOverridden: true,
+    }))
+    await waitFor(() => { expect(readTeamState().sessionBindings).toContainEqual(expect.objectContaining({
+      sessionId: 'handoff-team-session',
+      coverageRevision: 2,
+      coverageInformationKeys: ['goal', 'target_user'],
+    })) })
+    expect(setDraft.mock.calls.at(-1)?.[0]).toBe('请读取并执行内部任务包：.promax/tasks/需求想法/task-package.yml')
+    expect(submit).toHaveBeenCalledTimes(2)
   })
 
   it('keeps the stable team header and safe per-turn process summary', () => {
@@ -433,8 +522,8 @@ describe('Promax draft, fixed team, and project shell', () => {
   it('summarizes only runtime-backed key events and keeps the list compact', () => {
     syncProductTeamRuntimeRoster(runtimeTeamRosterOf(`
       ## 已发布团队快照
-      - team revision：\`team-mtcjsbcz-04tpe2@r7\`
-      - preset：\`promax-team-mtcjsbcz-04tpe2-r7\`
+      - team revision：\`team-mtcjsbcz-04tpe2@r12\`
+      - preset：\`promax-team-mtcjsbcz-04tpe2-r12\`
       成员：
       - \`solution_design\`（产品需求方案智能体）：生成产品方案。
       - \`quality_judge\`（独立 Judge）：独立判定。
@@ -448,7 +537,7 @@ describe('Promax draft, fixed team, and project shell', () => {
     const events = timelineEventsOf(team, {
       nodes: [
         { kind: 'user', seq: 1, content: [{ type: 'text', text: '生成 PRD' }] },
-        { kind: 'assistant', messageId: 'a1', turn: 1, blocks: [{ kind: 'text', text: '已路由 solution_design' }] },
+        { kind: 'assistant', messageId: 'a1', turn: 1, blocks: [{ kind: 'tool-call', callId: 's1', name: 'solution_design', argsRaw: '{}' }] },
         { kind: 'assistant', messageId: 'a2', turn: 2, blocks: [{ kind: 'text', text: '产物 deliverables/task-1/prd.md' }] },
         { kind: 'assistant', messageId: 'a3', turn: 3, blocks: [{ kind: 'text', text: '产物 .promax/judge/task-1/judge.md\nJudge判定：pass' }] },
       ],
@@ -462,10 +551,10 @@ describe('Promax draft, fixed team, and project shell', () => {
     expect(events).toHaveLength(3)
     expect(events.map(event => event.title)).toEqual([
       '任务已路由给 1 名成员',
-      '第 2 轮任务路径已出现',
-      '独立 Judge 完成判定',
+      '第 2 轮协调已响应',
+      '第 3 轮协调已响应',
     ])
-    expect(events[1]).toEqual(expect.objectContaining({ tone: 'active', copy: expect.stringContaining('不等同于已经生成或判定') }))
+    expect(events[1]).toEqual(expect.objectContaining({ tone: 'active', copy: expect.stringContaining('权威任务文件') }))
     expect(timelineEventsOf(team, undefined)).toEqual([expect.objectContaining({ title: '尚未开始', tone: 'idle' })])
   })
 
@@ -537,8 +626,8 @@ describe('Promax draft, fixed team, and project shell', () => {
   it('opens a real member picker before the first team session and routes the selected stable member', async () => {
     syncProductTeamRuntimeRoster(runtimeTeamRosterOf(`
       ## 已发布团队快照
-      - team revision：\`team-mtcjsbcz-04tpe2@r7\`
-      - preset：\`promax-team-mtcjsbcz-04tpe2-r7\`
+      - team revision：\`team-mtcjsbcz-04tpe2@r12\`
+      - preset：\`promax-team-mtcjsbcz-04tpe2-r12\`
       成员：
       - \`solution_design\`（产品需求方案智能体）：生成并验证 PRD。
       - \`quality_judge\`（独立 Judge）：独立判定最终产物。
@@ -573,7 +662,13 @@ describe('Promax draft, fixed team, and project shell', () => {
   })
 
   it('switches the primary composer action to one-click parent and descendant stop', async () => {
-    bindTeamSession({ sessionId: 'product-session', teamId: PRODUCT_TEAM_ID, revision: PRODUCT_TEAM_REVISION, presetId: PRODUCT_PRESET_ID, workspaceId: 'product' })
+    bindTeamSession({
+      sessionId: 'product-session', teamId: PRODUCT_TEAM_ID, revision: PRODUCT_TEAM_REVISION, presetId: PRODUCT_PRESET_ID, workspaceId: 'product',
+      sessionName: 'product-task', taskKey: 'product-task', tier: 'single', coverageRevision: 1,
+      taskPackagePath: '.promax/tasks/product-task/task-package.yml', slots: [], confirmedHandoff: '任务',
+      requestedArtifactPaths: ['deliverables/{task_key}/prd.md'], artifactPaths: ['deliverables/product-task/prd.md'],
+      coverageInformationKeys: ['goal'], runState: 'running', runEpoch: 1,
+    })
     const input = { draft: '', draftRev: 0, phase: 'plain' as const }
     const nativeSnapshot = { nodes: [], turnTimings: new Map<number, { startTime: number; endTime?: number }>(), running: false }
     const sessions: SessionListState = {
@@ -586,7 +681,7 @@ describe('Promax draft, fixed team, and project shell', () => {
       phase: 'ready',
     }
     const stop = vi.fn()
-    const stopTeamDescendants = vi.fn(async () => {})
+    const stopTeamTask = vi.fn(async () => ({ state: 'cancelled' as const, runEpoch: 1 }))
     render(<PromaxComposerBar
       sessionId="product-session"
       useInput={selector => selector(input)}
@@ -594,17 +689,59 @@ describe('Promax draft, fixed team, and project shell', () => {
       useSessions={selector => selector(sessions)}
       inputActions={{ setDraft: vi.fn(), submit: vi.fn() }}
       stop={stop}
-      stopTeamDescendants={stopTeamDescendants}
+      stopTeamTask={stopTeamTask}
+      useWorkspaces={useWorkspaces}
     />)
 
     const button = screen.getByRole('button', { name: '停止团队任务' })
     expect(button).toBeEnabled()
     fireEvent.click(button)
     await waitFor(() => {
-      expect(stopTeamDescendants).toHaveBeenCalledWith([{ sessionId: 'worker-1', parentSessionId: 'product-session' }])
-    expect(stop).toHaveBeenCalledTimes(2)
+      expect(stopTeamTask).toHaveBeenCalledWith({ workspaceId: 'product', projectPath: '/tmp/Promax/产品', sessionId: 'product-session', taskKey: 'product-task', runEpoch: 1 })
     })
+    expect(stop).not.toHaveBeenCalled()
     expect(screen.getByRole('button', { name: '正在停止团队任务' })).toBeDisabled()
+  })
+
+  it('shows failed_to_stop truthfully and keeps an explicit retry action', async () => {
+    bindTeamSession({
+      sessionId: 'failed-stop-session', teamId: PRODUCT_TEAM_ID, revision: PRODUCT_TEAM_REVISION, presetId: PRODUCT_PRESET_ID, workspaceId: 'product',
+      sessionName: 'failed-stop-task', taskKey: 'failed-stop-task', tier: 'single', coverageRevision: 1,
+      taskPackagePath: '.promax/tasks/failed-stop-task/task-package.yml', slots: [], confirmedHandoff: '任务',
+      requestedArtifactPaths: ['deliverables/{task_key}/prd.md'], artifactPaths: ['deliverables/failed-stop-task/prd.md'],
+      coverageInformationKeys: ['goal'], runState: 'failed_to_stop', runEpoch: 1,
+    })
+    const input = { draft: '', draftRev: 0, phase: 'plain' as const }
+    const nativeSnapshot = { nodes: [], turnTimings: new Map<number, { startTime: number; endTime?: number }>(), running: false }
+    const sessions: SessionListState = {
+      ids: ['failed-stop-session'],
+      byId: {
+        'failed-stop-session': { id: 'failed-stop-session', displayTitle: '停止失败任务', running: false, blank: false, updatedAt: 1 },
+      },
+      current: 'failed-stop-session',
+      phase: 'ready',
+    }
+    const stopTeamTask = vi.fn(async () => { throw new Error('子 Agent 仍在运行') })
+    render(<PromaxComposerBar
+      sessionId="failed-stop-session"
+      useInput={selector => selector(input)}
+      useSession={selector => selector(nativeSnapshot)}
+      useSessions={selector => selector(sessions)}
+      inputActions={{ setDraft: vi.fn(), submit: vi.fn() }}
+      stop={vi.fn()}
+      stopTeamTask={stopTeamTask}
+      useWorkspaces={useWorkspaces}
+    />)
+
+    expect(screen.getByPlaceholderText('停止失败：任务仍可能运行；请重试停止或转人工处理')).toBeDisabled()
+    expect(screen.getByRole('alert')).toHaveTextContent('停止任务失败：任务仍可能运行')
+    const retry = screen.getByRole('button', { name: '重试停止团队任务' })
+    expect(retry).toBeEnabled()
+    fireEvent.click(retry)
+    await waitFor(() => {
+      expect(stopTeamTask).toHaveBeenCalledWith({ workspaceId: 'product', projectPath: '/tmp/Promax/产品', sessionId: 'failed-stop-session', taskKey: 'failed-stop-task', runEpoch: 1 })
+      expect(screen.getByRole('alert')).toHaveTextContent('停止任务失败：子 Agent 仍在运行')
+    })
   })
 
   it('keeps the composer in normal layout flow without a guessed scroll clearance', () => {
@@ -621,11 +758,11 @@ describe('Promax draft, fixed team, and project shell', () => {
     expect(PROMAX_WORKBENCH_CSS).toMatch(/\.member-copy \{[^}]*flex: 1;/u)
   })
 
-  it('projects only exact current-task artifact paths and accepts the stable flattened Judge receipt', () => {
+  it('projects current task only from binding, task-state, exact files and structured member lifecycle', () => {
     syncProductTeamRuntimeRoster(runtimeTeamRosterOf(`
       ## 已发布团队快照
-      - team revision：\`team-mtcjsbcz-04tpe2@r7\`
-      - preset：\`promax-team-mtcjsbcz-04tpe2-r7\`
+      - team revision：\`team-mtcjsbcz-04tpe2@r12\`
+      - preset：\`promax-team-mtcjsbcz-04tpe2-r12\`
       成员：
       - \`customer_research\`（客研管理智能体）：只基于协调者明确列出的客户研究材料，生成可追溯、可判定且不外推样本边界的客户研究报告。
       - \`product_discovery\`（产品探索智能体）：生成探索产物。
@@ -648,42 +785,64 @@ describe('Promax draft, fixed team, and project shell', () => {
       稳定回执字段（按顺序）：\`状态\`、\`产物\`、\`Judge判定\`
     `))
     const team = readTeamState().teams[0]!
-    const progress = teamProgressOf(team, {
-      nodes: [{
-        kind: 'assistant',
-        blocks: [{ kind: 'text', text: `
-          团队定义包含 prd.md、business-diagram.md、prototype.html、customer_research.md 等文件名。
-          状态 完成
-          产物 deliverables/cp3-gui-r3-20260830/prd.md
-          | 产物 | \`deliverables/cp3-gui-r3-20260830/prd.md\`；\`.promax/judge/cp3-gui-r3-20260830/judge.md\` |
-          | Judge判定 | **pass**（round 1，通用 5/5 + 领域 3/3） |
-        ` }],
-      }],
-      turnTimings: new Map(),
-      running: false,
+    const taskKey = '阅读分享会报名流程'
+    const artifactPaths = [
+      `deliverables/${taskKey}/customer_research.md`,
+      `deliverables/${taskKey}/requirement_management.md`,
+      `deliverables/${taskKey}/business-diagram.md`,
+      `deliverables/${taskKey}/requirement_review.md`,
+    ]
+    const binding = {
+      sessionId: 'parent-new-task', teamId: PRODUCT_TEAM_ID, revision: PRODUCT_TEAM_REVISION, presetId: PRODUCT_PRESET_ID,
+      workspaceId: 'product', sessionName: taskKey, taskKey, tier: 'team' as const, coverageRevision: 1,
+      taskPackagePath: `.promax/tasks/${taskKey}/task-package.yml`, slots: [], confirmedHandoff: '新任务',
+      requestedArtifactPaths: artifactPaths, artifactPaths, coverageInformationKeys: ['goal' as const], runState: 'running' as const, runEpoch: 1,
+    }
+    const taskState = {
+      employee_id: '10086', project: '产品', session_id: binding.sessionId, task_key: taskKey, tier: 'team' as const,
+      coverage_revision: 1, updated_at: new Date().toISOString(),
+      slots: [
+        { slot_id: 'customer_research', member_id: 'customer_research', label: '客研', status: 'produced' as const, provides: ['pain_point' as const], requires: ['goal' as const], satisfied_by: [], missing: [] },
+        { slot_id: 'requirement_management', member_id: 'requirement_management', label: '需求', status: 'pending' as const, provides: ['requirements_priority' as const], requires: ['goal' as const], satisfied_by: [], missing: [] },
+      ],
+    }
+    const files: TaskRunFileSnapshot = {
+      taskKey, parentSessionId: binding.sessionId, cancellation: 'running', runEpoch: 1,
+      artifactStates: artifactPaths.map(path => ({ path, exists: path.endsWith('customer_research.md'), nonEmpty: path.endsWith('customer_research.md') })),
+      judge: { path: `.promax/judge/${taskKey}/judge.md`, state: 'absent', exists: false }, observedAt: new Date().toISOString(),
+    }
+    const projection = taskRunProjectionOf({
+      team, binding, taskState, files,
+      snapshot: {
+        // Historical prose deliberately mentions an old PRD and Judge; it is not a lifecycle source.
+        nodes: [
+          { kind: 'assistant', blocks: [{ kind: 'text', text: '读取上一任务 judge.md；旧 prd.md verdict pass' }] },
+          { kind: 'tool-result', callId: 'customer-call', call: { name: 'customer_research', argsRaw: '{}' }, content: [{ type: 'text', text: 'started subagent child-customer' }], isError: false },
+        ],
+        running: true,
+        runningCalls: [{ callId: 'requirement-call', name: 'requirement_management', argsRaw: '{}' }],
+      },
+      sessions: {
+        ids: [binding.sessionId, 'child-customer'], current: binding.sessionId, phase: 'ready',
+        byId: {
+          [binding.sessionId]: { id: binding.sessionId, displayTitle: taskKey, running: true, blank: false, updatedAt: 1 },
+          'child-customer': { id: 'child-customer', displayTitle: '客研', parentId: binding.sessionId, origin: 'subagent', running: false, completed: true, blank: false, updatedAt: 2 },
+        },
+      },
     })
-    const byPath = new Map(progress.artifacts.map(row => [row.artifact.relativePath, row]))
-    expect(progress.artifacts).toHaveLength(8)
-    expect(byPath.get('deliverables/{task_key}/prd.md')).toMatchObject({ generation: 'done', judgment: 'done' })
-    expect(byPath.get('deliverables/{task_key}/business-diagram.md')).toMatchObject({ generation: 'unverified', judgment: 'unverified' })
-    expect(byPath.get('deliverables/{task_key}/prototype.html')).toMatchObject({ generation: 'unverified', judgment: 'unverified' })
-    expect(byPath.get('deliverables/{task_key}/customer_research.md')).toMatchObject({ generation: 'unverified', judgment: 'unverified' })
-    expect(progress.delivery).toBe('done')
-    expect(progress.evidence).toBe('receipt')
-    expect(deliverableSummary(progress.artifacts)).toEqual({ ready: 1, involved: 6, optionalMissing: 2 })
-    expect(memberExecutionStateOf(team.members.find(member => member.memberId === 'solution_design')!, progress)).toBe('done')
-    expect(memberExecutionStateOf(team.members.find(member => member.memberId === 'quality_judge')!, progress)).toBe('done')
+    expect(Object.keys(projection.artifacts)).toEqual(artifactPaths)
+    expect(Object.keys(projection.artifacts).some(path => path.endsWith('/prd.md'))).toBe(false)
+    expect(projection.members.customer_research).toMatchObject({ state: 'done', childSessionIds: ['child-customer'], attempt: 1 })
+    expect(projection.members.requirement_management?.state).toBe('running')
+    expect(projection.members.quality_judge?.state).toBe('idle')
+    expect(projection.judge.state).toBe('pending')
+    const progress = teamProgressOf(team, projection)
+    expect(progress.artifacts.find(row => row.label === 'customer_research.md')).toMatchObject({ generation: 'done', judgment: 'pending' })
 
-    const judging = teamProgressOf(team, {
-      nodes: [{ kind: 'assistant', blocks: [{ kind: 'text', text: 'quality_judge 正在检查 deliverables/task-2/prd.md' }] }],
-      turnTimings: new Map(),
-      running: true,
-    })
-    const judgingByPath = new Map(judging.artifacts.map(row => [row.artifact.relativePath, row]))
-    expect(judgingByPath.get('deliverables/{task_key}/prd.md')?.judgment).toBe('running')
-    expect(judgingByPath.get('deliverables/{task_key}/customer_research.md')?.judgment).toBe('unverified')
-    expect(memberExecutionStateOf(team.members.find(member => member.memberId === 'solution_design')!, judging)).toBe('running')
-    expect(memberExecutionStateOf(team.members.find(member => member.memberId === 'customer_research')!, judging)).toBe('idle')
-    expect(memberExecutionStateOf(team.members.find(member => member.memberId === 'quality_judge')!, judging)).toBe('running')
+    for (const [fileState, expected] of [['pass', 'done'], ['fail', 'blocked'], ['appealed', 'appealed'], ['human_required', 'human-required'], ['force_released', 'force-released']] as const) {
+      const current = taskRunProjectionOf({ team, binding, taskState, files: { ...files, judge: { ...files.judge, state: fileState, exists: true } } })
+      expect(teamProgressOf(team, current).delivery).toBe(expected)
+      if (fileState === 'force_released') expect(current.members.quality_judge?.state).toBe('blocked')
+    }
   })
 })

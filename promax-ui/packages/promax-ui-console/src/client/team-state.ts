@@ -1,9 +1,11 @@
 import { useSyncExternalStore } from 'react'
 
+import { INFORMATION_KEYS, type InformationKey, type TaskSlotView, type TaskTier } from './task-planning.ts'
+
 export const PRODUCT_TEAM_ID = 'product-team'
 export const GENERAL_PRESET_ID = 'general'
-export const PRODUCT_PRESET_ID = 'promax-team-mtcjsbcz-04tpe2-r7'
-export const PRODUCT_TEAM_REVISION = 7
+export const PRODUCT_PRESET_ID = 'promax-team-mtcjsbcz-04tpe2-r12'
+export const PRODUCT_TEAM_REVISION = 12
 
 const SESSION_SCOPE_MAX_LENGTH = 40
 const RESERVED_SESSION_SCOPE = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?$/iu
@@ -57,11 +59,14 @@ export interface TeamMember {
   enabled: boolean
   moduleRef?: string
   instructions?: string
+  provides: InformationKey[]
+  requires: InformationKey[]
 }
 
 export interface TeamArtifactDefinition {
   relativePath: string
   producedBy: string
+  required?: boolean
 }
 
 export interface RuntimeTeamRoster {
@@ -114,6 +119,19 @@ export interface TeamSessionBinding {
   workspaceId?: string
   sessionName?: string
   taskKey?: string
+  tier?: TaskTier
+  coverageRevision?: number
+  taskPackagePath?: string
+  slots?: TaskSlotView[]
+  /** Frozen planning inputs retained only so the user can create a B2 coverage revision. */
+  confirmedHandoff?: string
+  requestedArtifactPaths?: string[]
+  /** Exact materialized user + internal artifact plan for this task; never inferred from transcript. */
+  artifactPaths?: string[]
+  coverageInformationKeys?: InformationKey[]
+  runState?: 'running' | 'stop_requested' | 'draining' | 'cancelled' | 'failed_to_stop'
+  runEpoch?: number
+  runStateUpdatedAt?: string
 }
 
 export type PromaxContext =
@@ -139,15 +157,17 @@ const PRODUCT_TEAM: PromaxTeam = {
     role: 'coordinator',
     enabled: true,
     moduleRef: 'team-coordinator@1',
+    provides: [],
+    requires: [],
   },
   members: [],
   artifacts: [],
   workspaceIds: [],
-  configurationSource: { kind: 'compat', label: '产品团队 r7 运行配置' },
+  configurationSource: { kind: 'compat', label: '产品团队 r12 运行配置' },
   provisioning: { state: 'ready' },
   promptDraft: {
     recipeId: 'product-compat',
-    teamInstructions: '成员名单由运行时已发布 r7 preset 同步，GUI 不另存一份静态 roster。',
+    teamInstructions: '成员名单与信息契约由运行时已发布 preset 同步，GUI 不另存一份静态 roster。',
     coordinatorInstructions: '固定团队配置保持只读，不由 GUI 覆盖已发布 persona。',
     importedSources: [],
   },
@@ -186,22 +206,41 @@ export function runtimeTeamRosterOf(content: string, expectedPresetId = PRODUCT_
     throw new Error('固定 preset 的团队版本或 preset id 不匹配')
   }
   const rows = snapshot[3] ?? ''
+  const informationContracts = content.match(/\n\s*信息契约：\s*\n([\s\S]*?)(?:\n\s*产物契约：|\n\s*##\s|$)/u)?.[1] ?? ''
+  const informationByMember = new Map([...informationContracts.matchAll(/^\s*-\s+`([^`]+)`：provides=`([^`]*)`；requires=`([^`]*)`\s*$/gmu)].map(match => [
+    match[1]!.trim(),
+    { provides: informationKeysOf(match[2]), requires: informationKeysOf(match[3]) },
+  ]))
   const members = [...rows.matchAll(/^\s*-\s+`([^`]+)`（([^）\n]+)）：(.+)$/gmu)].map(match => ({
     memberId: match[1]!.trim(),
     displayName: match[2]!.trim(),
     objective: match[3]!.trim(),
     role: 'worker' as const,
     enabled: true,
+    provides: informationByMember.get(match[1]!.trim())?.provides ?? [],
+    requires: informationByMember.get(match[1]!.trim())?.requires ?? [],
   }))
   if (members.length === 0 || new Set(members.map(member => member.memberId)).size !== members.length) {
     throw new Error('固定 preset 的成员名单为空或含重复 member_id')
   }
   const responsibilities = content.match(/\n\s*文件责任：\s*\n([\s\S]*?)(?:\n\s*稳定回执字段|\n\s*##\s|$)/u)?.[1] ?? ''
+  const artifactContracts = content.match(/\n\s*产物契约：\s*\n([\s\S]*?)(?:\n\s*##\s|$)/u)?.[1] ?? ''
+  const requiredByPath = new Map([...artifactContracts.matchAll(/^\s*-\s+`([^`]+)`：required=`(true|false)`\s*$/gmu)]
+    .map(match => [match[1]!.trim(), match[2] === 'true']))
   const artifacts = [...responsibilities.matchAll(/^\s*-\s+`([^`]+)`：([a-z][a-z0-9_]*)\s*$/gmu)].map(match => ({
     relativePath: match[1]!.trim(),
     producedBy: match[2]!.trim(),
+    required: requiredByPath.get(match[1]!.trim()) ?? false,
   }))
   return { presetId, revision, members, artifacts }
+}
+
+function informationKeysOf(value: string | undefined): InformationKey[] {
+  if (value === undefined || value.trim() === '') return []
+  const allowed = new Set<string>(INFORMATION_KEYS)
+  const keys = value.split(',').map(item => item.trim())
+  if (keys.some(key => !allowed.has(key)) || new Set(keys).size !== keys.length) throw new Error('固定 preset 的信息契约无效')
+  return keys as InformationKey[]
 }
 
 function artifactOf(value: unknown): TeamArtifactDefinition | null {
@@ -209,7 +248,12 @@ function artifactOf(value: unknown): TeamArtifactDefinition | null {
   const row = value as Record<string, unknown>
   const relativePath = nonEmpty(row.relativePath)
   const producedBy = nonEmpty(row.producedBy)
-  return relativePath === undefined || producedBy === undefined ? null : { relativePath, producedBy }
+  const required = typeof row.required === 'boolean' ? row.required : undefined
+  return relativePath === undefined || producedBy === undefined ? null : {
+    relativePath,
+    producedBy,
+    ...(required === undefined ? {} : { required }),
+  }
 }
 
 function memberOf(value: unknown, role: TeamMember['role']): TeamMember | null {
@@ -221,12 +265,16 @@ function memberOf(value: unknown, role: TeamMember['role']): TeamMember | null {
   if (memberId === undefined || displayName === undefined || row.role !== role || typeof row.enabled !== 'boolean') return null
   const moduleRef = nonEmpty(row.moduleRef)
   const instructions = typeof row.instructions === 'string' ? row.instructions : undefined
+  const provides = Array.isArray(row.provides) ? informationKeysOf(row.provides.join(',')) : []
+  const requires = Array.isArray(row.requires) ? informationKeysOf(row.requires.join(',')) : []
   return {
     memberId,
     displayName,
     objective,
     role,
     enabled: row.enabled,
+    provides,
+    requires,
     ...(moduleRef === undefined ? {} : { moduleRef }),
     ...(instructions === undefined ? {} : { instructions }),
   }
@@ -381,7 +429,99 @@ function bindingOf(value: unknown, teams: readonly PromaxTeam[]): TeamSessionBin
   const scope = sessionName !== undefined && taskKey === sessionName && validSessionScopeName(sessionName)
     ? { sessionName, taskKey }
     : {}
-  return { sessionId, teamId, revision, presetId, ...(workspaceId === undefined ? {} : { workspaceId }), ...scope }
+  const tier = row.tier === 'draft' || row.tier === 'single' || row.tier === 'team' ? row.tier : undefined
+  const coverageRevision = typeof row.coverageRevision === 'number' && Number.isSafeInteger(row.coverageRevision) && row.coverageRevision > 0
+    ? row.coverageRevision
+    : undefined
+  const taskPackagePath = nonEmpty(row.taskPackagePath)
+  const rawSlots = Array.isArray(row.slots) ? row.slots : undefined
+  const slots = rawSlots !== undefined
+    ? rawSlots.map(taskSlotOf).filter((slot): slot is TaskSlotView => slot !== null)
+    : undefined
+  const completeTaskState = scope.taskKey !== undefined && tier !== undefined && coverageRevision !== undefined
+    && taskPackagePath === `.promax/tasks/${scope.taskKey}/task-package.yml`
+    && slots !== undefined && slots.length === rawSlots?.length
+  const confirmedHandoff = nonEmpty(row.confirmedHandoff)
+  const rawRequestedArtifactPaths = Array.isArray(row.requestedArtifactPaths) ? row.requestedArtifactPaths : undefined
+  const requestedArtifactPaths = rawRequestedArtifactPaths?.map(nonEmpty).filter((path): path is string => path !== undefined)
+  const rawArtifactPaths = Array.isArray(row.artifactPaths) ? row.artifactPaths : undefined
+  const artifactPaths = rawArtifactPaths?.map(nonEmpty).filter((path): path is string => path !== undefined)
+  const rawCoverageInformationKeys = Array.isArray(row.coverageInformationKeys) ? row.coverageInformationKeys : undefined
+  let coverageInformationKeys: InformationKey[] | undefined
+  try {
+    coverageInformationKeys = rawCoverageInformationKeys === undefined
+      ? undefined
+      : informationKeysOf(rawCoverageInformationKeys.join(','))
+  } catch {
+    coverageInformationKeys = undefined
+  }
+  const completePlanningState = completeTaskState
+    && confirmedHandoff !== undefined
+    && requestedArtifactPaths !== undefined
+    && requestedArtifactPaths.length === rawRequestedArtifactPaths?.length
+    && new Set(requestedArtifactPaths).size === requestedArtifactPaths.length
+    && artifactPaths !== undefined
+    && artifactPaths.length === rawArtifactPaths?.length
+    && artifactPaths.length > 0
+    && new Set(artifactPaths).size === artifactPaths.length
+    && artifactPaths.every(path => path.startsWith(`deliverables/${scope.taskKey}/`) && !path.includes('..') && !path.includes('\\'))
+    && coverageInformationKeys !== undefined
+    && coverageInformationKeys.length === rawCoverageInformationKeys?.length
+  const runState = row.runState === 'running' || row.runState === 'stop_requested' || row.runState === 'draining' || row.runState === 'cancelled' || row.runState === 'failed_to_stop' ? row.runState : undefined
+  const runEpoch = typeof row.runEpoch === 'number' && Number.isSafeInteger(row.runEpoch) && row.runEpoch > 0 ? row.runEpoch : undefined
+  const runStateUpdatedAt = nonEmpty(row.runStateUpdatedAt)
+  return {
+    sessionId,
+    teamId,
+    revision,
+    presetId,
+    ...(workspaceId === undefined ? {} : { workspaceId }),
+    ...scope,
+    ...(completeTaskState ? { tier, coverageRevision, taskPackagePath, slots } : {}),
+    ...(completePlanningState ? {
+      confirmedHandoff: confirmedHandoff!,
+      requestedArtifactPaths: requestedArtifactPaths!,
+      artifactPaths: artifactPaths!,
+      coverageInformationKeys: coverageInformationKeys!,
+    } : {}),
+    ...(runState === undefined ? {} : { runState, ...(runEpoch === undefined ? {} : { runEpoch }), ...(runStateUpdatedAt === undefined ? {} : { runStateUpdatedAt }) }),
+  }
+}
+
+function taskSlotOf(value: unknown): TaskSlotView | null {
+  if (typeof value !== 'object' || value === null) return null
+  const row = value as Record<string, unknown>
+  const slotId = nonEmpty(row.slot_id)
+  const memberId = nonEmpty(row.member_id)
+  const label = nonEmpty(row.label)
+  const status = row.status
+  if (slotId === undefined || memberId === undefined || label === undefined
+    || !['provided', 'produced', 'pending', 'empty_non_blocking', 'gap'].includes(String(status))) return null
+  const provides = Array.isArray(row.provides) ? informationKeysOf(row.provides.join(',')) : []
+  const requires = Array.isArray(row.requires) ? informationKeysOf(row.requires.join(',')) : []
+  const missing = Array.isArray(row.missing) ? informationKeysOf(row.missing.join(',')) : []
+  if (!Array.isArray(row.satisfied_by)) return null
+  const satisfiedBy = row.satisfied_by.flatMap(value => {
+    if (typeof value !== 'object' || value === null) return []
+    const item = value as Record<string, unknown>
+    const sourceId = nonEmpty(item.source_id)
+    const informationKey = nonEmpty(item.information_key)
+    const locator = nonEmpty(item.locator)
+    if (sourceId === undefined || informationKey === undefined || locator === undefined
+      || !INFORMATION_KEYS.includes(informationKey as InformationKey)) return []
+    return [{ source_id: sourceId, information_key: informationKey as InformationKey, locator }]
+  })
+  if (satisfiedBy.length !== row.satisfied_by.length) return null
+  return {
+    slot_id: slotId,
+    member_id: memberId,
+    label,
+    status: status as TaskSlotView['status'],
+    provides,
+    requires,
+    satisfied_by: satisfiedBy,
+    missing,
+  }
 }
 
 function parseV2(raw: string): PromaxTeamState | null {
@@ -449,6 +589,8 @@ function draftTeam(
       objective: '拆解任务、路由成员、等待结算并执行终审。',
       role: 'coordinator',
       enabled: true,
+      provides: [],
+      requires: [],
     },
     members: [],
     artifacts: [],
@@ -633,6 +775,8 @@ export function addTeamWorker(teamId: string): void {
         objective: '',
         role: 'worker',
         enabled: true,
+        provides: [],
+        requires: [],
       }],
     }
   })
@@ -707,6 +851,15 @@ export function bindTeamSession(binding: TeamSessionBinding): void {
       ...current.sessionBindings.filter(item => item.sessionId !== binding.sessionId),
       binding,
     ],
+  }))
+}
+
+export function setTeamSessionRunState(sessionId: string, runState: 'running' | 'stop_requested' | 'draining' | 'cancelled' | 'failed_to_stop', updatedAt = new Date().toISOString()): void {
+  updateTeamState(current => ({
+    ...current,
+    sessionBindings: current.sessionBindings.map(binding => binding.sessionId === sessionId
+      ? { ...binding, runState, runStateUpdatedAt: updatedAt }
+      : binding),
   }))
 }
 

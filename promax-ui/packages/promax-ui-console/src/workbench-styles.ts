@@ -282,6 +282,9 @@ body:has(.promax-draft-chrome--empty) [data-chain-overlay-fallback="conversation
 .promax-artifact-stages [data-state="running"] i { background: var(--dsw-promax-blue); box-shadow: var(--dsw-promax-blue-glow); animation: promax-workbench-pulse 1.65s ease-in-out infinite; }
 .promax-artifact-stages [data-state="done"] i { background: var(--dsw-promax-green); box-shadow: var(--dsw-promax-green-glow); }
 .promax-artifact-stages [data-state="blocked"] i { background: var(--dsw-promax-red); }
+.promax-artifact-stages [data-state="appealed"] i,
+.promax-artifact-stages [data-state="human-required"] i,
+.promax-artifact-stages [data-state="force-released"] i { background: var(--dsw-promax-amber); }
 .team-note { margin: 16px 2px 0; padding: 12px; border: 1px solid var(--dsw-promax-shell-border); border-radius: 14px; background: var(--dsw-promax-team-note-background); color: var(--dsw-promax-text-muted-strong); box-shadow: var(--dsw-promax-shadow-sm); font-size: 9px; line-height: 1.6; }
 .toast { position: fixed; z-index: 80; left: 50%; bottom: 38px; display: flex; min-width: 280px; max-width: min(440px, calc(100vw - 32px)); align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--dsw-promax-toast-border); border-radius: 15px; background: var(--dsw-promax-toast-background); color: var(--dsw-promax-toast-text); box-shadow: var(--dsw-promax-toast-shadow); opacity: 0; pointer-events: none; transform: translate(-50%, 14px); transition: opacity 180ms ease, transform 180ms ease; backdrop-filter: blur(18px); font-size: 11px; font-weight: 650; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }

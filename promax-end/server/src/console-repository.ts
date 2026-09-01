@@ -2,6 +2,7 @@ import type {
   ArtifactKind,
   ConsoleArtifact,
   ConsoleTelemetrySeriesPoint,
+  TaskStateSnapshot,
   TelemetryEventType,
   TelemetryGroupBy,
   TelemetrySource,
@@ -40,6 +41,7 @@ export interface ConsoleRepository {
   countArtifactsSince(from: string): number
   listArtifacts(filter: ArtifactListFilter): { total: number; items: ConsoleArtifact[] }
   telemetrySeries(filter: TelemetrySeriesFilter): ConsoleTelemetrySeriesPoint[]
+  findTaskState(sessionId: string, taskKey: string): TaskStateSnapshot | null
 }
 
 interface UserFactsRow {
@@ -69,6 +71,17 @@ interface TelemetrySeriesRow {
   event_type: TelemetryEventType
   source: TelemetrySource
   count: number
+}
+
+interface TaskStateRow {
+  employee_id: string
+  project: string
+  session_id: string
+  task_key: string
+  tier: TaskStateSnapshot['tier']
+  coverage_revision: number
+  updated_at: string
+  slots: string
 }
 
 export class SqliteConsoleRepository implements ConsoleRepository {
@@ -204,5 +217,24 @@ export class SqliteConsoleRepository implements ConsoleRepository {
       source: row.source,
       count: row.count,
     }))
+  }
+
+  findTaskState(sessionId: string, taskKey: string): TaskStateSnapshot | null {
+    const row = this.database.prepare(`
+      SELECT employee_id, project, session_id, task_key, tier, coverage_revision, updated_at, slots
+      FROM task_states
+      WHERE session_id = ? AND task_key = ?
+    `).get(sessionId, taskKey) as TaskStateRow | undefined
+    if (!row) return null
+    return {
+      employee_id: row.employee_id,
+      project: row.project,
+      session_id: row.session_id,
+      task_key: row.task_key,
+      tier: row.tier,
+      coverage_revision: row.coverage_revision,
+      updated_at: row.updated_at,
+      slots: JSON.parse(row.slots) as TaskStateSnapshot['slots'],
+    }
   }
 }

@@ -1,0 +1,83 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://promax.local/schemas/task-package.schema.yml
+title: Promax TaskPackage
+type: object
+additionalProperties: false
+required: [api_version, kind, metadata, spec]
+properties:
+  api_version:
+    const: promax.ai/v1alpha2
+  kind:
+    const: TaskPackage
+  metadata:
+    type: object
+    additionalProperties: false
+    required: [task_key, team_revision_id, confirmed_at]
+    properties:
+      task_key:
+        type: string
+        minLength: 1
+      team_revision_id:
+        type: string
+        pattern: ^[a-z][a-z0-9-]{2,47}@r[1-9][0-9]*$
+      confirmed_at:
+        type: string
+        pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{3})?(?:Z|[+-][0-9]{2}:[0-9]{2})$
+  spec:
+    type: object
+    additionalProperties: false
+    required: [input_manifest_path, coverage_path, slots_path, requested_artifacts, handoff]
+    properties:
+      input_manifest_path:
+        type: string
+      coverage_path:
+        type: string
+      slots_path:
+        type: string
+      requested_artifacts:
+        type: array
+        uniqueItems: true
+        items:
+          type: string
+      handoff:
+        type: object
+        additionalProperties: false
+        required: [wanted, available, starting_point, known_gaps]
+        properties:
+          wanted:
+            type: string
+            minLength: 1
+          available:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              required: [source_id, information_keys]
+              properties:
+                source_id:
+                  type: string
+                information_keys:
+                  type: array
+                  uniqueItems: true
+                  items:
+                    $ref: '#/$defs/informationKey'
+          starting_point:
+            type: array
+            uniqueItems: true
+            items:
+              type: string
+          known_gaps:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              required: [information_key, handling]
+              properties:
+                information_key:
+                  $ref: '#/$defs/informationKey'
+                handling:
+                  type: string
+                  minLength: 1
+$defs:
+  informationKey:
+    enum: [goal, target_user, scenario, pain_point, scope, constraint, success_criteria, competitive_difference, requirements_priority]

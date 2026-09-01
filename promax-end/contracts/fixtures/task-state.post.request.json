@@ -1,0 +1,37 @@
+{
+  "employee_id": "10086",
+  "project": "脱敏演示",
+  "session_id": "session_demo_001",
+  "task_key": "task-20260831-001",
+  "tier": "single",
+  "coverage_revision": 2,
+  "updated_at": "2026-08-31T12:00:00-04:00",
+  "slots": [
+    {
+      "slot_id": "solution_design",
+      "member_id": "solution_design",
+      "label": "方案设计",
+      "status": "pending",
+      "provides": [
+        "scope",
+        "constraint"
+      ],
+      "requires": [
+        "goal",
+        "target_user",
+        "pain_point"
+      ],
+      "satisfied_by": [
+        {
+          "source_id": "SRC-001",
+          "information_key": "goal",
+          "locator": "公开需求说明.md 第 4–6 行"
+        }
+      ],
+      "missing": [
+        "target_user",
+        "pain_point"
+      ]
+    }
+  ]
+}

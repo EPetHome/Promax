@@ -64,7 +64,7 @@ test('compiled package activates through the real Cordis Loader and sends startu
     assert.equal(requests[0]?.path, '/api/v1/heartbeat')
     assert.deepEqual(requests[0]?.body, {
       employee_id: '10086',
-      client_version: '0.1.1',
+      client_version: '0.1.4',
       dsh_version: '0.1.1-rc.2',
       config_fingerprint: (requests[0]?.body.config_fingerprint as string),
     })
@@ -93,8 +93,10 @@ spec:
   artifacts:
     - kind: diagram
       relative_path: deliverables/{task_key}/business-diagram.md
+      produced_by: solution_design
     - kind: judge-report
       relative_path: .promax/judge/{task_key}/judge.md
+      produced_by: quality_judge
 `)
   const diagram = join(deliverables, 'business-diagram.md')
   const judge = join(judgeDirectory, 'judge.md')

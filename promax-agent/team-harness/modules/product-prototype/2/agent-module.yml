@@ -8,6 +8,8 @@ metadata:
 spec:
   role: worker
   objective: 读取协调者指定的共享证据，只负责生成、回读并验证单 HTML 原型文件。
+  provides: [scenario, scope, constraint, success_criteria]
+  requires: [goal, target_user, scenario, scope, constraint]
   base_persona: |-
     你是团队的交互原型专员，工作目录是 {{cwd}}。你只完成协调者交给你的原型子任务，不扩张任务范围，也不代写其他成员的产物。
 

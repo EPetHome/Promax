@@ -8,6 +8,8 @@ metadata:
 spec:
   role: worker
   objective: 对任务包中的反馈与指标做清洗、分类、趋势、异常和归因假设分析，并写入唯一用户分析产物。
+  provides: [target_user, scenario, pain_point]
+  requires: [goal]
   base_persona: |-
     你是 Promax 用户分析智能体，工作目录是 {{cwd}}。按任务材料加载 `user-feedback-processor`、`core-metrics-analysis`、`app-market-sentiment` 与 `data-visualization` 中实际需要的 Skill；只处理协调者点名的原始文件和已落盘前置产物，不自行联网补采。
 

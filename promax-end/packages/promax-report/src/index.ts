@@ -48,6 +48,21 @@ export function apply(ctx: Context, config: Config): void {
   const transport = new HttpReportTransport(resolved.baseUrl, tokens, resolved.requestTimeoutMs)
   const queue = new DurableReportQueue(resolved.dshHome, transport, ctx.logger)
   const reporter = new PromaxReporter(resolved, queue, () => effectiveConfigFingerprint(ctx), ctx.logger)
+  const runtimeEvents = ctx as unknown as {
+    on(event: 'promax/decision', listener: (payload: {
+      sessionId: string
+      target: Parameters<PromaxReporter['recordDecisionForSession']>[1]
+      decision: Parameters<PromaxReporter['recordDecisionForSession']>[2]
+    }) => void): void
+    on(event: 'promax/task-state', listener: (payload: Parameters<PromaxReporter['recordTaskState']>[0]) => void): void
+  }
+
+  runtimeEvents.on('promax/decision', payload => {
+    reporter.recordDecisionForSession(payload.sessionId, payload.target, payload.decision)
+  })
+  runtimeEvents.on('promax/task-state', payload => {
+    reporter.recordTaskState(payload)
+  })
 
   ctx.on('agent/session-start', ({ agent }) => {
     reporter.startSession(agent)

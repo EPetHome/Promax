@@ -29,7 +29,7 @@ describe('Promax dynamic team state', () => {
     resetTeamStateForTests()
   })
 
-  it('seeds the general entry and routes the fixed product team to r7 without a GUI-owned worker roster', () => {
+  it('seeds the general entry and routes the product team to the installed r12 snapshot without a GUI-owned worker roster', () => {
     const state = readTeamState()
     const product = state.teams.find(team => team.id === PRODUCT_TEAM_ID)
 
@@ -41,7 +41,7 @@ describe('Promax dynamic team state', () => {
       coordinator: { memberId: 'team_lead', displayName: '主智能体' },
       activeRevision: { revision: PRODUCT_TEAM_REVISION, presetId: PRODUCT_PRESET_ID },
     })
-    expect(PRODUCT_PRESET_ID).toBe('promax-team-mtcjsbcz-04tpe2-r7')
+    expect(PRODUCT_PRESET_ID).toBe('promax-team-mtcjsbcz-04tpe2-r12')
     expect(product?.members).toEqual([])
   })
 
@@ -52,12 +52,12 @@ describe('Promax dynamic team state', () => {
     expect(validSessionScopeName('../图书馆')).toBe(false)
   })
 
-  it('parses and syncs the installed r7 roster instead of hardcoding GUI members', () => {
+  it('parses and syncs the installed r12 roster and information contracts instead of hardcoding GUI members', () => {
     const roster = runtimeTeamRosterOf(`
       ## 已发布团队快照
 
-      - team revision：\`team-mtcjsbcz-04tpe2@r7\`
-      - preset：\`promax-team-mtcjsbcz-04tpe2-r7\`
+      - team revision：\`team-mtcjsbcz-04tpe2@r12\`
+      - preset：\`promax-team-mtcjsbcz-04tpe2-r12\`
 
       成员：
       - \`customer_research\`（客研管理智能体）：完成客户研究。
@@ -81,17 +81,29 @@ describe('Promax dynamic team state', () => {
       - \`deliverables/{task_key}/user_analysis.md\`：user_analysis
       - \`.promax/judge/{task_key}/judge.md\`：quality_judge
 
+      信息契约：
+      - \`customer_research\`：provides=\`target_user,scenario,pain_point\`；requires=\`goal\`
+      - \`product_discovery\`：provides=\`competitive_difference\`；requires=\`goal,target_user,scenario\`
+      - \`requirement_management\`：provides=\`scope,constraint,requirements_priority\`；requires=\`goal,scenario,pain_point\`
+      - \`solution_design\`：provides=\`goal,target_user,scenario,pain_point,scope,constraint,success_criteria,competitive_difference,requirements_priority\`；requires=\`goal,target_user,scenario,pain_point,constraint,requirements_priority\`
+      - \`requirement_review\`：provides=\`success_criteria\`；requires=\`goal,scope,constraint,success_criteria,requirements_priority\`
+      - \`user_analysis\`：provides=\`target_user,scenario,pain_point\`；requires=\`goal\`
+      - \`quality_judge\`：provides=\`\`；requires=\`\`
+
+      产物契约：
+      - \`deliverables/{task_key}/prd.md\`：required=\`true\`
+
       稳定回执字段（按顺序）：\`状态\`、\`产物\`、\`Judge判定\`
     `)
 
     syncProductTeamRuntimeRoster(roster)
     const product = readTeamState().teams.find(team => team.id === PRODUCT_TEAM_ID)
-    expect(product?.activeRevision).toEqual({ revision: 7, presetId: PRODUCT_PRESET_ID, status: 'published' })
+    expect(product?.activeRevision).toEqual({ revision: 12, presetId: PRODUCT_PRESET_ID, status: 'published' })
     expect(product?.members).toHaveLength(7)
     expect(product?.members.at(-1)).toMatchObject({ memberId: 'quality_judge', displayName: '独立 Judge' })
     expect(product?.artifacts).toHaveLength(9)
-    expect(product?.artifacts).toContainEqual({ relativePath: 'deliverables/{task_key}/business-diagram.md', producedBy: 'solution_design' })
-    expect(product?.artifacts).toContainEqual({ relativePath: '.promax/judge/{task_key}/judge.md', producedBy: 'quality_judge' })
+    expect(product?.artifacts).toContainEqual(expect.objectContaining({ relativePath: 'deliverables/{task_key}/business-diagram.md', producedBy: 'solution_design' }))
+    expect(product?.artifacts).toContainEqual(expect.objectContaining({ relativePath: '.promax/judge/{task_key}/judge.md', producedBy: 'quality_judge' }))
   })
 
   it('creates an editable draft instead of silently cloning product-solution', () => {
@@ -141,8 +153,8 @@ describe('Promax dynamic team state', () => {
     expect(team.activeRevision).toBeUndefined()
 
     applyTeamProvisioningResult(team.id, {
-      coordinator: { memberId: 'research_lead', displayName: '调研负责人', objective: '拆解与终审', role: 'coordinator', enabled: true },
-      members: [{ memberId: 'fact_checker', displayName: '事实核验员', objective: '核验来源', role: 'worker', enabled: true }],
+      coordinator: { memberId: 'research_lead', displayName: '调研负责人', objective: '拆解与终审', role: 'coordinator', enabled: true, provides: [], requires: [] },
+      members: [{ memberId: 'fact_checker', displayName: '事实核验员', objective: '核验来源', role: 'worker', enabled: true, provides: [], requires: [] }],
       state: 'ready',
       revision: { revision: 1, presetId: 'promax-team-research-r1', status: 'published' },
     })
@@ -185,7 +197,40 @@ describe('Promax dynamic team state', () => {
     })
   })
 
-  it('advances the fixed product team to r7 without migrating stored r3/r4 session bindings', () => {
+  it('persists complete frozen planning inputs for later coverage-only revisions', () => {
+    bindTeamSession({
+      sessionId: 'session-b2',
+      teamId: PRODUCT_TEAM_ID,
+      revision: PRODUCT_TEAM_REVISION,
+      presetId: PRODUCT_PRESET_ID,
+      workspaceId: 'product',
+      sessionName: '脱敏任务',
+      taskKey: '脱敏任务',
+      tier: 'single',
+      coverageRevision: 1,
+      taskPackagePath: '.promax/tasks/脱敏任务/task-package.yml',
+      slots: [],
+      confirmedHandoff: '## 要什么\n脱敏目标',
+      requestedArtifactPaths: ['deliverables/{task_key}/prd.md'],
+      artifactPaths: ['deliverables/脱敏任务/prd.md'],
+      coverageInformationKeys: ['goal'],
+      runState: 'draining',
+      runEpoch: 3,
+      runStateUpdatedAt: '2026-08-31T12:00:00.000Z',
+    })
+
+    resetTeamStateForTests()
+    expect(bindingForSession(readTeamState(), 'session-b2')).toMatchObject({
+      confirmedHandoff: '## 要什么\n脱敏目标',
+      requestedArtifactPaths: ['deliverables/{task_key}/prd.md'],
+      artifactPaths: ['deliverables/脱敏任务/prd.md'],
+      coverageInformationKeys: ['goal'],
+      runState: 'draining',
+      runEpoch: 3,
+    })
+  })
+
+  it('advances the product team to r12 without migrating stored r3/r4 session bindings', () => {
     const current = readTeamState()
     const r3PresetId = 'promax-team-mtcjsbcz-04tpe2-r3'
     const r4PresetId = 'promax-team-mtcjsbcz-04tpe2-r4'
@@ -193,7 +238,7 @@ describe('Promax dynamic team state', () => {
       ...current,
       teams: current.teams.map(team => team.id === PRODUCT_TEAM_ID ? {
         ...team,
-        members: [{ memberId: 'legacy_worker', displayName: '旧成员', objective: '旧版任务', role: 'worker', enabled: true }],
+        members: [{ memberId: 'legacy_worker', displayName: '旧成员', objective: '旧版任务', role: 'worker', enabled: true, provides: [], requires: [] }],
         activeRevision: { revision: 3, presetId: r3PresetId, status: 'published' },
       } : team),
       sessionBindings: [{
@@ -215,7 +260,7 @@ describe('Promax dynamic team state', () => {
     const restored = readTeamState()
     const product = restored.teams.find(team => team.id === PRODUCT_TEAM_ID)
 
-    expect(product?.activeRevision).toEqual({ revision: 7, presetId: PRODUCT_PRESET_ID, status: 'published' })
+    expect(product?.activeRevision).toEqual({ revision: 12, presetId: PRODUCT_PRESET_ID, status: 'published' })
     expect(product?.members).toEqual([])
     expect(bindingForSession(restored, 'product-session-r3')).toEqual({
       sessionId: 'product-session-r3',

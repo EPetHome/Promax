@@ -7,8 +7,8 @@ import { PRODUCT_PRESET_ID, PRODUCT_TEAM_ID, resetTeamStateForTests, selectTeamS
 const runtimePresetContent = `
   ## 已发布团队快照
 
-  - team revision：\`team-mtcjsbcz-04tpe2@r7\`
-  - preset：\`promax-team-mtcjsbcz-04tpe2-r7\`
+  - team revision：\`team-mtcjsbcz-04tpe2@r12\`
+  - preset：\`promax-team-mtcjsbcz-04tpe2-r12\`
 
   成员：
   - \`customer_research\`（客研管理智能体）：完成客户研究。
@@ -38,19 +38,46 @@ describe('Promax shell registration', () => {
     const read = vi.fn(async () => ({ result: { ok: true as const, value: { agentPreset: PRODUCT_PRESET_ID, content: runtimePresetContent } } }))
     const select = vi.fn(async () => ({ result: { ok: true as const, value: { agentPreset: PRODUCT_PRESET_ID } } }))
     const createSession = vi.fn(async () => ({ result: { ok: true as const, value: { sessionId: 'session-new', agentPreset: PRODUCT_PRESET_ID } } }))
-    const interrupt = vi.fn(async () => ({ result: { ok: true as const, value: { accepted: true as const } } }))
-    const cancel = vi.fn(async () => ({ ok: true as const, value: { accepted: true as const } }))
+    let listState: {
+      ids: string[]
+      byId: Record<string, { id: string; displayTitle: string; agentPreset?: string; parentId?: string; origin?: 'subagent'; running: boolean; blank: boolean; updatedAt: number }>
+      current: undefined
+      phase: string
+    }
+    const interrupt = vi.fn(async ({ childSessionId }: { childSessionId: string }) => {
+      const child = listState.byId[childSessionId]
+      if (child !== undefined) child.running = false
+      // continuable child-settled wakes the waiting parent; the stop flow must still drain it.
+      const parent = listState.byId['product-session']
+      if (parent !== undefined) parent.running = true
+      return { result: { ok: true as const, value: { accepted: true as const } } }
+    })
+    const cancel = vi.fn(async () => {
+      const parent = listState.byId['product-session']
+      if (parent !== undefined) parent.running = false
+      return { ok: true as const, value: { accepted: true as const } }
+    })
     const sessionSnapshot = { running: false }
-    const fetchMock = vi.fn(async () => new Response(JSON.stringify({
-      workspaceId: 'workspace-new', path: '/tmp/Promax/云盘项目', title: '云盘项目', sessionIds: [],
-    }), { status: 200, headers: { 'content-type': 'application/json' } }))
+    let runState: 'running' | 'stop_requested' | 'draining' | 'cancelled' | 'failed_to_stop' = 'running'
+    const controlRequests: string[] = []
+    const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+      if (url.endsWith('/task-run/control')) {
+        const body = JSON.parse(String(init?.body)) as { state: typeof runState }
+        controlRequests.push(body.state)
+        if (runState !== 'cancelled') runState = body.state
+        return new Response(JSON.stringify({ state: runState, runEpoch: 1 }), { status: 200, headers: { 'content-type': 'application/json' } })
+      }
+      return new Response(JSON.stringify({ workspaceId: 'workspace-new', path: '/tmp/Promax/云盘项目', title: '云盘项目', sessionIds: [] }), { status: 200, headers: { 'content-type': 'application/json' } })
+    })
     vi.stubGlobal('fetch', fetchMock)
-    const listState = {
-      ids: ['session-new'],
+    listState = {
+      ids: ['session-new', 'product-session', 'worker-1'],
       byId: {
         'session-new': {
           id: 'session-new', displayTitle: '新会话', agentPreset: 'promax-team-mtcjsbcz-04tpe2-r4', running: false, blank: true, updatedAt: 1,
         },
+        'product-session': { id: 'product-session', displayTitle: '产品任务', running: false, blank: false, updatedAt: 2 },
+        'worker-1': { id: 'worker-1', displayTitle: '客研', parentId: 'product-session', origin: 'subagent', running: true, blank: false, updatedAt: 3 },
       },
       current: undefined,
       phase: 'ready',
@@ -161,7 +188,7 @@ describe('Promax shell registration', () => {
     const actions = (shellEntry?.options.inject as (() => {
       startSession(workspaceId: string, presetId: string): Promise<string>
       createProjectWorkspace(input: { projectName: string; parentPath?: string }): Promise<{ workspaceId: string; path: string; title: string }>
-      stopTeamDescendants(targets: Array<{ sessionId: string; parentSessionId: string }>): Promise<void>
+      stopTeamTask(input: { workspaceId: string; projectPath: string; sessionId: string; taskKey: string; runEpoch: number }): Promise<{ state: 'cancelled'; runEpoch: number }>
     }))()
     await expect(actions.startSession('product', PRODUCT_PRESET_ID)).resolves.toBe('session-new')
     expect(createSession).toHaveBeenCalledWith({ workspaceId: 'product', agentPreset: PRODUCT_PRESET_ID })
@@ -169,13 +196,25 @@ describe('Promax shell registration', () => {
     expect(noteAgentPreset).toHaveBeenCalledWith('session-new', PRODUCT_PRESET_ID)
     expect(open).not.toHaveBeenCalled()
 
-    await expect(actions.stopTeamDescendants([{ sessionId: 'worker-1', parentSessionId: 'product-session' }])).resolves.toBeUndefined()
+    await expect(actions.stopTeamTask({ workspaceId: 'product', projectPath: '/tmp/Promax/产品', sessionId: 'product-session', taskKey: '脱敏任务', runEpoch: 1 })).resolves.toEqual({ state: 'cancelled', runEpoch: 1 })
     expect(interrupt).toHaveBeenCalledWith({ parentSessionId: 'product-session', childSessionId: 'worker-1', mode: 'continuable' })
+    expect(controlRequests).toEqual(['stop_requested', 'draining', 'cancelled'])
+    const interruptsAfterFirstStop = interrupt.mock.calls.length
+    const cancelsAfterFirstStop = cancel.mock.calls.length
+    await expect(actions.stopTeamTask({ workspaceId: 'product', projectPath: '/tmp/Promax/产品', sessionId: 'product-session', taskKey: '脱敏任务', runEpoch: 1 })).resolves.toEqual({ state: 'cancelled', runEpoch: 1 })
+    expect(interrupt).toHaveBeenCalledTimes(interruptsAfterFirstStop)
+    expect(cancel).toHaveBeenCalledTimes(cancelsAfterFirstStop)
+
+    runState = 'failed_to_stop'
+    controlRequests.length = 0
+    await expect(actions.stopTeamTask({ workspaceId: 'product', projectPath: '/tmp/Promax/产品', sessionId: 'product-session', taskKey: '脱敏任务', runEpoch: 1 })).resolves.toEqual({ state: 'cancelled', runEpoch: 1 })
+    expect(controlRequests).toEqual(['stop_requested', 'draining', 'cancelled'])
+    const cancelsAfterRetry = cancel.mock.calls.length
 
     const composerEntry = registrations.find(entry => entry.options.name === 'conversation.composer.bar')
     const composerInjected = (composerEntry?.options.inject as ((sessionId: string) => { stop(): Promise<void> }))('product-session')
     await expect(composerInjected.stop()).resolves.toBeUndefined()
-    expect(cancel).toHaveBeenCalledOnce()
+    expect(cancel).toHaveBeenCalledTimes(cancelsAfterRetry + 1)
 
     await expect(actions.createProjectWorkspace({ projectName: '云盘项目' })).resolves.toMatchObject({ title: '云盘项目', path: '/tmp/Promax/云盘项目' })
     expect(fetchMock).toHaveBeenCalledWith('/promax-workspace-api/project', expect.objectContaining({ method: 'POST' }))

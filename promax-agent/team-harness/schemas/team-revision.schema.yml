@@ -65,6 +65,11 @@ properties:
         minItems: 1
         items:
           $ref: '#/$defs/member'
+      information_vocabulary:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/informationKey'
       skills:
         type: array
         uniqueItems: true
@@ -309,6 +314,29 @@ allOf:
               items:
                 type: object
                 required: [kind, validation_kind, relative_path, produced_by, required]
+  - if:
+      properties:
+        metadata:
+          type: object
+          required: [revision]
+          properties:
+            revision:
+              type: integer
+              minimum: 10
+    then:
+      properties:
+        spec:
+          type: object
+          required: [information_vocabulary]
+          properties:
+            coordinator:
+              type: object
+              required: [provides, requires]
+            members:
+              type: array
+              items:
+                type: object
+                required: [provides, requires]
 $defs:
   member:
     type: object
@@ -336,3 +364,24 @@ $defs:
         type: array
         items:
           type: string
+      provides:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/informationKey'
+      requires:
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/informationKey'
+  informationKey:
+    enum:
+      - goal
+      - target_user
+      - scenario
+      - pain_point
+      - scope
+      - constraint
+      - success_criteria
+      - competitive_difference
+      - requirements_priority

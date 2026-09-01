@@ -6,11 +6,31 @@ export type Sha256 = string
 
 export type EmployeeRole = 'member' | 'admin'
 export type ArtifactKind = 'prd' | 'diagram' | 'prototype' | 'other'
-export type TelemetryEventType = 'agent' | 'skill' | 'chat'
+export type TelemetryEventType = 'agent' | 'skill' | 'chat' | 'decision'
+export type LegacyTelemetryEventType = Exclude<TelemetryEventType, 'decision'>
+export type DecisionTarget =
+  | 'handoff.confirm'
+  | 'handoff.edit'
+  | 'coverage.override'
+  | 'task.abandon'
+  | 'judge.force-release'
+  | 'judge.appeal'
 export type TelemetrySource = 'hook' | 'llm'
 export type TelemetryStatus = 'success' | 'failed'
 export type UserReportStatus = 'ok' | 'stale' | 'never'
 export type TelemetryGroupBy = 'day' | 'user' | 'target'
+export type TaskTier = 'draft' | 'single' | 'team'
+export type TaskSlotStatus = 'provided' | 'produced' | 'pending' | 'empty_non_blocking' | 'gap'
+export type InformationKey =
+  | 'goal'
+  | 'target_user'
+  | 'scenario'
+  | 'pain_point'
+  | 'scope'
+  | 'constraint'
+  | 'success_criteria'
+  | 'competitive_difference'
+  | 'requirements_priority'
 export type ApiErrorCode =
   | 'UNAUTHORIZED'
   | 'VALIDATION'
@@ -200,16 +220,37 @@ export interface ArtifactDuplicateResponse {
 
 export type ArtifactUploadResponse = ArtifactCreatedResponse | ArtifactDuplicateResponse
 
-export interface TelemetryPostRequest {
+export interface TelemetryPostRequestBase {
   employee_id: string
-  event_type: TelemetryEventType
-  target: string
   source: TelemetrySource
   session_id: string
   occurred_at: IsoDateTime
   output_files: string[]
   status: TelemetryStatus
 }
+
+export interface LegacyTelemetryPostRequest extends TelemetryPostRequestBase {
+  event_type: LegacyTelemetryEventType
+  target: string
+  decision?: never
+}
+
+export interface TelemetryDecision {
+  task_key: string
+  revision?: number
+  subject?: string
+  before?: unknown
+  after?: unknown
+  reason?: string
+}
+
+export interface DecisionTelemetryPostRequest extends TelemetryPostRequestBase {
+  event_type: 'decision'
+  target: DecisionTarget
+  decision: TelemetryDecision
+}
+
+export type TelemetryPostRequest = LegacyTelemetryPostRequest | DecisionTelemetryPostRequest
 
 export type TelemetryPostResponse = Record<string, never>
 
@@ -221,6 +262,44 @@ export interface HeartbeatPostRequest {
 }
 
 export type HeartbeatPostResponse = Record<string, never>
+
+export interface TaskSlotSatisfaction {
+  source_id: string
+  information_key: InformationKey
+  locator: string
+}
+
+export interface TaskSlot {
+  slot_id: string
+  member_id: string
+  label: string
+  status: TaskSlotStatus
+  provides: InformationKey[]
+  requires: InformationKey[]
+  satisfied_by: TaskSlotSatisfaction[]
+  missing: InformationKey[]
+}
+
+export interface TaskStateSnapshot {
+  employee_id: string
+  project: string
+  session_id: string
+  task_key: string
+  tier: TaskTier
+  coverage_revision: number
+  updated_at: IsoDateTime
+  slots: TaskSlot[]
+}
+
+export type TaskStatePostRequest = TaskStateSnapshot
+export type TaskStatePostResponse = TaskStateSnapshot
+
+export interface ConsoleTaskStateQuery {
+  session_id: string
+  task_key: string
+}
+
+export type ConsoleTaskStateResponse = TaskStateSnapshot
 
 export interface ConsoleOverviewResponse {
   users_total: number

@@ -31,7 +31,7 @@ properties:
   spec:
     type: object
     additionalProperties: false
-    required: [role, objective, base_persona, skill_refs, artifacts, validation_profile_id]
+    required: [role, objective, base_persona, skill_refs, provides, requires, artifacts, validation_profile_id]
     properties:
       role:
         enum: [coordinator, worker]
@@ -50,6 +50,18 @@ properties:
         items:
           type: string
           pattern: ^[a-z][a-z0-9-]{2,63}@[1-9][0-9]*$
+      provides:
+        description: 本 module 产物可提供的信息项；所有 module 的 provides 去重后形成团队词表。
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/informationKey'
+      requires:
+        description: 开工所需信息项；必须属于当前团队 provides 去重得到的词表。
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/informationKey'
       tool_profile_id:
         type: string
         pattern: ^[a-z][a-z0-9-]{2,47}$
@@ -103,3 +115,15 @@ properties:
             anyOf:
               - required: [tool_profile_id]
               - required: [delegation]
+$defs:
+  informationKey:
+    enum:
+      - goal
+      - target_user
+      - scenario
+      - pain_point
+      - scope
+      - constraint
+      - success_criteria
+      - competitive_difference
+      - requirements_priority

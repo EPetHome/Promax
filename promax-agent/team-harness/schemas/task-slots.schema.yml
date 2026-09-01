@@ -1,0 +1,81 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://promax.local/schemas/task-slots.schema.yml
+title: Promax TaskSlots
+type: object
+additionalProperties: false
+required: [api_version, kind, metadata, spec]
+properties:
+  api_version:
+    const: promax.ai/v1alpha2
+  kind:
+    const: TaskSlots
+  metadata:
+    type: object
+    additionalProperties: false
+    required: [task_key, team_revision_id, coverage_revision, computed_at]
+    properties:
+      task_key:
+        type: string
+        minLength: 1
+      team_revision_id:
+        type: string
+      coverage_revision:
+        type: integer
+        minimum: 1
+      computed_at:
+        type: string
+        pattern: ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{3})?(?:Z|[+-][0-9]{2}:[0-9]{2})$
+  spec:
+    type: object
+    additionalProperties: false
+    required: [tier, slots]
+    properties:
+      tier:
+        enum: [draft, single, team]
+      slots:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required: [slot_id, member_id, label, status, provides, requires, satisfied_by, missing]
+          properties:
+            slot_id:
+              type: string
+            member_id:
+              type: string
+            label:
+              type: string
+            status:
+              enum: [provided, produced, pending, empty_non_blocking, gap]
+            provides:
+              type: array
+              uniqueItems: true
+              items:
+                $ref: '#/$defs/informationKey'
+            requires:
+              type: array
+              uniqueItems: true
+              items:
+                $ref: '#/$defs/informationKey'
+            satisfied_by:
+              type: array
+              items:
+                type: object
+                additionalProperties: false
+                required: [source_id, information_key, locator]
+                properties:
+                  source_id:
+                    type: string
+                  information_key:
+                    $ref: '#/$defs/informationKey'
+                  locator:
+                    type: string
+                    minLength: 1
+            missing:
+              type: array
+              uniqueItems: true
+              items:
+                $ref: '#/$defs/informationKey'
+$defs:
+  informationKey:
+    enum: [goal, target_user, scenario, pain_point, scope, constraint, success_criteria, competitive_difference, requirements_priority]

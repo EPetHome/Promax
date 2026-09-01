@@ -1,0 +1,4 @@
+interface:
+  display_name: "交互原型质量验收"
+  short_description: "检查自包含HTML原型的结构、交互、响应式和可访问性"
+  default_prompt: "Use $prototype-quality-audit to validate this self-contained HTML prototype and report blocking issues."
