@@ -17,4 +17,4 @@ spec:
       sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
       media_type: application/pdf
       readable_by:
-        - product_prd_agent
+        - solution_design

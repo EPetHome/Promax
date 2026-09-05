@@ -68,10 +68,4 @@ describe('console color policy', () => {
     expect(source).toContain('.main-column::before')
   })
 
-  it('renders the draft boundary as a high-visibility yellow banner', () => {
-    const source = readFileSync(resolve(process.cwd(), 'packages/promax-ui-console/src/workbench-styles.ts'), 'utf8')
-    expect(source).toContain('background: var(--dsw-promax-draft-banner-background)')
-    expect(source).toContain('border-bottom: 1px solid var(--dsw-promax-draft-banner-border)')
-    expect(source).toContain('color: var(--dsw-promax-draft-banner-text)')
-  })
 })

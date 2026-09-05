@@ -43,14 +43,3 @@ failure_policy:
   unpublished_team_revision: reject-session-create
   missing_preset: reject-session-create
   fallback_preset: none
-
-# 周五 P0 兼容层。只为现有 product-solution TeamTemplate/TeamInstance 保留，
-# 不作为新动态团队缺少 TeamRevision 时的通用回退。
-compatibility:
-  legacy_team_templates:
-    - team_template_id: product-solution
-      template_revision: 1
-      preset_id: product-solution
-      allowed_for_new_p0_instances: true
-  existing_session_policy: keep-recorded-preset
-  sunset_condition: product-solution-template-migrated-to-team-revision

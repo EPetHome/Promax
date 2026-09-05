@@ -1,0 +1,86 @@
+# Source Credibility Configuration
+# Used to prioritize and validate search results
+
+# Trusted domains with credibility levels
+# Higher level = more trustworthy
+trusted_sources:
+  - level: 3  # Official sources
+    domains:
+      - ".com"
+      - ".io"
+      - ".dev"
+      - ".ai"
+    description: "Official company/product websites"
+
+  - level: 2  # Established tech media
+    domains:
+      - "techcrunch.com"
+      - "venturebeat.com"
+      - "theverge.com"
+      - "wired.com"
+      - "arstechnica.com"
+      - "zdnet.com"
+      - "infoq.com"
+      - "36kr.com"
+      - "sspai.com"
+      - "ifanr.com"
+      - "jiqizhixin.com"
+    description: "Established technology media outlets"
+
+  - level: 1  # Knowledge platforms
+    domains:
+      - "wikipedia.org"
+      - "github.com"
+      - "producthunt.com"
+      - "stackoverflow.com"
+      - "zhihu.com"
+    description: "Community knowledge platforms"
+
+# Domains to exclude from analysis
+excluded_domains:
+  - "google.com/search"
+  - "bing.com/search"
+  - "youtube.com"
+  - "twitter.com"
+  - "x.com"
+  - "facebook.com"
+  - "reddit.com"
+  - "linkedin.com/company"
+  - "g2.com"
+  - "capterra.com"
+  - "trustpilot.com"
+  - "pinterest.com"
+  - "quora.com"
+
+# Search intent templates
+# Used by search_strategy.md to generate queries
+search_intents:
+  official_info:
+    priority: 1
+    queries:
+      - "{product} official website"
+      - "{product} 官网"
+
+  product_features:
+    priority: 2
+    queries:
+      - "{product} features"
+      - "{product} 核心功能"
+
+  pricing:
+    priority: 3
+    queries:
+      - "{product} pricing"
+      - "{product} 价格 定价"
+
+  competitors:
+    priority: 4
+    queries:
+      - "{product} alternatives competitors"
+      - "{product} 替代方案 竞品"
+
+  reviews:
+    priority: 5
+    queries:
+      - "{product} review pros cons"
+      - "{product} 评价 优缺点"

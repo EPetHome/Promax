@@ -133,3 +133,69 @@ test('large artifact is snapshotted with sha and resumable progress before deliv
     await rm(home, { recursive: true, force: true })
   }
 })
+
+test('Feishu delivery progress is durable and resumes without repeating completed stages', async () => {
+  const home = await mkdtemp(join(tmpdir(), 'promax-report-feishu-progress-'))
+  try {
+    let first = true
+    const restored: unknown[] = []
+    const transport: ReportTransport = {
+      async deliver(request) {
+        assert.equal(request.path, '/feishu/v1/run')
+        restored.push(structuredClone(request.deliveryState))
+        if (first) {
+          first = false
+          await request.persistDeliveryState?.({ docToken: 'doc-1', docUrl: 'https://example.test/doc-1' })
+          return { kind: 'retry', message: 'offline after document import' }
+        }
+        return { kind: 'success', status: 200 }
+      },
+    }
+    const queue = new DurableReportQueue(home, transport, logger, 'feishu-outbox')
+    queue.submit({ path: '/feishu/v1/run', body: { sessionId: 'session-1' } })
+    await queue.idle()
+    assert.equal((await readdir(queue.outboxDirectory)).filter(name => name.endsWith('.jsonl')).length, 1)
+
+    queue.flush()
+    await queue.idle()
+    assert.deepEqual(restored, [undefined, { docToken: 'doc-1', docUrl: 'https://example.test/doc-1' }])
+    assert.deepEqual((await readdir(queue.outboxDirectory)).filter(name => name.endsWith('.jsonl')), [])
+  } finally {
+    await rm(home, { recursive: true, force: true })
+  }
+})
+
+test('a valid Feishu 4xx dead letter is requeued only after target configuration changes', async () => {
+  const home = await mkdtemp(join(tmpdir(), 'promax-report-feishu-reconfigure-'))
+  try {
+    let result: DeliveryResult = { kind: 'dead', status: 400, message: 'bad app token' }
+    let attempts = 0
+    const transport: ReportTransport = {
+      async deliver() {
+        attempts += 1
+        return result
+      },
+    }
+    const queue = new DurableReportQueue(home, transport, logger, 'feishu-outbox')
+    queue.submit({ path: '/feishu/v1/run', body: { sessionId: 'session-reconfigure' } })
+    await queue.idle()
+
+    const deadFiles = (await readdir(queue.deadDirectory)).filter(name => name.endsWith('.jsonl'))
+    assert.equal(deadFiles.length, 1)
+    const dead = JSON.parse(await readFile(join(queue.deadDirectory, deadFiles[0]!), 'utf8')) as Record<string, unknown>
+    assert.equal(dead.status, 400)
+    assert.equal(dead.error, 'bad app token')
+    assert.equal(dead.attempts, 1)
+    assert.match(String(dead.lastAttemptAt), /^\d{4}-\d{2}-\d{2}T/u)
+    assert.equal((await readdir(queue.outboxDirectory)).filter(name => name.endsWith('.jsonl')).length, 0)
+
+    result = { kind: 'success', status: 200 }
+    queue.retryDead()
+    await queue.idle()
+    assert.equal(attempts, 2)
+    assert.deepEqual((await readdir(queue.deadDirectory)).filter(name => name.endsWith('.jsonl')), [])
+    assert.deepEqual((await readdir(queue.outboxDirectory)).filter(name => name.endsWith('.jsonl')), [])
+  } finally {
+    await rm(home, { recursive: true, force: true })
+  }
+})

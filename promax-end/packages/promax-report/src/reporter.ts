@@ -26,7 +26,12 @@ import {
 
 export interface SessionLike {
   readonly id: string
-  readonly header: { readonly cwd?: string; readonly agentPreset?: string }
+  readonly header: {
+    readonly cwd?: string
+    readonly agentPreset?: string
+    readonly parentSession?: string
+    readonly origin?: string
+  }
   readonly events: readonly unknown[]
 }
 
@@ -36,6 +41,7 @@ export interface AgentLike {
 }
 
 export interface ToolExecutionLike {
+  readonly callId?: string
   readonly name: string
   readonly arguments: unknown
   readonly agent?: AgentLike

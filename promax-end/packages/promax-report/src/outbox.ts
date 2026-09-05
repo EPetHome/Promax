@@ -18,6 +18,11 @@ interface QueueEnvelope {
   created_at: string
   path: ReportRequest['path']
   body: unknown
+  error?: string
+  status?: number
+  attempts?: number
+  lastAttemptAt?: string
+  delivery_state?: unknown
   file?: QueueFileState
 }
 
@@ -45,8 +50,10 @@ export class DurableReportQueue {
     dshHome: string,
     private readonly transport: ReportTransport,
     private readonly logger: ReportLogger,
+    directoryName = 'outbox',
   ) {
-    this.outboxDirectory = join(dshHome, 'promax', 'outbox')
+    if (!/^[a-z0-9][a-z0-9-]{0,63}$/u.test(directoryName)) throw new Error('invalid report outbox directory name')
+    this.outboxDirectory = join(dshHome, 'promax', directoryName)
     this.deadDirectory = join(this.outboxDirectory, 'dead')
     this.blobDirectory = join(this.outboxDirectory, 'blobs')
   }
@@ -83,6 +90,39 @@ export class DurableReportQueue {
 
   flush(): void {
     this.schedule(async () => {
+      await this.flushPending()
+    })
+  }
+
+  /**
+   * Requeue well-formed dead letters for this queue after an operator changes
+   * the external target configuration. Malformed envelopes remain quarantined.
+   */
+  retryDead(): void {
+    this.schedule(async () => {
+      await this.ensureDirectories()
+      const files = (await readdir(this.deadDirectory, { withFileTypes: true }))
+        .filter(entry => entry.isFile() && entry.name.endsWith('.jsonl'))
+        .map(entry => entry.name)
+        .sort((left, right) => left.localeCompare(right))
+      for (const filename of files) {
+        const deadPath = join(this.deadDirectory, filename)
+        let envelope: QueueEnvelope
+        try {
+          envelope = await this.readEnvelope(deadPath)
+        } catch {
+          continue
+        }
+        if (envelope.path !== '/feishu/v1/run' || envelope.file !== undefined) continue
+        const pendingPath = join(this.outboxDirectory, filename)
+        try {
+          await copyFile(deadPath, pendingPath, constants.COPYFILE_EXCL)
+          await unlink(deadPath)
+          this.logger.debug(`promax-report requeued dead letter ${filename} after target configuration changed`)
+        } catch (error: unknown) {
+          if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
+        }
+      }
       await this.flushPending()
     })
   }
@@ -149,8 +189,14 @@ export class DurableReportQueue {
     if (!parsed || typeof parsed !== 'object') throw new Error(`invalid outbox envelope ${basename(path)}`)
     const candidate = parsed as Partial<QueueEnvelope>
     if (candidate.version !== 1 || typeof candidate.id !== 'string' || typeof candidate.created_at !== 'string'
-      || !['/api/v1/artifacts', '/api/v1/telemetry', '/api/v1/heartbeat', '/api/v1/task-state'].includes(candidate.path ?? '')) {
+      || !['/api/v1/artifacts', '/api/v1/telemetry', '/api/v1/heartbeat', '/api/v1/task-state', '/feishu/v1/run'].includes(candidate.path ?? '')) {
       throw new Error(`invalid outbox envelope ${basename(path)}`)
+    }
+    if ((candidate.error !== undefined && typeof candidate.error !== 'string')
+      || (candidate.status !== undefined && !Number.isSafeInteger(candidate.status))
+      || (candidate.attempts !== undefined && (!Number.isSafeInteger(candidate.attempts) || candidate.attempts < 0))
+      || (candidate.lastAttemptAt !== undefined && typeof candidate.lastAttemptAt !== 'string')) {
+      throw new Error(`invalid delivery metadata in ${basename(path)}`)
     }
     if (candidate.file !== undefined) {
       if (candidate.path !== '/api/v1/artifacts' || typeof candidate.file.blob !== 'string'
@@ -185,8 +231,10 @@ export class DurableReportQueue {
         continue
       }
       if (result.kind === 'dead') {
+        this.markDead(envelope, result.status, result.message)
+        await this.replaceEnvelope(path, envelope)
         await this.moveToDead(path, envelope)
-        this.logger.warn(`promax-report moved ${filename} to dead after HTTP ${result.status}`)
+        this.logger.warn(`promax-report moved ${filename} to dead after HTTP ${result.status}: ${result.message}`)
         continue
       }
       this.logger.debug(`promax-report recovery paused: ${result.message}`)
@@ -196,7 +244,21 @@ export class DurableReportQueue {
   }
 
   private async deliverEnvelope(path: string, envelope: QueueEnvelope) {
-    if (!envelope.file) return this.transport.deliver({ path: envelope.path, body: envelope.body })
+    envelope.attempts = (envelope.attempts ?? 0) + 1
+    envelope.lastAttemptAt = new Date().toISOString()
+    await this.replaceEnvelope(path, envelope)
+    if (!envelope.file) {
+      if (envelope.path !== '/feishu/v1/run') return this.transport.deliver({ path: envelope.path, body: envelope.body })
+      return this.transport.deliver({
+        path: envelope.path,
+        body: envelope.body,
+        ...(envelope.delivery_state === undefined ? {} : { deliveryState: envelope.delivery_state }),
+        persistDeliveryState: async (state) => {
+          envelope.delivery_state = state
+          await this.replaceEnvelope(path, envelope)
+        },
+      })
+    }
     const filePath = join(this.blobDirectory, envelope.file.blob)
     return this.transport.deliver({
       path: '/api/v1/artifacts',
@@ -211,14 +273,35 @@ export class DurableReportQueue {
   }
 
   private async deliverNew(envelope: QueueEnvelope): Promise<void> {
-    const result = await this.transport.deliver({ path: envelope.path, body: envelope.body })
-    if (result.kind === 'success') return
-    if (result.kind === 'dead') {
-      await this.writeDead(envelope)
-      this.logger.warn(`promax-report sent event to dead after HTTP ${result.status}`)
+    if (envelope.path !== '/feishu/v1/run') {
+      envelope.attempts = (envelope.attempts ?? 0) + 1
+      envelope.lastAttemptAt = new Date().toISOString()
+      const result = await this.transport.deliver({ path: envelope.path, body: envelope.body })
+      if (result.kind === 'success') return
+      if (result.kind === 'dead') {
+        this.markDead(envelope, result.status, result.message)
+        await this.writeDead(envelope)
+        this.logger.warn(`promax-report sent event to dead after HTTP ${result.status}: ${result.message}`)
+        return
+      }
+      await this.writePending(envelope)
+      this.logger.debug(`promax-report queued event for retry: ${result.message}`)
       return
     }
     await this.writePending(envelope)
+    const path = join(this.outboxDirectory, `${envelope.id}.jsonl`)
+    const result = await this.deliverEnvelope(path, envelope)
+    if (result.kind === 'success') {
+      await unlink(path)
+      return
+    }
+    if (result.kind === 'dead') {
+      this.markDead(envelope, result.status, result.message)
+      await this.replaceEnvelope(path, envelope)
+      await this.moveToDead(path, envelope)
+      this.logger.warn(`promax-report sent event to dead after HTTP ${result.status}: ${result.message}`)
+      return
+    }
     this.logger.debug(`promax-report queued event for retry: ${result.message}`)
   }
 
@@ -262,6 +345,11 @@ export class DurableReportQueue {
 
   private async removeBlob(envelope: QueueEnvelope): Promise<void> {
     if (envelope.file) await rm(join(this.blobDirectory, envelope.file.blob), { force: true })
+  }
+
+  private markDead(envelope: QueueEnvelope, status: number, message: string): void {
+    envelope.status = status
+    envelope.error = message
   }
 }
 

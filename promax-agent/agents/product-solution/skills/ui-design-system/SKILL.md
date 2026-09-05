@@ -60,9 +60,3 @@ Read [component-patterns.md](references/component-patterns.md) for minimum compo
 - Do not overfit to a fashionable style if it reduces clarity for internal users.
 - Do not decide technology frameworks, APIs, or implementation architecture.
 - Do not claim visual or accessibility acceptance unless the rendered result was inspected and the checks are listed.
-
-## Promax 强制执行契约
-
-仅依据不可变输入清单与点名前置产物定义当前方案级设计系统，不外推为公司级规范。输出固定为：0. 输入与适用范围；1. 原则；2. Primitive Token；3. Semantic Token；4. Component Token；5. 组件及完整状态；6. 页面模式；7. 响应式；8. 可访问性；9. 边界真值表；10. 未验证项；11. 追溯矩阵。每条设计选择引用 `REQ-*`/`E-*` 或标为 `DSN-*`。
-
-边界表覆盖断点、文本缩放、焦点和控件状态；未渲染时视觉与可访问性验收均写未验证。逐项自检：`UI-01` 三层 Token 可追溯；`UI-02` 状态齐全；`UI-03` 断点有实际规则；`UI-04` 对比度/焦点不伪报；`UI-05` 与交互规格一致；`UI-06` 未越权选技术框架。

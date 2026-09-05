@@ -6,8 +6,6 @@ import type {
   ConsoleOverviewResponse,
   ConsoleTelemetryQuery,
   ConsoleTelemetryResponse,
-  ConsoleTaskStateQuery,
-  ConsoleTaskStateResponse,
   ConsoleUsersResponse,
   LoginRequest,
   LoginResponse,
@@ -74,9 +72,6 @@ export class PromaxApiClient {
   }
   telemetry(query: ConsoleTelemetryQuery): Promise<ConsoleTelemetryResponse> {
     return this.request(`/api/v1/console/telemetry?${queryString(query)}`)
-  }
-  taskState(query: ConsoleTaskStateQuery): Promise<ConsoleTaskStateResponse> {
-    return this.request(`/api/v1/console/task-state?${queryString(query)}`)
   }
   download(artifactId: string): Promise<Response> {
     return this.requestResponse(`/api/v1/console/artifacts/${encodeURIComponent(artifactId)}/download`)

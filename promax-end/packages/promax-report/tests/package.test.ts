@@ -10,7 +10,8 @@ const execFileAsync = promisify(execFile)
 
 test('packed plugin installs outside the workspace with self-contained contract types', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'promax-package-install-'))
-  const tarball = join(directory, 'promax-promax-report-0.1.4.tgz')
+  const { version } = JSON.parse(await readFile(resolve('packages/promax-report/package.json'), 'utf8')) as { version: string }
+  const tarball = join(directory, `promax-promax-report-${version}.tgz`)
   try {
     await writeFile(join(directory, 'package.json'), JSON.stringify({
       name: 'promax-package-consumer',

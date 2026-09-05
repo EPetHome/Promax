@@ -3,7 +3,7 @@ kind: TeamDefinition
 metadata:
   team_id: product-studio
   display_name: 动态产品方案团队
-  description: 使用三个可插拔 AgentModule 复现产品团队的 PRD、流程图和原型协作能力。
+  description: 使用统一产品方案 AgentModule 交付 PRD、流程图和原型。
   source_recipe_ref: product-studio@1
 spec:
   workspace:
@@ -19,17 +19,9 @@ spec:
     role_instructions: |-
       启动成员前先写 deliverables/<task-key>/source-ledger.md，列出真实读取的来源、可定位证据、输入矛盾和缺口，并冻结为 worker 只读的共享证据。给成员的任务必须写明目标、唯一允许写入的文件、证据路径和 G0-G6 验收要求。
   members:
-    - member_id: product_prd_agent
-      display_name: PRD 专员
-      module_ref: product-prd@1
-      enabled: true
-    - member_id: product_diagram_agent
-      display_name: 业务流程专员
-      module_ref: product-diagram@1
-      enabled: true
-    - member_id: product_prototype_agent
-      display_name: 交互原型专员
-      module_ref: product-prototype@1
+    - member_id: solution_design
+      display_name: 产品需求方案智能体
+      module_ref: product-solution@1
       enabled: true
   coordination:
     topology: orchestrator-workers

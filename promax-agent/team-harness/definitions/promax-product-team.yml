@@ -1,0 +1,64 @@
+api_version: promax.ai/v1alpha2
+kind: TeamDefinition
+metadata:
+  team_id: promax-product-team
+  display_name: Promax 完全体产品智能体团队
+  description: 由主智能体、六个业务部门智能体和独立 Judge 组成的完整产品工作团队，使用 28 个原版 Skill、固定 preset 与闭集证据链。
+  source_recipe_ref: general-collaboration@1
+spec:
+  workspace:
+    mode: team-folder
+    default_output_root: deliverables
+    resource_root: team-resources
+    resource_manifest_path: .promax/team-resource-manifest.yml
+  coordinator:
+    member_id: team_lead
+    display_name: 主智能体
+    module_ref: team-coordinator@1
+    persona_fragment: 专业克制的产品团队负责人；先固定目标与交付边界，再派单、结算、判定和统一交付。
+  members:
+    - member_id: customer_research
+      display_name: 客研管理智能体
+      module_ref: customer-research@1
+      enabled: true
+    - member_id: product_discovery
+      display_name: 产品探索智能体
+      module_ref: product-discovery@1
+      enabled: true
+    - member_id: requirement_management
+      display_name: 需求管理智能体
+      module_ref: requirement-management@1
+      enabled: true
+    - member_id: solution_design
+      display_name: 产品需求方案智能体
+      module_ref: product-solution@1
+      enabled: true
+    - member_id: requirement_review
+      display_name: 需求评审智能体
+      module_ref: requirement-review@1
+      enabled: true
+    - member_id: user_analysis
+      display_name: 用户分析智能体
+      module_ref: user-analysis@1
+      enabled: true
+    - member_id: quality_judge
+      display_name: 独立 Judge
+      module_ref: independent-judge@1
+      enabled: true
+  coordination:
+    topology: orchestrator-workers
+    parallelize_independent_tasks: true
+    wait_for_settlement: true
+    retry_owner: original-worker
+  receipt_fields:
+    - 状态
+    - preset
+    - team_revision_id
+    - task-key
+    - 团队成员
+    - 产物
+    - Judge判定
+    - 修复轮次
+    - 人工处理
+    - 被阻断项
+    - 未验证项

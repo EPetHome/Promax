@@ -3,10 +3,8 @@ import { PromaxConsole } from '../components/PromaxConsole.tsx'
 import { ConsoleLauncher } from './ConsoleLauncher.tsx'
 import {
   EmptyHeroSeat,
-  PromaxConversationInputControl,
   PromaxComposerBar,
   PromaxDetailsSidebar,
-  PromaxDraftSettings,
   PromaxLeftSidebar,
   PromaxProcessAction,
   PromaxSessionBrowser,
@@ -18,12 +16,11 @@ import {
 } from './PromaxWorkspaceShell.tsx'
 import {
   PRODUCT_PRESET_ID,
-  readTeamState,
   runtimeTeamRosterOf,
   syncProductTeamRuntimeRoster,
-  teamForSession,
 } from './team-state.ts'
-import type { TaskSlotView } from './task-planning.ts'
+import { createPromaxSettingsService, type PromaxSettingsConnection } from './PromaxSettings.tsx'
+import { taskAttachmentContextOf } from './task-attachments.ts'
 
 interface SlotService {
   inject(name: string, setup: () => unknown): void
@@ -104,7 +101,7 @@ async function waitForRuntimeState(predicate: () => boolean, subscribe: (listene
 }
 
 interface ConnectionService {
-  api: {
+  api: PromaxSettingsConnection['api'] & {
     agentPresets: {
       list(input: Record<string, never>): Promise<{
         result:
@@ -134,31 +131,6 @@ interface ConnectionService {
   }
 }
 
-interface InputTriggerCandidate {
-  name: string
-  description?: string
-  section?: string
-  value?: string
-}
-
-interface InputTriggerSource {
-  trigger: '@'
-  name: string
-  order?: number
-  showGroupTitle?: boolean
-  candidates(
-    session: { sessionId: string },
-    request: { query: string; signal: AbortSignal },
-  ): Promise<readonly InputTriggerCandidate[]>
-  onPick(input: { candidate: InputTriggerCandidate }): {
-    insert: { source: string; ref: string; label: string; clipboardText: string }
-  } | undefined
-  codec: {
-    clipboardText(ref: string): string
-    serialize(ref: string, signal: AbortSignal): Promise<string>
-  }
-}
-
 interface InputTriggerController {
   menu: { getSnapshot(): { open: boolean }; subscribe(listener: () => void): () => void }
   launcher: { getSnapshot(): string | null; subscribe(listener: () => void): () => void }
@@ -172,7 +144,6 @@ interface InputTriggerController {
 }
 
 interface InputTriggerService {
-  registerSource(source: InputTriggerSource): () => void
   sessionOf(scope: unknown): InputTriggerController
 }
 
@@ -201,6 +172,7 @@ async function readProductTeamRoster(connection: ConnectionService) {
 
 export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
   const connection = ctx.get('connection')
+  const settings = createPromaxSettingsService(connection)
   const inputTriggers = ctx.get('inputTriggers')
   const layout = ctx.get('layout')
   const descendants = (rootSessionId: string): Array<{ parentSessionId: string; sessionId: string; running: boolean }> => {
@@ -232,9 +204,8 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
     }))
     const failures = results.filter((failure): failure is string => failure !== null)
     if (failures.length > 0) throw new Error(failures.join('；'))
-    await waitForRuntimeState(() => descendants(rootSessionId).every(target => !target.running), listener => ctx.sessions.list.subscribe(listener), '子 Agent')
   }
-  const controlTaskRun = async (input: { workspaceId: string; projectPath: string; sessionId: string; taskKey: string; runEpoch: number; state: 'stop_requested' | 'draining' | 'cancelled' | 'failed_to_stop' }): Promise<{ state: 'running' | 'stop_requested' | 'draining' | 'cancelled' | 'failed_to_stop'; runEpoch: number }> => {
+  const controlTaskRun = async (input: { workspaceId: string; projectPath: string; sessionId: string; taskKey: string; runEpoch: number; state: 'stop_requested' | 'draining' | 'cancelled' }): Promise<{ state: 'running' | 'stop_requested' | 'draining' | 'cancelled' | 'completed' | 'failed'; runEpoch: number }> => {
     const response = await fetch('/promax-workspace-api/task-run/control', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -242,8 +213,8 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
     })
     const value = await response.json() as Record<string, unknown>
     if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `任务控制保存失败（HTTP ${response.status}）`)
-    if (!['running', 'stop_requested', 'draining', 'cancelled', 'failed_to_stop'].includes(String(value.state)) || !Number.isSafeInteger(value.runEpoch)) throw new Error('任务控制响应格式无效')
-    return value as { state: 'running' | 'stop_requested' | 'draining' | 'cancelled' | 'failed_to_stop'; runEpoch: number }
+    if (!['running', 'stop_requested', 'draining', 'cancelled', 'completed', 'failed'].includes(String(value.state)) || !Number.isSafeInteger(value.runEpoch)) throw new Error('任务控制响应格式无效')
+    return value as { state: 'running' | 'stop_requested' | 'draining' | 'cancelled' | 'completed' | 'failed'; runEpoch: number }
   }
   const cancelParent = async (sessionId: string): Promise<void> => {
     const session = ctx.sessions.binding(sessionId)?.session
@@ -251,10 +222,9 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
     const response = await session.cancel()
     if (!response.ok) throw new Error(response.error.message)
   }
-  const waitForStableTeamStop = async (rootSessionId: string, stableMs = 600, timeoutMs = 15_000): Promise<void> => {
-    const deadline = Date.now() + timeoutMs
+  const waitForStableTeamStop = async (rootSessionId: string, stableMs = 600): Promise<void> => {
     let stableSince: number | undefined
-    while (Date.now() < deadline) {
+    while (true) {
       const parentRunning = ctx.sessions.list.getSnapshot().byId[rootSessionId]?.running === true
       const runningChildren = descendants(rootSessionId).filter(target => target.running)
       if (runningChildren.length > 0) await interruptTeamDescendants(rootSessionId)
@@ -263,9 +233,8 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
         stableSince ??= Date.now()
         if (Date.now() - stableSince >= stableMs) return
       } else stableSince = undefined
-      await new Promise<void>(resolve => { window.setTimeout(resolve, 50) })
+      await new Promise<void>(resolve => { window.setTimeout(resolve, 250) })
     }
-    throw new Error(`父会话和 descendants 在 ${String(timeoutMs)}ms 内未稳定停止`)
   }
   ctx.effect(() => {
     let active = true
@@ -276,47 +245,6 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
     })
     return () => { active = false }
   }, 'promax: sync fixed product-team roster from runtime preset')
-  const teamMemberSource: InputTriggerSource = {
-    trigger: '@',
-    name: 'promax-team-member',
-    order: -100,
-    showGroupTitle: false,
-    async candidates(session, { query, signal }) {
-      const team = teamForSession(readTeamState(), String(session.sessionId))
-      if (team === undefined || signal.aborted) return []
-      const normalized = query.trim().toLocaleLowerCase()
-      return [team.coordinator, ...team.members.filter(member => member.enabled)]
-        .filter(member => normalized === '' || member.displayName.toLocaleLowerCase().includes(normalized) || member.memberId.toLocaleLowerCase().includes(normalized))
-        .map(member => ({
-          name: member.displayName,
-          description: `${member.role === 'coordinator' ? 'Coordinator' : 'Worker'} · ${member.objective || member.memberId}`,
-          section: `${team.name}团队成员`,
-          value: JSON.stringify({ memberId: member.memberId, displayName: member.displayName }),
-        }))
-    },
-    onPick({ candidate }) {
-      if (candidate.value === undefined) return undefined
-      try {
-        const value = JSON.parse(candidate.value) as { memberId?: unknown; displayName?: unknown }
-        if (typeof value.memberId !== 'string' || typeof value.displayName !== 'string') return undefined
-        return {
-          insert: {
-            source: 'promax-team-member',
-            ref: value.memberId,
-            label: value.displayName,
-            clipboardText: `@${value.memberId}`,
-          },
-        }
-      } catch {
-        return undefined
-      }
-    },
-    codec: {
-      clipboardText: memberId => `@${memberId}`,
-      serialize: memberId => Promise.resolve(`@${memberId}`),
-    },
-  }
-  ctx.effect(() => inputTriggers.registerSource(teamMemberSource), 'promax: stable team-member @ source')
   const shellActions: WorkspaceShellActions = {
     startSession: async (workspaceId, presetId) => {
       const response = await connection.api.sessions.create({ workspaceId, agentPreset: presetId })
@@ -331,6 +259,12 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
       ctx.sessions.noteAgentPreset(sessionId, agentPreset)
       return sessionId
     },
+    sendSessionMessage: async (sessionId, text) => {
+      const session = ctx.sessions.binding(sessionId)?.session
+      if (session === undefined) throw new Error(`找不到会话“${sessionId}”`)
+      const response = await session.prompt([{ type: 'text', text }], 'queue')
+      if (!response.ok) throw new Error(response.error.message)
+    },
     openSession: sessionId => { ctx.sessions.open(sessionId) },
     clearSession: () => { ctx.sessions.clear() },
     archiveSession: async sessionId => { await ctx.workspaces.archiveSession(sessionId) },
@@ -340,58 +274,81 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
       const result = await session.rename(title)
       if (!result.ok) throw new Error(result.error.message)
     },
-    prepareSessionScope: async input => {
-      const response = await fetch('/promax-workspace-api/session-scope', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(input),
-      })
-      const value = await response.json() as Record<string, unknown>
-      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `会话产出目录创建失败（HTTP ${response.status}）`)
-      if (typeof value.sessionName !== 'string' || typeof value.taskKey !== 'string' || typeof value.relativePath !== 'string') throw new Error('会话产出目录响应格式无效')
-      return { sessionName: value.sessionName, taskKey: value.taskKey, relativePath: value.relativePath }
-    },
-    createProjectWorkspace: async input => {
-      const response = await fetch('/promax-workspace-api/project', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(input),
-      })
-      const value = await response.json() as Record<string, unknown>
-      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `项目组创建失败（HTTP ${response.status}）`)
-      if (
-        typeof value.workspaceId !== 'string' || typeof value.path !== 'string' || typeof value.title !== 'string'
-        || !Array.isArray(value.sessionIds) || !value.sessionIds.every(item => typeof item === 'string')
-      ) throw new Error('项目组响应格式无效')
-      return { workspaceId: value.workspaceId, path: value.path, title: value.title, sessionIds: value.sessionIds as string[] }
-    },
-    pickProjectDirectory: () => ctx.workspaces.pickDirectory(),
-    writeTaskPackage: async input => {
-      const response = await fetch('/promax-workspace-api/handoff', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(input),
-      })
-      const value = await response.json() as Record<string, unknown>
-      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `任务包保存失败（HTTP ${response.status}）`)
-      if (
-        typeof value.taskPackagePath !== 'string' || typeof value.coveragePath !== 'string'
-        || typeof value.slotsPath !== 'string' || typeof value.inputManifestPath !== 'string'
-        || (value.tier !== 'single' && value.tier !== 'team')
-        || typeof value.coverageRevision !== 'number' || !Number.isSafeInteger(value.coverageRevision)
-        || !Array.isArray(value.artifactPaths) || !value.artifactPaths.every(item => typeof item === 'string')
-        || !Array.isArray(value.slots)
-      ) throw new Error('任务包保存响应格式无效')
-      return {
-        taskPackagePath: value.taskPackagePath,
-        coveragePath: value.coveragePath,
-        slotsPath: value.slotsPath,
-        inputManifestPath: value.inputManifestPath,
-        tier: value.tier,
-        coverageRevision: value.coverageRevision,
-        artifactPaths: value.artifactPaths as string[],
-        slots: value.slots as TaskSlotView[],
+    saveTaskAttachments: async input => {
+      try {
+        let paths: string[] = []
+        if (input.files.length > 0) {
+          const uploadResponse = await fetch('/promax-workspace-api/attachments', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              workspaceId: input.workspaceId,
+              projectPath: input.projectPath,
+              sessionId: input.sessionId,
+              files: input.files,
+            }),
+          })
+          let uploaded: Record<string, unknown>
+          try {
+            uploaded = await uploadResponse.json() as Record<string, unknown>
+          } catch {
+            throw new Error('附件服务返回了无法识别的响应，请重试')
+          }
+          if (!uploadResponse.ok) throw new Error(typeof uploaded.error === 'string' ? uploaded.error : `附件上传失败（HTTP ${uploadResponse.status}）`)
+          if (!Array.isArray(uploaded.paths) || !uploaded.paths.every(item => typeof item === 'string')) throw new Error('附件保存响应格式无效')
+          paths = uploaded.paths as string[]
+        }
+        const freezeResponse = await fetch('/promax-workspace-api/attachments/freeze', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            workspaceId: input.workspaceId,
+            projectPath: input.projectPath,
+            sessionId: input.sessionId,
+            demand: input.demand,
+            paths,
+          }),
+        })
+        let frozen: Record<string, unknown>
+        try {
+          frozen = await freezeResponse.json() as Record<string, unknown>
+        } catch {
+          throw new Error('附件冻结服务返回了无法识别的响应，请重试')
+        }
+        if (!freezeResponse.ok) throw new Error(typeof frozen.error === 'string' ? frozen.error : `附件冻结失败（HTTP ${freezeResponse.status}）`)
+        const attachments = Array.isArray(frozen.attachments) ? frozen.attachments.map(taskAttachmentContextOf) : []
+        if (attachments.some(item => item === undefined) || attachments.length !== paths.length) throw new Error('附件解析响应格式无效')
+        if (typeof frozen.manifestPath !== 'string' || frozen.manifestPath === '' || typeof frozen.taskKey !== 'string' || typeof frozen.sessionName !== 'string') throw new Error('附件冻结响应格式无效')
+        return { paths, attachments: attachments as NonNullable<(typeof attachments)[number]>[], manifestPath: frozen.manifestPath, taskKey: frozen.taskKey, sessionName: frozen.sessionName }
+      } catch (error) {
+        if (error instanceof Error && /[\u3400-\u9FFF]/u.test(error.message)) throw error
+        throw new Error('附件上传失败，请检查服务状态后重试')
       }
+    },
+    beginDispatchPlan: async input => {
+      const response = await fetch('/promax-workspace-api/dispatch-plan/begin', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(input),
+      })
+      const value = await response.json() as Record<string, unknown>
+      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `调度计划创建失败（HTTP ${response.status}）`)
+      if (typeof value.planId !== 'string' || typeof value.taskKey !== 'string') throw new Error('调度计划创建响应格式无效')
+      return { planId: value.planId, taskKey: value.taskKey }
+    },
+    confirmDispatchPlan: async input => {
+      const response = await fetch('/promax-workspace-api/dispatch-plan/confirm', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(input),
+      })
+      const value = await response.json() as Record<string, unknown>
+      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `调度名单确认失败（HTTP ${response.status}）`)
+      if (
+        typeof value.planId !== 'string' || typeof value.taskKey !== 'string' || typeof value.confirmedAt !== 'string'
+        || !Array.isArray(value.confirmedMemberIds) || !value.confirmedMemberIds.every(item => typeof item === 'string')
+      ) throw new Error('调度名单确认响应格式无效')
+      return { planId: value.planId, taskKey: value.taskKey, confirmedAt: value.confirmedAt, confirmedMemberIds: value.confirmedMemberIds as string[] }
     },
     readTaskRunFiles: async input => {
       const response = await fetch('/promax-workspace-api/task-run/read', {
@@ -403,40 +360,62 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
       if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `任务状态读取失败（HTTP ${response.status}）`)
       if (
         value.taskKey !== input.taskKey || value.parentSessionId !== input.sessionId
-        || !['running', 'stop_requested', 'draining', 'cancelled', 'failed_to_stop'].includes(String(value.cancellation))
+        || !['running', 'stop_requested', 'draining', 'cancelled', 'completed', 'failed'].includes(String(value.cancellation))
         || typeof value.runEpoch !== 'number' || !Number.isSafeInteger(value.runEpoch)
+        || typeof value.manifestPath !== 'string' || typeof value.inputManifestPath !== 'string' || !Array.isArray(value.confirmedMemberIds)
         || !Array.isArray(value.artifactStates) || typeof value.judge !== 'object' || value.judge === null
       ) throw new Error('任务文件快照响应格式无效')
       return value as unknown as Awaited<ReturnType<WorkspaceShellActions['readTaskRunFiles']>>
     },
+    readTaskHistory: async input => {
+      const response = await fetch('/promax-workspace-api/task-history/read', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(input),
+      })
+      const value = await response.json() as Record<string, unknown>
+      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `任务历史读取失败（HTTP ${response.status}）`)
+      if (!Array.isArray(value.items) || value.items.some(item => {
+        if (typeof item !== 'object' || item === null) return true
+        const row = item as Record<string, unknown>
+        return typeof row.sessionId !== 'string' || typeof row.taskKey !== 'string' || typeof row.createdAt !== 'string'
+          || !['running', 'completed', 'failed'].includes(String(row.status)) || !Number.isSafeInteger(row.fileCount)
+          || typeof row.deliverablePath !== 'string' || !Array.isArray(row.deliverableFiles)
+      })) throw new Error('任务历史响应格式无效')
+      return value.items as Awaited<ReturnType<WorkspaceShellActions['readTaskHistory']>>
+    },
+    openTaskFolder: async input => {
+      const response = await fetch('/promax-workspace-api/task-folder/resolve', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(input),
+      })
+      const value = await response.json() as Record<string, unknown>
+      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `产出目录读取失败（HTTP ${response.status}）`)
+      if (typeof value.path !== 'string' || value.path === '') throw new Error('产出目录响应格式无效')
+      await ctx.workspaces.openPath(value.path)
+      return { path: value.path }
+    },
     stopTeamTask: async input => {
       let control = await controlTaskRun({ ...input, state: 'stop_requested' })
       if (control.state === 'cancelled') return { state: 'cancelled' as const, runEpoch: control.runEpoch }
-      if (control.state === 'failed_to_stop') throw new Error('任务此前未能稳定停止，需要人工检查运行树')
-      try {
-        control = await controlTaskRun({ ...input, state: 'draining' })
-        if (control.state === 'cancelled') return { state: 'cancelled' as const, runEpoch: control.runEpoch }
-        if (control.state === 'failed_to_stop') throw new Error('任务此前未能稳定停止，需要人工检查运行树')
-        await interruptTeamDescendants(input.sessionId)
-        // Allow the child-settled event to reach the parent. The task latch is already armed,
-        // so any resulting send_message/member tool call is rejected by the runtime guard.
-        await new Promise<void>(resolve => { window.setTimeout(resolve, 0) })
-        await cancelParent(input.sessionId)
-        await waitForStableTeamStop(input.sessionId)
-        control = await controlTaskRun({ ...input, state: 'cancelled' })
-        if (control.state !== 'cancelled') throw new Error(`任务停止后控制状态异常：${control.state}`)
-        return { state: 'cancelled' as const, runEpoch: control.runEpoch }
-      } catch (error) {
-        try { await controlTaskRun({ ...input, state: 'failed_to_stop' }) } catch { /* preserve the primary failure */ }
-        throw error
-      }
+      control = await controlTaskRun({ ...input, state: 'draining' })
+      if (control.state === 'cancelled') return { state: 'cancelled' as const, runEpoch: control.runEpoch }
+      await interruptTeamDescendants(input.sessionId)
+      // DSH interrupt aborts each current child turn. Keep the disk truth in
+      // draining until the parent and every descendant actually report idle.
+      await cancelParent(input.sessionId)
+      await waitForStableTeamStop(input.sessionId)
+      control = await controlTaskRun({ ...input, state: 'cancelled' })
+      if (control.state !== 'cancelled') throw new Error(`任务停止后控制状态异常：${control.state}`)
+      return { state: 'cancelled' as const, runEpoch: control.runEpoch }
     },
-    openWorkspacePath: async path => { await ctx.workspaces.openPath(path) },
     teamRoutingAvailable: true,
   }
   const shellInjected = () => ({
     ...shellActions,
     layout,
+    settings,
     ...(config.apiBaseUrl === undefined ? {} : { apiBaseUrl: config.apiBaseUrl }),
   })
 
@@ -453,12 +432,6 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
     label: '管理控制台',
     inject: () => ({ apiBaseUrl: config.apiBaseUrl }),
   }, ConsoleSection))
-  ctx.slots.inject('settings.section', () => ctx.slots.register({
-    name: 'settings.section',
-    id: 'promax-preferences',
-    order: 6,
-    label: 'Promax 偏好',
-  }, PromaxDraftSettings as unknown as ComponentType<Record<string, unknown>>))
   ctx.slots.inject('conversation.input.dock', () => ctx.slots.register({
     name: 'conversation.input.dock',
     id: 'goal',
@@ -469,30 +442,6 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
     id: 'promax-team-context',
     order: -50,
   }, PromaxTeamSessionHeader as unknown as ComponentType<Record<string, unknown>>))
-  ctx.slots.inject('conversation.input.left', () => ctx.slots.register({
-    name: 'conversation.input.left',
-    id: 'promax-team-members',
-    order: -50,
-    inject: (sessionId: string) => {
-      const scope = ctx.sessions.scope(sessionId)
-      if (scope === undefined) throw new Error(`Promax 团队会话 ${sessionId} 尚未就绪`)
-      const controller = inputTriggers.sessionOf(scope)
-      return {
-        menu: controller.menu,
-        launcher: controller.launcher,
-        toggleTeamMention: (draft: string, draftRev: number) => {
-          const position = draft.trim() === '' ? 'leading' : 'inline'
-          controller.toggleSource('promax-team-member', {
-            trigger: '@',
-            query: '',
-            quoted: false,
-            position,
-            span: { start: draft.length, end: draft.length, draftRev },
-          })
-        },
-      }
-    },
-  }, PromaxConversationInputControl as unknown as ComponentType<Record<string, unknown>>))
   ctx.slots.inject('conversation.chat.assistant-actions', () => ctx.slots.register({
     name: 'conversation.chat.assistant-actions',
     id: 'promax-process',

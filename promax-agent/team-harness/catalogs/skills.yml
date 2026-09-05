@@ -1,389 +1,254 @@
 schema_version: 1
 skills:
+  - skill_ref: alert-early-warning@1
+    skill_id: alert-early-warning
+    revision: 1
+    display_name: alert-early-warning
+    description: 主动预警与风险拦截技能。当用户需要：(1) 检测爆发式负面舆情并发送警报，(2) 监控核心业务指标异常波动，(3) 设置自定义预警规则，(4) 生成风险拦截建议时，使用此技能。输入为实时或准实时的舆情数据、指标数据；输出为预警通知、风险等级评估、应对建议。支持多级别预警（高/中/低）、多渠道通知（飞书/钉钉/邮件）、智能阈值调整。
+    status: allowed
+    source_path: ../../agents/user-analysis/skills/alert-early-warning
+    content_sha256: f1c590185bb478be15cbb1c67699b7499bd77b0afc56d73903c8b7b70cd48cfb
+    tree_sha256: cabe2b7f3e11716da8a8063b96d522e1350ebbab9eeacedd1d7dd2db005ee78d
   - skill_ref: app-market-sentiment@1
     skill_id: app-market-sentiment
     revision: 1
-    display_name: 应用市场舆情
-    description: 分析应用市场评论，提炼痛点、版本趋势与舆情风险。
-    status: allowed
-    source_path: ../../agents/user-analysis/skills-v1/app-market-sentiment
-    content_sha256: b5cd96b37ac8f5e26b95876832cbc6d5d3c198c174b5b45148e1b1c58339b5b7
-    tree_sha256: 19cf60d088ada39e2a3f967ab26d25525a32d6611e24bb84b9123a1f0f0fca9d
-  - skill_ref: app-market-sentiment@2
-    skill_id: app-market-sentiment
-    revision: 2
-    display_name: 应用市场舆情
-    description: 只分析已冻结评论样本，区分个案、声量、反例与总体边界。
+    display_name: app-market-sentiment
+    description: 应用市场舆情洞察与痛点挖掘技能。当用户需要：(1) 分析应用商店用户评论，(2) 识别版本发布后的舆情风险，(3) 从海量吐槽中提炼用户真实需求，(4) 生成痛点排行榜和版本趋势对比，(5) 检测爆发式负面舆情并预警时，使用此技能。输入为应用市场评论数据（App Store、应用宝、华为应用市场等）；输出为结构化舆情报告、痛点清单、紧急预警。支持多源评论自动采集、智能语义分析与去重、版本关联分析。
     status: allowed
     source_path: ../../agents/user-analysis/skills/app-market-sentiment
-    content_sha256: 2efa566fb91f37d4aa45ac6817fe149743b2ee97725b469fde44b7b0d21cea0c
-    tree_sha256: 1c6ada3577b9b5d7cc3d0e20fd25ebce54e4f9fe56bfe43af4c617c08edb302f
+    content_sha256: 2af70f0a262c32f16e5cfe98806a53cf2f1a7c69d6d808653cb7f7e3993c792f
+    tree_sha256: 2d7ecdaf974ab195ac6de567709301206b6078ad52d39450bae0114db50ac26f
   - skill_ref: business-diagram-generator@1
     skill_id: business-diagram-generator
     revision: 1
-    display_name: 业务流程图
-    description: 生成并验证 Mermaid 业务流程图。
-    status: allowed
-    source_path: ../agents/product-solution/skills-v1/business-diagram-generator
-    content_sha256: 275c399fc06eb0b33d9e4352f1c6eb2618b0aa6615d740dddd575ec3b1766a9a
-    tree_sha256: b2bbcc5c96dd22c293ef7033268277072ea40a674991587718c87eeb3cf9a218
-  - skill_ref: business-diagram-generator@2
-    skill_id: business-diagram-generator
-    revision: 2
-    display_name: 业务流程图
-    description: 生成并验证 Mermaid 业务流程图；数量变化统一按操作后值判断。
-    status: allowed
-    source_path: ../../agents/product-solution/skills-v2/business-diagram-generator
-    content_sha256: 59822e5f52d36f46fbaa4cdb1206b04b5fa2749151ae46b192f1816f763eb55f
-    tree_sha256: 3f4b6d2659f624dca03231b7ae07950f28668e1412a55524c2b99e0b6d819ec0
-  - skill_ref: business-diagram-generator@3
-    skill_id: business-diagram-generator
-    revision: 3
-    display_name: 业务流程图
-    description: 生成可追溯、固定区块并含边界真值表的 Mermaid 业务流程图。
+    display_name: business-diagram-generator
+    description: Generate traceable Mermaid diagrams for product solutions, including user flows, swimlanes, state diagrams, page maps, decision flows, and product-level sequences. Use when roles, transitions, branches, page relationships, or lifecycle states are easier to review visually than in prose.
     status: allowed
     source_path: ../../agents/product-solution/skills/business-diagram-generator
-    content_sha256: 8399de1ff4487786152bbe0d5845d0618c6485dd3320d84959cf9ce3b1b407b1
-    tree_sha256: 26b3d00699bf5635c42e987b48a0f7013d4b958031ea00a2dff58633e31df056
+    content_sha256: 503f4485f7bf9acbf469e5719e72798d46e26f22e2e5c671d372b2187a42f22b
+    tree_sha256: be99f7abcee27f186cd4395db89829121ef7017413f6be71b35512d2f3d981a0
+  - skill_ref: competitor-research@1
+    skill_id: competitor-research
+    revision: 1
+    display_name: competitor-research
+    description: 产品竞品分析主技能。编排意图识别、搜索检索、报告生成的完整工作流。当用户提到竞品、对比、vs、市场分析、替代方案、竞品分析时自动触发。
+    status: allowed
+    source_path: ../../agents/product-discovery/skills/competitor-research
+    content_sha256: f940217d0daf2e3559d37e65b80989eb78e81cb8c2c8f23d33458467e9af93bf
+    tree_sha256: dc3ae3ebd30af193dc3869b6337b69eb65792ea5946b1e32c191f197f0719b33
+  - skill_ref: competitor-web-crawler@1
+    skill_id: competitor-web-crawler
+    revision: 1
+    display_name: competitor-web-crawler
+    description: 竞品网页自动抓取子技能。根据产品探索意图生成检索策略，使用 OpenClaw web_search 发现来源并用 web_fetch 抓取关键网页，返回去重后的结构化网页证据。由 product-exploration 主技能调用，也可独立使用。
+    status: allowed
+    source_path: ../../agents/product-discovery/skills/competitor-web-crawler
+    content_sha256: 65cf962a2bc0c49be3905982378ca86d8b6736a15ee0cbce0c79d51983650342
+    tree_sha256: e6aaba73b3d66450c7078bf5a772d77aa363140c5bd4cc4209fa403636b122a6
   - skill_ref: core-metrics-analysis@1
     skill_id: core-metrics-analysis
     revision: 1
-    display_name: 核心业务指标分析
-    description: 分析核心业务指标趋势、量价背离、异常与归因假设。
-    status: allowed
-    source_path: ../../agents/user-analysis/skills-v1/core-metrics-analysis
-    content_sha256: ddd66bfd2c938cf1f9927f4359e39ccfca3495185c491367c48a190bd833d0f1
-    tree_sha256: 6e58596ef0cb1865339036be647bad62dec78e3a4bc3be4882a6e668bb17c31d
-  - skill_ref: core-metrics-analysis@2
-    skill_id: core-metrics-analysis
-    revision: 2
-    display_name: 核心业务指标分析
-    description: 按明确口径、时间窗和公式分析指标趋势、异常与替代解释。
+    display_name: core-metrics-analysis
+    description: 核心业务指标趋势分析技能。当用户需要：(1) 分析DAU/MAU等规模指标趋势，(2) 分析上传/下载容量等价值指标变化，(3) 检测量价背离等异常模式，(4) 进行同环比趋势监测和异常检测，(5) 生成指标诊断报告时，使用此技能。输入为核心业务指标数据（日活、月活、上传/下载用户数、上传/下载容量等）；输出为趋势分析报告、量价背离诊断、异常预警、归因推测。支持自动计算衍生关键比率（人均容量等）。
     status: allowed
     source_path: ../../agents/user-analysis/skills/core-metrics-analysis
-    content_sha256: 131703ad762ef6ba7df20658bfdb6e1224dc3a0c153c50e73c8d35cab5332483
-    tree_sha256: 45aeed04247cc962434ac70de624ab5adc6c65d5dbf6f127e3a0b115f02d5079
+    content_sha256: afb6dc1058abbd37bbaef2b846e64b5ac0183f41f1e316f6f59d46df4706fe18
+    tree_sha256: 027c9a51c78b970e216e018584b3559b9a51ad3fe9dd6851d9083d34e7cc720e
   - skill_ref: customer-research@1
     skill_id: customer-research
     revision: 1
-    display_name: 客研管理
-    description: 整理访谈、构建画像、提炼痛点与候选需求并执行多源互证。
-    status: allowed
-    source_path: ../../agents/customer-research/skills-v1/customer-research
-    content_sha256: a154f6149a1c47769561261d89f1fc536c1e030b943fab2ca75dc7cc9c80ea89
-    tree_sha256: 6a47892d8918cdb7c31bbce45c2447f5df508682175dd85a9512b370b1e2458a
-  - skill_ref: customer-research@2
-    skill_id: customer-research
-    revision: 2
-    display_name: 客研管理
-    description: 基于闭集原始输入生成固定章节、证据矩阵和样本边界真值表。
+    display_name: customer-research
+    description: 客研管理智能体技能。当用户需要：(1) 深度访谈客户需求并整理访谈内容，(2) 从访谈记录中提炼用户痛点，(3) 构建客户画像（贝壳图 BEIK）与用户画像（Persona 行为分群），(4) 对候选需求做分层（KANO）与优先级建议，(5) 用舆情/客服/指标等多源证据做定性定量互证（Triangulation）提升结论置信度，(6) 生成结构化访谈报告、输出候选需求条目和待澄清问题列表，(7) 打通用户需求"收集→梳理→分析→互证→移交"链路时，使用此技能。输入为访谈记录、会议纪要、录音转写、客户资料、应用市场评论/客服工单/社群反馈、业务指标；输出为结构化访谈报告、客户画像贝壳图、用户画像卡、痛点清单、候选需求条目（含 KANO 分层）、多源证据矩阵（S/A/B/C 证据级别）、待澄清问题列表。不负责竞品对标、PRD产出、需求优先级最终裁定。
     status: allowed
     source_path: ../../agents/customer-research/skills/customer-research
-    content_sha256: 146458b71246b6d8783fdfc5d256015845b2ae3f7104fc974501a30a475ac935
-    tree_sha256: 20429b25a94418305a1a33f498e9a5af5aef5a83a0286a199457caed82ae5958
+    content_sha256: a154f6149a1c47769561261d89f1fc536c1e030b943fab2ca75dc7cc9c80ea89
+    tree_sha256: 6a47892d8918cdb7c31bbce45c2447f5df508682175dd85a9512b370b1e2458a
   - skill_ref: data-visualization@1
     skill_id: data-visualization
     revision: 1
-    display_name: 数据可视化
-    description: 把分析数据转化为 HTML 看板、图表集合与可视化报告。
-    status: allowed
-    source_path: ../../agents/user-analysis/skills-v1/data-visualization
-    content_sha256: ef90cf27c4c73f45a13a0857ed6a0ec7a80ce17a8cf42b5b31a8330c7e2d7c74
-    tree_sha256: 3c18173d27257ca842d9e2a0ed34a371fd898a878f724491ab7cc3a8eb234760
-  - skill_ref: data-visualization@2
-    skill_id: data-visualization
-    revision: 2
-    display_name: 数据可视化
-    description: 把可追溯数据转为诚实尺度、完整口径和可取证的可视化。
+    display_name: data-visualization
+    description: 数据可视化与看板生成技能。当用户需要：(1) 生成用户之声仪表盘，(2) 生成核心功能使用数据看板，(3) 将分析结果转化为可视化图表，(4) 创建可交互的数据报告时，使用此技能。输入为分析后的数据（舆情分析结果、指标趋势数据、反馈分类数据等）；输出为HTML看板、图表集合、可视化报告。支持多种图表类型（趋势图、饼图、热力图、词云等）和自定义主题，内置Chart.js实现真实可交互图表。
     status: allowed
     source_path: ../../agents/user-analysis/skills/data-visualization
-    content_sha256: 67ea68e7c4f495b57ba041b2d3edccc03ce048b8f076e10cb63871b8b4a72fa5
-    tree_sha256: d447b19dc0ba5aa7f0b9065b942f6d789c2b57a071ea767ddf2da63dab69bc12
+    content_sha256: b45a4dae43939d6a511f8f0888148e3614b7f1db1a579bc6b74a17e9c2c7723b
+    tree_sha256: ea5e5bc221b53ea6dad6647cacdb394d0ce9520f77565638d1466bca35dc24bd
   - skill_ref: difference-panel@1
     skill_id: difference-panel
     revision: 1
-    display_name: 竞品差异面板
-    description: 根据已备好的结构化竞品数据生成可追溯的维度化差异面板。
-    status: allowed
-    source_path: ../../agents/product-discovery/skills-v1/difference-panel
-    content_sha256: 8892fde6554f6f3d544d1610edffdca11560ac6e29ba60c5eb80c2d1ef5a2787
-    tree_sha256: fdaa0db2d29212a37dd6dc52eb0a0df6d44b7d32a822f87be7aeeb6dd854329e
-  - skill_ref: difference-panel@2
-    skill_id: difference-panel
-    revision: 2
-    display_name: 竞品差异面板
-    description: 根据不可变竞品输入生成固定章节、证据化差异与边界真值表。
+    display_name: difference-panel
+    description: 竞品差异面板生成子技能。将清洗后的竞品数据转化为产品经理可快速阅读的维度化差异面板，标注领先、持平、缺失、未知和证据来源。由 product-exploration 主技能调用，也可独立使用。
     status: allowed
     source_path: ../../agents/product-discovery/skills/difference-panel
-    content_sha256: 50a67687132cf81285d7b0d102f19f9aa69642da2c5e1513e7ecf6ed1dcca390
-    tree_sha256: 518d61fa8abd2ba1c17a1934f9f849101a363bb06ea272c4b04216cd5fe84225
+    content_sha256: 91f9366cf91fc3f018c0a9aa97fd8ee0464e90acd7196d6f9c5e484508e35c92
+    tree_sha256: 3414950dd909615ece227a20501eddf7acca4a279f0679d7dfe51be580263d3f
   - skill_ref: feishu-requirement-archive@1
     skill_id: feishu-requirement-archive
     revision: 1
-    display_name: 飞书需求归档
-    description: 通过固定版 Lark CLI 网关只读生成归档统计，不执行外部写入。
+    display_name: feishu-requirement-archive
+    description: 飞书需求归档统计。扫描需求表格，统计已上线和已转出的需求，生成归档报告。触发词：归档、需求归档、archive requirements、生成归档报告。
     status: allowed
     source_path: ../../agents/requirement-management/skills/feishu-requirement-archive
-    content_sha256: da00688cfd8492b4458a26418a10af0f804c5f2352741b2f6903c31e60f20993
-    tree_sha256: 40946c4c4330ef189af980b1264b799719270c90bf1ddea95dabcc7e4652ea29
+    content_sha256: 1a7e2a73b273294c871a0e726cc2f8c36775aa4d01df0b0d31f2d3e9b4e25b29
+    tree_sha256: 1028249d2415ea3d2939c71c743e735a357b838d0eb0d588c25f94b8d14d763f
   - skill_ref: feishu-requirement-board@1
     skill_id: feishu-requirement-board
     revision: 1
-    display_name: 飞书需求看板
-    description: 通过固定版 Lark CLI 网关只读生成可追溯的需求看板摘要。
+    display_name: feishu-requirement-board
+    description: 生成需求管理看板。从飞书多维表格读取需求数据，生成可视化看板 HTML 页面。触发词：生成需求看板、看板刷新、requirement board。
     status: allowed
     source_path: ../../agents/requirement-management/skills/feishu-requirement-board
-    content_sha256: 1d3e7c1255ac1ed7787ba7e1504c00613b86b10e9bc3d1180c530c49f541d903
-    tree_sha256: 120df43fcf8c2c61476eb6feda1189f33b575d663bed865699eaedf8262f695a
+    content_sha256: cdbf998b84e74201e27f8680290996591cb841ae4fa6ad27e20a4433c73876c2
+    tree_sha256: b151bbff674c296d03e8a0fef90887b27ac30d3c8aa28857e452cacad3e736e7
   - skill_ref: feishu-requirement-entry@1
     skill_id: feishu-requirement-entry
     revision: 1
-    display_name: 飞书需求录入
-    description: 通过固定版 Lark CLI 网关执行只读字段检查和写入 dry-run。
+    display_name: feishu-requirement-entry
+    description: 飞书需求录入技能。自动捕获用户消息中的需求信息，引导用户补充完整，评估并录入飞书多维表格需求池。触发词：录入、需求写入、需求录入。
     status: allowed
     source_path: ../../agents/requirement-management/skills/feishu-requirement-entry
-    content_sha256: 4458927ae610361c8193c10f74454204d0cc02b428b2b99e987f9968f42a2b73
-    tree_sha256: 56d4f256f34a8f65c744486d9abd6f1db737ddac7056b50348abbd8941b3b6b3
+    content_sha256: 24cd9c34be343d028a4ca1194f3add4a32328399e1d7ac4ba9bd1f3cf29b4c20
+    tree_sha256: c90cd080e3556f8acce5e9603eb04da9037fb92345638ddbcb1c1c7e7363366b
   - skill_ref: interaction-design@1
     skill_id: interaction-design
     revision: 1
-    display_name: 交互设计
-    description: 生成页面地图、任务流、状态矩阵与响应式交互规格。
-    status: allowed
-    source_path: ../../agents/product-solution/skills-v1/interaction-design
-    content_sha256: 2beba8819ad4fc64bc1dc8c6bb681b4151cd15f28e4b53cf68106fc3fdd6a488
-    tree_sha256: 47a4383cd549a2b84467ca52feb243ddf5246779a7bb412318c89716ebe97df6
-  - skill_ref: interaction-design@2
-    skill_id: interaction-design
-    revision: 2
-    display_name: 交互设计
-    description: 生成可追溯页面地图、任务流、状态矩阵与边界真值表。
+    display_name: interaction-design
+    description: 将已确认的产品方案转化为页面地图、用户任务流、组件行为、状态矩阵、异常恢复、键盘与响应式规格。在制作探索原型或交付原型前，当页面关系、操作路径、表单/表格/弹窗行为或 loading/empty/error/success 状态需要明确时使用。
     status: allowed
     source_path: ../../agents/product-solution/skills/interaction-design
-    content_sha256: 1f0c9a44800131b7737c0cc7aea125fbae657cd7f6b92f4806a1580beb3baf8e
-    tree_sha256: 2d80124c204b585cbbc374c0ccc7937499c86459d8919411597107353854b0c8
+    content_sha256: 00e0dd22214fd201736d241b04118c50bab5f5ee02533a390b111106a3e321c2
+    tree_sha256: cbd2a0cc4435bbb3880836796c72a6f82e79405fa01ed27b779ff06f676a24c8
   - skill_ref: interactive-prototype-generator@1
     skill_id: interactive-prototype-generator
     revision: 1
-    display_name: 交互原型
-    description: 生成并验证单 HTML 可交互原型。
-    status: allowed
-    source_path: ../agents/product-solution/skills-v1/interactive-prototype-generator
-    content_sha256: 07834a8182b0802293f8631a4372d08b530a3734fdd71dc7e9155051ae002eee
-    tree_sha256: 1aceda8848b1939e3da36c517bcfbc2c08b0aefa3988e3eaa7ce7ebf5261c261
-  - skill_ref: interactive-prototype-generator@2
-    skill_id: interactive-prototype-generator
-    revision: 2
-    display_name: 交互原型
-    description: 生成并验证单 HTML 可交互原型；数量变化统一按操作后值判断。
-    status: allowed
-    source_path: ../../agents/product-solution/skills-v2/interactive-prototype-generator
-    content_sha256: c3f8214603aeecec033e6f96a4adb457af0dd126d9d592ee01dc47b1dbd1b658
-    tree_sha256: 2ac8b218f979cf23bb2a9b87a432e5e155e497836092b190d4931d6717286dcf
-  - skill_ref: interactive-prototype-generator@3
-    skill_id: interactive-prototype-generator
-    revision: 3
-    display_name: 交互原型
-    description: 生成单文件、可追溯并可接受浏览器取证的交互原型。
+    display_name: interactive-prototype-generator
+    description: Build a self-contained interactive HTML product prototype from a product solution, task flow, interaction specification, and UI design system. Use for fast exploration prototypes that answer product questions or delivery prototypes that demonstrate complete in-scope journeys, responsive behavior, component states, mock data, and accessible interaction without external runtime dependencies.
     status: allowed
     source_path: ../../agents/product-solution/skills/interactive-prototype-generator
-    content_sha256: 284c3668fdffc345cde7cf50d7cc801e05c7fa30d8979eba26e5ba2ebf3c4fe8
-    tree_sha256: b7788c3509f1b14707c5986d8a34b708fa934ac99d215d555d5122e1d88c6153
+    content_sha256: f79e1870d85e063ce5a5b89451e746ad35bf55086a22798bd95558dd1205dfd8
+    tree_sha256: 08d69afe56d5dbb83d17b0eb170711cad24e58f11e4cb75634e59b7a33797602
   - skill_ref: issue-tracker@1
     skill_id: issue-tracker
     revision: 1
-    display_name: 评审问题追踪
-    description: 跟踪评审问题整改、执行版本差异与修复效果复检。
-    status: allowed
-    source_path: ../../agents/requirement-review/skills-v1/issue-tracker
-    content_sha256: b5a001f8bdcfe8a7dc66d1b17dced3bd42f357b0847cbc70a50f01a5dc3ce1cb
-    tree_sha256: 11a3a2733e2b08dfb5abfeec97a3ab9260d416a4beeb65d3e53b91239c8a7357
-  - skill_ref: issue-tracker@2
-    skill_id: issue-tracker
-    revision: 2
-    display_name: 评审问题追踪
-    description: 以版本哈希和复检证据跟踪问题状态与边界回归。
+    display_name: issue-tracker
+    description: Use when tracking PRD review issue remediation progress, performing version diffs between PRD revisions, verifying fix effectiveness against review checklists, or generating remediation statistics with SLA alerts. Triggered when a requirement_review agent produces a review report needing issue tracking, when a new PRD version arrives for diff comparison, or when SLA checkpoints require timeout warnings.
     status: allowed
     source_path: ../../agents/requirement-review/skills/issue-tracker
-    content_sha256: 37bde221553d5afb3767eb3d522831cb173cfb56b75c9179deb6ab84097f3ffc
-    tree_sha256: 2f3e2608428934c9215e132bb91f8884d8c17245d3c5830f1e2aaf2a855aa345
+    content_sha256: fd3f98f1473a9b4997957c6a50e41b21d528c46659fb4d2eae413f606781a354
+    tree_sha256: 1ad3f22390247ce83c2461267b5e4787d7642996bdc80677e7afd67d358b0446
   - skill_ref: logic-detector@1
     skill_id: logic-detector
     revision: 1
-    display_name: PRD 逻辑检测
-    description: 检查状态机、跨章节矛盾、数据流一致性与时序依赖。
-    status: allowed
-    source_path: ../../agents/requirement-review/skills-v1/logic-detector
-    content_sha256: e53cf9ba3b9ea8c1bc1a8832e547c7cf9bbfef40bad0ee6320fa5c8428c821e4
-    tree_sha256: eb50da0e0e2e013808015cc1be2c1ccfa2d5befad85dd797f50dbf48350e0f9b
-  - skill_ref: logic-detector@2
-    skill_id: logic-detector
-    revision: 2
-    display_name: PRD 逻辑检测
-    description: 检查状态、谓词、数据流、时序与三点边界的一致性。
+    display_name: logic-detector
+    description: Use when performing formal logic verification on PRD documents, including state machine validation, cross-chapter contradiction detection, data flow consistency checking, and temporal dependency verification. Triggered when a PRD involves complex business logic with 3+ entity states or 5+ step dependencies, when requirement_review agent consistency (Q5-Q6) or testability (Q7-Q8) scores fall below 60, or when deep formal logic verification is needed beyond heuristic pattern-matching review.
     status: allowed
     source_path: ../../agents/requirement-review/skills/logic-detector
-    content_sha256: 6161ece01faef7beef7d082d1a8e444ec5235967cf963ca8fb988c6b21385df6
-    tree_sha256: 71e8c07f22f9f1bd5da4e42b624ba84bc7dbff77705f44e67039cb6c381919b0
+    content_sha256: f03f96af63e9164f93c1778848679146f815dc1bfc9adcad7e8729c644730f17
+    tree_sha256: e977db7aeee253f5dd07d72c2d0af6bd4d8167eab4619f8f7b1a5dded3cc9410
   - skill_ref: pm-weekly-monitor@1
     skill_id: pm-weekly-monitor
     revision: 1
-    display_name: 项目周报被动分析
-    description: 被动接受后端派单，只读分析周报快照，不注册定时或主动推送。
+    display_name: pm-weekly-monitor
+    description: 项目管理周报监控助手（PM-Agent）。全天候项目监控器与风险吹哨人，读取飞书项目管理周报，主动预警风险、定时推送重点项目进展、支持自然语言配置定时任务。触发词：项目监控、周报监控、风险预警、云盘进展、认证进展、项目周报、pm-monitor。
     status: allowed
     source_path: ../../agents/requirement-management/skills/pm-weekly-monitor
-    content_sha256: 26f1e69d3bfa71949ec580df86a496320ae8511faf1cb78d29210384436449c1
-    tree_sha256: 9878e9ce76f2ff3b3d1e582a7732fc5274bb8044fee6f3750bdd571c7268650f
+    content_sha256: 2e315a14be6339d0c25cc64f219666b6ea294eaa2c1b3a04bf9cdd5fcebd1e10
+    tree_sha256: de8ee42ec1bbaa45bb7047b076c46abdab80a8461ff1fbe130b8c047b1262a5d
   - skill_ref: prd-document-generator@1
     skill_id: prd-document-generator
     revision: 1
-    display_name: PRD 文档
-    description: 生成并验证 Markdown PRD。
-    status: allowed
-    source_path: ../agents/product-solution/skills-v1/prd-document-generator
-    content_sha256: a42a6858eae45238dc1eeb557ee2ed202e2acffd3eafeb9e862fd190d1f0d990
-    tree_sha256: 65ffee8cbdf3e1bb1ac6fd519b61db3d8fb6e7eee8e9bd16b0459cfd8b2a5deb
-  - skill_ref: prd-document-generator@2
-    skill_id: prd-document-generator
-    revision: 2
-    display_name: PRD 文档
-    description: 生成并验证 Markdown PRD；数量变化统一按操作后值判断。
-    status: allowed
-    source_path: ../../agents/product-solution/skills-v2/prd-document-generator
-    content_sha256: 2b5e34b98beecd0610b2381c2e7053b0c8d666a243526457036255296fa4f535
-    tree_sha256: 3b1030040e190760642fc73ed675fdf3a0591ada2294b464a061bdd02c9199a2
-  - skill_ref: prd-document-generator@3
-    skill_id: prd-document-generator
-    revision: 3
-    display_name: PRD 文档
-    description: 生成固定 0–11 节、可追溯并含边界真值表的 Markdown PRD。
+    display_name: prd-document-generator
+    description: Create or revise a traceable product solution document or PRD that defines user problems, scope, requirements, business rules, page and interaction references, acceptance criteria, product-level non-functional expectations, risks, assumptions, and open decisions without prescribing technical architecture. Use for product方案、需求文档、PRD、需求拆解或研发前产品定义。
     status: allowed
     source_path: ../../agents/product-solution/skills/prd-document-generator
-    content_sha256: f14519bce70171712dd3cf6d2cd63a8519e2359693e7d0b4b75a5f6c8abf3a54
-    tree_sha256: 46f15faa39b091390bd91e33e9e190d43b88ac8281f8221d7b21207ef87dc6bc
+    content_sha256: 265b784446297e86eb919238c4a272bd9bcfb4fbc369b1409921579efda8d084
+    tree_sha256: c7492dceb59e1c8aef243a0813c2715bf27506e023c3163c1d6798377575b8e0
+  - skill_ref: product-exploration@1
+    skill_id: product-exploration
+    revision: 1
+    display_name: product-exploration
+    description: 产品探索 workflow 主技能。先进行意图判断，再面向产品经理编排竞品网页自动抓取、结构化报告生成和竞品差异面板输出。当用户提到竞品、产品立项、市场扫描、功能设计、功能迭代、动态监控、风险预警、vs、替代方案时自动触发。
+    status: allowed
+    source_path: ../../agents/product-discovery/skills/product-exploration
+    content_sha256: 39776bfc2cd3b2a79a1aa12f7b9facda086838482aaaf161315684022426673d
+    tree_sha256: bfb6b47572c7f9101d7b28652434608d6dba5c35f64c46c4224ec579c0cb4f82
   - skill_ref: prototype-quality-audit@1
     skill_id: prototype-quality-audit
     revision: 1
-    display_name: 原型质量审计
-    description: 对自包含 HTML 原型执行静态、交互、响应式与可访问性审计。
-    status: allowed
-    source_path: ../../agents/product-solution/skills-v1/prototype-quality-audit
-    content_sha256: ecc91ba99116433a1513630c4ab7c7f3e82e96a6579d29b6a685701dda590754
-    tree_sha256: 27205cc95071e53f44c9d4249c3deb2d513254b2cd6791dfac75ed9396b4b3ad
-  - skill_ref: prototype-quality-audit@2
-    skill_id: prototype-quality-audit
-    revision: 2
-    display_name: 原型质量审计
-    description: 执行静态、交互、边界与浏览器证据审计，未实测项诚实标记。
+    display_name: prototype-quality-audit
+    description: Audit a self-contained HTML product prototype before review or engineering handoff. Use when validating structure, external dependencies, interactive semantics, keyboard focus, responsive behavior, accessibility signals, error states, or when producing an evidence-based PASS/FAIL report for an HTML prototype.
     status: allowed
     source_path: ../../agents/product-solution/skills/prototype-quality-audit
-    content_sha256: 551a774a16fa93e30ce56fe93db4ddc894f25fa783e1aeb0be6dc2149e8eeb47
-    tree_sha256: 31351e2bfaf2ca88aaed1faaf5526035544d5fb4ec0fc8e14acdcc83236ebdcc
+    content_sha256: ecc91ba99116433a1513630c4ab7c7f3e82e96a6579d29b6a685701dda590754
+    tree_sha256: 27205cc95071e53f44c9d4249c3deb2d513254b2cd6791dfac75ed9396b4b3ad
   - skill_ref: rd-handoff-package@1
     skill_id: rd-handoff-package
     revision: 1
-    display_name: 研发交接包
-    description: 汇总产品方案、交互、原型、验收与审计结果并建立交接追溯。
-    status: allowed
-    source_path: ../../agents/product-solution/skills-v1/rd-handoff-package
-    content_sha256: df9e00d921215a88c912f393942259fbd193d66137b5df52994fbed634c101c1
-    tree_sha256: 5b42928337a29b7b912b097160384999243381622b266c88f216c0babda7d707
-  - skill_ref: rd-handoff-package@2
-    skill_id: rd-handoff-package
-    revision: 2
-    display_name: 研发交接包
-    description: 建立真实文件、版本哈希、跨产物一致性和验收证据交接。
+    display_name: rd-handoff-package
+    description: Assemble a traceable product-to-engineering handoff package from a product solution, requirements, interaction specification, design tokens, prototype, acceptance criteria, and audit results. Use before handing a product solution to the R&D agent or team, especially when gaps, assumptions, state coverage, or artifact versions must be made explicit.
     status: allowed
     source_path: ../../agents/product-solution/skills/rd-handoff-package
-    content_sha256: 5f4bc082bdfa12ceaeec352b370df79bfc0ed5a172977fc13a31841775fa3ec6
-    tree_sha256: af547cd08e9c550e97e1a4d2f1735af275f84f8a917daced8513be84e88fb5fc
+    content_sha256: df9e00d921215a88c912f393942259fbd193d66137b5df52994fbed634c101c1
+    tree_sha256: 5b42928337a29b7b912b097160384999243381622b266c88f216c0babda7d707
   - skill_ref: report-generator@1
     skill_id: report-generator
     revision: 1
-    display_name: 产品探索报告
-    description: 根据已备好的竞品数据文件生成结构化 Markdown 分析报告。
-    status: allowed
-    source_path: ../../agents/product-discovery/skills-v1/report-generator
-    content_sha256: bb18e769f47b8bccae6a78c363744bcb97051e2436ad5c02b75036930bf9319a
-    tree_sha256: 7c81473e7388ce29ec2eafd2786e923fd4077880b0ed09e98bc2bd912fe66d8d
-  - skill_ref: report-generator@2
-    skill_id: report-generator
-    revision: 2
-    display_name: 产品探索报告
-    description: 生成固定 0–9 节、可追溯且不外推数据边界的产品探索报告。
+    display_name: report-generator
+    description: 产品探索报告生成子技能。将抓取到的竞品网页证据进行结构化清洗，按场景模板生成竞品分析报告。由 product-exploration 主技能调用，也可独立使用。
     status: allowed
     source_path: ../../agents/product-discovery/skills/report-generator
-    content_sha256: d2c553fb89228893c3fec04574ee3d272f8c99ecdb1017e0ba891ddc02aa0edb
-    tree_sha256: 0b492cdaa4ab2b8c44f7a944fc02bbf9218632cbe1aad862cab6259b65dba245
+    content_sha256: 3589f003f42f83c4d197617c12e372002c4293fcbc34fde193fca8c2f98b0e9e
+    tree_sha256: 476bee2c1950a135b906ab3057de669c315b9eb1b5dcec92ecb1de4d7e77450d
   - skill_ref: requirement-clarifier@1
     skill_id: requirement-clarifier
     revision: 1
-    display_name: 需求澄清
-    description: 识别阻塞性缺口，输出关键问题、默认处理与可追溯假设。
-    status: allowed
-    source_path: ../../agents/product-solution/skills-v1/requirement-clarifier
-    content_sha256: 0822de5558e2a92ae1a06d7d9dac886f20dd1d8d2c0d5bce8c763713f7020702
-    tree_sha256: eae23fa89f03909789e79bf4e4d4e6f049269f9994dab4a8f66575bc40b24783
-  - skill_ref: requirement-clarifier@2
-    skill_id: requirement-clarifier
-    revision: 2
-    display_name: 需求澄清
-    description: 基于不可变输入识别阻塞缺口、冲突和可撤销假设。
+    display_name: requirement-clarifier
+    description: 诊断产品方案输入的完整性，区分阻塞性缺口与可默认缺口，生成最多 3 个关键澄清问题、默认处理和可追溯假设。在生成 PRD、流程、交互规格、HTML 原型或研发交接包前，当需求含糊、边界不明、关键决策缺失或需要不询问也能继续时使用。
     status: allowed
     source_path: ../../agents/product-solution/skills/requirement-clarifier
-    content_sha256: 1486b9bcbff6df32414971aeac13173ef55627114c9b10d64841c5d8a019cfdc
-    tree_sha256: cb8a073db0da41d9efeab4684a33f481b7ea4cd7bbe156af2e4f33883d36da0c
+    content_sha256: 78e8d865e9bf7451776fe6add8d0b69497db849e1a0a60cb998b3655ceb43f0b
+    tree_sha256: a76564cd1e65e11bb57b80281ccdae36258dc2f21f1773158196d627224c034e
   - skill_ref: requirement-review@1
     skill_id: requirement-review
     revision: 1
-    display_name: PRD 需求评审
-    description: 评审 PRD、产品需求、验收标准与多角色需求风险。
-    status: allowed
-    source_path: ../../agents/requirement-review/skills-v1/requirement-review
-    content_sha256: 93bfe2baa5b043dd0f5a2e17e67dad17c8b36d7841581653653bcb565427734c
-    tree_sha256: 5c1c52af65bbfed401c2ee48634765cbd4254a859d72464c420746ca15e72381
-  - skill_ref: requirement-review@2
-    skill_id: requirement-review
-    revision: 2
-    display_name: PRD 需求评审
-    description: 生成固定 0–10 节、问题可定位且含跨产物边界复算的评审报告。
+    display_name: requirement-review
+    description: 当用户需要评审 PRD、产品需求、功能说明、需求文档质量、验收标准或多角色需求风险时使用。
     status: allowed
     source_path: ../../agents/requirement-review/skills/requirement-review
-    content_sha256: 59dd4398100ead120012c0f02655e77c88fc129de7a9a07842aadb9062dc2178
-    tree_sha256: 3eebd057ceb0b68c652b0a132158cf8343aa8bbdfe14075ceb6463376669438f
+    content_sha256: fac61bc5c84a2c7637d45bdb27fc01ad5ad1a8439e77d7e494ce627dc32cc200
+    tree_sha256: 1a49fcd5c1ed4bcca3d4d1e868ba103eb6091655ff5186daf3f1115cf4ec3f7d
+  - skill_ref: search-engine@1
+    skill_id: search-engine
+    revision: 1
+    display_name: search-engine
+    description: 竞品研究搜索策略子技能。根据意图类型生成优化的多维度搜索查询，执行检索并返回去重后的搜索结果。由 competitor-research 主技能调用，也可独立使用。
+    status: allowed
+    source_path: ../../agents/product-discovery/skills/search-engine
+    content_sha256: 6986b644ecd63bdc42e31c571e869ca623414d213a156586d1b70d742bce173e
+    tree_sha256: 8849ca8451274e883f54d658197b9986879bd0e170d539eafcd561d0167203ca
+  - skill_ref: telemetry-tracker@1
+    skill_id: telemetry-tracker
+    revision: 1
+    display_name: telemetry-tracker
+    description: 使用数据埋点与统计技能。承担两个职责：(1) 自动埋点——通过「双轨机制」采集使用数据：message:received 钩子确定性记录每轮对话轮次（source=hook），各智能体仅在真触发能力时补充上报（source=llm），写入 SQLite 数据库；(2) 主动汇报——当用户询问"使用情况""调用统计""哪个用得多"等意图时，读取数据并生成中文文本汇报。
+    status: allowed
+    source_path: ../../agents/shared/skills/telemetry-tracker
+    content_sha256: ad4fc2db5026e97c4faccf18770a7824f823e323e6f2d390bfbb4e32f29a6ad1
+    tree_sha256: 95eba809b6e51e94ff8d50d8716644bc372f3170baf9d3b18544cfa88a7fd7eb
   - skill_ref: ui-design-system@1
     skill_id: ui-design-system
     revision: 1
-    display_name: UI 设计系统
-    description: 定义设计 Token、组件状态、页面模式、响应式与可访问性规则。
-    status: allowed
-    source_path: ../../agents/product-solution/skills-v1/ui-design-system
-    content_sha256: 9efd85be1a19dcded398ed803328da108247cd653fbf9d4fba2803decc054568
-    tree_sha256: f2741c6cd899b8798f74a0a9ac59f0b93b41cee09642290966dbf6b201821adc
-  - skill_ref: ui-design-system@2
-    skill_id: ui-design-system
-    revision: 2
-    display_name: UI 设计系统
-    description: 定义方案级 Token、组件状态、响应式、可访问性与证据映射。
+    display_name: ui-design-system
+    description: Define or apply a lightweight UI design system for internal enterprise products and self-contained HTML prototypes. Use when a product solution needs visual direction, design tokens, component states, page patterns, responsive behavior, dark mode, accessibility rules, or consistency with the local FPA and Pro Mate prototype corpus.
     status: allowed
     source_path: ../../agents/product-solution/skills/ui-design-system
-    content_sha256: b9cdaafc795efbe7430eb32dd8fcd89a675c0514524561306b2fdb1dd0691de9
-    tree_sha256: ba99a9ad2ea77cf17e4838daab2567dbb7c2d322a5f5a7144493485dde05af23
+    content_sha256: 9efd85be1a19dcded398ed803328da108247cd653fbf9d4fba2803decc054568
+    tree_sha256: f2741c6cd899b8798f74a0a9ac59f0b93b41cee09642290966dbf6b201821adc
   - skill_ref: user-feedback-processor@1
     skill_id: user-feedback-processor
     revision: 1
-    display_name: 用户反馈结构化处理
-    description: 清洗、去重、归类多渠道用户反馈并提取痛点和需求。
-    status: allowed
-    source_path: ../../agents/user-analysis/skills-v1/user-feedback-processor
-    content_sha256: 5c8f3213ddf06a2e6d457de3acc702fc6484f46388d16bf219b11b2aee2f0f73
-    tree_sha256: 5987b172baa6faee3aa9ea3ecc6fe3c7be7be8ac3b9a4d261a06985896a0512f
-  - skill_ref: user-feedback-processor@2
-    skill_id: user-feedback-processor
-    revision: 2
-    display_name: 用户反馈结构化处理
-    description: 在样本边界内清洗、去重、分类反馈并保持原文追溯。
+    display_name: user-feedback-processor
+    description: 用户反馈结构化处理技能。当用户需要：(1) 整合分散在客服记录、应用商店、社群、问卷等渠道的用户反馈，(2) 对海量反馈进行清洗、去重、归类，(3) 提取用户痛点和需求，(4) 生成结构化反馈清单时，使用此技能。输入为多渠道用户反馈数据（客服记录、社群消息、问卷结果、应用商店评论等）；输出为结构化反馈清单、痛点分类、情感分析结果、典型原声摘录。支持自动去重、语义聚类、情感分析。
     status: allowed
     source_path: ../../agents/user-analysis/skills/user-feedback-processor
-    content_sha256: 523778c3dca01c2bbef476fab3508ce49790d52f349d30d1cf33b5f46439ddb7
-    tree_sha256: 544354d26da4bb28a267204412a0e5c490505f7d4d1eae94b88c53df800fdace
+    content_sha256: b9dd79c718ef1a883a89d24ae3d6b1df9fbe961a7b91f49faed41bf5e8969399
+    tree_sha256: d9ef5952f2329ffe906b048f61f94872ab70740c665353e651448ab59198be57

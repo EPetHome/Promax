@@ -16,9 +16,9 @@ const STATE_VERSION = 1
 const MAX_PACKAGE_CONTEXT_CHARS = 384 * 1024
 const MODULE_BY_CAPABILITY = Object.freeze({
   general: 'general-worker@1',
-  prd: 'product-prd@1',
-  diagram: 'product-diagram@1',
-  prototype: 'product-prototype@1',
+  prd: 'product-solution@1',
+  diagram: 'general-worker@1',
+  prototype: 'general-worker@1',
 })
 
 function issue(code, fieldPath, message, severity = 'warning', hint) {
