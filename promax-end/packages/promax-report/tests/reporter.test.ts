@@ -340,7 +340,7 @@ test('chat, skill, heartbeat, failed mutation, and turn-end scanning stay on hoo
     assert.equal(taskState.task_key, 'public-demo')
     assert.equal(transport.requests.filter(request => request.path === '/api/v1/artifacts').length, 1)
     const heartbeat = transport.requests.find(request => request.path === '/api/v1/heartbeat')?.body as Record<string, unknown>
-    assert.equal(heartbeat.client_version, '0.1.4')
+    assert.equal(heartbeat.client_version, '0.1.9')
     assert.equal(heartbeat.dsh_version, '0.1.1-rc.2')
     assert.equal(heartbeat.config_fingerprint, `sha256:${'b'.repeat(64)}`)
   } finally {

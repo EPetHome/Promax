@@ -1,33 +1,16 @@
 import { useSyncExternalStore } from 'react'
 
-import { INFORMATION_KEYS, type InformationKey, type TaskSlotView, type TaskTier } from './task-planning.ts'
+import { INFORMATION_KEYS, type InformationKey } from './task-state.ts'
+import { taskAttachmentContextOf, type TaskAttachmentContext } from './task-attachments.ts'
 
 export const PRODUCT_TEAM_ID = 'product-team'
+export const PRODUCT_TEAM_DEFINITION_ID = 'promax-product-team'
 export const GENERAL_PRESET_ID = 'general'
-export const PRODUCT_PRESET_ID = 'promax-team-mtcjsbcz-04tpe2-r12'
-export const PRODUCT_TEAM_REVISION = 12
+export const PRODUCT_PRESET_ID = 'promax-team'
+export const PRODUCT_TEAM_REVISION = 1
 
 const SESSION_SCOPE_MAX_LENGTH = 40
 const RESERVED_SESSION_SCOPE = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?$/iu
-
-/** One filesystem-safe, user-visible name shared by the dsh session and its output directory. */
-export function sessionScopeNameFromPrompt(text: string): string {
-  const firstLine = text.split(/\r?\n/u).map(line => line.trim()).find(line => line !== '') ?? ''
-  const withoutRouting = firstLine
-    .replace(/^(?:@[a-z][a-z0-9_]*\s+)+/u, '')
-    .replace(/^(?:#{1,6}|[-*+])\s+/u, '')
-    .normalize('NFC')
-  const safe = withoutRouting
-    .replace(/[<>:"/\\|?*\u0000-\u001F\u007F]/gu, ' ')
-    .replace(/\s+/gu, ' ')
-    .replace(/[. ]+$/u, '')
-    .trim()
-  const base = safe === '' || safe === '.' || safe === '..' || RESERVED_SESSION_SCOPE.test(safe) ? '产品任务' : safe
-  const characters = Array.from(base)
-  return characters.length <= SESSION_SCOPE_MAX_LENGTH
-    ? base
-    : `${characters.slice(0, SESSION_SCOPE_MAX_LENGTH - 1).join('')}…`
-}
 
 export function validSessionScopeName(value: string): boolean {
   return value === value.normalize('NFC')
@@ -119,17 +102,13 @@ export interface TeamSessionBinding {
   workspaceId?: string
   sessionName?: string
   taskKey?: string
-  tier?: TaskTier
-  coverageRevision?: number
-  taskPackagePath?: string
-  slots?: TaskSlotView[]
-  /** Frozen planning inputs retained only so the user can create a B2 coverage revision. */
-  confirmedHandoff?: string
-  requestedArtifactPaths?: string[]
-  /** Exact materialized user + internal artifact plan for this task; never inferred from transcript. */
-  artifactPaths?: string[]
-  coverageInformationKeys?: InformationKey[]
-  runState?: 'running' | 'stop_requested' | 'draining' | 'cancelled' | 'failed_to_stop'
+  dispatchPlanId?: string
+  dispatchState?: 'planning' | 'confirmed' | 'running'
+  dispatchDemand?: string
+  dispatchAttachmentPaths?: string[]
+  dispatchAttachmentContexts?: TaskAttachmentContext[]
+  confirmedMemberIds?: string[]
+  runState?: 'running' | 'stop_requested' | 'draining' | 'cancelled' | 'completed' | 'failed'
   runEpoch?: number
   runStateUpdatedAt?: string
 }
@@ -163,7 +142,7 @@ const PRODUCT_TEAM: PromaxTeam = {
   members: [],
   artifacts: [],
   workspaceIds: [],
-  configurationSource: { kind: 'compat', label: '产品团队 r12 运行配置' },
+  configurationSource: { kind: 'compat', label: 'promax-team 固定运行配置' },
   provisioning: { state: 'ready' },
   promptDraft: {
     recipeId: 'product-compat',
@@ -429,45 +408,38 @@ function bindingOf(value: unknown, teams: readonly PromaxTeam[]): TeamSessionBin
   const scope = sessionName !== undefined && taskKey === sessionName && validSessionScopeName(sessionName)
     ? { sessionName, taskKey }
     : {}
-  const tier = row.tier === 'draft' || row.tier === 'single' || row.tier === 'team' ? row.tier : undefined
-  const coverageRevision = typeof row.coverageRevision === 'number' && Number.isSafeInteger(row.coverageRevision) && row.coverageRevision > 0
-    ? row.coverageRevision
+  const dispatchPlanId = nonEmpty(row.dispatchPlanId)
+  const dispatchState = row.dispatchState === 'planning' || row.dispatchState === 'confirmed' || row.dispatchState === 'running'
+    ? row.dispatchState
     : undefined
-  const taskPackagePath = nonEmpty(row.taskPackagePath)
-  const rawSlots = Array.isArray(row.slots) ? row.slots : undefined
-  const slots = rawSlots !== undefined
-    ? rawSlots.map(taskSlotOf).filter((slot): slot is TaskSlotView => slot !== null)
-    : undefined
-  const completeTaskState = scope.taskKey !== undefined && tier !== undefined && coverageRevision !== undefined
-    && taskPackagePath === `.promax/tasks/${scope.taskKey}/task-package.yml`
-    && slots !== undefined && slots.length === rawSlots?.length
-  const confirmedHandoff = nonEmpty(row.confirmedHandoff)
-  const rawRequestedArtifactPaths = Array.isArray(row.requestedArtifactPaths) ? row.requestedArtifactPaths : undefined
-  const requestedArtifactPaths = rawRequestedArtifactPaths?.map(nonEmpty).filter((path): path is string => path !== undefined)
-  const rawArtifactPaths = Array.isArray(row.artifactPaths) ? row.artifactPaths : undefined
-  const artifactPaths = rawArtifactPaths?.map(nonEmpty).filter((path): path is string => path !== undefined)
-  const rawCoverageInformationKeys = Array.isArray(row.coverageInformationKeys) ? row.coverageInformationKeys : undefined
-  let coverageInformationKeys: InformationKey[] | undefined
-  try {
-    coverageInformationKeys = rawCoverageInformationKeys === undefined
-      ? undefined
-      : informationKeysOf(rawCoverageInformationKeys.join(','))
-  } catch {
-    coverageInformationKeys = undefined
-  }
-  const completePlanningState = completeTaskState
-    && confirmedHandoff !== undefined
-    && requestedArtifactPaths !== undefined
-    && requestedArtifactPaths.length === rawRequestedArtifactPaths?.length
-    && new Set(requestedArtifactPaths).size === requestedArtifactPaths.length
-    && artifactPaths !== undefined
-    && artifactPaths.length === rawArtifactPaths?.length
-    && artifactPaths.length > 0
-    && new Set(artifactPaths).size === artifactPaths.length
-    && artifactPaths.every(path => path.startsWith(`deliverables/${scope.taskKey}/`) && !path.includes('..') && !path.includes('\\'))
-    && coverageInformationKeys !== undefined
-    && coverageInformationKeys.length === rawCoverageInformationKeys?.length
-  const runState = row.runState === 'running' || row.runState === 'stop_requested' || row.runState === 'draining' || row.runState === 'cancelled' || row.runState === 'failed_to_stop' ? row.runState : undefined
+  const dispatchDemand = nonEmpty(row.dispatchDemand)
+  const rawDispatchAttachmentPaths = Array.isArray(row.dispatchAttachmentPaths) ? row.dispatchAttachmentPaths : undefined
+  const dispatchAttachmentPaths = rawDispatchAttachmentPaths?.map(nonEmpty).filter((path): path is string => path !== undefined)
+  const rawDispatchAttachmentContexts = Array.isArray(row.dispatchAttachmentContexts) ? row.dispatchAttachmentContexts : undefined
+  const dispatchAttachmentContexts = rawDispatchAttachmentContexts?.map(taskAttachmentContextOf).filter((context): context is TaskAttachmentContext => context !== undefined)
+  const rawConfirmedMemberIds = Array.isArray(row.confirmedMemberIds) ? row.confirmedMemberIds : undefined
+  const confirmedMemberIds = rawConfirmedMemberIds?.map(nonEmpty).filter((memberId): memberId is string => memberId !== undefined)
+  const team = teams.find(candidate => candidate.id === teamId)
+  const allowedMemberIds = new Set(team?.members.map(member => member.memberId) ?? [])
+  const completeDispatchState = scope.taskKey !== undefined
+    && dispatchPlanId !== undefined
+    && dispatchPlanId.length <= 128
+    && dispatchState !== undefined
+    && dispatchDemand !== undefined
+    && dispatchAttachmentPaths !== undefined
+    && dispatchAttachmentPaths.length === rawDispatchAttachmentPaths?.length
+    && dispatchAttachmentPaths.every(path => !path.startsWith('/') && !path.includes('..') && !path.includes('\\'))
+    && (dispatchState === 'planning'
+      ? confirmedMemberIds === undefined
+      : confirmedMemberIds !== undefined
+        && confirmedMemberIds.length === rawConfirmedMemberIds?.length
+        && confirmedMemberIds.length > 0
+        && new Set(confirmedMemberIds).size === confirmedMemberIds.length
+        && confirmedMemberIds.every(memberId => /^[a-z][a-z0-9_]{2,47}$/u.test(memberId))
+        && (allowedMemberIds.size === 0 || confirmedMemberIds.every(memberId => allowedMemberIds.has(memberId))))
+  const runState = row.runState === 'failed_to_stop'
+    ? 'stop_requested'
+    : row.runState === 'running' || row.runState === 'stop_requested' || row.runState === 'draining' || row.runState === 'cancelled' || row.runState === 'completed' || row.runState === 'failed' ? row.runState : undefined
   const runEpoch = typeof row.runEpoch === 'number' && Number.isSafeInteger(row.runEpoch) && row.runEpoch > 0 ? row.runEpoch : undefined
   const runStateUpdatedAt = nonEmpty(row.runStateUpdatedAt)
   return {
@@ -477,50 +449,19 @@ function bindingOf(value: unknown, teams: readonly PromaxTeam[]): TeamSessionBin
     presetId,
     ...(workspaceId === undefined ? {} : { workspaceId }),
     ...scope,
-    ...(completeTaskState ? { tier, coverageRevision, taskPackagePath, slots } : {}),
-    ...(completePlanningState ? {
-      confirmedHandoff: confirmedHandoff!,
-      requestedArtifactPaths: requestedArtifactPaths!,
-      artifactPaths: artifactPaths!,
-      coverageInformationKeys: coverageInformationKeys!,
+    ...(completeDispatchState ? {
+      dispatchPlanId,
+      dispatchState,
+      dispatchDemand,
+      dispatchAttachmentPaths,
+      ...(dispatchAttachmentContexts !== undefined
+        && dispatchAttachmentContexts.length === rawDispatchAttachmentContexts?.length
+        && dispatchAttachmentContexts.every(context => dispatchAttachmentPaths?.includes(context.path))
+        ? { dispatchAttachmentContexts }
+        : {}),
+      ...(confirmedMemberIds === undefined ? {} : { confirmedMemberIds }),
     } : {}),
     ...(runState === undefined ? {} : { runState, ...(runEpoch === undefined ? {} : { runEpoch }), ...(runStateUpdatedAt === undefined ? {} : { runStateUpdatedAt }) }),
-  }
-}
-
-function taskSlotOf(value: unknown): TaskSlotView | null {
-  if (typeof value !== 'object' || value === null) return null
-  const row = value as Record<string, unknown>
-  const slotId = nonEmpty(row.slot_id)
-  const memberId = nonEmpty(row.member_id)
-  const label = nonEmpty(row.label)
-  const status = row.status
-  if (slotId === undefined || memberId === undefined || label === undefined
-    || !['provided', 'produced', 'pending', 'empty_non_blocking', 'gap'].includes(String(status))) return null
-  const provides = Array.isArray(row.provides) ? informationKeysOf(row.provides.join(',')) : []
-  const requires = Array.isArray(row.requires) ? informationKeysOf(row.requires.join(',')) : []
-  const missing = Array.isArray(row.missing) ? informationKeysOf(row.missing.join(',')) : []
-  if (!Array.isArray(row.satisfied_by)) return null
-  const satisfiedBy = row.satisfied_by.flatMap(value => {
-    if (typeof value !== 'object' || value === null) return []
-    const item = value as Record<string, unknown>
-    const sourceId = nonEmpty(item.source_id)
-    const informationKey = nonEmpty(item.information_key)
-    const locator = nonEmpty(item.locator)
-    if (sourceId === undefined || informationKey === undefined || locator === undefined
-      || !INFORMATION_KEYS.includes(informationKey as InformationKey)) return []
-    return [{ source_id: sourceId, information_key: informationKey as InformationKey, locator }]
-  })
-  if (satisfiedBy.length !== row.satisfied_by.length) return null
-  return {
-    slot_id: slotId,
-    member_id: memberId,
-    label,
-    status: status as TaskSlotView['status'],
-    provides,
-    requires,
-    satisfied_by: satisfiedBy,
-    missing,
   }
 }
 
@@ -854,7 +795,25 @@ export function bindTeamSession(binding: TeamSessionBinding): void {
   }))
 }
 
-export function setTeamSessionRunState(sessionId: string, runState: 'running' | 'stop_requested' | 'draining' | 'cancelled' | 'failed_to_stop', updatedAt = new Date().toISOString()): void {
+export function confirmTeamSessionDispatch(sessionId: string, confirmedMemberIds: readonly string[]): void {
+  updateTeamState(current => ({
+    ...current,
+    sessionBindings: current.sessionBindings.map(binding => binding.sessionId === sessionId
+      ? { ...binding, dispatchState: 'confirmed', confirmedMemberIds: [...confirmedMemberIds] }
+      : binding),
+  }))
+}
+
+export function startTeamSessionDispatch(sessionId: string): void {
+  updateTeamState(current => ({
+    ...current,
+    sessionBindings: current.sessionBindings.map(binding => binding.sessionId === sessionId
+      ? { ...binding, dispatchState: 'running' }
+      : binding),
+  }))
+}
+
+export function setTeamSessionRunState(sessionId: string, runState: 'running' | 'stop_requested' | 'draining' | 'cancelled' | 'completed' | 'failed', updatedAt = new Date().toISOString()): void {
   updateTeamState(current => ({
     ...current,
     sessionBindings: current.sessionBindings.map(binding => binding.sessionId === sessionId
@@ -874,10 +833,6 @@ export function teamForSession(state: PromaxTeamState, sessionId: string): Proma
   const selected = state.selected
   if (selected.kind !== 'team' || selected.view !== 'session' || selected.sessionId !== sessionId) return undefined
   return state.teams.find(team => team.id === selected.teamId)
-}
-
-export function revisionLabel(revision: TeamRevisionNumber): string {
-  return revision === 'compat' ? '兼容版本' : `Revision ${revision}`
 }
 
 export function resetTeamStateForTests(): void {

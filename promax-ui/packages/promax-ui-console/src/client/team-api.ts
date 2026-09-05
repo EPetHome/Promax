@@ -77,12 +77,6 @@ async function post(operation: string, body: Record<string, unknown>): Promise<R
   return payload
 }
 
-function randomId(prefix: string): string {
-  const random = globalThis.crypto?.randomUUID?.().replaceAll('-', '').slice(0, 16)
-    ?? Math.random().toString(36).slice(2, 18).padEnd(8, '0')
-  return `${prefix}_${random.toLowerCase()}`
-}
-
 async function sha256(content: string): Promise<string> {
   if (globalThis.crypto?.subtle === undefined) throw new Error('当前浏览器不支持配置文档哈希校验')
   const digest = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(content))
@@ -291,17 +285,6 @@ export async function configurePromaxTeam(input: InstantiateTeamInput & { config
     },
     message: assistantMessage,
   }
-}
-
-export async function publishPromaxTeamDraft(definition: Record<string, unknown>): Promise<TeamProvisioningResult> {
-  const response = await post('publish', {
-    api_version: API_VERSION,
-    kind: 'PublishRequest',
-    request_id: randomId('pub'),
-    revision: 1,
-    team_definition: definition,
-  })
-  return resultFromDefinition(definition, response.team_revision, response.preset_id, 'ready')
 }
 
 export function routedTeamPrompt(text: string, targetMemberIds: readonly string[]): string {

@@ -21,7 +21,7 @@
 - `recipes/`：版本化 PromptRecipe；
 - `modules/`：Agent 线维护的官方 AgentModule；
 - `definitions/`：需要发布为新 TeamRevision 的团队定义；
-- `agents/product-solution/skills-v1/`：为分发包保留的三份不可变 Skill `@1` 快照；新正文不得覆盖这些文件；
+- `../agents/*/skills/` 与 `../agents/shared/skills/`：28 个原版 Skill 的唯一源码目录；
 - `catalogs/skills.yml`：版本化 Skill 允许目录；
 - `catalogs/tool-profiles.yml`：工具策略目录；
 - `catalogs/rubrics.yml`：`prd/diagram/prototype/customer-research-report` 四类内部验证产物的领域 Judge 规则；
@@ -84,7 +84,7 @@ POST /promax-team-api/v1alpha2/publish
 - Judge 任一二元检查失败即阻断；原 worker 最多修复两轮，申诉或两轮后仍失败必须交给人。诊断分只存档，不参与放行。
 - TeamRevision 的 preset 在新会话创建时固定，旧会话不静默迁移。
 - 默认消息进入 coordinator；`@member_id/@display_name` 按冻结路由定向 worker。dsh child 通过父会话 tool call 名、返回的 `subagentId` 和 child `parentSession` 映射回稳定 Promax member。
-- 固定 `general` 与 `product-solution` 继续作为 P0 兼容层，不由动态层替换。
+- 固定 `general` 保留；正式产品团队只分发 `promax-team`。
 - 适配器不接收模型密钥、package、Shell 权限、绝对路径或 dsh 原生策略覆盖。
 
 进一步说明：

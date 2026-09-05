@@ -4,6 +4,7 @@ import { existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from 'n
 import { dirname, join, relative, resolve, sep } from 'node:path'
 import { promisify } from 'node:util'
 import { defineTool } from '@deepseek-ai/dsh-tools'
+import { appendWebEvidence, validateBeforeJudgeExecution } from './harness.mjs'
 
 const execFileAsync = promisify(execFile)
 const MEMBER_RE = /(?:^|\n)PROMAX_MEMBER_ID:([a-z][a-z0-9_]{2,47})(?:\n|$)/g
@@ -192,6 +193,73 @@ function releaseChildTools(childCtx, installation) {
   for (const dispose of installation.disposers.reverse()) dispose()
 }
 
+function textBlocks(message) {
+  const result = message?.content?.[0]?.content
+  if (!Array.isArray(result)) return ''
+  return result.filter(block => block?.type === 'text' && typeof block.text === 'string').map(block => block.text).join('\n')
+}
+
+function taskKeyOf(session) {
+  const text = session.events
+    .filter(event => event.type === 'user/message')
+    .flatMap(event => event.data.content ?? [])
+    .filter(block => block?.type === 'text' && typeof block.text === 'string')
+    .map(block => block.text)
+    .join('\n')
+  const match = text.match(/"task_key"\s*:\s*"([^"]+)"/u)
+    ?? text.match(/task_key\s*=\s*"([^"]+)"/u)
+    ?? text.match(/task[_-]key\s*:\s*([^\s>]+)/u)
+  return match?.[1]
+}
+
+function resultHttpStatus(text, fallback) {
+  const match = text.match(/\bHTTP\s+([1-5][0-9]{2})\b/i) ?? text.match(/"(?:status|statusCode|http_status)"\s*:\s*([1-5][0-9]{2})/i)
+  return match ? Number(match[1]) : fallback
+}
+
+function webUrls(call, text) {
+  if (call.data.name === 'web_fetch') {
+    try {
+      const input = JSON.parse(call.data.arguments)
+      if (typeof input?.url === 'string') return [input.url]
+    } catch {}
+  }
+  return [...new Set([...text.matchAll(/https?:\/\/[^\s<>"')\]]+/g)].map(match => match[0].replace(/[.,;:!?]+$/u, '')))].slice(0, 10)
+}
+
+function installWebEvidenceHook(ctx) {
+  return ctx.on('session/event', (session, event) => {
+    if (event.type !== 'tool/result') return
+    const callId = event.data.message?.source?.callId
+    const call = [...session.events].reverse().find(candidate => candidate.type === 'tool/call' && candidate.data.callId === callId)
+    if (!call || !['web_search', 'web_fetch'].includes(call.data.name)) return
+    const taskKey = taskKeyOf(session)
+    if (!taskKey) throw new Error('联网证据未落盘：会话缺少 PROMAX_SESSION_SCOPE task_key')
+    const text = textBlocks(event.data.message)
+    if (!text.trim()) throw new Error('联网证据未落盘：工具结果没有可冻结正文或摘要')
+    const isError = Boolean(event.data.error || event.data.message?.content?.[0]?.isError)
+    const fetchStatus = call.data.name === 'web_fetch' && !isError ? 'success' : 'failed'
+    const urls = webUrls(call, text)
+    if (urls.length === 0) throw new Error('联网证据未落盘：工具结果没有来源 URL')
+    const httpStatus = resultHttpStatus(text, fetchStatus === 'success' ? 200 : 0)
+    for (const url of urls) {
+      appendWebEvidence({
+        workspaceRoot: session.header.cwd,
+        taskKey,
+        url,
+        capturedAt: new Date(event.time).toISOString(),
+        fetchStatus,
+        httpStatus,
+        content: fetchStatus === 'success' ? text : `仅搜索摘要，未取得正文。\n\n${text}`,
+      })
+    }
+  })
+}
+
+function installDeliveryEvidenceGate(ctx) {
+  return ctx.on('tools/pre-execute', validateBeforeJudgeExecution)
+}
+
 export function apply(ctx, config = {}) {
   const resolved = {
     larkCliPath: String(config.larkCliPath ?? ''),
@@ -207,4 +275,6 @@ export function apply(ctx, config = {}) {
       'promax-external-capabilities.one-shot-child',
     )
   })
+  installWebEvidenceHook(ctx)
+  installDeliveryEvidenceGate(ctx)
 }

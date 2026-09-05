@@ -9,7 +9,24 @@
 - id: ui-brand-official
   disabled: true
 
+# Promax requires both public fetch and DeepSeek-backed search. These rows
+# deliberately patch the base ids so the composition has one owner per web
+# capability while this distributable bundle records the complete assembly.
+- id: web-search-deepseek
+  name: '@deepseek-ai/dsh-web-search-deepseek'
+  config:
+    apiKeyEnv: DEEPSEEK_API_KEY
+
+- id: tool-web
+  name: '@deepseek-ai/dsh-tool-web'
+  config:
+    fetch: true
+    searchTimeoutMs: 60000
+
 - insert:
+    - id: web-fetch-http
+      name: '@deepseek-ai/dsh-web-fetch-http'
+
     - id: promax-workspace-bootstrap
       name: '@promax/promax-bundle'
       config:
@@ -29,7 +46,6 @@
 
     - id: promax-report
       name: '@promax/promax-report'
-      disabled: !!js Boolean(!(process.env.PROMAX_EMPLOYEE_ID && process.env.PROMAX_ACCESS_TOKEN && process.env.PROMAX_REFRESH_TOKEN))
       config:
         baseUrl: !!js process.env.PROMAX_API_BASE_URL ?? 'http://127.0.0.1:3001'
         accessToken: !!js process.env.PROMAX_ACCESS_TOKEN ?? 'not-configured'

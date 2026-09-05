@@ -1,6 +1,6 @@
 {
   "name": "@promax/team-harness",
-  "version": "0.5.6",
+  "version": "0.6.6",
   "private": true,
   "type": "module",
   "main": "src/dsh-adapter.mjs",
@@ -11,7 +11,8 @@
     "./external-capabilities": "./src/external-capabilities.mjs",
     "./harness": "./src/harness.mjs",
     "./member-skill-provider": "./src/member-skill-provider.mjs",
-    "./task-run-guard": "./src/task-run-guard.mjs",
+    "./telemetry-runtime": "./src/telemetry-runtime.mjs",
+    "./telemetry-store": "./src/telemetry-store.mjs",
     "./package.json": "./package.json"
   },
   "files": [
@@ -28,9 +29,10 @@
     "src/external-capabilities.mjs",
     "src/harness.mjs",
     "src/member-skill-provider.mjs",
-    "src/task-run-guard.mjs",
+    "src/telemetry-runtime.mjs",
+    "src/telemetry-store.mjs",
     "README.md",
-    "generated/promax-team-mtcjsbcz-04tpe2-r12"
+    "generated/promax-team"
   ],
   "description": "Promax 动态 Agent 团队契约、编译器与静态校验。",
   "scripts": {

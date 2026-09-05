@@ -225,6 +225,6 @@ GUI 运行记录的稳定主键是 `team_revision_id + parent_session_id + child
 
 ## 6. P0 兼容
 
-固定 `general` 和 `product-solution` 不通过动态 publish 接口重编译。P0 产品团队的三份 Skill、四个产物、A1/G0-G6、稳定回执和会话 preset 映射保持不变；动态团队是增量路径。
+固定 `general` 不通过动态 publish 接口重编译；正式产品团队只使用固定 `promax-team`，覆盖前必须完整归档并验证非空。
 
 团队聊天验收还必须覆盖连续消息、pending question/approval、queue 可见性、处理中/失败反馈和 Chat/Trajectory。单轮模型成功与文件落盘只证明执行链路，不证明会话交互完整。

@@ -23,7 +23,7 @@ importers:
   packages/promax-report:
     dependencies:
       '@deepseek-ai/schemastery':
-        specifier: ^3.18.1
+        specifier: 3.18.1
         version: 3.18.1
       yaml:
         specifier: 2.8.1

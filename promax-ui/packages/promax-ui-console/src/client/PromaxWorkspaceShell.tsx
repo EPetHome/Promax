@@ -1,59 +1,33 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
-import type { ConsoleTaskStateResponse } from '@promax/contracts'
 
 import { Icon } from '../components/icons.tsx'
 import { installPromaxConsoleStyles } from '../styles.ts'
 import { ConsoleLauncher } from './ConsoleLauncher.tsx'
-import { taskRunProjectionOf, type TaskRunFileSnapshot, type TaskRunProjection } from './task-run-projection.ts'
-import { PromaxApiClient } from '../data/api-client.ts'
-import { BrowserTokenStore } from '../data/token-store.ts'
 import {
-  draftSessionView,
-  draftUserTurnCount,
-  enableDraftTracking,
-  handoffMarkdown,
-  latestDraftSessionId,
-  markDraftNoticeSeen,
-  observeDraftConversation,
-  readDraftState,
-  setDraftTrackingEnabled,
-  startDraftSession,
-  useDraftState,
-  type DraftSectionId,
-} from './draft-state.ts'
-import { routedTeamPrompt } from './team-api.ts'
-import { artifactPresentationOf, inferCoverageInformationKeys, recommendArtifactPaths } from './handoff-presentation.ts'
+  dispatchExecutionMessage,
+  dispatchPlanningMessage,
+  latestDispatchPlanResult,
+  type DispatchPlan,
+} from './dispatch-planning.ts'
+import { TASK_ATTACHMENT_ACCEPT, taskAttachmentSelectionError, uniqueTaskAttachmentName, type TaskAttachmentContext } from './task-attachments.ts'
+import { taskRunProjectionOf, type TaskHistoryItem, type TaskRunFileSnapshot, type TaskRunProjection } from './task-run-projection.ts'
+import { PromaxSettingsPanel, type PromaxSettingsService } from './PromaxSettings.tsx'
 import {
-  INFORMATION_KEYS,
-  INFORMATION_KEY_LABELS,
-  calculateTaskPlan,
-  slotVisual,
-  type InformationKey,
-  type TaskPlanningArtifact,
-  type TaskPlanningMember,
-  type TaskSlotView,
-  type TaskTier,
-} from './task-planning.ts'
-import {
-  GENERAL_PRESET_ID,
   PRODUCT_TEAM_ID,
-  attachWorkspace,
   bindTeamSession,
   bindingForSession,
-  revisionLabel,
-  sessionScopeNameFromPrompt,
-  selectGeneralWorkspace,
+  confirmTeamSessionDispatch,
   selectTeamHome,
   selectTeamSession,
   setTeamSessionRunState,
+  startTeamSessionDispatch,
   teamForSession,
   useTeamState,
   type PromaxTeam,
   type PromaxTeamState,
   type TeamArtifactDefinition,
   type TeamMember,
-  type TeamRevisionNumber,
   type TeamSessionBinding,
 } from './team-state.ts'
 
@@ -96,41 +70,24 @@ export type SelectorHook<State> = <Selected>(selector: (state: State) => Selecte
 
 export interface WorkspaceShellActions {
   startSession: (workspaceId: string, presetId: string) => Promise<string>
+  sendSessionMessage: (sessionId: string, text: string) => Promise<void>
   openSession: (sessionId: string) => void
   clearSession: () => void
   archiveSession: (sessionId: string) => Promise<void>
   renameSession: (sessionId: string, title: string) => Promise<void>
-  prepareSessionScope: (input: { workspaceId: string; projectPath: string; sessionId: string; sessionName: string }) => Promise<{ sessionName: string; taskKey: string; relativePath: string }>
-  createProjectWorkspace: (input: { projectName: string; parentPath?: string }) => Promise<WorkspaceView>
-  pickProjectDirectory: () => Promise<string | null>
-  writeTaskPackage: (input: {
+  saveTaskAttachments: (input: {
     workspaceId: string
     projectPath: string
-    project: string
     sessionId: string
-    taskKey: string
-    teamRevisionId: string
-    confirmedAt: string
-    confirmedHandoff: string
-    handoffEdited: boolean
-    requestedArtifactPaths: string[]
-    coverageInformationKeys: InformationKey[]
-    coverageWasOverridden: boolean
-    members: TaskPlanningMember[]
-    artifacts: TaskPlanningArtifact[]
-  }) => Promise<{
-    taskPackagePath: string
-    coveragePath: string
-    slotsPath: string
-    inputManifestPath: string
-    tier: TaskTier
-    coverageRevision: number
-    artifactPaths: string[]
-    slots: TaskSlotView[]
-  }>
-  readTaskRunFiles: (input: { workspaceId: string; projectPath: string; sessionId: string; taskKey: string; artifactPaths: string[] }) => Promise<TaskRunFileSnapshot>
+    demand: string
+    files: Array<{ name: string; mediaType: string; contentBase64: string }>
+  }) => Promise<{ paths: string[]; attachments: TaskAttachmentContext[]; manifestPath: string; taskKey: string; sessionName: string }>
+  beginDispatchPlan: (input: { sessionId: string; taskKey: string; rosterMemberIds: string[] }) => Promise<{ planId: string; taskKey: string }>
+  confirmDispatchPlan: (input: { workspaceId: string; projectPath: string; sessionId: string; planId: string; confirmedMemberIds: string[]; artifacts: Array<{ path: string; memberId: string }> }) => Promise<{ planId: string; taskKey: string; confirmedMemberIds: string[]; confirmedAt: string }>
+  readTaskRunFiles: (input: { workspaceId: string; projectPath: string; sessionId: string; taskKey: string }) => Promise<TaskRunFileSnapshot>
+  readTaskHistory: (input: { workspaceId: string; projectPath: string }) => Promise<TaskHistoryItem[]>
+  openTaskFolder: (input: { workspaceId: string; projectPath: string; sessionId: string; taskKey: string }) => Promise<{ path: string }>
   stopTeamTask: (input: { workspaceId: string; projectPath: string; sessionId: string; taskKey: string; runEpoch: number }) => Promise<{ state: 'cancelled'; runEpoch: number }>
-  openWorkspacePath: (path: string) => Promise<void>
   teamRoutingAvailable: boolean
 }
 
@@ -144,19 +101,8 @@ interface SidebarProps extends RuntimeProps {
   expandSidebar?: () => void
 }
 
-interface ContextRows {
-  title: string
-  rows: SessionSummary[]
-  team?: PromaxTeam
-  workspace?: WorkspaceView
-}
-
 function isPathLeaf(path: string, leaf: string): boolean {
   return path.replace(/[/\\]+$/u, '').split(/[/\\]/u).pop()?.toLowerCase() === leaf
-}
-
-export function generalWorkspaceOf(workspaces: readonly WorkspaceView[]): WorkspaceView | undefined {
-  return workspaces.find(workspace => workspace.title === '草稿' || workspace.title === '通用工作区' || isPathLeaf(workspace.path, 'general'))
 }
 
 function productWorkspaceOf(workspaces: readonly WorkspaceView[]): WorkspaceView | undefined {
@@ -185,19 +131,6 @@ function rowsFromIds(ids: readonly string[], sessions: SessionListState, archive
   return rows.sort((left, right) => right.updatedAt - left.updatedAt)
 }
 
-function sessionsForProject(
-  team: PromaxTeam,
-  workspace: WorkspaceView,
-  state: PromaxTeamState,
-  sessions: SessionListState,
-  archived: readonly string[],
-): SessionSummary[] {
-  const bound = state.sessionBindings
-    .filter(binding => binding.teamId === team.id && binding.workspaceId === workspace.workspaceId)
-    .map(binding => binding.sessionId)
-  return rowsFromIds([...workspace.sessionIds, ...bound], sessions, archived)
-}
-
 export function sessionsForTeam(
   team: PromaxTeam,
   state: PromaxTeamState,
@@ -212,42 +145,133 @@ export function sessionsForTeam(
     ]),
     sessions,
     archived,
-  )
+  ).filter(session => bindingForSession(state, session.id)?.teamId === team.id || session.agentPreset === team.activeRevision?.presetId)
 }
 
-export function contextRows(
-  state: PromaxTeamState,
-  workspaces: readonly WorkspaceView[],
-  sessions: SessionListState,
-  archived: readonly string[],
-): ContextRows {
-  if (state.selected.kind === 'general') {
-    const workspace = generalWorkspaceOf(workspaces)
-    const bound = new Set(state.sessionBindings.map(binding => binding.sessionId))
-    return {
-      title: '草稿',
-      rows: rowsFromIds(workspace?.sessionIds.filter(id => !bound.has(id)) ?? [], sessions, archived),
-      ...(workspace === undefined ? {} : { workspace }),
-    }
-  }
-  const selected = state.selected
-  const team = state.teams.find(candidate => candidate.id === selected.teamId)
-  if (team === undefined) return { title: '项目会话', rows: [] }
-  const projects = workspacesForTeam(team, workspaces)
-  const workspace = projects.find(project => project.workspaceId === selected.workspaceId) ?? projects[0]
+function workspaceForTeamSession(team: PromaxTeam, state: PromaxTeamState, workspaces: readonly WorkspaceView[], sessionId: string): WorkspaceView | undefined {
+  const candidates = workspacesForTeam(team, workspaces)
+  const boundWorkspaceId = bindingForSession(state, sessionId)?.workspaceId
+  return candidates.find(workspace => workspace.workspaceId === boundWorkspaceId)
+    ?? candidates.find(workspace => workspace.sessionIds.includes(sessionId))
+}
+
+interface TaskHistoryView extends TaskHistoryItem {
+  workspaceId: string
+  projectPath: string
+}
+
+interface TaskHistoryState {
+  items: TaskHistoryView[]
+  loading: boolean
+  error?: string
+}
+
+export function isTaskReadTransportError(message: string): boolean {
+  return /(?:failed to fetch|fetch failed|networkerror|network request failed|load failed|connection refused|econnrefused)/iu.test(message)
+}
+
+/** Keep a specific disk/schema failure visible when a later poll only reports that the service disappeared. */
+export function retainedTaskReadError(current: string | undefined, incoming: string): string {
+  if (current !== undefined && !isTaskReadTransportError(current) && isTaskReadTransportError(incoming)) return current
+  return incoming
+}
+
+export const TASK_READ_FAILURE_STABILITY_THRESHOLD = 3
+export const TASK_READ_TRANSPORT_FAILURE_THRESHOLD = TASK_READ_FAILURE_STABILITY_THRESHOLD
+export const TASK_RUN_FAILURE_STABILITY_THRESHOLD = 3
+
+export interface TaskRunSnapshotStability {
+  signature?: string
+  consecutiveReads: number
+}
+
+function transientJudgeFailureSignature(snapshot: TaskRunFileSnapshot): string | undefined {
+  if (snapshot.repair?.state === 'repairing' || snapshot.repair?.state === 'judging' || snapshot.repair?.state === 'exhausted') return undefined
+  if (snapshot.judge.state !== 'fail' && snapshot.judge.state !== 'unverified') return undefined
+  return JSON.stringify([snapshot.judge.state, snapshot.judge.reason ?? ''])
+}
+
+/**
+ * Judge reports are ordinary files and can be observed between the body write
+ * and the final verdict write. Confirm FAIL or an unverified verdict across
+ * three identical reads before publishing it; repair and non-failure states remain immediate.
+ */
+export function taskRunSnapshotDecision(
+  current: TaskRunSnapshotStability,
+  incoming: TaskRunFileSnapshot,
+): { publish: boolean; next: TaskRunSnapshotStability } {
+  const signature = transientJudgeFailureSignature(incoming)
+  if (signature === undefined) return { publish: true, next: { consecutiveReads: 0 } }
+  const consecutiveReads = current.signature === signature ? current.consecutiveReads + 1 : 1
   return {
-    title: workspace?.title ?? '项目',
-    rows: workspace === undefined ? [] : sessionsForProject(team, workspace, state, sessions, archived),
-    team,
-    ...(workspace === undefined ? {} : { workspace }),
+    publish: consecutiveReads >= TASK_RUN_FAILURE_STABILITY_THRESHOLD,
+    next: { signature, consecutiveReads },
   }
 }
 
-function revisionForSession(state: PromaxTeamState, team: PromaxTeam, session: SessionSummary): TeamRevisionNumber | undefined {
-  const binding = bindingForSession(state, session.id)
-  if (binding?.teamId === team.id) return binding.revision
-  const revision = team.activeRevision
-  return revision !== undefined && session.agentPreset === revision.presetId ? revision.revision : undefined
+/**
+ * A polling error is user-visible only after the same failure survives three
+ * reads. One-frame transport, ENOENT, and partially-written schema errors stay
+ * internal; a previously confirmed error remains until a replacement is stable.
+ */
+export function surfacedTaskReadError(
+  current: string | undefined,
+  incoming: string,
+  consecutiveReadFailures: number,
+): string | undefined {
+  const retained = retainedTaskReadError(current, incoming)
+  return consecutiveReadFailures >= TASK_READ_FAILURE_STABILITY_THRESHOLD ? retained : current
+}
+
+function useTaskHistory(workspaces: readonly WorkspaceView[], readTaskHistory: WorkspaceShellActions['readTaskHistory']): TaskHistoryState {
+  const [items, setItems] = useState<TaskHistoryView[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | undefined>(undefined)
+  const failureStability = useRef<{ message?: string; consecutiveReads: number }>({ consecutiveReads: 0 })
+  const workspaceKey = workspaces.map(workspace => `${workspace.workspaceId}:${workspace.path}`).join('|')
+  useEffect(() => {
+    let active = true
+    failureStability.current = { consecutiveReads: 0 }
+    if (workspaces.length === 0) {
+      setItems([])
+      setLoading(false)
+      setError(undefined)
+      return () => { active = false }
+    }
+    setLoading(true)
+    const refresh = async (): Promise<void> => {
+      try {
+        const batches = await Promise.all(workspaces.map(async workspace => {
+          const history = await readTaskHistory({ workspaceId: workspace.workspaceId, projectPath: workspace.path })
+          return history.map(item => ({ ...item, workspaceId: workspace.workspaceId, projectPath: workspace.path }))
+        }))
+        if (!active) return
+        setItems(batches.flat().sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt)))
+        failureStability.current = { consecutiveReads: 0 }
+        setError(undefined)
+      } catch (reason) {
+        if (active) {
+          const message = reason instanceof Error ? reason.message : String(reason)
+          const consecutiveReads = failureStability.current.message === message ? failureStability.current.consecutiveReads + 1 : 1
+          failureStability.current = { message, consecutiveReads }
+          setError(current => surfacedTaskReadError(current, message, consecutiveReads))
+        }
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+    void refresh()
+    const interval = window.setInterval(() => { void refresh() }, 1_000)
+    return () => { active = false; window.clearInterval(interval) }
+  }, [readTaskHistory, workspaceKey])
+  return { items, loading, ...(error === undefined ? {} : { error }) }
+}
+
+function minuteLabel(value: string): string {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '时间无效'
+  const pad = (part: number): string => String(part).padStart(2, '0')
+  return `${String(date.getFullYear())}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
 
 export function EmptyHeroSeat() {
@@ -256,16 +280,14 @@ export function EmptyHeroSeat() {
 
 function SessionRow({
   session,
+  asset,
   current,
-  revision,
-  blankLabel = '新草稿',
   onOpen,
   onRequestDelete,
 }: {
   session: SessionSummary
+  asset: TaskHistoryView
   current: boolean
-  revision?: TeamRevisionNumber
-  blankLabel?: string
   onOpen: () => void
   onRequestDelete: (session: SessionSummary) => void
 }) {
@@ -274,7 +296,8 @@ function SessionRow({
   const menuItemRef = useRef<HTMLButtonElement>(null)
   const actionsRef = useRef<HTMLButtonElement>(null)
   const menuId = useId()
-  const title = session.blank ? blankLabel : session.displayTitle
+  const title = asset.taskKey
+  const statusLabel = asset.status === 'running' ? '执行中' : asset.status === 'completed' ? '已完成' : '失败'
 
   useEffect(() => {
     if (!menuOpen) return
@@ -301,49 +324,51 @@ function SessionRow({
       <button type="button" className="promax-session-row" aria-current={current ? 'page' : undefined} onClick={onOpen}>
         <span className="promax-session-row-copy">
           <span className="promax-session-row-title">{title}</span>
-          {revision === undefined ? null : <small>{revisionLabel(revision)}</small>}
+          <small>{minuteLabel(asset.createdAt)} · {statusLabel} · {asset.fileCount} 个文件</small>
         </span>
         <span
-          className={`promax-session-indicator${session.running ? ' promax-session-indicator--running' : ''}${session.completed ? ' promax-session-indicator--done' : ''}`}
-          aria-label={session.running ? '执行中' : session.completed ? '已完成' : '空闲'}
+          className={`promax-session-indicator${asset.status === 'running' ? ' promax-session-indicator--running' : ''}${asset.status === 'completed' ? ' promax-session-indicator--done' : ''}${asset.status === 'failed' ? ' promax-session-indicator--failed' : ''}`}
+          aria-label={statusLabel}
         />
       </button>
       <button ref={actionsRef} type="button" className="promax-session-actions" aria-label={`会话操作：${title}`} aria-haspopup="menu" aria-controls={menuId} aria-expanded={menuOpen} onClick={() => { setMenuOpen(value => !value) }}><Icon name="more" size={16} /></button>
       {menuOpen ? <div id={menuId} className="promax-session-menu" role="menu" aria-label={`${title}会话操作`}>
-        <button ref={menuItemRef} type="button" className="promax-session-menu-delete" role="menuitem" onClick={() => { setMenuOpen(false); onRequestDelete(session) }}>删除会话</button>
+        <button ref={menuItemRef} type="button" className="promax-session-menu-delete" role="menuitem" onClick={() => { setMenuOpen(false); onRequestDelete(session) }}>隐藏记录</button>
       </div> : null}
     </div>
   )
 }
 
-function SessionDeleteDialog({ session, busy, error, onCancel, onConfirm }: {
-  session: SessionSummary
+function SessionDeleteDialog({ taskKey, busy, error, onCancel, onConfirm }: {
+  taskKey: string
   busy: boolean
   error: string | null
   onCancel: () => void
   onConfirm: () => void
 }) {
   const cancelRef = useRef<HTMLButtonElement>(null)
-  const title = session.blank ? '新会话' : session.displayTitle
+  const title = taskKey
   useDialogKeyboard(true, onCancel, cancelRef)
   return createPortal(
     <div className="promax-team-create-backdrop">
       <section className="promax-team-create-dialog promax-session-delete-dialog" role="dialog" aria-modal="true" aria-labelledby="promax-delete-session-heading" aria-describedby="promax-delete-session-description">
-        <header><div><span className="promax-eyebrow">会话操作</span><h2 id="promax-delete-session-heading">删除会话？</h2><p id="promax-delete-session-description">“{title}”将从列表中移除。会话记录仍保留在本机归档中，项目文件不会删除。</p></div><button type="button" className="promax-icon-button" aria-label="关闭删除会话确认" disabled={busy} onClick={onCancel}><Icon name="close" size={15} /></button></header>
+        <header><div><span className="promax-eyebrow">记录操作</span><h2 id="promax-delete-session-heading">隐藏这条记录？</h2><p id="promax-delete-session-description">“{title}”只会从左侧列表隐藏；磁盘里的 `deliverables/{title}/`、冻结输入和 Judge 报告都不会删除。</p></div><button type="button" className="promax-icon-button" aria-label="关闭隐藏记录确认" disabled={busy} onClick={onCancel}><Icon name="close" size={15} /></button></header>
         {error === null ? null : <div className="promax-inline-error" role="alert">{error}</div>}
-        <footer><button ref={cancelRef} type="button" className="promax-button" disabled={busy} onClick={onCancel}>取消</button><button type="button" className="promax-button promax-button--danger" disabled={busy} onClick={onConfirm}>{busy ? '正在删除…' : '删除会话'}</button></footer>
+        <footer><button ref={cancelRef} type="button" className="promax-button" disabled={busy} onClick={onCancel}>取消</button><button type="button" className="promax-button promax-button--danger" disabled={busy} onClick={onConfirm}>{busy ? '正在隐藏…' : '确认隐藏'}</button></footer>
       </section>
     </div>,
     document.body,
   )
 }
 
-function useDialogKeyboard(open: boolean, onClose: () => void, focusRef: RefObject<HTMLElement | null>): void {
+function useDialogKeyboard(open: boolean, onClose: () => void, focusRef: RefObject<HTMLElement | null>, returnFocusRef?: RefObject<HTMLElement | null>): void {
   const closeHandlerRef = useRef(onClose)
   useEffect(() => { closeHandlerRef.current = onClose }, [onClose])
   useEffect(() => {
     if (!open) return
-    const returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : undefined
+    const returnFocus = returnFocusRef?.current ?? (document.activeElement instanceof HTMLElement ? document.activeElement : undefined)
+    const previousBodyOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
     focusRef.current?.focus()
     const onKeyDown = (event: KeyboardEvent): void => {
       if (event.key === 'Escape') {
@@ -363,64 +388,10 @@ function useDialogKeyboard(open: boolean, onClose: () => void, focusRef: RefObje
     document.addEventListener('keydown', onKeyDown)
     return () => {
       document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = previousBodyOverflow
       returnFocus?.focus({ preventScroll: true })
     }
-  }, [focusRef, open])
-}
-
-function FirstDraftNotice({ onContinue, onCancel }: { onContinue: () => void; onCancel: () => void }) {
-  const continueRef = useRef<HTMLButtonElement>(null)
-  useDialogKeyboard(true, onCancel, continueRef)
-  return createPortal(
-    <div className="promax-team-create-backdrop">
-      <section className="promax-team-create-dialog" role="dialog" aria-modal="true" aria-labelledby="promax-first-draft-heading">
-        <header><div><span className="promax-eyebrow">草稿记录</span><h2 id="promax-first-draft-heading">Promax 会同步整理交底草稿</h2><p>默认开启。对话仍在草稿区进行；发送至少一条内容后，就能把整理结果和原始对话一起交给产品智能体团队。</p></div></header>
-        <div className="promax-notice-card"><strong>会记录什么</strong><p>只记录当前草稿会话中的需求信息，不会把草稿自动发给团队。你可以在设置里随时关闭。</p></div>
-        <footer><button type="button" className="promax-button" onClick={onCancel}>取消</button><button ref={continueRef} type="button" className="promax-button promax-button--primary" onClick={onContinue}>知道了，开始草稿</button></footer>
-      </section>
-    </div>,
-    document.body,
-  )
-}
-
-interface ProjectCreateDialogProps {
-  busy: boolean
-  onCancel: () => void
-  onPickDirectory: () => Promise<string | null>
-  onCreate: (input: { projectName: string; parentPath?: string }) => Promise<void>
-}
-
-function ProjectCreateDialog({ busy, onCancel, onPickDirectory, onCreate }: ProjectCreateDialogProps) {
-  const [name, setName] = useState('')
-  const [advanced, setAdvanced] = useState(false)
-  const [parentPath, setParentPath] = useState<string | undefined>()
-  const [error, setError] = useState<string | null>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-  useDialogKeyboard(true, onCancel, inputRef)
-
-  const submit = (): void => {
-    const projectName = name.trim()
-    if (projectName === '') { setError('请填写项目名称'); return }
-    setError(null)
-    void onCreate({ projectName, ...(parentPath === undefined ? {} : { parentPath }) }).catch(reason => {
-      setError(reason instanceof Error ? reason.message : String(reason))
-    })
-  }
-
-  return createPortal(
-    <div className="promax-team-create-backdrop">
-      <section className="promax-team-create-dialog" role="dialog" aria-modal="true" aria-labelledby="promax-create-project-heading">
-        <header><div><span className="promax-eyebrow">产品智能体团队 / 项目</span><h2 id="promax-create-project-heading">新建项目</h2><p>只需要一个名称，Promax 会创建标准目录。</p></div><button type="button" className="promax-icon-button" aria-label="关闭新建项目" disabled={busy} onClick={onCancel}><Icon name="close" size={15} /></button></header>
-        <label className="promax-field"><span>项目名称</span><input ref={inputRef} className="promax-input" value={name} placeholder="例如：云盘" disabled={busy} onChange={event => { setName(event.currentTarget.value) }} /></label>
-        <div className="promax-create-workspace-note"><Icon name="folder" size={16} /><span><strong>{parentPath === undefined ? `~/Promax/${name.trim() || '项目名称'}/` : `${parentPath}/${name.trim() || '项目名称'}/`}</strong><small>包含 输入/草稿、输入/源文件、产出 和 .promax 管理目录。</small></span></div>
-        <button type="button" className="promax-link-button" aria-expanded={advanced} onClick={() => { setAdvanced(value => !value) }}>高级：自定义目录</button>
-        {advanced ? <div className="promax-custom-path"><span>{parentPath ?? '尚未选择，仍使用默认目录'}</span><button type="button" className="promax-button" disabled={busy} onClick={() => { void onPickDirectory().then(path => { if (path !== null) setParentPath(path) }) }}>选择目录</button></div> : null}
-        {error === null ? null : <div className="promax-inline-error" role="alert">{error}</div>}
-        <footer><button type="button" className="promax-button" disabled={busy} onClick={onCancel}>取消</button><button type="button" className="promax-button promax-button--primary" disabled={busy} onClick={submit}>{busy ? '正在创建…' : '创建项目'}</button></footer>
-      </section>
-    </div>,
-    document.body,
-  )
+  }, [focusRef, open, returnFocusRef])
 }
 
 export function PromaxSessionBrowser({
@@ -428,36 +399,30 @@ export function PromaxSessionBrowser({
   expandSidebar,
   useWorkspaces,
   useSessions,
-  startSession,
   openSession,
   clearSession,
   archiveSession,
-  createProjectWorkspace,
-  pickProjectDirectory,
+  readTaskHistory,
 }: SidebarProps) {
   useEffect(() => installPromaxConsoleStyles(), [])
   const teamState = useTeamState()
-  const draftState = useDraftState()
   const workspaceState = useWorkspaces(state => state)
   const sessionState = useSessions(state => state)
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [firstNoticeOpen, setFirstNoticeOpen] = useState(false)
-  const [projectCreateOpen, setProjectCreateOpen] = useState(false)
-  const [collapsedProjectIds, setCollapsedProjectIds] = useState<ReadonlySet<string>>(() => new Set())
-  const [deleteTarget, setDeleteTarget] = useState<SessionSummary | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<{ session: SessionSummary; taskKey: string } | null>(null)
   const [deletingSession, setDeletingSession] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [deleteNotice, setDeleteNotice] = useState<string | null>(null)
   const team = teamState.teams.find(item => item.id === PRODUCT_TEAM_ID)
-  const general = generalWorkspaceOf(workspaceState.items)
-  const draftRows = contextRows(
-    { ...teamState, selected: { kind: 'general', ...(general === undefined ? {} : { workspaceId: general.workspaceId }) } },
-    workspaceState.items,
-    sessionState,
-    workspaceState.archivedSessionIds,
-  ).rows
-  const projects = team === undefined ? [] : workspacesForTeam(team, workspaceState.items)
+  const teamWorkspaces = team === undefined ? [] : workspacesForTeam(team, workspaceState.items)
+  const homeWorkspace = productWorkspaceOf(teamWorkspaces) ?? teamWorkspaces[0]
+  const sessions = team === undefined ? [] : sessionsForTeam(team, teamState, workspaceState.items, sessionState, workspaceState.archivedSessionIds)
+  const sessionById = new Map(sessions.map(session => [session.id, session]))
+  const history = useTaskHistory(teamWorkspaces, readTaskHistory)
+  const rows = history.items.flatMap(asset => {
+    const session = sessionById.get(asset.sessionId)
+    return session === undefined ? [] : [{ session, asset }]
+  })
+  const homeSelected = teamState.selected.kind !== 'team' || teamState.selected.view === 'home'
 
   useEffect(() => {
     if (deleteNotice === null) return
@@ -469,31 +434,15 @@ export function PromaxSessionBrowser({
     return <button type="button" className="promax-context-rail-button" aria-label="展开 Promax 导航" title="Promax 导航" onClick={expandSidebar}><Icon name="team" size={19} /></button>
   }
 
-  const startNewDraft = (): void => {
-    if (general === undefined || busy) return
-    setBusy(true)
-    setError(null)
-    void startSession(general.workspaceId, GENERAL_PRESET_ID).then(sessionId => {
-      startDraftSession(sessionId)
-      selectGeneralWorkspace(general.workspaceId)
-      openSession(sessionId)
-    }).catch(reason => { setError(reason instanceof Error ? reason.message : String(reason)) }).finally(() => { setBusy(false) })
-  }
-
-  const requestNewDraft = (): void => {
-    if (!draftState.informed) setFirstNoticeOpen(true)
-    else startNewDraft()
-  }
-
-  const requestDeleteSession = (session: SessionSummary): void => {
+  const requestDeleteSession = (session: SessionSummary, taskKey: string): void => {
     setDeleteError(null)
-    setDeleteTarget(session)
+    setDeleteTarget({ session, taskKey })
   }
 
   const confirmDeleteSession = async (): Promise<void> => {
     if (deleteTarget === null || deletingSession) return
-    const sessionId = deleteTarget.id
-    const title = deleteTarget.blank ? '新会话' : deleteTarget.displayTitle
+    const sessionId = deleteTarget.session.id
+    const title = deleteTarget.taskKey
     setDeletingSession(true)
     setDeleteError(null)
     try {
@@ -501,12 +450,11 @@ export function PromaxSessionBrowser({
       if (sessionState.current === sessionId) {
         const binding = bindingForSession(teamState, sessionId)
         if (binding !== undefined) selectTeamHome(binding.teamId, binding.workspaceId)
-        else if (teamState.selected.kind === 'team' && teamState.selected.view === 'session' && teamState.selected.sessionId === sessionId) selectTeamHome(teamState.selected.teamId, teamState.selected.workspaceId)
-        else selectGeneralWorkspace(general?.workspaceId)
+        else if (team !== undefined) selectTeamHome(team.id, homeWorkspace?.workspaceId)
         clearSession()
       }
       setDeleteTarget(null)
-      setDeleteNotice(`已删除会话“${title}”`)
+      setDeleteNotice(`已隐藏“${title}”；磁盘文件未删除`)
     } catch (reason: unknown) {
       setDeleteError(reason instanceof Error ? reason.message : String(reason))
     } finally {
@@ -514,193 +462,24 @@ export function PromaxSessionBrowser({
     }
   }
 
-  const toggleProject = (workspaceId: string): void => {
-    setCollapsedProjectIds(current => {
-      const next = new Set(current)
-      if (next.has(workspaceId)) next.delete(workspaceId)
-      else next.add(workspaceId)
-      return next
-    })
-  }
-
-  const startNewProjectSession = async (workspace: WorkspaceView): Promise<void> => {
-    const revision = team?.activeRevision
-    if (busy || team === undefined || revision === undefined) return
-    setBusy(true)
-    setError(null)
-    try {
-      const sessionId = await startSession(workspace.workspaceId, revision.presetId)
-      bindTeamSession({
-        sessionId,
-        teamId: team.id,
-        revision: revision.revision,
-        presetId: revision.presetId,
-        workspaceId: workspace.workspaceId,
-      })
-      setCollapsedProjectIds(current => {
-        if (!current.has(workspace.workspaceId)) return current
-        const next = new Set(current)
-        next.delete(workspace.workspaceId)
-        return next
-      })
-      openSession(sessionId)
-    } catch (reason: unknown) {
-      setError(reason instanceof Error ? reason.message : String(reason))
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const createProject = async (input: { projectName: string; parentPath?: string }): Promise<void> => {
-    if (busy || team === undefined) return
-    setBusy(true)
-    setError(null)
-    try {
-      const workspace = await createProjectWorkspace(input)
-      attachWorkspace(team.id, workspace.workspaceId)
-      setCollapsedProjectIds(current => {
-        if (!current.has(workspace.workspaceId)) return current
-        const next = new Set(current)
-        next.delete(workspace.workspaceId)
-        return next
-      })
-      clearSession()
-      setProjectCreateOpen(false)
-    } finally {
-      setBusy(false)
-    }
-  }
-
   return (
     <nav className="promax-session-browser" aria-label="Promax 工作入口">
-      <button type="button" className="promax-new-session" disabled={general === undefined || busy} onClick={requestNewDraft}><Icon name="plus" size={15} />新建草稿</button>
-      <section className="promax-nav-section" aria-labelledby="promax-draft-list-heading">
-        <h2 id="promax-draft-list-heading">草稿</h2>
+      <button type="button" className="promax-new-session" aria-current={homeSelected ? 'page' : undefined} disabled={team === undefined || homeWorkspace === undefined} onClick={() => { if (team !== undefined) selectTeamHome(team.id, homeWorkspace?.workspaceId); clearSession() }}><Icon name="plus" size={15} />新需求</button>
+      <section className="promax-nav-section" aria-labelledby="promax-request-list-heading">
+        <h2 id="promax-request-list-heading">需求记录</h2>
         <div className="promax-session-list">
-          {draftRows.length === 0 ? <div className="promax-session-empty">还没有草稿</div> : draftRows.map(session => <SessionRow key={session.id} session={session} current={sessionState.current === session.id} onOpen={() => { selectGeneralWorkspace(general?.workspaceId); openSession(session.id) }} onRequestDelete={requestDeleteSession} />)}
-        </div>
-      </section>
-      <div className="promax-nav-divider" />
-      {team === undefined ? null : <section className="promax-nav-section" aria-labelledby="promax-team-heading">
-        <div className="promax-team-root-row">
-          <button type="button" className="promax-team-root" aria-current={teamState.selected.kind === 'team' ? 'page' : undefined} onClick={() => { selectTeamHome(team.id); clearSession() }}>
-            <span className="promax-team-nav-monogram" aria-hidden="true">产</span><span><strong id="promax-team-heading">产品智能体团队</strong><small>配好的固定团队</small></span>
-          </button>
-          <button type="button" className="promax-project-create" aria-label="新建项目" title="新建项目" onClick={() => { setProjectCreateOpen(true) }}><Icon name="plus" size={14} /></button>
-        </div>
-        <div className="promax-project-tree">
-          <div className="promax-project-tree-header">
-            <h3>项目</h3>
-          </div>
-          {projects.length === 0 ? <div className="promax-session-empty">还没有项目</div> : projects.map(project => {
-            const rows = sessionsForProject(team, project, teamState, sessionState, workspaceState.archivedSessionIds)
-            const collapsed = collapsedProjectIds.has(project.workspaceId)
-            const headingId = `promax-project-heading-${project.workspaceId}`
-            const sessionsId = `promax-project-sessions-${project.workspaceId}`
-            return <section key={project.workspaceId} className="promax-project-node" aria-labelledby={headingId}>
-              <div className="promax-project-header">
-                <h4 id={headingId} className="promax-project-heading"><button type="button" className="promax-project-row" aria-controls={sessionsId} aria-expanded={!collapsed} onClick={() => { toggleProject(project.workspaceId) }}><span className="promax-project-chevron" aria-hidden="true"><Icon name="chevronRight" size={13} /></span><Icon name="folder" size={14} /><span className="promax-project-title">{project.title}</span></button></h4>
-                <button type="button" className="promax-project-new-session" aria-label={`在 ${project.title} 中新建会话`} title="新建会话" disabled={busy || team.activeRevision === undefined} onClick={() => { void startNewProjectSession(project) }}><Icon name="plus" size={14} /></button>
-              </div>
-              {collapsed ? null : <div id={sessionsId} className="promax-project-sessions" role="group" aria-label={`${project.title}会话`}>
-                {rows.length === 0 ? <div className="promax-project-session-empty">还没有会话</div> : rows.map(session => { const revision = revisionForSession(teamState, team, session); return <SessionRow key={session.id} session={session} current={sessionState.current === session.id} blankLabel="新会话" {...revision === undefined ? {} : { revision }} onOpen={() => { selectTeamSession(team.id, session.id, project.workspaceId); openSession(session.id) }} onRequestDelete={requestDeleteSession} /> })}
-              </div>}
-            </section>
+          {history.loading && rows.length === 0 ? <div className="promax-session-empty" role="status">正在读取磁盘记录…</div> : rows.length === 0 ? <div className="promax-session-empty">还没有产出记录</div> : rows.map(({ session, asset }) => {
+            const workspace = teamWorkspaces.find(item => item.workspaceId === asset.workspaceId)
+            return <SessionRow key={session.id} session={session} asset={asset} current={teamState.selected.kind === 'team' && teamState.selected.view === 'session' && (teamState.selected.sessionId ?? sessionState.current) === session.id} onOpen={() => { if (team !== undefined) selectTeamSession(team.id, session.id, workspace?.workspaceId); openSession(session.id) }} onRequestDelete={row => { requestDeleteSession(row, asset.taskKey) }} />
           })}
         </div>
-      </section>}
+      </section>
       {workspaceState.state === 'error' ? <div className="promax-session-error">工作区读取失败</div> : null}
-      {error === null ? null : <div className="promax-session-error" role="alert">{error}</div>}
+      {history.error === undefined ? null : <div className="promax-session-error" role="alert">磁盘记录读取失败：{history.error}</div>}
       {deleteNotice === null ? null : <div className="promax-session-success" role="status">{deleteNotice}</div>}
-      {firstNoticeOpen ? <FirstDraftNotice onCancel={() => { setFirstNoticeOpen(false) }} onContinue={() => { markDraftNoticeSeen(); setFirstNoticeOpen(false); startNewDraft() }} /> : null}
-      {projectCreateOpen ? <ProjectCreateDialog busy={busy} onCancel={() => { if (!busy) setProjectCreateOpen(false) }} onPickDirectory={pickProjectDirectory} onCreate={createProject} /> : null}
-      {deleteTarget === null ? null : <SessionDeleteDialog session={deleteTarget} busy={deletingSession} error={deleteError} onCancel={() => { if (!deletingSession) setDeleteTarget(null) }} onConfirm={() => { void confirmDeleteSession() }} />}
+      {deleteTarget === null ? null : <SessionDeleteDialog taskKey={deleteTarget.taskKey} busy={deletingSession} error={deleteError} onCancel={() => { if (!deletingSession) setDeleteTarget(null) }} onConfirm={() => { void confirmDeleteSession() }} />}
     </nav>
   )
-}
-
-interface SnapshotStore<State> {
-  getSnapshot(): State
-  subscribe(listener: () => void): () => void
-}
-
-interface NativeInputOccurrence {
-  occurrenceId: number
-  source: string
-  ref: string
-  offset: number
-  length: number
-  label: string
-}
-
-interface NativeInputState {
-  draft: string
-  draftRev: number
-  phase: 'plain' | 'adjudicating' | 'claimed' | 'submitting'
-  occurrences: readonly NativeInputOccurrence[]
-}
-
-const nativeTeamPromptHandoffs = new Map<string, string>()
-const nativeTeamPromptListeners = new Set<() => void>()
-let nativeTeamPromptVersion = 0
-
-function subscribeNativeTeamPrompts(listener: () => void): () => void {
-  nativeTeamPromptListeners.add(listener)
-  return () => { nativeTeamPromptListeners.delete(listener) }
-}
-
-function nativeTeamPromptSnapshot(): number {
-  return nativeTeamPromptVersion
-}
-
-export function sessionScopedTeamPrompt(text: string, targetMemberIds: readonly string[], sessionName: string, taskKey: string): string {
-  const routed = routedTeamPrompt(text, targetMemberIds)
-  if (routed === '') return ''
-  const scope = JSON.stringify({ session_name: sessionName, task_key: taskKey, deliverables_root: `deliverables/${taskKey}/`, judge_path: `.promax/judge/${taskKey}/judge.md` })
-  return `<!-- PROMAX_SESSION_SCOPE ${scope} -->\n${routed}`
-}
-
-export function taskPackageTeamPrompt(taskPackagePath: string): string {
-  if (!/^\.promax\/tasks\/[^/]+\/task-package\.yml$/u.test(taskPackagePath)) throw new Error('任务包路径无效')
-  return `请读取并执行内部任务包：${taskPackagePath}`
-}
-
-function stageNativeTeamPrompt(sessionId: string, text: string, targetMemberIds: readonly string[], scope?: { sessionName: string; taskKey: string }): void {
-  const prompt = scope === undefined
-    ? routedTeamPrompt(text, targetMemberIds)
-    : sessionScopedTeamPrompt(text, targetMemberIds, scope.sessionName, scope.taskKey)
-  if (prompt === '') return
-  nativeTeamPromptHandoffs.set(sessionId, prompt)
-  nativeTeamPromptVersion += 1
-  for (const listener of nativeTeamPromptListeners) listener()
-}
-
-async function prepareBoundTeamSession(
-  actions: Pick<WorkspaceShellActions, 'prepareSessionScope' | 'renameSession'>,
-  team: PromaxTeam,
-  workspace: WorkspaceView,
-  sessionId: string,
-  requestedName: string,
-): Promise<{ sessionName: string; taskKey: string }> {
-  const scope = await actions.prepareSessionScope({
-    workspaceId: workspace.workspaceId,
-    projectPath: workspace.path,
-    sessionId,
-    sessionName: requestedName,
-  })
-  await actions.renameSession(sessionId, scope.sessionName)
-  const revision = team.activeRevision
-  if (revision === undefined) throw new Error('团队 Revision 不可用')
-  bindTeamSession({
-    sessionId,
-    teamId: team.id,
-    revision: revision.revision,
-    presetId: revision.presetId,
-    workspaceId: workspace.workspaceId,
-    sessionName: scope.sessionName,
-    taskKey: scope.taskKey,
-  })
-  return scope
 }
 
 interface NativeConversationSnapshot {
@@ -734,6 +513,7 @@ export interface TeamProgressView {
   artifacts: ArtifactProgress[]
   evidence: 'not-started' | 'running' | 'receipt' | 'unverified'
   memberStates?: Record<string, 'idle' | 'running' | 'done' | 'blocked'>
+  repair?: TaskRunProjection['repair']
 }
 
 const teamSessionProgress = new Map<string, NativeConversationSnapshot>()
@@ -761,32 +541,8 @@ function useTeamSessionProgress(sessionId: string | undefined): NativeConversati
   return sessionId === undefined ? undefined : teamSessionProgress.get(sessionId)
 }
 
-const taskRunProjections = new Map<string, TaskRunProjection>()
-const taskRunProjectionListeners = new Set<() => void>()
-let taskRunProjectionVersion = 0
-
-function publishTaskRunProjection(projection: TaskRunProjection): void {
-  taskRunProjections.set(`${projection.taskKey}\u0000${projection.parentSessionId}`, projection)
-  taskRunProjectionVersion += 1
-  for (const listener of taskRunProjectionListeners) listener()
-}
-
-function useTaskRunProjection(sessionId: string | undefined, taskKey: string | undefined): TaskRunProjection | undefined {
-  useSyncExternalStore(
-    listener => { taskRunProjectionListeners.add(listener); return () => { taskRunProjectionListeners.delete(listener) } },
-    () => taskRunProjectionVersion,
-    () => 0,
-  )
-  return sessionId === undefined || taskKey === undefined ? undefined : taskRunProjections.get(`${taskKey}\u0000${sessionId}`)
-}
-
 function isJudgeMember(member: TeamMember): boolean {
   return member.memberId === 'quality_judge'
-}
-
-function businessArtifacts(team: PromaxTeam): TeamArtifactDefinition[] {
-  const businessOwners = new Set(team.members.filter(member => !isJudgeMember(member)).map(member => member.memberId))
-  return team.artifacts.filter(artifact => businessOwners.has(artifact.producedBy))
 }
 
 function artifactLabel(artifact: TeamArtifactDefinition): string {
@@ -798,39 +554,48 @@ function artifactPathForTask(artifact: TeamArtifactDefinition, taskKey: string |
   return taskKey === undefined ? undefined : artifact.relativePath.replaceAll('{task_key}', taskKey)
 }
 
-function isOptionalArtifact(path: string): boolean {
-  return /(?:^|[/\\])(?:business-diagram\.md|prototype\.html)$/iu.test(path)
-}
-
-/** Presentation adapter over the single TaskRunProjection. Transcript text is not an input. */
-export function teamProgressOf(team: PromaxTeam, projection?: TaskRunProjection): TeamProgressView {
-  const rows = projection === undefined
-    ? businessArtifacts(team).map(artifact => ({ artifact, path: artifact.relativePath, state: 'pending' as const, requested: !isOptionalArtifact(artifact.relativePath) }))
-    : Object.entries(projection.artifacts).map(([path, state]) => {
-      const artifact = team.artifacts.find(candidate => artifactPathForTask(candidate, projection.taskKey) === path)
-      if (artifact === undefined) throw new Error(`TaskRunProjection 产物未在 TeamRevision 声明：${path}`)
-      return { artifact, path, state: state.state, requested: state.requested }
-    })
+/** Presentation adapter over the manifest-and-files projection. */
+export function teamProgressOf(team: PromaxTeam, projection?: TaskRunProjection, confirmedMemberIds: readonly string[] = []): TeamProgressView {
   const judge: ProgressState = projection?.judge.state === 'pass' ? 'done'
     : projection?.judge.state === 'fail' ? 'blocked'
       : projection?.judge.state === 'appealed' ? 'appealed'
         : projection?.judge.state === 'human_required' ? 'human-required'
           : projection?.judge.state === 'force_released' ? 'force-released'
-            : projection?.judge.state === 'running' ? 'running' : 'pending'
-  const artifactRows = rows.map(row => ({
-    artifact: row.artifact,
-    label: row.path.split('/').at(-1) ?? artifactLabel(row.artifact),
-    involved: row.requested,
-    generation: row.state === 'pending' ? projection?.members[row.artifact.producedBy]?.state === 'running' ? 'running' as const : 'pending' as const : 'done' as const,
-    judgment: !row.requested ? 'pending' as const : row.state === 'judged' ? judge : row.state === 'produced' && judge === 'running' ? 'running' as const : row.state === 'produced' && judge !== 'pending' ? judge : 'pending' as const,
-  }))
+            : projection?.judge.state === 'unverified' ? 'unverified'
+              : projection?.judge.state === 'running' ? 'running' : 'pending'
+  const artifacts = projection === undefined ? [] : Object.entries(projection.artifacts).map(([path, state]) => {
+    const artifact = team.artifacts.find(candidate => artifactPathForTask(candidate, projection.taskKey) === path)
+    if (artifact === undefined) throw new Error(`TaskRunProjection 产物未在 TeamRevision 声明：${path}`)
+    return {
+      artifact,
+      label: path.split('/').at(-1) ?? artifactLabel(artifact),
+      involved: true,
+      generation: state.state === 'pending' ? 'pending' as const : 'done' as const,
+      judgment: state.state === 'judged'
+        ? judge
+        : state.state === 'produced' && judge !== 'pending'
+          ? judge
+          : 'pending' as const,
+    }
+  })
+  const knownMemberIds = new Set(team.members.map(member => member.memberId))
+  const memberStates = projection === undefined
+    ? Object.fromEntries(confirmedMemberIds.filter(memberId => knownMemberIds.has(memberId)).map(memberId => [memberId, 'idle' as const]))
+    : Object.fromEntries(Object.entries(projection.members).map(([memberId, member]) => [memberId, member.state]))
   return {
-    understanding: projection === undefined ? 'pending' : projection.phase === 'planned' ? 'done' : 'done',
-    splitting: projection === undefined ? 'pending' : Object.values(projection.members).some(member => member.attempt > 0) ? 'done' : projection.phase === 'planned' ? 'pending' : 'done',
+    understanding: projection === undefined ? 'pending' : 'done',
+    splitting: projection === undefined ? 'pending' : 'done',
     delivery: judge,
-    artifacts: artifactRows,
-    evidence: projection === undefined ? 'not-started' : judge !== 'pending' && judge !== 'running' ? 'receipt' : projection.phase === 'running' || projection.phase === 'judging' || projection.phase === 'stopping' ? 'running' : 'unverified',
-    ...(projection === undefined ? {} : { memberStates: Object.fromEntries(Object.entries(projection.members).map(([memberId, member]) => [memberId, member.state])) }),
+    artifacts,
+    evidence: projection === undefined
+      ? 'not-started'
+      : projection.phase === 'completed' || projection.phase === 'blocked'
+        ? 'receipt'
+        : projection.phase === 'running' || projection.phase === 'repairing' || projection.phase === 'judging' || projection.phase === 'stopping'
+          ? 'running'
+          : 'unverified',
+    memberStates,
+    ...(projection?.repair === undefined ? {} : { repair: projection.repair }),
   }
 }
 
@@ -1007,167 +772,9 @@ export function timelineEventsOf(team: PromaxTeam, snapshot: NativeConversationS
   return events.slice(-3)
 }
 
-interface TeamMentionControlProps {
-  sessionId: string
-  input: NativeInputState
-  inputActions: { setDraft(text: string): void; submit(): void }
-  menu: SnapshotStore<{ open: boolean }>
-  launcher: SnapshotStore<string | null>
-  toggleTeamMention(draft: string, draftRev: number): void
-}
-
-function TrackingEnableDialog({ sessionId, onClose }: { sessionId: string; onClose: () => void }) {
-  const backfillRef = useRef<HTMLButtonElement>(null)
-  useDialogKeyboard(true, onClose, backfillRef)
-  return createPortal(
-    <div className="promax-team-create-backdrop">
-      <section className="promax-team-create-dialog" role="dialog" aria-modal="true" aria-labelledby="promax-enable-tracking-heading">
-        <header><div><span className="promax-eyebrow">交底草稿</span><h2 id="promax-enable-tracking-heading">怎样处理前面的对话？</h2><p>当前草稿已经有内容。选择是否把之前的轮次补进交底。</p></div></header>
-        <div className="promax-choice-list">
-          <button ref={backfillRef} type="button" onClick={() => { enableDraftTracking(sessionId, 'backfill'); onClose() }}><strong>补整理</strong><span>回看当前仍可见的对话并补入交底，条目会标记为“⟲ 补整理”。</span></button>
-          <button type="button" onClick={() => { enableDraftTracking(sessionId, 'now'); onClose() }}><strong>只从现在开始</strong><span>保留之前的对话原文，但只整理之后的新信息。</span></button>
-        </div>
-        <footer><button type="button" className="promax-button" onClick={onClose}>取消</button></footer>
-      </section>
-    </div>,
-    document.body,
-  )
-}
-
-/** Adds team member targeting or draft handoff controls without replacing dsh's native composer. */
-export function PromaxConversationInputControl(props: TeamMentionControlProps) {
-  const { sessionId, input, inputActions, menu, launcher, toggleTeamMention } = props
-  const state = useTeamState()
-  const team = teamForSession(state, sessionId)
-  const menuOpen = useSyncExternalStore(menu.subscribe, () => menu.getSnapshot().open, () => false)
-  const launcherName = useSyncExternalStore(launcher.subscribe, () => launcher.getSnapshot(), () => null)
-  const handoffVersion = useSyncExternalStore(subscribeNativeTeamPrompts, nativeTeamPromptSnapshot, () => 0)
-  const expanded = menuOpen && launcherName === 'promax-team-member'
-  const wasExpanded = useRef(false)
-  const selected = input.occurrences.filter(occurrence => occurrence.source === 'promax-team-member')
-
-  useEffect(() => {
-    const handoff = nativeTeamPromptHandoffs.get(sessionId)
-    if (handoff === undefined || input.phase !== 'plain') return
-    nativeTeamPromptHandoffs.delete(sessionId)
-    if (input.draft !== '') return
-    inputActions.setDraft(handoff)
-    queueMicrotask(() => { inputActions.submit() })
-  }, [handoffVersion, input.draft, input.phase, inputActions, sessionId])
-
-  useEffect(() => {
-    if (wasExpanded.current && !expanded) document.querySelector<HTMLTextAreaElement>('[data-composer-card] textarea')?.focus({ preventScroll: true })
-    wasExpanded.current = expanded
-  }, [expanded])
-
-  // Draft sessions intentionally have no team-member tools. Their persistent
-  // status and transfer action live in the page-level banner instead.
-  if (team === undefined) return null
-  if (team.activeRevision === undefined) return null
-
-  const remove = (occurrence: NativeInputOccurrence): void => {
-    const before = input.draft.slice(0, occurrence.offset)
-    let after = input.draft.slice(occurrence.offset + occurrence.length)
-    if (after.startsWith(' ')) after = after.slice(1)
-    inputActions.setDraft(`${before}${after}`)
-  }
-
-  return <div className="promax-native-mentions" aria-label="已指定团队成员">
-    <button type="button" className="promax-native-mention-trigger" aria-label="指定团队成员" aria-expanded={expanded} disabled={input.phase !== 'plain' || team.members.length === 0} onPointerDown={event => { event.stopPropagation() }} onClick={() => { toggleTeamMention(input.draft, input.draftRev) }}>@</button>
-    {selected.map(occurrence => <button key={occurrence.occurrenceId} type="button" className="promax-native-mention-chip" aria-label={`移除 @${occurrence.label}`} onClick={() => { remove(occurrence) }}>@{occurrence.label}<Icon name="close" size={11} /></button>)}
-  </div>
-}
-
-export const PromaxTeamMentionControl = PromaxConversationInputControl
-
-function DraftStatusBanner({ sessionId }: { sessionId: string }) {
-  const draftState = useDraftState()
-  const [enableOpen, setEnableOpen] = useState(false)
-  const turns = draftUserTurnCount(sessionId)
-  const tracking = draftState.enabled && draftSessionView(sessionId).tracking !== 'off'
-  const canHandoff = turns > 0
-
-  return <section className={`promax-draft-status-banner${tracking ? ' is-tracking' : ' is-warning'}`} aria-label="草稿运行边界">
-    <span className="promax-draft-status-icon"><Icon name={tracking ? 'shield' : 'activity'} size={18} /></span>
-    <div className="promax-draft-status-copy">
-      <strong>{tracking ? '草稿模式 · 正在整理交底' : '当前草稿未记录交底'}</strong>
-      <span>草稿不会调用产品团队成员，也不能直接 @；{canHandoff ? '已有内容，可以检查系统理解并开始执行。' : '先发送至少一条草稿内容，即可交给团队。'}</span>
-    </div>
-    <div className="promax-draft-status-actions">
-      {!tracking ? <button type="button" className="promax-draft-status-button" onClick={() => { if (turns > 0) setEnableOpen(true); else enableDraftTracking(sessionId, 'now') }}>开启交底记录</button> : null}
-      <button type="button" className="promax-draft-status-button is-primary" disabled={!canHandoff} title={canHandoff ? '检查任务与推荐结果后开始执行' : '先在当前草稿中发送至少一条内容'} onClick={() => { window.dispatchEvent(new CustomEvent('promax:handoff-request', { detail: { sessionId } })) }}>交给团队 <span aria-hidden="true">→</span></button>
-    </div>
-    {enableOpen ? <TrackingEnableDialog sessionId={sessionId} onClose={() => { setEnableOpen(false) }} /> : null}
-  </section>
-}
-
 interface TeamSessionHeaderProps {
   sessionId: string
   useSession: NativeSessionHook
-}
-
-function ProgressMark({ state, label }: { state: ProgressState; label: string }) {
-  const mark = state === 'done' ? '✓'
-    : state === 'blocked' || state === 'human-required' ? '⚠'
-      : state === 'appealed' ? '!'
-        : state === 'force-released' ? '◆'
-          : state === 'running' ? '↻' : state === 'unverified' ? '?' : '○'
-  return <span className={`promax-progress-mark promax-progress-mark--${state}`}><span aria-hidden="true">{mark}</span>{label}</span>
-}
-
-function TeamMembersButton({ team }: { team: PromaxTeam }) {
-  const [open, setOpen] = useState(false)
-  const [page, setPage] = useState(0)
-  const triggerRef = useRef<HTMLButtonElement>(null)
-  const closeRef = useRef<HTMLButtonElement>(null)
-  const members = team.members.filter(member => member.enabled)
-  const pageCount = Math.max(1, Math.ceil(members.length / 6))
-  const currentPage = Math.min(page, pageCount - 1)
-  const pageMembers = members.slice(currentPage * 6, currentPage * 6 + 6)
-  useEffect(() => { if (open) closeRef.current?.focus() }, [open])
-  useEffect(() => {
-    if (!open) return
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key !== 'Escape') return
-      setOpen(false)
-      triggerRef.current?.focus()
-    }
-    document.addEventListener('keydown', onKeyDown)
-    return () => { document.removeEventListener('keydown', onKeyDown) }
-  }, [open])
-  const close = (): void => { setOpen(false); triggerRef.current?.focus() }
-  return <>
-    <button ref={triggerRef} type="button" className="promax-native-members-trigger" aria-expanded={open} onClick={() => { setOpen(true) }}><Icon name="users" size={14} />成员·{members.length}</button>
-    {open ? createPortal(<div className="promax-members-layer"><button type="button" className="promax-members-scrim" aria-label="关闭团队成员" onClick={close} /><aside className="promax-members-drawer" aria-label={`${team.name}团队成员`}><header><div><span className="promax-eyebrow">Promax 团队</span><h2>团队成员</h2><p>{team.name} · 第 {currentPage + 1} / {pageCount} 页</p></div><button ref={closeRef} type="button" className="promax-icon-button" aria-label="关闭团队成员抽屉" onClick={close}><Icon name="close" size={15} /></button></header><div className="promax-members-list">{pageMembers.map(member => <article key={member.memberId} className="promax-member-row"><span className="promax-team-member-avatar"><Icon name="agent" size={16} /></span><div><strong>{member.displayName}</strong><small>{member.role === 'coordinator' ? 'Coordinator' : 'Worker'} · {member.memberId}</small><p>{member.objective || '已配置团队职责'}</p></div><em>已配置</em></article>)}</div>{pageCount > 1 ? <footer className="promax-pagination"><button type="button" className="promax-button" disabled={currentPage === 0} onClick={() => { setPage(value => Math.max(0, value - 1)) }}>上一页</button><span>{currentPage + 1} / {pageCount} · 共 {members.length} 名</span><button type="button" className="promax-button" disabled={currentPage >= pageCount - 1} onClick={() => { setPage(value => Math.min(pageCount - 1, value + 1)) }}>下一页</button></footer> : null}</aside></div>, document.body) : null}
-  </>
-}
-
-function TeamFilesButton({ team, workspace, progress, openWorkspacePath }: { team: PromaxTeam; workspace: WorkspaceView | undefined; progress: TeamProgressView; openWorkspacePath: WorkspaceShellActions['openWorkspacePath'] }) {
-  const [open, setOpen] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const triggerRef = useRef<HTMLButtonElement>(null)
-  const closeRef = useRef<HTMLButtonElement>(null)
-  useEffect(() => { if (open) closeRef.current?.focus() }, [open])
-  useEffect(() => {
-    if (!open) return
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key !== 'Escape') return
-      setOpen(false)
-      triggerRef.current?.focus()
-    }
-    document.addEventListener('keydown', onKeyDown)
-    return () => { document.removeEventListener('keydown', onKeyDown) }
-  }, [open])
-  const close = (): void => { setOpen(false); triggerRef.current?.focus() }
-  const openProject = (): void => {
-    if (workspace === undefined) return
-    setError(null)
-    void openWorkspacePath(workspace.path).catch(reason => { setError(reason instanceof Error ? reason.message : String(reason)) })
-  }
-  return <>
-    <button ref={triggerRef} type="button" className="promax-native-members-trigger" aria-expanded={open} disabled={workspace === undefined} onClick={() => { setOpen(true) }}><Icon name="folder" size={14} />文件</button>
-    {open ? createPortal(<div className="promax-members-layer"><button type="button" className="promax-members-scrim" aria-label="关闭项目文件" onClick={close} /><aside className="promax-members-drawer promax-files-drawer" aria-label={`${workspace?.title ?? team.name}项目文件`}><header><div><span className="promax-eyebrow">项目目录</span><h2>{workspace?.title ?? '尚未选择项目'}</h2><p>{workspace?.path ?? '请先从常驻导航选择项目'}</p></div><button ref={closeRef} type="button" className="promax-icon-button" aria-label="关闭项目文件抽屉" onClick={close}><Icon name="close" size={15} /></button></header><div className="promax-file-tree"><section><strong><Icon name="folder" size={14} />输入/</strong><span>草稿/ · 源文件/（团队只读）</span></section><section><strong><Icon name="folder" size={14} />产出/</strong><small>当前任务实际产物路径：deliverables/{'{task_key}'}/</small>{progress.artifacts.length === 0 ? <p>运行时团队定义尚未同步产物清单。</p> : <ul>{progress.artifacts.map(row => <li key={row.artifact.relativePath}><span><Icon name="artifact" size={13} /><span><strong>{row.label}</strong><small>{row.artifact.relativePath}</small></span></span><ProgressMark state={row.judgment} label={progressLabel(row.judgment, 'judgment')} /></li>)}</ul>}</section></div>{error === null ? null : <div className="promax-inline-error" role="alert">{error}</div>}<footer className="promax-files-footer"><span>状态来自当前会话证据；没有 Judge 回执时不显示通过。</span><button type="button" className="promax-button" disabled={workspace === undefined} onClick={openProject}>打开项目目录</button></footer></aside></div>, document.body) : null}
-  </>
 }
 
 /** Observes native turns; visible team navigation is hosted by shell.overlay so blank sessions have it too. */
@@ -1177,9 +784,8 @@ export function PromaxTeamSessionHeader({ sessionId, useSession }: TeamSessionHe
   const snapshot = useSession(value => value)
 
   useEffect(() => {
-    if (team === undefined) observeDraftConversation(sessionId, snapshot.nodes)
-    else publishTeamSessionProgress(sessionId, snapshot)
-  }, [sessionId, snapshot, snapshot.nodes, team])
+    if (team !== undefined) publishTeamSessionProgress(sessionId, snapshot)
+  }, [sessionId, snapshot, snapshot.lastAgentError, snapshot.nodes, snapshot.running, snapshot.runningCalls, team])
   useEffect(() => () => { forgetTeamSessionProgress(sessionId) }, [sessionId])
 
   return null
@@ -1210,427 +816,358 @@ export function PromaxProcessAction({ sessionId, messageId, useSession }: Proces
   return <details className="promax-process-detail"><summary>处理过程</summary><div className="promax-process-panel"><strong>第 {turn} 轮 · {failed ? '失败' : '完成'}</strong><ol><li>任务提交：已接收</li><li>团队协调：已执行</li>{toolCalls > 0 ? <li>成员/工具调用：{toolCalls} 项</li> : null}<li>结果汇总：{failed ? '未完成' : '已完成'}</li></ol><p>{duration === undefined ? '详细时间线可在 Trajectory 查看。' : `耗时 ${(duration / 1000).toFixed(1)} 秒；详细时间线可在 Trajectory 查看。`}</p></div></details>
 }
 
-const OUTLINE_SECTIONS: Array<[DraftSectionId, string]> = [['background', '背景'], ['goal', '要解决什么'], ['constraints', '已知约束'], ['open', '还没定的']]
-
-function DraftOutlinePanel({ sessionId }: { sessionId: string }) {
-  useDraftState()
-  const [collapsed, setCollapsed] = useState(false)
-  const session = draftSessionView(sessionId)
-  return <aside className={`promax-draft-panel${collapsed ? ' promax-draft-panel--collapsed' : ''}`} aria-label="交底草稿">
-    <header><div><span className="promax-eyebrow">自动整理</span><h2>交底草稿</h2></div><button type="button" className="promax-icon-button" aria-label={collapsed ? '展开交底草稿' : '收起交底草稿'} onClick={() => { setCollapsed(value => !value) }}><Icon name="panelRight" size={16} /></button></header>
-    {collapsed ? null : <><p>随对话增量整理；交给团队前可编辑。</p>{session.compacted ? <div className="promax-inline-warning">对话发生过压缩，建议转交前检查交底内容。</div> : null}<div className="promax-draft-outline">{OUTLINE_SECTIONS.map(([id, label]) => { const rows = session.outline.filter(item => item.section === id); return <section key={id}><h3>{label}</h3>{rows.length === 0 ? <span>暂无</span> : <ul>{rows.map(item => <li key={item.id}>{item.backfilled ? <em>⟲ 补整理</em> : null}{item.text}</li>)}</ul>}</section> })}</div></>}
-  </aside>
+function contentBase64(file: File): Promise<string> {
+  return file.arrayBuffer().then(buffer => {
+    const bytes = new Uint8Array(buffer)
+    let binary = ''
+    for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+      binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000))
+    }
+    return window.btoa(binary)
+  })
 }
 
-function TeamSessionToolbar({ team, workspace, sessionId, session, sessions, clearSession, openWorkspacePath }: { team: PromaxTeam; workspace: WorkspaceView | undefined; sessionId: string | undefined; session: SessionSummary | undefined; sessions: SessionListState; clearSession: WorkspaceShellActions['clearSession']; openWorkspacePath: WorkspaceShellActions['openWorkspacePath'] }) {
-  const teamState = useTeamState()
-  const snapshot = useTeamSessionProgress(sessionId)
-  const projection = useTaskRunProjection(sessionId, sessionId === undefined ? undefined : bindingForSession(teamState, sessionId)?.taskKey)
-  const progress = teamProgressOf(team, projection)
-  const tree = teamSessionTreeOf(sessionId, sessions)
-  const availability = teamAvailabilityOf(snapshot, session, tree)
-  const goTeam = (): void => { selectTeamHome(team.id); clearSession() }
-  const goProject = (): void => { selectTeamHome(team.id, workspace?.workspaceId); clearSession() }
-  return <header className="promax-team-session-toolbar" aria-label="团队会话导航">
-    <div className="promax-native-team-header">
-      <nav className="promax-native-breadcrumb" aria-label="团队会话层级"><button type="button" onClick={goTeam}>{team.name}</button><span aria-hidden="true">/</span><button type="button" onClick={goProject}>{workspace?.title ?? '项目'}</button></nav>
-      <span className="promax-native-room-context" title={`${team.name} · ${team.activeRevision?.presetId ?? '未配置'}`}>
-        <span className="promax-room-mark" aria-hidden="true">P</span><span className="promax-native-room-copy"><strong>{team.coordinator.displayName}</strong><small>统筹 · {team.members.filter(member => member.enabled).length} 名成员</small></span><span className={`promax-native-room-state${availability.tone === 'active' ? ' promax-native-room-state--running' : ''}`} role="status" aria-atomic="true">{availability.label}</span>
-      </span>
-      <TeamFilesButton team={team} workspace={workspace} progress={progress} openWorkspacePath={openWorkspacePath} />
-      <TeamMembersButton team={team} />
-    </div>
-  </header>
+type SubmissionStage = 'idle' | 'creating' | 'preparing' | 'planning'
+
+const SUBMISSION_STEPS: Array<{ stage: Exclude<SubmissionStage, 'idle'>; label: string }> = [
+  { stage: 'creating', label: '创建需求记录' },
+  { stage: 'preparing', label: '上传并解析附件' },
+  { stage: 'planning', label: '根据正文生成派单建议' },
+]
+
+function SubmissionProgress({ stage, hasFiles }: { stage: Exclude<SubmissionStage, 'idle'>; hasFiles: boolean }) {
+  const effectiveSteps = hasFiles ? SUBMISSION_STEPS : SUBMISSION_STEPS.filter(step => step.stage !== 'preparing')
+  const currentIndex = effectiveSteps.findIndex(step => step.stage === stage)
+  return <section className="promax-submission-progress" aria-live="polite" aria-label="需求处理进度">
+    <strong>{stage === 'creating' ? '正在创建需求记录' : stage === 'preparing' ? '正在上传并读取文件内容' : '文件已就绪，正在规划团队'}</strong>
+    <ol>{effectiveSteps.map((step, index) => <li key={step.stage} className={index < currentIndex ? 'is-done' : index === currentIndex ? 'is-active' : ''}><span aria-hidden="true" />{step.label}</li>)}</ol>
+    <p>当前需求和附件会保留在页面上，请勿重复提交。</p>
+  </section>
 }
 
-function TeamProgressRail({ team, workspace, sessionId, openWorkspacePath }: { team: PromaxTeam; workspace: WorkspaceView | undefined; sessionId: string | undefined; openWorkspacePath: WorkspaceShellActions['openWorkspacePath'] }) {
-  const teamState = useTeamState()
-  const progress = teamProgressOf(team, useTaskRunProjection(sessionId, sessionId === undefined ? undefined : bindingForSession(teamState, sessionId)?.taskKey))
-  const evidenceLabel = progress.evidence === 'not-started'
-    ? '当前会话 0 turn：尚未开始'
-    : progress.evidence === 'running' ? '运行中：等待稳定回执' : progress.evidence === 'receipt' ? '已读取当前会话稳定回执' : '未检测到稳定回执：不推测通过状态'
-  const labelFor = (state: ProgressState, stage: 'generation' | 'judgment'): string => {
-    if (state === 'done') return stage === 'generation' ? '已生成' : '已通过'
-    if (state === 'blocked') return stage === 'generation' ? '生成失败' : '未通过'
-    if (state === 'appealed') return '已申诉 · 等待人工处理'
-    if (state === 'human-required') return '需要人工处理'
-    if (state === 'force-released') return '人工强制放行 · 非 Judge 通过'
-    if (state === 'running') return stage === 'generation' ? '生成中' : '判定中'
-    if (state === 'unverified') return '未验证'
-    return stage === 'generation' ? '尚未生成' : '未判定'
-  }
-  return <aside className="promax-team-progress-rail" aria-label="团队进度">
-    <header><div><span className="promax-eyebrow">状态与结果</span><h2>进度</h2></div><span className="promax-progress-revision">r{team.activeRevision?.revision ?? '—'}</span></header>
-    <p className="promax-progress-evidence">{evidenceLabel}</p>
-    <ol className="promax-progress-tree">
-      <li className="promax-progress-step"><ProgressMark state={progress.understanding} label="理解需求" /></li>
-      <li className="promax-progress-step"><ProgressMark state={progress.splitting} label="拆分任务" /></li>
-      <li className="promax-progress-branches"><span>并行产出</span>{progress.artifacts.length === 0 ? <div className="promax-progress-empty">运行时团队定义尚未同步产物清单。</div> : <ul>{progress.artifacts.map(row => <li key={row.artifact.relativePath}><div className="promax-progress-artifact-title"><Icon name="artifact" size={14} /><span><strong>{row.label}</strong><small>{row.artifact.producedBy}</small></span></div><div className="promax-progress-artifact-stages"><ProgressMark state={row.generation} label={`生成·${labelFor(row.generation, 'generation')}`} /><ProgressMark state={row.judgment} label={`判定·${labelFor(row.judgment, 'judgment')}`} /></div><button type="button" className="promax-progress-open" disabled={row.generation !== 'done' || workspace === undefined} title={row.generation === 'done' ? '打开项目目录定位产物' : '产物尚未生成'} onClick={() => { if (workspace !== undefined) void openWorkspacePath(workspace.path) }}>打开</button></li>)}</ul>}</li>
-      <li className="promax-progress-step promax-progress-step--delivery"><ProgressMark state={progress.delivery} label="终审交付" /></li>
-    </ol>
-  </aside>
+export function taskMessageWithAttachments(text: string, paths: readonly string[]): string {
+  const wanted = text.trim()
+  if (paths.length === 0) return wanted
+  return `${wanted}\n\n附件路径（相对当前工作目录）：\n${paths.map(path => `- ${path}`).join('\n')}`
 }
 
-function TeamHome({ team, workspace, startSession, openSession, clearSession, renameSession, prepareSessionScope, openWorkspacePath }: { team: PromaxTeam; workspace: WorkspaceView | undefined; startSession: WorkspaceShellActions['startSession']; openSession: WorkspaceShellActions['openSession']; clearSession: WorkspaceShellActions['clearSession']; renameSession: WorkspaceShellActions['renameSession']; prepareSessionScope: WorkspaceShellActions['prepareSessionScope']; openWorkspacePath: WorkspaceShellActions['openWorkspacePath'] }) {
+function TeamHome({ team, workspace, history, startSession, sendSessionMessage, openSession, renameSession, saveTaskAttachments, beginDispatchPlan, openTaskFolder }: Pick<WorkspaceShellActions, 'startSession' | 'sendSessionMessage' | 'openSession' | 'renameSession' | 'saveTaskAttachments' | 'beginDispatchPlan' | 'openTaskFolder'> & { team: PromaxTeam; workspace: WorkspaceView | undefined; history: TaskHistoryState }) {
   const [draft, setDraft] = useState('')
+  const [files, setFiles] = useState<Array<{ file: File; uploadName: string }>>([])
   const [busy, setBusy] = useState(false)
+  const [submissionStage, setSubmissionStage] = useState<SubmissionStage>('idle')
   const [error, setError] = useState<string | null>(null)
+  const [attachmentError, setAttachmentError] = useState<string | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
   const revision = team.activeRevision
+  const addFiles = (incoming: FileList | readonly File[] | null): void => {
+    if (incoming === null) return
+    const selected = Array.from(incoming)
+    const issue = taskAttachmentSelectionError([...files.map(item => ({ name: item.uploadName, size: item.file.size })), ...selected])
+    setAttachmentError(issue)
+    if (issue === null) {
+      const used = new Set(files.map(item => item.uploadName))
+      setFiles([...files, ...selected.map(file => ({ file, uploadName: uniqueTaskAttachmentName(file.name, used) }))])
+    }
+  }
   const send = (): void => {
-    if (workspace === undefined || revision === undefined || draft.trim() === '' || busy) return
+    if (workspace === undefined || revision === undefined || team.members.length === 0 || (draft.trim() === '' && files.length === 0) || busy || attachmentError !== null) return
     setBusy(true)
+    setSubmissionStage('creating')
     setError(null)
     void startSession(workspace.workspaceId, revision.presetId).then(async sessionId => {
-      const scope = await prepareBoundTeamSession({ renameSession, prepareSessionScope }, team, workspace, sessionId, sessionScopeNameFromPrompt(draft))
-      stageNativeTeamPrompt(sessionId, draft.trim(), [], scope)
-      selectTeamSession(team.id, sessionId, workspace.workspaceId)
-      openSession(sessionId)
-    }).catch(reason => { setError(reason instanceof Error ? reason.message : String(reason)) }).finally(() => { setBusy(false) })
-  }
-  return <main className="promax-team-home" aria-label={`${team.name}项目界面`}>
-    <section className="promax-team-home-main">
-      <header className="promax-team-home-header">
-        <div className="promax-team-identity">
-          <span className="promax-team-identity-mark" aria-hidden="true">产</span>
-          <div className="promax-team-identity-copy">
-            <nav className="promax-team-breadcrumb" aria-label="团队层级">
-              <button type="button" aria-label={`返回${team.name}`} onClick={() => { selectTeamHome(team.id); clearSession() }}>{team.name}</button>
-              {workspace === undefined ? null : <><span aria-hidden="true">/</span><button type="button" aria-label={`当前项目：${workspace.title}`} onClick={() => { selectTeamHome(team.id, workspace.workspaceId); clearSession() }}>{workspace.title}</button></>}
-            </nav>
-            <div className="promax-team-title-line"><h1>{workspace?.title ?? '选择项目'}</h1><span className="promax-team-state promax-team-state--published">团队已配置</span></div>
-            <p className="promax-team-mission">{team.description}</p>
-            <p className="promax-team-meta">{team.coordinator.displayName}统筹 · {team.members.filter(member => member.enabled).length} 名成员</p>
-          </div>
-        </div>
-        <div className="promax-team-home-actions"><TeamFilesButton team={team} workspace={workspace} progress={teamProgressOf(team, undefined)} openWorkspacePath={openWorkspacePath} /><TeamMembersButton team={team} /><button type="button" className="promax-button" disabled={workspace === undefined} onClick={() => { if (workspace !== undefined) void openWorkspacePath(workspace.path).catch(reason => { setError(reason instanceof Error ? reason.message : String(reason)) }) }}><Icon name="folder" size={15} />打开项目目录</button></div>
-      </header>
-      <div className="promax-team-interaction"><div className="promax-team-prompt-block"><div className="promax-room-intro"><span className="promax-room-sequence" aria-hidden="true">01</span><div><span className="promax-eyebrow">新任务</span><h2>{workspace === undefined ? '请新建或选择项目' : `把目标交给 ${team.name}`}</h2><p>{workspace === undefined ? '使用常驻导航中的项目树进入工作区。' : '团队配置固定；任务和产物都隔离在当前项目。'}</p></div></div><textarea className="promax-team-prompt" value={draft} disabled={workspace === undefined || busy} placeholder="描述要交给产品团队的任务……" onChange={event => { setDraft(event.currentTarget.value) }} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send() } }} /><div className="promax-team-prompt-actions"><span>{workspace?.path ?? '尚未选择项目'}</span><button type="button" className="promax-button promax-button--primary" disabled={workspace === undefined || busy || draft.trim() === ''} onClick={send}>{busy ? '正在发送…' : '发送给团队'}</button></div></div></div>
-      {error === null ? null : <div className="promax-team-page-error" role="alert">{error}</div>}
-    </section>
-  </main>
-}
-
-export function fourPartHandoffMarkdown(input: {
-  wanted: string
-  available: string
-  startingPoint: readonly string[]
-  knownGaps: readonly InformationKey[]
-}): string {
-  return [
-    '## 要什么',
-    input.wanted.trim(),
-    '',
-    '## 手上有什么',
-    input.available.trim(),
-    '',
-    '## 从哪儿接',
-    input.startingPoint.length === 0 ? '- 0 产物：保留在草稿，不启动执行会话' : input.startingPoint.map(path => `- ${path}`).join('\n'),
-    '',
-    '## 已知缺口',
-    input.knownGaps.length === 0
-      ? '- 无；所有 requires 都有经确认的来源或由本次计划成员提供'
-      : input.knownGaps.map(key => `- ${INFORMATION_KEY_LABELS[key]}：由用户补充、选择补跑，或在产物中明确标为假设`).join('\n'),
-  ].join('\n')
-}
-
-function planningMembersOf(team: PromaxTeam): TaskPlanningMember[] {
-  return team.members
-    .filter(member => member.enabled && (member.provides.length > 0 || member.requires.length > 0))
-    .map(member => ({ memberId: member.memberId, label: member.displayName, provides: member.provides, requires: member.requires }))
-}
-
-function planningArtifactsOf(team: PromaxTeam): TaskPlanningArtifact[] {
-  const businessMemberIds = new Set(planningMembersOf(team).map(member => member.memberId))
-  return team.artifacts
-    .filter(artifact => businessMemberIds.has(artifact.producedBy) && !artifact.relativePath.startsWith('.promax/judge/'))
-    .map(artifact => ({ relativePath: artifact.relativePath, producedBy: artifact.producedBy, required: artifact.required === true }))
-}
-
-function teamRevisionIdOf(team: PromaxTeam): string {
-  const presetId = team.activeRevision?.presetId ?? ''
-  const match = /^promax-(team-[a-z0-9-]+)-r([1-9][0-9]*)$/u.exec(presetId)
-  if (match === null) throw new Error('无法从 preset 取得 TeamRevision 标识')
-  return `${match[1]}@r${match[2]}`
-}
-
-function TransferDialog({ sessionId, sourceSessionTitle, projects, team, actions, onClose }: { sessionId: string; sourceSessionTitle: string | undefined; projects: WorkspaceView[]; team: PromaxTeam; actions: Pick<WorkspaceShellActions, 'writeTaskPackage' | 'startSession' | 'openSession' | 'renameSession' | 'prepareSessionScope'>; onClose: () => void }) {
-  useDraftState()
-  const session = draftSessionView(sessionId)
-  const onsite = !readDraftState().enabled || session.tracking === 'off'
-  const [workspaceId, setWorkspaceId] = useState(projects[0]?.workspaceId ?? '')
-  const originalWanted = useMemo(() => handoffMarkdown(sessionId, onsite), [onsite, sessionId])
-  const originalAvailable = '当前草稿中由用户输入并在本确认框核对的内容；确认后冻结为 SRC-001。'
-  const [wanted, setWanted] = useState(originalWanted)
-  const artifacts = useMemo(() => planningArtifactsOf(team), [team])
-  const members = useMemo(() => planningMembersOf(team), [team])
-  const initialRecommendations = useMemo(() => recommendArtifactPaths(originalWanted, artifacts), [artifacts, originalWanted])
-  const [requestedArtifactPaths, setRequestedArtifactPaths] = useState<string[]>(initialRecommendations)
-  const recommendedArtifactPaths = useMemo(() => recommendArtifactPaths(wanted, artifacts), [artifacts, wanted])
-  const recommendedArtifactSet = useMemo(() => new Set(recommendedArtifactPaths), [recommendedArtifactPaths])
-  const defaultCoverage = useMemo(() => inferCoverageInformationKeys(originalWanted), [originalWanted])
-  const coverageInformationKeys = useMemo(() => inferCoverageInformationKeys(wanted), [wanted])
-  const missingInformationKeys = useMemo(() => INFORMATION_KEYS.filter(key => !coverageInformationKeys.includes(key)), [coverageInformationKeys])
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const selectRef = useRef<HTMLSelectElement>(null)
-  useDialogKeyboard(true, onClose, selectRef)
-  const workspace = projects.find(project => project.workspaceId === workspaceId)
-  const coverage = coverageInformationKeys.map(informationKey => ({ sourceId: 'SRC-001', informationKey, locator: '经确认交底 · 可定位行范围' }))
-  const preview = calculateTaskPlan({
-    taskKey: 'preview',
-    members,
-    artifacts,
-    requestedArtifactPaths,
-    coverage,
-  })
-  const confirmedHandoff = fourPartHandoffMarkdown({
-    wanted,
-    available: `${originalAvailable}\n\n覆盖信息项：${coverageInformationKeys.length === 0 ? '无' : coverageInformationKeys.map(key => INFORMATION_KEY_LABELS[key]).join('、')}`,
-    startingPoint: preview.requestedArtifactPaths,
-    knownGaps: preview.unresolved,
-  })
-  const toggleArtifact = (path: string): void => {
-    setRequestedArtifactPaths(current => current.includes(path) ? current.filter(item => item !== path) : [...current, path])
-  }
-  const plannedMemberLabels = preview.slots.filter(slot => preview.memberIds.includes(slot.member_id)).map(slot => slot.label)
-  const recommendationSelectionMatches = requestedArtifactPaths.length === recommendedArtifactPaths.length
-    && recommendedArtifactPaths.every(path => requestedArtifactPaths.includes(path))
-  const renderArtifactChoice = (artifact: TaskPlanningArtifact, recommended: boolean): ReactNode => {
-    const presentation = artifactPresentationOf(artifact.relativePath)
-    return <label className="promax-artifact-choice" key={artifact.relativePath}>
-      <input type="checkbox" checked={requestedArtifactPaths.includes(artifact.relativePath)} disabled={busy} onChange={() => { toggleArtifact(artifact.relativePath) }} />
-      <span><strong>{presentation.label}{recommended ? <em>推荐</em> : null}</strong><small>{recommended ? `推荐理由：${presentation.recommendationReason}` : presentation.description}</small></span>
-    </label>
-  }
-  const submit = (): void => {
-    const revision = team.activeRevision
-    if (busy) return
-    if (preview.tier === 'draft') { onClose(); return }
-    if (workspace === undefined || revision === undefined || wanted.trim() === '') return
-    setBusy(true)
-    setError(null)
-    void actions.startSession(workspace.workspaceId, revision.presetId).then(async teamSessionId => {
-      const requestedName = sourceSessionTitle === undefined || sourceSessionTitle.trim() === '' ? sessionScopeNameFromPrompt(wanted) : sessionScopeNameFromPrompt(sourceSessionTitle)
-      const scope = await prepareBoundTeamSession(actions, team, workspace, teamSessionId, requestedName)
-      const saved = await actions.writeTaskPackage({
+      setSubmissionStage(files.length === 0 ? 'planning' : 'preparing')
+      const saved = await saveTaskAttachments({
         workspaceId: workspace.workspaceId,
         projectPath: workspace.path,
-        project: workspace.title,
-        sessionId: teamSessionId,
-        taskKey: scope.taskKey,
-        teamRevisionId: teamRevisionIdOf(team),
-        confirmedAt: new Date().toISOString(),
-        confirmedHandoff,
-        handoffEdited: wanted !== originalWanted,
-        requestedArtifactPaths,
-        coverageInformationKeys,
-        coverageWasOverridden: coverageInformationKeys.length !== defaultCoverage.length
-          || coverageInformationKeys.some(key => !defaultCoverage.includes(key)),
-        members,
-        artifacts,
+        sessionId,
+        demand: draft,
+        files: await Promise.all(files.map(async ({ file, uploadName }) => ({ name: uploadName, mediaType: file.type || 'application/octet-stream', contentBase64: await contentBase64(file) }))),
       })
+      const sessionName = saved.sessionName
+      const effectiveDemand = draft.trim() === '' ? saved.taskKey : draft.trim()
+      await renameSession(sessionId, sessionName)
+      setSubmissionStage('planning')
+      const opened = await beginDispatchPlan({ sessionId, taskKey: saved.taskKey, rosterMemberIds: team.members.map(member => member.memberId) })
+      await sendSessionMessage(sessionId, dispatchPlanningMessage({
+        demand: effectiveDemand,
+        attachmentPaths: saved.paths,
+        attachmentContexts: saved.attachments,
+        team,
+        planId: opened.planId,
+        taskKey: opened.taskKey,
+      }))
       bindTeamSession({
-        sessionId: teamSessionId,
+        sessionId,
         teamId: team.id,
         revision: revision.revision,
         presetId: revision.presetId,
         workspaceId: workspace.workspaceId,
-        sessionName: scope.sessionName,
-        taskKey: scope.taskKey,
-        tier: saved.tier,
-        coverageRevision: saved.coverageRevision,
-        taskPackagePath: saved.taskPackagePath,
-        slots: saved.slots,
-        confirmedHandoff,
-        requestedArtifactPaths,
-        artifactPaths: saved.artifactPaths,
-        coverageInformationKeys,
-        runState: 'running',
-        runEpoch: 1,
-        runStateUpdatedAt: new Date().toISOString(),
+        sessionName,
+        taskKey: opened.taskKey,
+        dispatchPlanId: opened.planId,
+        dispatchState: 'planning',
+        dispatchDemand: effectiveDemand,
+        dispatchAttachmentPaths: saved.paths,
+        dispatchAttachmentContexts: saved.attachments,
       })
-      stageNativeTeamPrompt(teamSessionId, taskPackageTeamPrompt(saved.taskPackagePath), [])
-      selectTeamSession(team.id, teamSessionId, workspace.workspaceId)
-      actions.openSession(teamSessionId)
-      onClose()
-    }).catch(reason => { setError(reason instanceof Error ? reason.message : String(reason)); setBusy(false) })
+      selectTeamSession(team.id, sessionId, workspace.workspaceId)
+      openSession(sessionId)
+    }).catch(reason => { setError(reason instanceof Error ? reason.message : String(reason)) }).finally(() => { setBusy(false); setSubmissionStage('idle') })
   }
-  return createPortal(<div className="promax-team-create-backdrop">
-    <section className="promax-transfer-dialog" role="dialog" aria-modal="true" aria-labelledby="promax-transfer-heading">
-      <header><div><span className="promax-eyebrow">草稿 → 产品团队</span><h2 id="promax-transfer-heading">确认任务</h2><p>检查系统理解和推荐结果，确认后开始执行。</p></div><button type="button" className="promax-icon-button" aria-label="关闭转交" disabled={busy} onClick={onClose}><Icon name="close" size={15} /></button></header>
-      {onsite ? <div className="promax-inline-warning"><strong>草稿记录不完整</strong><span>本次只能根据当前仍可见的对话整理，请先检查任务描述。</span></div> : null}
-      {session.compacted ? <div className="promax-inline-warning"><strong>部分早期对话已被压缩</strong><span>请检查系统理解是否遗漏重要信息。</span></div> : null}
-      <label className="promax-field"><span>目标项目</span><select ref={selectRef} className="promax-input" value={workspaceId} disabled={busy} onChange={event => { setWorkspaceId(event.currentTarget.value) }}>{projects.map(project => <option key={project.workspaceId} value={project.workspaceId}>{project.title}</option>)}</select></label>
-      {projects.length === 0 ? <div className="promax-inline-error">还没有项目，请先通过常驻导航新建项目。</div> : null}
-
-      <section className="promax-transfer-step" aria-labelledby="promax-understanding-heading">
-        <h3 id="promax-understanding-heading">1. 系统理解</h3>
-        <p>这是系统从草稿中整理出的任务，可直接修改。</p>
-        <textarea aria-label="系统理解的任务" className="promax-textarea promax-transfer-editor" value={wanted} disabled={busy} onChange={event => { setWanted(event.currentTarget.value) }} />
-      </section>
-
-      <section className="promax-transfer-step" aria-labelledby="promax-missing-heading">
-        <h3 id="promax-missing-heading">2. 还缺什么</h3>
-        <div className="promax-understanding-summary">
-          <p><strong>已识别：</strong>{coverageInformationKeys.length === 0 ? '暂未识别到明确任务信息' : coverageInformationKeys.map(key => INFORMATION_KEY_LABELS[key]).join('、')}</p>
-          <p><strong>尚未说明：</strong>{missingInformationKeys.length === 0 ? '无' : missingInformationKeys.map(key => INFORMATION_KEY_LABELS[key]).join('、')}</p>
-        </div>
-        <small>这些信息不一定阻塞执行；团队会根据最终交付物补齐必要部分，并明确标注假设。</small>
-      </section>
-
-      <section className="promax-transfer-step" aria-labelledby="promax-deliverables-heading">
-        <div className="promax-transfer-step-title"><div><h3 id="promax-deliverables-heading">3. 推荐交付结果</h3><p>系统已根据任务目标预选，你可以调整。</p></div>{recommendationSelectionMatches ? null : <button type="button" className="promax-link-button" disabled={busy} onClick={() => { setRequestedArtifactPaths(recommendedArtifactPaths) }}>使用推荐</button>}</div>
-        <div className="promax-artifact-choices">{artifacts.filter(artifact => recommendedArtifactSet.has(artifact.relativePath)).map(artifact => renderArtifactChoice(artifact, true))}</div>
-        <details className="promax-advanced-details"><summary>更多可选结果（{artifacts.filter(artifact => !recommendedArtifactSet.has(artifact.relativePath)).length}）</summary><div className="promax-artifact-choices">{artifacts.filter(artifact => !recommendedArtifactSet.has(artifact.relativePath)).map(artifact => renderArtifactChoice(artifact, false))}</div></details>
-      </section>
-
-      <section className="promax-transfer-step" aria-labelledby="promax-execution-heading">
-        <h3 id="promax-execution-heading">4. 执行计划</h3>
-        <p>{plannedMemberLabels.length === 0 ? '未选择交付结果，不会启动团队执行。' : <>预计由 {plannedMemberLabels.length} 个专业角色协作：{plannedMemberLabels.join('、')}。</>}</p>
-        <details className="promax-advanced-details"><summary>查看高级详情</summary><div className="promax-slot-preview" aria-label={`动态槽位（${preview.slots.length}）`}><p>{preview.requestedArtifactPaths.length} 项最终交付{preview.supportingArtifactPaths.length > 0 ? `，${preview.supportingArtifactPaths.length} 项内部支撑` : ''}</p>{preview.slots.map(slot => { const visual = slotVisual(slot.status); return <article key={slot.slot_id} className={`promax-slot promax-slot--${visual.tone}`}><Icon name={visual.icon} size={15} /><span><strong>{slot.label} · {visual.label}</strong><small>{slot.missing.length === 0 ? visual.description : `缺：${slot.missing.map(key => INFORMATION_KEY_LABELS[key]).join('、')}`}</small></span></article> })}</div></details>
-      </section>
-
-      {error === null ? null : <div className="promax-inline-error" role="alert">{error}</div>}
-      <footer><button type="button" className="promax-button" disabled={busy} onClick={onClose}>取消</button><button type="button" className="promax-button promax-button--primary" disabled={busy || (preview.tier !== 'draft' && (workspace === undefined || wanted.trim() === ''))} onClick={submit}>{busy ? '正在建立任务…' : preview.tier === 'draft' ? '保留草稿' : '确认并开始'}</button></footer>
+  return <main className="promax-team-home" aria-label="新需求">
+    <section className="promax-team-home-main">
+      <div className="promax-team-interaction"><div className="promax-team-prompt-block" onDragOver={event => { event.preventDefault(); event.dataTransfer.dropEffect = 'copy' }} onDrop={event => { event.preventDefault(); event.stopPropagation(); addFiles(event.dataTransfer.files) }}><div className="promax-room-intro"><span className="promax-room-sequence" aria-hidden="true">01</span><div><span className="promax-eyebrow">PROMAX</span><h2>{workspace === undefined ? '工作目录不可用' : '需要团队完成什么？'}</h2><p>{workspace === undefined ? '请检查产品工作目录是否已经安装。' : '直接描述需求，或只上传一份文件；团队会自己决定调用谁、交付什么。'}</p></div></div><textarea aria-label="需求输入" autoFocus className="promax-team-prompt" value={draft} disabled={workspace === undefined || busy} placeholder="输入需求，或直接添加文件……" onChange={event => { setDraft(event.currentTarget.value) }} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send() } }} /><input ref={fileRef} className="promax-file-input" type="file" accept={TASK_ATTACHMENT_ACCEPT} multiple tabIndex={-1} aria-hidden="true" onChange={event => { addFiles(event.currentTarget.files); event.currentTarget.value = '' }} />{files.length === 0 ? null : <div className="promax-composer-attachment-count promax-upload-file-list" aria-label="待发送附件">{files.map((item, index) => <button aria-label={`${item.uploadName} ×`} key={`${item.uploadName}:${String(item.file.size)}:${String(item.file.lastModified)}:${String(index)}`} type="button" className="promax-upload-file" disabled={busy} onClick={() => { setFiles(current => current.filter((_item, itemIndex) => itemIndex !== index)); setAttachmentError(null) }}><Icon name="paperclip" size={14} /><span><strong>{item.uploadName}</strong><small>{busy && submissionStage === 'preparing' ? '正在解析内容' : '待上传'} · {(item.file.size / 1024).toFixed(item.file.size >= 1024 ? 0 : 1)} KB</small></span><span aria-hidden="true">×</span></button>)}</div>}{busy && submissionStage !== 'idle' ? <SubmissionProgress stage={submissionStage} hasFiles={files.length > 0} /> : null}<div className="promax-team-prompt-actions"><button type="button" className="promax-button" disabled={workspace === undefined || busy} onClick={() => { fileRef.current?.click() }}><Icon name="paperclip" size={15} />添加文件</button><button type="button" className="promax-button promax-button--primary" disabled={workspace === undefined || revision === undefined || team.members.length === 0 || busy || (draft.trim() === '' && files.length === 0) || attachmentError !== null} onClick={send}>{busy ? submissionStage === 'preparing' ? '正在解析…' : submissionStage === 'planning' ? '正在规划…' : '正在创建…' : '开始'}</button></div></div></div>
+      {attachmentError === null ? null : <div className="promax-team-page-error" role="alert">{attachmentError}</div>}
+      {error === null ? null : <div className="promax-team-page-error" role="alert">{error}</div>}
     </section>
-  </div>, document.body)
+    <aside className="promax-team-home-recent" aria-label="最近产出">
+      <header className="promax-team-home-recent-header"><span>PROMAX</span><h2>最近产出</h2></header>
+      {history.error === undefined
+        ? history.loading && history.items.length === 0
+          ? <div className="team-note" role="status">正在读取磁盘记录…</div>
+          : <RecentOutputContent {...history.items[0] === undefined ? {} : { item: history.items[0] }} openTaskFolder={openTaskFolder} />
+        : <div className="team-note" role="alert">磁盘记录读取失败：{history.error}</div>}
+    </aside>
+  </main>
 }
 
-type ReviewableTeamSessionBinding = TeamSessionBinding & Required<Pick<TeamSessionBinding,
-  'workspaceId' | 'sessionName' | 'taskKey' | 'tier' | 'coverageRevision' | 'taskPackagePath' | 'slots'
-  | 'confirmedHandoff' | 'requestedArtifactPaths' | 'artifactPaths' | 'coverageInformationKeys'
+type DispatchReviewBinding = TeamSessionBinding & Required<Pick<TeamSessionBinding,
+  'workspaceId' | 'sessionName' | 'taskKey' | 'dispatchPlanId' | 'dispatchState' | 'dispatchDemand' | 'dispatchAttachmentPaths'
 >>
 
-function reviewableBinding(binding: TeamSessionBinding | undefined): binding is ReviewableTeamSessionBinding {
+function dispatchReviewBinding(binding: TeamSessionBinding | undefined): binding is DispatchReviewBinding {
   return binding?.workspaceId !== undefined
     && binding.sessionName !== undefined
     && binding.taskKey !== undefined
-    && binding.tier !== undefined
-    && binding.coverageRevision !== undefined
-    && binding.taskPackagePath !== undefined
-    && binding.slots !== undefined
-    && binding.confirmedHandoff !== undefined
-    && binding.requestedArtifactPaths !== undefined
-    && binding.artifactPaths !== undefined
-    && binding.coverageInformationKeys !== undefined
+    && binding.dispatchPlanId !== undefined
+    && binding.dispatchState !== undefined
+    && binding.dispatchDemand !== undefined
+    && binding.dispatchAttachmentPaths !== undefined
 }
 
-export function coverageEvidenceLocation(taskKey: string, confirmedHandoff: string): { sourceId: 'SRC-001'; relativePath: string; locator: string } {
-  const sourceContent = `${confirmedHandoff.trim()}\n`
-  return {
-    sourceId: 'SRC-001',
-    relativePath: `.promax/input/${taskKey}/sources/SRC-001/confirmed-handoff.md`,
-    locator: `第 1–${sourceContent.split(/\r?\n/u).filter(Boolean).length} 行`,
-  }
+function memberDeliverables(plan: DispatchPlan, memberId: string): string {
+  const files = plan.members.find(member => member.memberId === memberId)?.deliverables ?? []
+  return files.map(path => path.split('/').at(-1) ?? path).join('、')
 }
 
-function CoverageReviewDialog({ binding, workspace, team, writeTaskPackage, onClose }: {
-  binding: ReviewableTeamSessionBinding
-  workspace: WorkspaceView
-  team: PromaxTeam
-  writeTaskPackage: WorkspaceShellActions['writeTaskPackage']
-  onClose: () => void
-}) {
-  const members = useMemo(() => planningMembersOf(team), [team])
-  const artifacts = useMemo(() => planningArtifactsOf(team), [team])
-  const [coverageInformationKeys, setCoverageInformationKeys] = useState<InformationKey[]>(binding.coverageInformationKeys)
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const closeRef = useRef<HTMLButtonElement>(null)
-  useDialogKeyboard(true, onClose, closeRef)
-  const evidence = coverageEvidenceLocation(binding.taskKey, binding.confirmedHandoff)
-  const coverage = coverageInformationKeys.map(informationKey => ({
-    sourceId: evidence.sourceId,
-    informationKey,
-    locator: `${evidence.relativePath} ${evidence.locator}`,
-  }))
-  const preview = calculateTaskPlan({
-    taskKey: binding.taskKey,
-    members,
-    artifacts,
-    requestedArtifactPaths: binding.requestedArtifactPaths,
-    coverage,
-  })
-  const changed = coverageInformationKeys.length !== binding.coverageInformationKeys.length
-    || coverageInformationKeys.some(key => !binding.coverageInformationKeys.includes(key))
-  const toggleCoverage = (key: InformationKey): void => {
-    setCoverageInformationKeys(current => current.includes(key) ? current.filter(item => item !== key) : [...current, key])
-  }
-  const submit = (): void => {
-    if (busy || !changed) return
-    setBusy(true)
-    setError(null)
-    void writeTaskPackage({
-      workspaceId: workspace.workspaceId,
-      projectPath: workspace.path,
-      project: workspace.title,
-      sessionId: binding.sessionId,
-      taskKey: binding.taskKey,
-      teamRevisionId: teamRevisionIdOf(team),
-      confirmedAt: new Date().toISOString(),
-      confirmedHandoff: binding.confirmedHandoff,
-      handoffEdited: false,
-      requestedArtifactPaths: binding.requestedArtifactPaths,
-      coverageInformationKeys,
-      coverageWasOverridden: true,
-      members,
-      artifacts,
-    }).then(saved => {
-      bindTeamSession({
-        ...binding,
-        tier: saved.tier,
-        coverageRevision: saved.coverageRevision,
-        taskPackagePath: saved.taskPackagePath,
-        slots: saved.slots,
-        artifactPaths: saved.artifactPaths,
-        coverageInformationKeys,
-      })
-      stageNativeTeamPrompt(binding.sessionId, taskPackageTeamPrompt(saved.taskPackagePath), [])
-      onClose()
-    }).catch(reason => {
-      setError(reason instanceof Error ? reason.message : String(reason))
-      setBusy(false)
-    })
-  }
-  return createPortal(<div className="promax-team-create-backdrop"><section className="promax-transfer-dialog" role="dialog" aria-modal="true" aria-labelledby="promax-coverage-review-heading"><header><div><span className="promax-eyebrow">系统理解</span><h2 id="promax-coverage-review-heading">修正系统理解</h2><p>如果系统漏掉了草稿中已有的信息，可在这里更正；最终交付物不会改变。</p></div><button ref={closeRef} type="button" className="promax-icon-button" aria-label="关闭系统理解修正" disabled={busy} onClick={onClose}><Icon name="close" size={15} /></button></header><div className="promax-inline-warning"><strong>当前是第 {binding.coverageRevision} 版理解结果</strong><span>确认后会立即重新计算执行计划，仍在同一个任务中继续。</span></div><details className="promax-advanced-details"><summary>查看识别依据</summary><div className="promax-inline-warning" aria-label="覆盖证据位置"><strong>{evidence.sourceId}</strong><span>{evidence.relativePath}</span><span>{evidence.locator}</span></div></details><fieldset className="promax-field"><legend>草稿已经包含的信息</legend><div className="promax-handoff-options">{INFORMATION_KEYS.map(key => <label key={key}><input type="checkbox" checked={coverageInformationKeys.includes(key)} disabled={busy} onChange={() => { toggleCoverage(key) }} />{INFORMATION_KEY_LABELS[key]}</label>)}</div></fieldset><section className="promax-slot-preview" aria-label={`动态槽位（${preview.slots.length}）`}><h3>调整后的执行计划 · {preview.requestedArtifactPaths.length} 项最终交付{preview.supportingArtifactPaths.length > 0 ? `，${preview.supportingArtifactPaths.length} 项内部支撑` : ''}</h3>{preview.slots.map(slot => { const visual = slotVisual(slot.status); return <article key={slot.slot_id} className={`promax-slot promax-slot--${visual.tone}`}><Icon name={visual.icon} size={15} /><span><strong>{slot.label} · {visual.label}</strong><small>{slot.missing.length === 0 ? visual.description : `缺：${slot.missing.map(key => INFORMATION_KEY_LABELS[key]).join('、')}`}</small></span></article> })}</section>{error === null ? null : <div className="promax-inline-error" role="alert">{error}</div>}<footer><button type="button" className="promax-button" disabled={busy} onClick={onClose}>取消</button><button type="button" className="promax-button promax-button--primary" disabled={busy || !changed} onClick={submit}>{busy ? '正在保存修改…' : '确认修改'}</button></footer></section></div>, document.body)
+const DISPATCH_CLARIFICATION_OPTIONS = [
+  '提炼内容摘要',
+  '评审方案质量',
+  '查找风险与缺口',
+  '提出改进建议',
+  '基于文档重新设计',
+] as const
+
+function demandWithClarification(demand: string, clarification: string): string {
+  return `${demand.trim()}\n\n用户补充的分析目标：${clarification.trim()}`
 }
 
-export function PromaxDraftSettings() {
-  const state = useDraftState()
-  const [enableSessionId, setEnableSessionId] = useState<string | null>(null)
-  const change = (enabled: boolean): void => {
-    if (!enabled) { setDraftTrackingEnabled(false); return }
-    const sessionId = latestDraftSessionId()
-    if (sessionId !== undefined && draftUserTurnCount(sessionId) > 0) { setEnableSessionId(sessionId); return }
-    if (sessionId !== undefined) enableDraftTracking(sessionId, 'now')
-    else setDraftTrackingEnabled(true)
-  }
-  return <><section className="promax-draft-settings"><div><strong>交底草稿</strong><p>草稿会话中默认增量整理需求；关闭后，输入框旁会持续显示“未记录交底”。</p></div><label className="promax-switch"><input type="checkbox" checked={state.enabled} onChange={event => { change(event.currentTarget.checked) }} /><span>{state.enabled ? '已开启' : '已关闭'}</span></label></section>{enableSessionId === null ? null : <TrackingEnableDialog sessionId={enableSessionId} onClose={() => { setEnableSessionId(null) }} />}</>
-}
-
-export function PromaxTeamRail({ useWorkspaces, useSessions, startSession, openSession, clearSession, renameSession, prepareSessionScope, openWorkspacePath }: RuntimeProps) {
-  useEffect(() => installPromaxConsoleStyles(), [])
-  const teamState = useTeamState()
-  const workspaceState = useWorkspaces(state => state)
-  const sessionState = useSessions(state => state)
-  const team = teamState.teams.find(item => item.id === PRODUCT_TEAM_ID)
-  const projects = team === undefined ? [] : workspacesForTeam(team, workspaceState.items)
-  const selectedWorkspace = teamState.selected.kind === 'team'
-    ? projects.find(project => project.workspaceId === teamState.selected.workspaceId)
-    : undefined
-  const selectedTeamSessionId = teamState.selected.kind === 'team' && teamState.selected.view === 'session'
-    ? teamState.selected.sessionId ?? sessionState.current
-    : undefined
-  const selectedTeamSession = selectedTeamSessionId === undefined ? undefined : sessionState.byId[selectedTeamSessionId]
-
-  return <div className="promax-shell-layer">
-    {team !== undefined && teamState.selected.kind === 'team' && teamState.selected.view === 'home' ? <TeamHome team={team} workspace={selectedWorkspace} startSession={startSession} openSession={openSession} clearSession={clearSession} renameSession={renameSession} prepareSessionScope={prepareSessionScope} openWorkspacePath={openWorkspacePath} /> : null}
-    {team !== undefined && teamState.selected.kind === 'team' && teamState.selected.view === 'session' ? <TeamSessionToolbar team={team} workspace={selectedWorkspace} sessionId={selectedTeamSessionId} session={selectedTeamSession} sessions={sessionState} clearSession={clearSession} openWorkspacePath={openWorkspacePath} /> : null}
-    {team !== undefined && teamState.selected.kind === 'team' ? <TeamProgressRail team={team} workspace={selectedWorkspace} sessionId={selectedTeamSessionId} openWorkspacePath={openWorkspacePath} /> : null}
-    {teamState.selected.kind === 'general' && sessionState.current !== undefined ? <DraftOutlinePanel sessionId={sessionState.current} /> : null}
+function DispatchAssessment({ children }: { children: string }) {
+  const [expanded, setExpanded] = useState(false)
+  const collapsible = Array.from(children).length > 320
+  return <div className="promax-dispatch-assessment-wrap">
+    <p className={`promax-dispatch-assessment${collapsible && !expanded ? ' is-collapsed' : ''}`}>{children}</p>
+    {collapsible ? <button className="promax-link-button" type="button" aria-expanded={expanded} onClick={() => { setExpanded(value => !value) }}>{expanded ? '收起判断' : '展开完整判断'}</button> : null}
   </div>
 }
 
+function attachmentStatusText(context: TaskAttachmentContext | undefined): string {
+  if (context === undefined) return '已上传，旧记录未保存解析指标'
+  const facts = [
+    context.pageCount === undefined ? undefined : `${String(context.pageCount)} 页`,
+    `已提取 ${context.textCharacters.toLocaleString('zh-CN')} 字`,
+    context.truncated ? '已取有限摘录用于规划' : '正文已交给规划模型',
+  ].filter((value): value is string => value !== undefined)
+  return facts.join(' · ')
+}
+
+function DispatchInputSummary({ binding, planning }: { binding: DispatchReviewBinding; planning: boolean }) {
+  return <section className="promax-dispatch-input" aria-labelledby="promax-dispatch-input-heading">
+    <div className="promax-dispatch-input-heading"><div><span className="promax-eyebrow">本次输入</span><h2 id="promax-dispatch-input-heading">需求与附件都在这里</h2></div>{planning ? <span className="promax-live-badge" role="status"><span aria-hidden="true" />正在规划</span> : null}</div>
+    <p className="promax-dispatch-demand">{binding.dispatchDemand}</p>
+    {binding.dispatchAttachmentPaths.length === 0 ? <p className="promax-dispatch-no-files">本次没有附件</p> : <div className="promax-dispatch-attachments" aria-label="本次附件">{binding.dispatchAttachmentPaths.map(path => {
+      const context = binding.dispatchAttachmentContexts?.find(item => item.path === path)
+      const name = context?.name ?? path.split('/').at(-1) ?? path
+      return <article key={path}><Icon name="paperclip" size={15} /><span><strong>{name}</strong><small>{attachmentStatusText(context)}</small></span><span className={context === undefined ? 'is-unknown' : 'is-ready'}>{context === undefined ? '已上传' : '可供智能体阅读'}</span></article>
+    })}</div>}
+  </section>
+}
+
+function DispatchPlanningProgress({ reparsing = false }: { reparsing?: boolean }) {
+  return <section className="promax-dispatch-progress" aria-live="polite">
+    <div><span className="promax-dispatch-progress-pulse" aria-hidden="true" /><span><strong>{reparsing ? '正在根据补充目标重新规划' : '正在生成派单建议'}</strong><small>页面内容会保留，新结果返回后自动更新。</small></span></div>
+    <ol><li className="is-done">需求已接收</li><li className="is-done">输入已预处理</li><li className="is-active">正在判断成员</li><li>等待你确认</li></ol>
+  </section>
+}
+
+function DispatchMemberDialog({ plan, team, selectedMemberIds, busy, returnFocusRef, onToggle, onClose, onExecute }: {
+  plan: DispatchPlan
+  team: PromaxTeam
+  selectedMemberIds: readonly string[]
+  busy: boolean
+  returnFocusRef: RefObject<HTMLButtonElement | null>
+  onToggle: (memberId: string, selected: boolean) => void
+  onClose: () => void
+  onExecute: () => void
+}) {
+  const closeRef = useRef<HTMLButtonElement>(null)
+  useDialogKeyboard(true, onClose, closeRef, returnFocusRef)
+  return createPortal(
+    <div className="promax-member-picker-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget && !busy) onClose() }}>
+      <section className="promax-member-picker-dialog" role="dialog" aria-modal="true" aria-labelledby="promax-member-picker-heading" aria-describedby="promax-member-picker-description">
+        <header><div><span className="promax-eyebrow">调整派单</span><h2 id="promax-member-picker-heading">选择本次参与的员工</h2><p id="promax-member-picker-description">勾选需要参与本次任务的员工。确认前不会启动任何人。</p></div><button ref={closeRef} type="button" className="promax-icon-button" aria-label="关闭员工选择" disabled={busy} onClick={onClose}><Icon name="close" size={16} /></button></header>
+        <div className="promax-member-picker-count" role="status" aria-atomic="true">已选择 {selectedMemberIds.length} 名员工</div>
+        <div className="promax-member-picker-list">{plan.members.map(member => { const definition = team.members.find(item => item.memberId === member.memberId)!; const checked = selectedMemberIds.includes(member.memberId); const fixed = isJudgeMember(definition); return <label className="promax-dispatch-choice" key={member.memberId}><input type="checkbox" checked={checked} disabled={busy || fixed} onChange={event => { onToggle(member.memberId, event.currentTarget.checked) }} /><span><strong>{definition.displayName}{fixed ? ' · 固定参与' : ''}</strong><small>{definition.objective}</small><small className="promax-member-picker-output">将产出 {memberDeliverables(plan, member.memberId)}</small></span></label> })}</div>
+        <footer><button className="promax-button" type="button" disabled={busy} onClick={onClose}>返回</button><button className="promax-button promax-button--primary" type="button" disabled={busy || selectedMemberIds.length === 0} onClick={onExecute}>{busy ? '正在开始…' : `按这个名单跑（${selectedMemberIds.length}）`}</button></footer>
+      </section>
+    </div>,
+    document.body,
+  )
+}
+
+function DispatchPlanReview({ binding, team, workspace, snapshot, confirmDispatchPlan, sendSessionMessage }: {
+  binding: DispatchReviewBinding
+  team: PromaxTeam
+  workspace: WorkspaceView
+  snapshot: NativeConversationSnapshot | undefined
+  confirmDispatchPlan: WorkspaceShellActions['confirmDispatchPlan']
+  sendSessionMessage: WorkspaceShellActions['sendSessionMessage']
+}) {
+  const resolution = useMemo(() => latestDispatchPlanResult(snapshot?.nodes ?? [], team, binding.dispatchPlanId, binding.taskKey), [binding.dispatchPlanId, binding.taskKey, snapshot?.nodes, team])
+  const plan = resolution.plan
+  const [editing, setEditing] = useState(false)
+  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([])
+  const [clarification, setClarification] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [pendingPlanning, setPendingPlanning] = useState<{ nodeCount: number; lastAgentError: string | null } | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const editTriggerRef = useRef<HTMLButtonElement>(null)
+  const confirmed = binding.dispatchState === 'confirmed'
+
+  useEffect(() => {
+    if (binding.confirmedMemberIds !== undefined) setSelectedMemberIds(binding.confirmedMemberIds)
+    else if (plan !== undefined) setSelectedMemberIds(plan.members.filter(member => member.selected || member.memberId === 'quality_judge').map(member => member.memberId))
+  }, [binding.confirmedMemberIds, plan])
+
+  useEffect(() => {
+    if (pendingPlanning === null || snapshot?.running) return
+    if ((snapshot?.nodes.length ?? 0) > pendingPlanning.nodeCount || (snapshot?.lastAgentError ?? null) !== pendingPlanning.lastAgentError) setPendingPlanning(null)
+  }, [pendingPlanning, snapshot?.lastAgentError, snapshot?.nodes.length, snapshot?.running])
+
+  const planning = pendingPlanning !== null || snapshot?.running === true
+
+  const retryPlanning = (clarifiedGoal?: string): void => {
+    if (busy || planning) return
+    const nextDemand = clarifiedGoal === undefined
+      ? binding.dispatchDemand
+      : demandWithClarification(binding.dispatchDemand, clarifiedGoal)
+    setBusy(true)
+    setPendingPlanning({ nodeCount: snapshot?.nodes.length ?? 0, lastAgentError: snapshot?.lastAgentError ?? null })
+    setError(null)
+    void sendSessionMessage(binding.sessionId, dispatchPlanningMessage({
+      demand: nextDemand,
+      attachmentPaths: binding.dispatchAttachmentPaths,
+      ...(binding.dispatchAttachmentContexts === undefined ? {} : { attachmentContexts: binding.dispatchAttachmentContexts }),
+      team,
+      planId: binding.dispatchPlanId,
+      taskKey: binding.taskKey,
+    })).catch(reason => { setPendingPlanning(null); setError(reason instanceof Error ? reason.message : String(reason)) }).finally(() => { setBusy(false) })
+  }
+
+  const execute = (memberIds: readonly string[]): void => {
+    if (plan === undefined || !memberIds.some(memberId => memberId !== 'quality_judge') || busy || planning) return
+    const selected = new Set([...memberIds, 'quality_judge'])
+    const ordered = plan.members.filter(member => selected.has(member.memberId)).map(member => member.memberId)
+    const artifacts = plan.members.filter(member => selected.has(member.memberId)).flatMap(member => member.deliverables.map(path => ({ path, memberId: member.memberId })))
+    setBusy(true)
+    setError(null)
+    void (async () => {
+      if (!confirmed) {
+        const frozen = await confirmDispatchPlan({ workspaceId: binding.workspaceId, projectPath: workspace.path, sessionId: binding.sessionId, planId: binding.dispatchPlanId, confirmedMemberIds: ordered, artifacts })
+        if (frozen.planId !== binding.dispatchPlanId || frozen.taskKey !== binding.taskKey || frozen.confirmedMemberIds.join('\0') !== ordered.join('\0')) {
+          throw new Error('运行时返回的已确认名单与页面选择不一致')
+        }
+        confirmTeamSessionDispatch(binding.sessionId, ordered)
+      }
+      await sendSessionMessage(binding.sessionId, dispatchExecutionMessage({
+        demand: binding.dispatchDemand,
+        attachmentPaths: binding.dispatchAttachmentPaths,
+        plan,
+        selectedMemberIds: ordered,
+        taskKey: binding.taskKey,
+      }))
+      startTeamSessionDispatch(binding.sessionId)
+    })().catch(reason => { setError(reason instanceof Error ? reason.message : String(reason)) }).finally(() => { setBusy(false) })
+  }
+
+  if (plan === undefined) {
+    const waiting = snapshot === undefined || planning
+    return <div className="promax-dispatch-page">
+      <section className="promax-dispatch-card" aria-live="polite">
+        <div className="promax-room-intro"><span className="promax-room-sequence" aria-hidden="true">02</span><div><span className="promax-eyebrow">PROMAX</span><h1>{waiting ? '正在判断这次怎么干' : '这次计划没有生成成功'}</h1><p>{waiting ? '主智能体只在分析输入；运行时已锁住全部工具和业务成员。' : '模型没有返回可确认的完整结构化计划，业务执行仍未开始。'}</p></div></div>
+        <DispatchInputSummary binding={binding} planning={waiting} />
+        {waiting ? <DispatchPlanningProgress /> : <button className="promax-button promax-button--primary" type="button" disabled={busy || planning} onClick={() => { retryPlanning() }}>重新判断</button>}
+        {snapshot?.lastAgentError == null && error === null && resolution.error === undefined ? null : <div className="promax-team-page-error" role="alert">{error ?? snapshot?.lastAgentError ?? resolution.error}</div>}
+      </section>
+    </div>
+  }
+
+  const called = plan.members.filter(member => member.selected)
+  const calledBusiness = called.filter(member => member.memberId !== 'quality_judge')
+  const skipped = plan.members.filter(member => !member.selected)
+  const allMemberIds = plan.members.map(member => member.memberId)
+
+  if (calledBusiness.length === 0 && !confirmed) {
+    return <div className="promax-dispatch-page">
+      <section className="promax-dispatch-card" aria-labelledby="promax-dispatch-heading">
+        <div className="promax-room-intro"><span className="promax-room-sequence" aria-hidden="true">02</span><div><span className="promax-eyebrow">PROMAX</span><h1 id="promax-dispatch-heading">还需要你补充分析目标</h1><DispatchAssessment>{plan.assessment}</DispatchAssessment></div></div>
+        <DispatchInputSummary binding={binding} planning={planning} />
+        {planning ? <DispatchPlanningProgress reparsing /> : null}
+        <section className="promax-dispatch-clarification" aria-labelledby="promax-clarification-heading">
+          <span className="promax-dispatch-clarification-state">暂未派单</span>
+          <div><h2 id="promax-clarification-heading">你希望怎么分析这份文档？</h2><p>选择一个方向，或直接写下你希望得到的结果。补充后会沿用当前文档重新规划。</p></div>
+          <fieldset className="promax-dispatch-clarification-options"><legend>快捷选择</legend><div>{DISPATCH_CLARIFICATION_OPTIONS.map(option => <button key={option} type="button" aria-pressed={clarification === option} disabled={busy || planning} onClick={() => { setClarification(option) }}>{option}</button>)}</div></fieldset>
+          <label className="promax-dispatch-clarification-input"><span>补充分析目标</span><textarea aria-label="补充分析目标" value={clarification} disabled={busy || planning} placeholder="例如：重点检查这份方案的风险、遗漏和落地可行性" onChange={event => { setClarification(event.currentTarget.value) }} /></label>
+          <div className="promax-dispatch-actions"><button className="promax-button promax-button--primary" type="button" disabled={busy || planning || clarification.trim() === ''} onClick={() => { retryPlanning(clarification) }}>{planning ? '正在重新规划…' : '补充后重新规划'}</button><button ref={editTriggerRef} className="promax-button" type="button" aria-expanded={editing} disabled={busy || planning} onClick={() => { setEditing(value => !value) }}>{editing ? '收起员工名单' : '手动选择员工'}</button></div>
+        </section>
+        {editing ? <DispatchMemberDialog plan={plan} team={team} selectedMemberIds={selectedMemberIds} busy={busy} returnFocusRef={editTriggerRef} onToggle={(memberId, selected) => { if (memberId !== 'quality_judge') setSelectedMemberIds(current => selected ? [...current, memberId] : current.filter(id => id !== memberId)) }} onClose={() => { setEditing(false) }} onExecute={() => { setEditing(false); execute(selectedMemberIds) }} /> : null}
+        <details className="promax-dispatch-skipped"><summary>为什么暂时没有选人</summary><div className="promax-dispatch-list">{skipped.map(member => { const definition = team.members.find(item => item.memberId === member.memberId)!; return <article className="promax-dispatch-row" key={member.memberId}><span className="promax-dispatch-member">{definition.displayName}</span><span>{member.reason}</span></article> })}</div></details>
+        {error === null && resolution.error === undefined ? null : <div className="promax-team-page-error" role="alert">{error ?? `新计划未采用：${resolution.error}`}</div>}
+        <p className="promax-dispatch-footnote">补充分析目标或手动选人之前，不会启动任何员工，也不会重复上传文档。</p>
+      </section>
+    </div>
+  }
+
+  return <div className="promax-dispatch-page">
+    <section className="promax-dispatch-card" aria-labelledby="promax-dispatch-heading">
+      <div className="promax-room-intro"><span className="promax-room-sequence" aria-hidden="true">02</span><div><span className="promax-eyebrow">PROMAX</span><h1 id="promax-dispatch-heading">这次打算怎么干</h1><DispatchAssessment>{plan.assessment}</DispatchAssessment></div></div>
+      <DispatchInputSummary binding={binding} planning={planning} />
+      {planning ? <DispatchPlanningProgress reparsing /> : null}
+      <div className="promax-dispatch-section"><h2>打算叫 {called.length} 个人</h2><div className="promax-dispatch-list">{called.map(member => { const definition = team.members.find(item => item.memberId === member.memberId)!; return <article className="promax-dispatch-row is-called" key={member.memberId}><span className="promax-dispatch-member">{definition.displayName}</span><span>{member.reason}</span><span className="promax-dispatch-files" aria-label="计划产物">→ {memberDeliverables(plan, member.memberId)}</span></article> })}</div></div>
+      <div className="promax-dispatch-section"><h2>不叫</h2><div className="promax-dispatch-list">{skipped.map(member => { const definition = team.members.find(item => item.memberId === member.memberId)!; return <article className="promax-dispatch-row" key={member.memberId}><span className="promax-dispatch-member">{definition.displayName}</span><span>{member.reason}</span></article> })}</div></div>
+      {editing ? <DispatchMemberDialog plan={plan} team={team} selectedMemberIds={selectedMemberIds} busy={busy || confirmed} returnFocusRef={editTriggerRef} onToggle={(memberId, selected) => { if (memberId !== 'quality_judge') setSelectedMemberIds(current => selected ? [...current, memberId] : current.filter(id => id !== memberId)) }} onClose={() => { setEditing(false) }} onExecute={() => { setEditing(false); execute(selectedMemberIds) }} /> : null}
+      {confirmed ? <div className="promax-dispatch-confirmed" role="status">名单已锁定：{selectedMemberIds.map(memberId => team.members.find(member => member.memberId === memberId)?.displayName ?? memberId).join('、')}。{error === null ? '正在发送执行请求…' : '执行请求尚未发出，可按原名单重试。'}</div> : null}
+      {error === null && resolution.error === undefined ? null : <div className="promax-team-page-error" role="alert">{error ?? `新计划未采用：${resolution.error}`}</div>}
+      <div className="promax-dispatch-actions">
+        <button className="promax-button promax-button--primary" type="button" disabled={busy || planning || calledBusiness.length === 0 || confirmed} onClick={() => { execute(called.map(member => member.memberId)) }}>{busy && !confirmed ? '正在开始…' : '就这样跑'}</button>
+        <button ref={editTriggerRef} className="promax-button" type="button" aria-expanded={editing} disabled={busy || planning || confirmed} onClick={() => { setEditing(value => !value) }}>我要改</button>
+        <button className="promax-button" type="button" disabled={busy || planning || confirmed} onClick={() => { execute(allMemberIds) }}>全部都叫</button>
+        {confirmed && error !== null ? <button className="promax-button promax-button--primary" type="button" disabled={busy} onClick={() => { execute(binding.confirmedMemberIds ?? selectedMemberIds) }}>{busy ? '正在重试…' : '按锁定名单重试'}</button> : null}
+      </div>
+      <p className="promax-dispatch-footnote">确认前不会启动业务成员，也不会生成业务产物。确认后名单不可变更。</p>
+    </section>
+  </div>
+}
+
+type TaskReadyTeamSessionBinding = TeamSessionBinding & Required<Pick<TeamSessionBinding,
+  'workspaceId' | 'taskKey'
+>>
+
+function taskReadyBinding(binding: TeamSessionBinding | undefined): binding is TaskReadyTeamSessionBinding {
+  return binding?.workspaceId !== undefined
+    && binding.taskKey !== undefined
+}
 interface PromaxLayoutActions {
   toggleSidebar(): void
   openDetails(): void
@@ -1639,18 +1176,19 @@ interface PromaxLayoutActions {
 
 interface PromaxShellRuntimeProps extends RuntimeProps {
   layout: PromaxLayoutActions
+  settings?: PromaxSettingsService
   detailsOpen?: boolean
   apiBaseUrl?: string
 }
 
-function PreferencesDialog({ onClose }: { onClose: () => void }) {
+function PreferencesDialog({ onClose, settings }: { onClose: () => void; settings?: PromaxSettingsService }) {
   const closeRef = useRef<HTMLButtonElement>(null)
   useDialogKeyboard(true, onClose, closeRef)
   return createPortal(
     <div className="promax-dialog-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) onClose() }}>
       <section className="promax-preferences-dialog" role="dialog" aria-modal="true" aria-labelledby="promax-preferences-heading">
         <header><div><span className="promax-eyebrow">PROMAX</span><h2 id="promax-preferences-heading">设置</h2></div><button ref={closeRef} type="button" className="promax-icon-button" aria-label="关闭设置" onClick={onClose}><Icon name="close" size={15} /></button></header>
-        <PromaxDraftSettings />
+        {settings === undefined ? <div className="promax-inline-error" role="alert">Promax 设置服务不可用</div> : <PromaxSettingsPanel service={settings} preferences={<p>当前没有可配置的偏好。</p>} />}
       </section>
     </div>,
     document.body,
@@ -1677,7 +1215,7 @@ export function PromaxLeftSidebar(props: PromaxShellRuntimeProps & { collapsed?:
       <ConsoleLauncher {...(props.apiBaseUrl === undefined ? {} : { apiBaseUrl: props.apiBaseUrl })} />
       <button className="footer-item" type="button" onClick={() => { setPreferencesOpen(true) }}><Icon name="settings" size={15} />设置</button>
     </footer>
-    {preferencesOpen ? <PreferencesDialog onClose={() => { setPreferencesOpen(false) }} /> : null}
+    {preferencesOpen ? <PreferencesDialog {...(props.settings === undefined ? {} : { settings: props.settings })} onClose={() => { setPreferencesOpen(false) }} /> : null}
   </div>
 }
 
@@ -1706,7 +1244,7 @@ interface PromaxComposerProps extends Partial<PromaxShellRuntimeProps> {
   toggleCommand?: (draft: string, draftRev: number) => void
 }
 
-type ComposerHostView = 'draft' | 'workbench' | 'trace' | 'deliverables'
+type ComposerHostView = 'workbench' | 'trace' | 'deliverables'
 
 interface ComposerHostSnapshot {
   element: HTMLDivElement
@@ -1766,58 +1304,6 @@ function forwardPickedImages(files: FileList | null): void {
 const SUPPORTED_IMAGE_ACCEPT = 'image/png,image/jpeg,image/webp,image/gif'
 const SUPPORTED_IMAGE_HELP = '支持 PNG、JPG、WebP、GIF 图片'
 
-interface ComposerTeamMentionPickerProps {
-  team: PromaxTeam
-  selectedMemberIds: readonly string[]
-  disabled: boolean
-  onChange(memberIds: string[]): void
-}
-
-function ComposerTeamMentionPicker({ team, selectedMemberIds, disabled, onChange }: ComposerTeamMentionPickerProps) {
-  const [open, setOpen] = useState(false)
-  const rootRef = useRef<HTMLDivElement>(null)
-  const members = [team.coordinator, ...team.members.filter(member => member.enabled)]
-
-  useEffect(() => {
-    if (!open) return
-    const onPointerDown = (event: PointerEvent): void => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
-    }
-    const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') setOpen(false)
-    }
-    document.addEventListener('pointerdown', onPointerDown)
-    document.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.removeEventListener('pointerdown', onPointerDown)
-      document.removeEventListener('keydown', onKeyDown)
-    }
-  }, [open])
-
-  const toggle = (memberId: string): void => {
-    onChange(selectedMemberIds.includes(memberId)
-      ? selectedMemberIds.filter(id => id !== memberId)
-      : [...selectedMemberIds, memberId])
-  }
-
-  return <div ref={rootRef} className="promax-composer-mention-picker">
-    <button className="composer-tool promax-composer-mention-trigger" type="button" aria-label="指定团队成员" aria-expanded={open} aria-haspopup="menu" disabled={disabled || members.length === 0} onClick={() => { setOpen(value => !value) }}>
-      <span aria-hidden="true">@</span>{selectedMemberIds.length > 0 ? <span className="promax-composer-mention-count">{selectedMemberIds.length}</span> : null}
-    </button>
-    {open ? <div className="promax-composer-mention-menu" role="menu" aria-label={`${team.name}可指定成员`}>
-      <header><strong>指定团队成员</strong><span>任务仍由主智能体统筹</span></header>
-      <div>{members.map(member => {
-        const selected = selectedMemberIds.includes(member.memberId)
-        return <button type="button" role="menuitemcheckbox" aria-checked={selected} key={member.memberId} onClick={() => { toggle(member.memberId) }}>
-          <span className="promax-composer-mention-avatar">{member.displayName.slice(0, 2)}</span>
-          <span><strong>{member.displayName}</strong><small>{member.role === 'coordinator' ? '主智能体' : member.memberId}</small></span>
-          <span className={`promax-composer-mention-check${selected ? ' is-selected' : ''}`} aria-hidden="true">{selected ? '✓' : ''}</span>
-        </button>
-      })}</div>
-    </div> : null}
-  </div>
-}
-
 /** Promax composer chrome over the retained dsh input machine. */
 export function PromaxComposerBar(props: PromaxComposerProps) {
   useEffect(() => installPromaxConsoleStyles(), [])
@@ -1827,8 +1313,6 @@ export function PromaxComposerBar(props: PromaxComposerProps) {
   const workspaceState = props.useWorkspaces?.(state => state)
   const teamState = useTeamState()
   const [localDraft, setLocalDraft] = useState('')
-  const [composerTargetMemberIds, setComposerTargetMemberIds] = useState<string[]>([])
-  const [busy, setBusy] = useState(false)
   const [stopping, setStopping] = useState(false)
   const [stopError, setStopError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -1837,38 +1321,22 @@ export function PromaxComposerBar(props: PromaxComposerProps) {
   const host = useComposerHost()
   const [commandPending, setCommandPending] = useState(false)
   const draft = input?.draft ?? localDraft
-  const selectedContext = teamState.selected
-  const selectedTeam = selectedContext.kind === 'team'
-    ? teamState.teams.find(team => team.id === selectedContext.teamId)
-    : undefined
-  const selectedWorkspaceId = selectedContext.kind === 'team' ? selectedContext.workspaceId : undefined
-  const selectedWorkspace = selectedWorkspaceId === undefined ? undefined : workspaceState?.items.find(workspace => workspace.workspaceId === selectedWorkspaceId)
-  const canStartTeam = props.sessionId === undefined && selectedTeam?.activeRevision !== undefined && selectedWorkspaceId !== undefined && props.startSession !== undefined && props.openSession !== undefined
   const currentTeam = props.sessionId === undefined ? undefined : teamForSession(teamState, props.sessionId)
   const currentBinding = props.sessionId === undefined ? undefined : bindingForSession(teamState, props.sessionId)
-  const currentSession = props.sessionId === undefined ? undefined : sessionState?.byId[props.sessionId]
+  const selectedWorkspace = currentBinding?.workspaceId === undefined ? undefined : workspaceState?.items.find(workspace => workspace.workspaceId === currentBinding.workspaceId)
   const teamTree = teamSessionTreeOf(currentTeam === undefined ? undefined : props.sessionId, sessionState)
   const stopsTeam = currentTeam !== undefined && teamTree.runningDescendants.length > 0
-  const failedStop = currentBinding?.runState === 'failed_to_stop'
   const stopInProgress = currentBinding?.runState === 'stop_requested' || currentBinding?.runState === 'draining'
-  const primaryStops = nativeRunning || stopsTeam || failedStop || stopInProgress
-  const teamStopReady = currentTeam !== undefined && reviewableBinding(currentBinding) && selectedWorkspace !== undefined && props.stopTeamTask !== undefined
-  const canStop = currentTeam === undefined ? props.stop !== undefined : teamStopReady
+  const primaryStops = nativeRunning || stopsTeam || stopInProgress
+  const teamStopReady = currentTeam !== undefined && taskReadyBinding(currentBinding) && selectedWorkspace !== undefined && props.stopTeamTask !== undefined
+  const canStop = teamStopReady || props.stop !== undefined
   const taskExecutionLocked = currentTeam !== undefined && currentBinding?.runState !== undefined && currentBinding.runState !== 'running'
-  const locked = (props.disabled === true && !canStartTeam) || props.blocked !== undefined || taskExecutionLocked || busy || stopping || input?.phase === 'adjudicating' || input?.phase === 'submitting'
-  const mentionTeam = currentTeam?.activeRevision !== undefined ? currentTeam : canStartTeam ? selectedTeam : undefined
-  const usesLocalMentionPicker = props.leftItems === undefined && mentionTeam !== undefined
-  const targetMemberIds = usesLocalMentionPicker ? composerTargetMemberIds : []
-  const draftMode = host?.view === 'draft' && currentTeam === undefined && !canStartTeam
-  const placeholder = currentBinding?.runState === 'failed_to_stop' ? '停止失败：任务仍可能运行；请重试停止或转人工处理'
-    : currentBinding?.runState === 'stop_requested' ? '正在请求停止任务；已禁止新的成员委派'
-    : currentBinding?.runState === 'draining' ? '正在停止任务并等待全部子 Agent 退出'
+  const dispatchLocked = currentBinding?.dispatchState === 'planning' || currentBinding?.dispatchState === 'confirmed'
+  const locked = props.disabled === true || props.blocked !== undefined || taskExecutionLocked || dispatchLocked || stopping || input?.phase === 'adjudicating' || input?.phase === 'submitting'
+  const placeholder = currentBinding?.runState === 'stop_requested' ? '已请求停止；正在中止当前步骤，之后不会再启动新成员'
+    : currentBinding?.runState === 'draining' ? '正在中止当前步骤并等待运行树真实静止'
     : currentBinding?.runState === 'cancelled' ? '本任务已停止；请新建会话开始新的 run'
-    : props.blocked?.reason ?? props.placeholder ?? (draftMode
-    ? '继续描述想法；需要团队执行时请使用顶部“交给团队”'
-    : mentionTeam === undefined ? '描述任务…' : '描述任务，或点击 @ 指定团队成员…')
-
-  useEffect(() => { setComposerTargetMemberIds([]) }, [props.sessionId, selectedTeam?.id, selectedWorkspaceId])
+    : props.blocked?.reason ?? props.placeholder ?? '继续描述需求…'
 
   useEffect(() => {
     if (!primaryStops) setStopping(false)
@@ -1895,45 +1363,8 @@ export function PromaxComposerBar(props: PromaxComposerProps) {
   const submit = (): void => {
     const text = draft.trim()
     if (text === '' || locked) return
-    const needsInitialScope = props.sessionId !== undefined
-      && currentTeam?.activeRevision !== undefined
-      && currentBinding?.presetId === currentTeam.activeRevision.presetId
-      && currentBinding.taskKey === undefined
-      && currentSession?.blank === true
-    if (needsInitialScope) {
-      if (props.inputActions === undefined || props.renameSession === undefined || props.prepareSessionScope === undefined || selectedWorkspace === undefined || currentTeam === undefined) {
-        setStopError('无法建立会话产出目录，任务未发送')
-        return
-      }
-      setBusy(true)
-      setStopError(null)
-      void prepareBoundTeamSession(props as Pick<WorkspaceShellActions, 'renameSession' | 'prepareSessionScope'>, currentTeam, selectedWorkspace, props.sessionId!, sessionScopeNameFromPrompt(text)).then(scope => {
-        props.inputActions!.setDraft(sessionScopedTeamPrompt(text, targetMemberIds, scope.sessionName, scope.taskKey))
-        setComposerTargetMemberIds([])
-        queueMicrotask(() => { props.inputActions?.submit() })
-      }).catch(reason => { setStopError(reason instanceof Error ? reason.message : String(reason)) }).finally(() => { setBusy(false) })
-      return
-    }
-    if (!canStartTeam) {
-      if (props.inputActions !== undefined && currentTeam !== undefined && targetMemberIds.length > 0) {
-        props.inputActions.setDraft(routedTeamPrompt(text, targetMemberIds))
-        setComposerTargetMemberIds([])
-        queueMicrotask(() => { props.inputActions?.submit() })
-      } else if (props.inputActions !== undefined) props.inputActions.submit()
-      else props.onRequestWorkspace?.()
-      return
-    }
-    if (selectedTeam?.activeRevision === undefined || selectedWorkspaceId === undefined || selectedWorkspace === undefined || props.startSession === undefined || props.openSession === undefined || props.renameSession === undefined || props.prepareSessionScope === undefined) return
-    setBusy(true)
-    setStopError(null)
-    void props.startSession(selectedWorkspaceId, selectedTeam.activeRevision.presetId).then(async sessionId => {
-      const scope = await prepareBoundTeamSession(props as Pick<WorkspaceShellActions, 'renameSession' | 'prepareSessionScope'>, selectedTeam, selectedWorkspace, sessionId, sessionScopeNameFromPrompt(text))
-      stageNativeTeamPrompt(sessionId, text, targetMemberIds, scope)
-      selectTeamSession(selectedTeam.id, sessionId, selectedWorkspaceId)
-      props.openSession?.(sessionId)
-      setLocalDraft('')
-      setComposerTargetMemberIds([])
-    }).catch(reason => { setStopError(reason instanceof Error ? reason.message : String(reason)) }).finally(() => { setBusy(false) })
+    if (props.inputActions !== undefined) props.inputActions.submit()
+    else props.onRequestWorkspace?.()
   }
   const stopTask = (): void => {
     if (!primaryStops || !canStop || stopping) return
@@ -1941,7 +1372,7 @@ export function PromaxComposerBar(props: PromaxComposerProps) {
     setStopError(null)
     void (async () => {
       try {
-        if (currentTeam !== undefined && reviewableBinding(currentBinding) && selectedWorkspace !== undefined && props.stopTeamTask !== undefined) {
+        if (currentTeam !== undefined && taskReadyBinding(currentBinding) && selectedWorkspace !== undefined && props.stopTeamTask !== undefined) {
           const requestedAt = new Date().toISOString()
           setTeamSessionRunState(currentBinding.sessionId, 'stop_requested', requestedAt)
           const result = await props.stopTeamTask({
@@ -1956,8 +1387,7 @@ export function PromaxComposerBar(props: PromaxComposerProps) {
           await props.stop?.()
         }
       } catch (error: unknown) {
-        if (currentBinding !== undefined) setTeamSessionRunState(currentBinding.sessionId, 'failed_to_stop', new Date().toISOString())
-        setStopError(`停止任务失败：${error instanceof Error ? error.message : String(error)}`)
+        setStopError(`停止请求处理异常：${error instanceof Error ? error.message : String(error)}。界面继续以磁盘运行状态为准。`)
         setStopping(false)
       }
     })()
@@ -1972,35 +1402,33 @@ export function PromaxComposerBar(props: PromaxComposerProps) {
         <button className="composer-tool" type="button" aria-label={`添加图片（${SUPPORTED_IMAGE_HELP}）`} aria-describedby={attachmentHelpId} title={SUPPORTED_IMAGE_HELP} disabled={locked || props.sessionId === undefined} onClick={() => { fileRef.current?.click() }}><Icon name="paperclip" size={18} /></button>
         <span id={attachmentHelpId} className="promax-composer-format-tooltip" role="tooltip">{SUPPORTED_IMAGE_HELP}</span>
       </span>
-      <div className="promax-composer-left-items">{props.leftItems ?? (mentionTeam === undefined ? null : <ComposerTeamMentionPicker team={mentionTeam} selectedMemberIds={composerTargetMemberIds} disabled={locked} onChange={setComposerTargetMemberIds} />)}</div>
+      <div className="promax-composer-left-items">{props.leftItems}</div>
       <label className="promax-sr-only" htmlFor="promax-task-input">描述任务</label>
-      <textarea ref={textareaRef} id="promax-task-input" rows={1} value={draft} disabled={locked || (!canStartTeam && props.inputActions === undefined && props.onRequestWorkspace === undefined)} readOnly={props.inputActions === undefined && !canStartTeam} placeholder={placeholder} onClick={props.inputActions === undefined && !canStartTeam ? props.onRequestWorkspace : undefined} onChange={event => { write(event.currentTarget.value) }} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); submit() } }} />
+      <textarea ref={textareaRef} id="promax-task-input" rows={1} value={draft} disabled={locked || (props.inputActions === undefined && props.onRequestWorkspace === undefined)} readOnly={props.inputActions === undefined} placeholder={placeholder} onClick={props.inputActions === undefined ? props.onRequestWorkspace : undefined} onChange={event => { write(event.currentTarget.value) }} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); submit() } }} />
       {props.rightItems}
-      <button className="send-button" type="button" aria-label={primaryStops ? stopping ? '正在停止团队任务' : failedStop ? '重试停止团队任务' : currentTeam === undefined ? '停止当前执行' : '停止团队任务' : '发送任务'} title={primaryStops ? stopping ? '正在停止…' : failedStop ? '重试停止团队任务' : currentTeam === undefined ? '停止当前执行' : '停止团队任务' : '发送任务'} disabled={primaryStops ? stopping || !canStop : draft.trim() === '' || locked || (props.inputActions === undefined && !canStartTeam)} onClick={primaryStops ? stopTask : submit}><Icon name={primaryStops ? 'stop' : 'send'} size={20} /></button>
+      <button className="send-button" type="button" aria-label={primaryStops ? stopping || stopInProgress ? '已请求停止，正在中止当前步骤' : currentTeam === undefined ? '停止当前执行' : '停止团队任务' : '发送任务'} title={primaryStops ? stopping || stopInProgress ? '已请求停止，正在中止当前步骤' : currentTeam === undefined ? '停止当前执行' : '停止团队任务' : '发送任务'} disabled={primaryStops ? stopping || stopInProgress || !canStop : draft.trim() === '' || locked || props.inputActions === undefined} onClick={primaryStops ? stopTask : submit}><Icon name={primaryStops ? 'stop' : 'send'} size={20} /></button>
     </div>
     {input?.imageIds !== undefined && input.imageIds.length > 0 ? <div className="promax-composer-attachment-count">已附 {input.imageIds.length} 张图片</div> : null}
-    {stopError === null && !failedStop ? null : <div className="promax-inline-error" role="alert">{stopError ?? '停止任务失败：任务仍可能运行。请重试停止；若仍失败，请转人工检查运行树。'}</div>}
+    {stopError === null ? null : <div className="promax-inline-error" role="alert">{stopError}</div>}
     {host?.view === 'trace' ? props.footer : null}
   </div>
   return host === null ? composer : createPortal(composer, host.element)
 }
 
-type DeliverableState = 'optional-missing' | 'pending' | 'generated' | 'ready'
+type DeliverableState = 'pending' | 'generated' | 'ready'
 
 function deliverableStateOf(row: ArtifactProgress): DeliverableState {
   if (row.judgment === 'done' || row.judgment === 'force-released') return 'ready'
   if (row.generation === 'done') return 'generated'
-  if (!row.involved && isOptionalArtifact(row.artifact.relativePath)) return 'optional-missing'
   return 'pending'
 }
 
-/** M follows current task slots plus exact path evidence; optional artifacts count only once observed. */
-export function deliverableSummary(rows: readonly ArtifactProgress[]): { ready: number; involved: number; optionalMissing: number } {
+/** Counts only manifest-registered deliverables and exact disk receipts. */
+export function deliverableSummary(rows: readonly ArtifactProgress[]): { ready: number; involved: number } {
   const states = rows.map(deliverableStateOf)
   return {
     ready: states.filter(state => state === 'ready').length,
-    involved: rows.filter(row => row.involved).length,
-    optionalMissing: states.filter(state => state === 'optional-missing').length,
+    involved: rows.length,
   }
 }
 
@@ -2011,163 +1439,241 @@ function progressLabel(state: ProgressState, stage: 'generation' | 'judgment'): 
   if (state === 'human-required') return '需要人工处理'
   if (state === 'force-released') return '人工强制放行 · 非 Judge 通过'
   if (state === 'running') return stage === 'generation' ? '生成中' : '判定中'
-  if (state === 'unverified') return '未验证'
+  if (state === 'unverified') return '未通过'
   return stage === 'generation' ? '尚未生成' : '未判定'
 }
 
 function fileMeta(state: DeliverableState, judgment: ProgressState): string {
   if (judgment === 'force-released') return '人工强制放行 · 非 Judge 通过'
+  if (judgment === 'blocked' || judgment === 'unverified') return '已生成 · Judge 未通过'
+  if (judgment === 'appealed') return '已生成 · 已申诉'
+  if (judgment === 'human-required') return '已生成 · 需要人工处理'
+  if (judgment === 'running') return '已生成 · 判定中'
   if (state === 'ready') return '已完成 · Judge 通过'
   if (state === 'generated') return '已生成 · 待判定'
-  if (state === 'optional-missing') return '可选 · 未产出'
   return '尚未生成 · 未判定'
 }
 
-function TeamStatusContent({ team, progress, slots = [] }: { team: PromaxTeam; progress: TeamProgressView; slots?: readonly TaskSlotView[] }) {
-  const coordinatorState: MemberExecutionState = progress.delivery === 'blocked' || progress.delivery === 'appealed' || progress.delivery === 'human-required'
-    ? 'blocked'
-    : progress.evidence === 'running' ? 'running' : progress.delivery === 'done' || progress.delivery === 'force-released' ? 'done' : 'idle'
+function TeamStatusContent({ team, progress }: { team: PromaxTeam; progress: TeamProgressView }) {
   const presenceLabel = (state: MemberExecutionState): string => state === 'done'
     ? '已完成'
-    : state === 'blocked' ? '已阻断' : state === 'running' ? '运行中' : '尚未开始'
+    : state === 'blocked' ? '已阻断' : state === 'running' ? '运行中' : '未生成'
   return <>
+    {progress.repair === undefined ? null : <div className="team-note" role="status" aria-atomic="true"><strong>{progress.repair.state === 'repairing' ? `第 ${String(progress.repair.round)}/${String(progress.repair.maxRounds)} 轮返修中` : progress.repair.state === 'judging' ? `第 ${String(progress.repair.round)}/${String(progress.repair.maxRounds)} 轮复判中` : progress.repair.state === 'passed' ? `第 ${String(progress.repair.round)}/${String(progress.repair.maxRounds)} 轮返修后通过` : '多次返修后仍未通过'}</strong><br />{progress.repair.state === 'exhausted' ? progress.repair.reasons.join('；') : '返修只重写业务产物，冻结输入保持不变。'}</div>}
     <section className="right-section" aria-labelledby="promax-current-members">
       <h2 className="sidebar-section-title" id="promax-current-members">当前成员</h2>
       <div className="member-list">
-        {[team.coordinator, ...team.members.filter(member => member.enabled)].map((member, index) => { const state = index === 0 ? coordinatorState : memberExecutionStateOf(member, progress); const label = presenceLabel(state); return <div className="member-item" key={member.memberId}>
-          <span className="member-avatar">{index === 0 ? '主' : member.displayName.slice(0, 2)}</span>
-          <span className="member-copy"><span className="member-name">{member.displayName}</span><span className="member-role">{index === 0 ? 'Coordinator · 统筹与验收' : `Worker · ${member.objective || member.memberId}`}</span></span>
+        {team.members.filter(member => member.enabled && progress.memberStates?.[member.memberId] !== undefined).map(member => { const state = memberExecutionStateOf(member, progress); const label = presenceLabel(state); return <div className="member-item" key={member.memberId}>
+          <span className="member-avatar">{member.displayName.slice(0, 2)}</span>
+          <span className="member-copy"><span className="member-name">{member.displayName}</span><span className="member-role">Worker · {member.objective || member.memberId}</span></span>
           <span className={`presence presence--${state}`} aria-label={label} title={label} />
         </div> })}
       </div>
     </section>
-    {slots.length === 0 ? null : <section className="right-section sidebar-section" aria-labelledby="promax-task-slots"><h2 className="sidebar-section-title" id="promax-task-slots">动态槽位 · {slots.length}</h2><div className="promax-slot-list">{slots.map(slot => { const visual = slotVisual(slot.status); return <div className={`promax-slot promax-slot--${visual.tone}`} key={slot.slot_id}><Icon name={visual.icon} size={15} /><span><strong>{slot.label} · {visual.label}</strong><small>{slot.missing.length === 0 ? visual.description : `缺：${slot.missing.map(key => INFORMATION_KEY_LABELS[key]).join('、')}`}</small></span></div> })}</div></section>}
     <section className="right-section sidebar-section" aria-labelledby="promax-business-artifacts">
       <h2 className="sidebar-section-title" id="promax-business-artifacts">业务产物</h2>
       <div className="promax-artifact-tree">
-        {progress.artifacts.map(row => { const state = deliverableStateOf(row); return <div className={`promax-artifact-row${state === 'optional-missing' ? ' is-optional-missing' : ''}`} key={row.artifact.relativePath}>
+        {progress.artifacts.map(row => <div className="promax-artifact-row" key={row.artifact.relativePath}>
           <div className="file-name">{row.label}</div><div className="file-meta">{team.members.find(member => member.memberId === row.artifact.producedBy)?.displayName ?? row.artifact.producedBy}</div>
-          <div className="promax-artifact-stages"><span data-state={row.generation}><i />生成 · {state === 'optional-missing' ? '可选未产出' : progressLabel(row.generation, 'generation')}</span><span data-state={row.judgment}><i />判定 · {progressLabel(row.judgment, 'judgment')}</span></div>
-        </div> })}
+          <div className="promax-artifact-stages"><span data-state={row.generation}><i />生成 · {progressLabel(row.generation, 'generation')}</span><span data-state={row.judgment}><i />判定 · {progressLabel(row.judgment, 'judgment')}</span></div>
+        </div>)}
       </div>
     </section>
-    <div className="team-note">团队是可协作的执行单元。主智能体负责理解、拆分、分配和终审，{team.members.filter(member => member.enabled).length} 名成员负责专业交付与独立判定。</div>
+    <div className="team-note">主智能体负责理解、拆分和调度；独立 Judge 依据磁盘产物给出最终判定。</div>
   </>
 }
 
-export function PromaxDetailsSidebar(props: PromaxShellRuntimeProps & { sessionId: string }) {
+export function PromaxDetailsSidebar(props: PromaxShellRuntimeProps & { sessionId?: string }) {
   useEffect(() => installPromaxConsoleStyles(), [])
   const teamState = useTeamState()
-  const team = teamForSession(teamState, props.sessionId)
-  const projection = useTaskRunProjection(props.sessionId, bindingForSession(teamState, props.sessionId)?.taskKey)
-  if (team === undefined) return <div className="right-sidebar" id="promax-status-panel"><div className="right-header"><div><div className="right-kicker">PROMAX</div><div className="right-title">交底草稿</div></div><button className="promax-workbench-icon-button" type="button" aria-label="收起交底草稿" aria-controls="promax-status-panel" aria-expanded="true" title="收起交底草稿" onClick={props.layout.closeDetails}><Icon name="panelRight" size={17} /></button></div><div className="right-scroll"><DraftOutlinePanel sessionId={props.sessionId} /></div></div>
-  const progress = teamProgressOf(team, projection)
-  return <div className="right-sidebar" id="promax-status-panel"><div className="right-header"><div><div className="right-kicker">PROMAX</div><div className="right-title">状态与结果</div></div><button className="promax-workbench-icon-button" type="button" aria-label="收起状态栏" aria-controls="promax-status-panel" aria-expanded="true" title="收起状态栏" onClick={props.layout.closeDetails}><Icon name="panelRight" size={17} /></button></div><div className="right-scroll"><TeamStatusContent team={team} progress={progress} {...projection === undefined ? {} : { slots: projection.slots }} /></div></div>
+  const sessionState = props.useSessions(state => state)
+  const workspaceState = props.useWorkspaces(state => state)
+  const productTeam = teamState.teams.find(item => item.id === PRODUCT_TEAM_ID)
+  const productWorkspaces = productTeam === undefined ? [] : workspacesForTeam(productTeam, workspaceState.items)
+  const history = useTaskHistory(productWorkspaces, props.readTaskHistory)
+  const selectedSessionId = teamState.selected.kind === 'team' && teamState.selected.view === 'session' ? teamState.selected.sessionId : undefined
+  const sessionId = selectedSessionId ?? props.sessionId ?? sessionState.current
+  const team = sessionId === undefined ? undefined : teamForSession(teamState, sessionId)
+  const binding = sessionId === undefined ? undefined : bindingForSession(teamState, sessionId)
+  const workspace = team === undefined || sessionId === undefined ? undefined : workspaceForTeamSession(team, teamState, workspaceState.items, sessionId)
+  const [files, setFiles] = useState<TaskRunFileSnapshot | undefined>(undefined)
+  const [readError, setReadError] = useState<string | undefined>(undefined)
+  const [readScope, setReadScope] = useState<string | undefined>(undefined)
+  const readFailureStability = useRef<{ message?: string; consecutiveReads: number }>({ consecutiveReads: 0 })
+  const snapshotStability = useRef<TaskRunSnapshotStability>({ consecutiveReads: 0 })
+  const currentReadScope = !taskReadyBinding(binding) || workspace === undefined ? undefined : JSON.stringify([workspace.workspaceId, workspace.path, binding.sessionId, binding.taskKey])
+  const currentFiles = readScope === currentReadScope ? files : undefined
+  const currentReadError = readScope === currentReadScope ? readError : undefined
+  useEffect(() => {
+    setReadScope(currentReadScope)
+    setFiles(undefined)
+    setReadError(undefined)
+    readFailureStability.current = { consecutiveReads: 0 }
+    snapshotStability.current = { consecutiveReads: 0 }
+    if (!taskReadyBinding(binding) || workspace === undefined || (binding.dispatchState !== 'confirmed' && binding.dispatchState !== 'running')) return
+    let active = true
+    const refresh = async (): Promise<void> => {
+      try {
+        const next = await props.readTaskRunFiles({ workspaceId: workspace.workspaceId, projectPath: workspace.path, sessionId: binding.sessionId, taskKey: binding.taskKey })
+        if (active) {
+          readFailureStability.current = { consecutiveReads: 0 }
+          setReadError(undefined)
+          const decision = taskRunSnapshotDecision(snapshotStability.current, next)
+          snapshotStability.current = decision.next
+          if (decision.publish) setFiles(next)
+        }
+      } catch (reason) {
+        if (active) {
+          const message = reason instanceof Error ? reason.message : String(reason)
+          const consecutiveReads = readFailureStability.current.message === message ? readFailureStability.current.consecutiveReads + 1 : 1
+          readFailureStability.current = { message, consecutiveReads }
+          setReadError(current => surfacedTaskReadError(current, message, consecutiveReads))
+        }
+      }
+    }
+    void refresh()
+    const interval = window.setInterval(() => { void refresh() }, 1_000)
+    return () => { active = false; window.clearInterval(interval) }
+  }, [binding?.dispatchState, binding?.sessionId, binding?.taskKey, currentReadScope, props.readTaskRunFiles, workspace?.path, workspace?.workspaceId])
+  const projectionResult = useMemo<{ projection?: TaskRunProjection; error?: string }>(() => {
+    if (team === undefined || binding === undefined || currentFiles === undefined) return {}
+    try { return { projection: taskRunProjectionOf({ team, binding, files: currentFiles }) } } catch (reason) { return { error: reason instanceof Error ? reason.message : String(reason) } }
+  }, [binding, currentFiles, team])
+  if (team === undefined) return <div className="right-sidebar" id="promax-status-panel"><div className="right-header"><div><div className="right-kicker">PROMAX</div><div className="right-title">最近产出</div></div><button className="promax-workbench-icon-button" type="button" aria-label="收起状态栏" aria-controls="promax-status-panel" aria-expanded="true" title="收起状态栏" onClick={props.layout.closeDetails}><Icon name="panelRight" size={17} /></button></div><div className="right-scroll">{history.error === undefined ? history.loading && history.items.length === 0 ? <div className="team-note" role="status">正在读取磁盘记录…</div> : <RecentOutputContent {...history.items[0] === undefined ? {} : { item: history.items[0] }} openTaskFolder={props.openTaskFolder} /> : <div className="team-note" role="alert">磁盘记录读取失败：{history.error}</div>}</div></div>
+  const statusMessage = currentReadError ?? projectionResult.error
+  if (binding?.dispatchState === 'planning') return <div className="right-sidebar" id="promax-status-panel"><div className="right-header"><div><div className="right-kicker">PROMAX</div><div className="right-title">状态与结果</div></div><button className="promax-workbench-icon-button" type="button" aria-label="收起状态栏" aria-controls="promax-status-panel" aria-expanded="true" title="收起状态栏" onClick={props.layout.closeDetails}><Icon name="panelRight" size={17} /></button></div><div className="right-scroll"><div className="team-note">等待确认调度名单；业务执行尚未开始。</div></div></div>
+  const progress = teamProgressOf(team, projectionResult.projection, binding?.confirmedMemberIds)
+  return <div className="right-sidebar" id="promax-status-panel"><div className="right-header"><div><div className="right-kicker">PROMAX</div><div className="right-title">状态与结果</div></div><button className="promax-workbench-icon-button" type="button" aria-label="收起状态栏" aria-controls="promax-status-panel" aria-expanded="true" title="收起状态栏" onClick={props.layout.closeDetails}><Icon name="panelRight" size={17} /></button></div><div className="right-scroll">{statusMessage === undefined ? projectionResult.projection === undefined ? <div className="team-note" role="status">正在读取 manifest 与磁盘文件状态…</div> : null : <TaskProjectionNotice message={statusMessage} compact />}<TeamStatusContent team={team} progress={progress} /></div></div>
 }
 
 function EmptyWorkspace({ title, copy }: { title: string; copy: string }) {
   return <div className="promax-workbench-empty"><span className="brand-mark" aria-hidden="true">P</span><h1>{title}</h1><p>{copy}</p></div>
 }
 
-function CompactTimeline({ events }: { events: readonly TimelineEventView[] }) {
-  return <div className="timeline-list" role="list" aria-label="关键事件">
-    {events.map(event => <article className={`timeline-item is-${event.tone}`} role="listitem" key={event.key}>
-      <span className="timeline-dot" aria-hidden="true" />
-      <div className="timeline-title">{event.title}</div>
-      <div className="timeline-copy">{event.copy}</div>
-      <span className="timeline-time">{event.time}</span>
-    </article>)}
+function taskOutputDirectory(projectPath: string, taskKey: string): string {
+  return `${projectPath.replace(/\/+$/u, '')}/deliverables/${taskKey}`
+}
+
+function OutputLocation({ projectPath, taskKey }: { projectPath: string; taskKey: string }) {
+  const path = taskOutputDirectory(projectPath, taskKey)
+  return <span className="meta-chip" aria-label={`产出目录：${path}`} title={path}><Icon name="folder" size={14} />产出目录：{path}</span>
+}
+
+function TaskProjectionNotice({ message, compact = false }: { message: string; compact?: boolean }) {
+  const transportFailure = isTaskReadTransportError(message)
+  return <section className={`promax-task-status-notice${compact ? ' promax-task-status-notice--compact' : ''}`} role="alert" aria-live="assertive">
+      <span className="promax-task-status-icon" aria-hidden="true">!</span>
+      <div><h2>{transportFailure ? '状态刷新暂时失败' : '任务文件校验未通过'}</h2>
+      <p>{transportFailure
+        ? '当前无法连接本机 Promax 服务。磁盘文件不会因此被删除；服务恢复后页面会自动重新读取。'
+        : '磁盘任务文件没有通过结构或完整性校验。下方保留最近可用的工作台结构，不会猜测进度或误报完成。'}</p>
+      <div className="promax-task-status-detail">{message}</div></div>
+  </section>
+}
+
+function fileSizeLabel(bytes: number): string {
+  if (bytes < 1024) return `${String(bytes)} B`
+  if (bytes < 1024 * 1024) return `${String(Math.max(1, Math.round(bytes / 1024)))} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(bytes < 10 * 1024 * 1024 ? 1 : 0)} MB`
+}
+
+function judgeDisplayOf(state: TaskRunFileSnapshot['judge']['state']): { label: string; tone: 'pass' | 'fail' | 'pending' } {
+  if (state === 'pass') return { label: '✓ 判定通过', tone: 'pass' }
+  if (state === 'absent') return { label: '判定中', tone: 'pending' }
+  if (state === 'force_released') return { label: '✕ Judge 未通过 · 人工放行', tone: 'fail' }
+  return { label: '✕ 判定不通过', tone: 'fail' }
+}
+
+function TaskFolderButton({ workspaceId, projectPath, sessionId, taskKey, openTaskFolder, toolbar = false }: {
+  workspaceId: string
+  projectPath: string
+  sessionId: string
+  taskKey: string
+  openTaskFolder: WorkspaceShellActions['openTaskFolder']
+  toolbar?: boolean
+}) {
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState<string | undefined>(undefined)
+  const open = async (): Promise<void> => {
+    if (busy) return
+    setBusy(true)
+    setMessage(undefined)
+    try {
+      const result = await openTaskFolder({ workspaceId, projectPath, sessionId, taskKey })
+      setMessage(`已在系统文件管理器打开：${result.path}`)
+    } catch (reason) {
+      setMessage(`打开失败：${reason instanceof Error ? reason.message : String(reason)}`)
+    } finally {
+      setBusy(false)
+    }
+  }
+  return <div className={`promax-open-folder-action${toolbar ? ' promax-open-folder-action--toolbar' : ''}`}>
+    <button className={toolbar ? 'toolbar-button' : 'promax-button promax-button--primary'} type="button" disabled={busy} aria-label={toolbar ? busy ? '正在打开产物文件夹' : '打开产物文件夹' : undefined} title={toolbar ? '打开产物文件夹' : undefined} onClick={() => { void open() }}><Icon name="folder" size={15} /><span className={toolbar ? 'button-label' : undefined}>{busy ? '正在打开…' : toolbar ? '产物文件夹' : '打开文件夹'}</span></button>
+    {message === undefined ? null : <small role="status">{message}</small>}
   </div>
 }
 
-function TeamOverviewDashboard({
-  team,
-  teamState,
-  workspaces,
-  sessionState,
-  archivedSessionIds,
-  onOpenProject,
-}: {
-  team: PromaxTeam
-  teamState: PromaxTeamState
-  workspaces: readonly WorkspaceView[]
-  sessionState: SessionListState
-  archivedSessionIds: readonly string[]
-  onOpenProject: (workspace: WorkspaceView) => void
-}) {
-  const projects = workspacesForTeam(team, workspaces)
-  const sessions = sessionsForTeam(team, teamState, workspaces, sessionState, archivedSessionIds)
-  const enabledMembers = team.members.filter(member => member.enabled)
-  const revision = team.activeRevision?.revision
-
-  return <main className="promax-team-overview" aria-labelledby="promax-team-overview-title">
-    <section className="promax-overview-hero">
-      <div>
-        <div className="promax-overview-kicker">TEAM OVERVIEW</div>
-        <h1 id="promax-team-overview-title">团队总览</h1>
-        <p>这里汇总团队配置、项目与会话。进入具体项目后再新建会话并与智能体团队协作。</p>
-      </div>
-      {revision === undefined ? null : <span className="promax-overview-revision">{revisionLabel(revision)}</span>}
-    </section>
-
-    <section className="promax-overview-stats" aria-label="团队关键数据">
-      <article><span>项目</span><strong>{projects.length}</strong><small>独立工作目录</small></article>
-      <article><span>会话</span><strong>{sessions.length}</strong><small>可见团队会话</small></article>
-      <article><span>专业成员</span><strong>{enabledMembers.length}</strong><small>另有主智能体统筹</small></article>
-      <article><span>业务产物</span><strong>{planningArtifactsOf(team).length}</strong><small>当前 Revision 交付契约</small></article>
-    </section>
-
-    <section className="promax-overview-section" aria-labelledby="promax-overview-projects">
-      <header><div><h2 id="promax-overview-projects">项目</h2><p>项目是会话和交付物的归属目录。</p></div><span>{projects.length} 个项目</span></header>
-      {projects.length === 0
-        ? <div className="promax-overview-project-empty"><Icon name="folder" size={19} /><div><strong>还没有项目</strong><span>使用左侧“产品智能体团队”后的 + 新建项目。</span></div></div>
-        : <div className="promax-overview-project-grid">{projects.map(project => {
-          const rows = sessionsForProject(team, project, teamState, sessionState, archivedSessionIds)
-          const latest = rows[0]
-          return <button className="promax-overview-project-card" type="button" key={project.workspaceId} aria-label={`打开项目 ${project.title}`} onClick={() => { onOpenProject(project) }}>
-            <span className="promax-overview-project-icon"><Icon name="folder" size={18} /></span>
-            <span className="promax-overview-project-copy"><strong>{project.title}</strong><small>{rows.length} 个会话{latest === undefined ? ' · 尚未开始' : ` · 最近：${latest.blank ? '新会话' : latest.displayTitle}`}</small></span>
-            <span className="promax-overview-project-open">进入项目 <Icon name="chevronRight" size={13} /></span>
-          </button>
-        })}</div>}
-    </section>
-
-    <section className="promax-overview-flow" aria-label="使用流程">
-      <div><span>1</span><p><strong>新建项目</strong><small>建立独立工作目录</small></p></div>
-      <i aria-hidden="true" />
-      <div><span>2</span><p><strong>新建会话</strong><small>锁定当前团队 Revision</small></p></div>
-      <i aria-hidden="true" />
-      <div><span>3</span><p><strong>开始协作</strong><small>在会话里输入任务</small></p></div>
-    </section>
-  </main>
+function DiskFileList({ files, judge }: { files: TaskRunFileSnapshot['deliverableFiles']; judge: TaskRunFileSnapshot['judge'] }) {
+  const judgeDisplay = judgeDisplayOf(judge.state)
+  return <>
+    <div className="promax-result-files" aria-label="磁盘业务产物">
+      {files.length === 0 ? <div className="promax-result-empty">产出目录里还没有业务文件。</div> : files.map(file => <article className="promax-result-file" key={file.path}>
+        <span className="promax-result-file-icon"><Icon name="artifact" size={19} /></span>
+        <span className="promax-result-file-copy"><strong>{file.relativePath}</strong><small>{fileSizeLabel(file.bytes)}</small></span>
+        <span className={`promax-result-judge promax-result-judge--${judgeDisplay.tone}`}>{judgeDisplay.label}</span>
+      </article>)}
+    </div>
+    {judgeDisplay.tone !== 'fail' ? null : <div className="promax-judge-reason" role="alert"><strong>Judge 原因</strong><p>{judge.reason ?? 'Judge 报告没有给出可识别的失败原因。'}</p></div>}
+  </>
 }
 
-function WorkbenchContent({ team, workspace, session, taskKey, snapshot, progress, availability, onArtifactClick }: { team: PromaxTeam; workspace: WorkspaceView; session: SessionSummary | undefined; taskKey: string | undefined; snapshot: NativeConversationSnapshot | undefined; progress: TeamProgressView; availability: TeamAvailabilityView; onArtifactClick(row: ArtifactProgress, state: DeliverableState): void }) {
+function TaskResultContent({ workspace, files, openTaskFolder, statusMessage }: {
+  workspace: WorkspaceView
+  files: TaskRunFileSnapshot
+  openTaskFolder: WorkspaceShellActions['openTaskFolder']
+  statusMessage?: string
+}) {
+  return <div className="workspace-content promax-task-result">
+    <div className="workspace-head"><div><div className="workspace-kicker">任务结果 · {minuteLabel(files.createdAt)}</div><h1 className="workspace-title">跑完了。{files.deliverableFiles.length} 个文件。</h1><p className="workspace-description">以下列表直接来自磁盘 `deliverables/{files.taskKey}/`；Judge 报告只作为判定状态显示。</p></div><div className="workspace-meta"><OutputLocation projectPath={workspace.path} taskKey={files.taskKey} /></div></div>
+    {statusMessage === undefined ? null : <TaskProjectionNotice message={statusMessage} />}
+    <DiskFileList files={files.deliverableFiles} judge={files.judge} />
+    <TaskFolderButton workspaceId={workspace.workspaceId} projectPath={workspace.path} sessionId={files.parentSessionId} taskKey={files.taskKey} openTaskFolder={openTaskFolder} />
+  </div>
+}
+
+function RecentOutputContent({ item, openTaskFolder }: { item?: TaskHistoryView; openTaskFolder: WorkspaceShellActions['openTaskFolder'] }) {
+  if (item === undefined) return <div className="promax-recent-empty"><Icon name="folder" size={22} /><strong>还没有历史产出</strong><p>任务完成并写入磁盘后，最近一次产出会显示在这里。</p></div>
+  return <section className="promax-recent-output" aria-labelledby="promax-recent-output-title">
+    <div className="promax-recent-output-heading"><span>最近一次的产出</span><h2 id="promax-recent-output-title">{item.taskKey}</h2><time dateTime={item.createdAt}>{minuteLabel(item.createdAt)}</time></div>
+    <DiskFileList files={item.deliverableFiles} judge={item.judge} />
+    <TaskFolderButton workspaceId={item.workspaceId} projectPath={item.projectPath} sessionId={item.sessionId} taskKey={item.taskKey} openTaskFolder={openTaskFolder} />
+  </section>
+}
+
+function WorkbenchContent({ team, workspace, session, taskKey, progress, availability, files, showJudgeFailure = false, statusMessage, syncing = false }: { team: PromaxTeam; workspace: WorkspaceView; session: SessionSummary | undefined; taskKey: string | undefined; progress: TeamProgressView; availability: TeamAvailabilityView; files?: TaskRunFileSnapshot; showJudgeFailure?: boolean; statusMessage?: string; syncing?: boolean }) {
   const summary = deliverableSummary(progress.artifacts)
-  const enabledMemberCount = team.members.filter(member => member.enabled).length
-  const businessArtifactCount = planningArtifactsOf(team).length
+  const memberViews = team.members
+    .filter(member => member.enabled && progress.memberStates?.[member.memberId] !== undefined)
+    .map(member => ({ member, state: memberExecutionStateOf(member, progress) }))
+  const enabledMemberCount = memberViews.length
+  const businessArtifactCount = progress.artifacts.length
   const percent = summary.involved === 0 ? 0 : Math.round(summary.ready / summary.involved * 100)
   const running = progress.evidence === 'running'
-  const timeline = timelineEventsOf(team, snapshot)
+  const runningMemberCount = memberViews.filter(member => member.state === 'running').length
   return <div className="workspace-content">
-    <div className="workspace-head"><div><div className="workspace-kicker">团队工作台 · {running ? '进行中' : summary.ready > 0 ? '待验收' : '尚未开始'}</div><h1 className="workspace-title">{session?.displayTitle || workspace.title}</h1><p className="workspace-description">主智能体协调，{enabledMemberCount} 名成员按当前 Revision 职责执行；{businessArtifactCount} 项业务产物按生成、判定两段展示。</p></div><div className="workspace-meta"><span className="meta-chip"><span className="status-dot" />{enabledMemberCount} Members</span>{taskKey === undefined ? null : <span className="meta-chip"><Icon name="folder" size={14} />deliverables/{taskKey}/</span>}<span className={`meta-chip team-availability--${availability.tone}`} role="status" aria-atomic="true"><Icon name="activity" size={15} />{availability.label}</span></div></div>
-    <article className="task-card"><div className="task-card-head"><div><div className="task-label">当前目标</div><div className="task-goal">{session?.displayTitle || `为「${workspace.title}」启动一项产品任务`}</div></div><div className="task-percent">{percent}%</div></div><div className="progress-track" role="progressbar" aria-label="产物判定进度" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}><div className="progress-value" style={{ width: `${percent}%` }} /></div><div className="task-card-footer"><span className="coordinator-avatar">主</span><span className="coordinator-copy">{running ? '主智能体正在协调成员并等待稳定回执。' : '主智能体会先理解目标，再拆分任务并完成终审。'}</span><button className="run-button" type="button" onClick={() => { document.querySelector<HTMLTextAreaElement>('[data-promax-composer] textarea')?.focus() }}><Icon name="activity" size={14} />{session === undefined ? '描述任务' : '继续执行'}</button></div></article>
-    <div className="section-bar"><div className="section-name">关键事件</div><div className="section-meta">{timeline.length} EVENTS</div></div>
-    <CompactTimeline events={timeline} />
-    <div className="section-bar"><div className="section-name">团队成员</div><div className="section-meta">{enabledMemberCount} MEMBERS</div></div>
-    <div className="agent-grid">{team.members.filter(member => member.enabled).map(member => { const state = memberExecutionStateOf(member, progress); return <article className={`agent-card is-${state}`} key={member.memberId}><div className="agent-card-top"><div className="agent-avatar">{member.displayName.slice(0, 2)}</div><div><div className="agent-name">{member.displayName}</div><div className="agent-role">{member.memberId}</div></div></div><div className="agent-task">{member.objective}</div><div className="agent-footer"><span className="agent-state-dot" /><span>{state === 'done' ? '已完成' : state === 'blocked' ? '已阻断' : state === 'running' ? '运行中' : '尚未开始'}</span></div></article> })}</div>
-    <div className="section-bar"><div className="section-name">交付物</div><div className="section-meta">{summary.ready} / {summary.involved} 就绪{summary.optionalMissing > 0 ? ` · ${summary.optionalMissing} 项可选未产出` : ''}</div></div>
-    <section className="deliverable-card" aria-label="业务产物"><div className="file-grid">{progress.artifacts.map(row => { const state = deliverableStateOf(row); return <button className={`file-item${state === 'ready' ? ' is-ready' : ''}${state === 'optional-missing' ? ' is-optional-missing' : ''}`} type="button" key={row.artifact.relativePath} onClick={() => { onArtifactClick(row, state) }}><Icon name="artifact" size={18} /><span className="file-copy"><span className="file-name">{row.label}</span><span className="file-meta">{fileMeta(state, row.judgment)}</span></span></button> })}</div></section>
+    <div className="workspace-head"><div><div className="workspace-kicker">团队工作台 · {running ? '进行中' : summary.involved > 0 && summary.ready === summary.involved ? '已完成' : summary.ready > 0 ? '待验收' : '尚未完成'}</div><h1 className="workspace-title">{session?.displayTitle || workspace.title}</h1><p className="workspace-description">本次 manifest 登记 {enabledMemberCount} 名成员与 {businessArtifactCount} 项业务产物；状态只读取对应磁盘文件。</p></div><div className="workspace-meta">{taskKey === undefined ? null : <OutputLocation projectPath={workspace.path} taskKey={taskKey} />}<span className="meta-chip"><span className="status-dot" />{enabledMemberCount} Members</span><span className={`meta-chip team-availability--${availability.tone}`} role="status" aria-atomic="true"><Icon name="activity" size={15} />{availability.label}</span></div></div>
+    {statusMessage === undefined ? null : <TaskProjectionNotice message={statusMessage} />}
+    {syncing ? <div className="promax-task-sync-note" role="status">正在读取 manifest 与磁盘文件状态；工作台结构保持可见。</div> : null}
+    {!showJudgeFailure || files === undefined ? null : <div className="promax-judge-reason" role="alert"><strong>Judge 原因</strong><p>{files.judge.reason ?? 'Judge 报告没有给出可识别的失败原因。'}</p></div>}
+    <article className="task-card"><div className="task-card-head"><div><div className="task-label">当前目标</div><div className="task-goal">{session?.displayTitle || `为「${workspace.title}」启动一项产品任务`}</div></div><div className="task-percent">{percent}%</div></div><div className="progress-track" role="progressbar" aria-label="产物交付进度" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}><div className="progress-value" style={{ width: `${percent}%` }} /></div><div className="task-card-footer"><span className="coordinator-avatar">主</span><span className="coordinator-copy">{running ? '正在等待 manifest 登记的业务文件与独立 Judge 报告落盘。' : summary.involved > 0 && summary.ready === summary.involved ? '磁盘上的业务文件和独立 Judge 报告均已齐备。' : '尚未观察到完整的磁盘交付凭据。'}</span></div></article>
+    <div className="section-bar"><div className="section-name">团队成员</div><div className="section-meta" role="status" aria-atomic="true">{runningMemberCount > 0 ? `${runningMemberCount} 人运行中` : `${enabledMemberCount} MEMBERS`}</div></div>
+    <div className="agent-grid">{memberViews.map(({ member, state }) => <article className={`agent-card is-${state}`} key={member.memberId}><div className="agent-card-top"><div className="agent-avatar">{member.displayName.slice(0, 2)}</div><div><div className="agent-name">{member.displayName}</div><div className="agent-role">{member.memberId}</div></div></div><div className="agent-task">{member.objective}</div><div className="agent-footer"><span className="agent-state-dot" /><span>{state === 'done' ? '已完成' : state === 'blocked' ? '已阻断' : state === 'running' ? '运行中' : '未生成'}</span></div></article>)}</div>
+    <div className="section-bar"><div className="section-name">交付物</div><div className="section-meta">{summary.ready} / {summary.involved} 就绪</div></div>
+    <section className="deliverable-card" aria-label="业务产物"><div className="file-grid">{progress.artifacts.map(row => { const state = deliverableStateOf(row); return <article className={`file-item${state === 'ready' ? ' is-ready' : ''}`} key={row.artifact.relativePath}><Icon name="artifact" size={18} /><span className="file-copy"><span className="file-name">{row.label}</span><span className="file-meta">{fileMeta(state, row.judgment)}</span></span></article> })}</div></section>
   </div>
 }
 
-function DeliverablesContent({ workspace, taskKey, progress }: { workspace: WorkspaceView; taskKey: string | undefined; progress: TeamProgressView }) {
-  const summary = deliverableSummary(progress.artifacts)
-  const outputRoot = taskKey === undefined ? '发送首条任务后建立会话目录' : `deliverables/${taskKey}/`
-  return <div className="workspace-content"><div className="workspace-head"><div><div className="workspace-kicker">DELIVERABLES</div><h1 className="workspace-title">任务交付物</h1><p className="workspace-description">每个会话使用独立产出目录：{outputRoot}；Judge 报告位于同名 `.promax/judge/` 目录，不计入业务产物。</p></div><div className="workspace-meta"><span className="meta-chip">{summary.ready} / {summary.involved} 就绪</span></div></div><div className="section-bar"><div className="section-name">本次会话</div><div className="section-meta">{taskKey ?? workspace.title}</div></div><div className="files-overview">{progress.artifacts.map(row => { const state = deliverableStateOf(row); return <article className={`big-file${state === 'optional-missing' ? ' is-optional-missing' : ''}`} key={row.artifact.relativePath}><div className="big-file-icon"><Icon name="artifact" size={20} /></div><div className="big-file-name">{row.label}</div><div className="big-file-meta">{artifactPathForTask(row.artifact, taskKey) ?? row.artifact.relativePath}</div><div className="big-file-status">{fileMeta(state, row.judgment)}</div></article> })}</div></div>
-}
-
-type WorkbenchTab = Exclude<ComposerHostView, 'draft'>
+type WorkbenchTab = ComposerHostView
 
 /** Frame-wide Promax chrome; it keeps dsh's conversation mounted under the task-trace tab. */
 export function PromaxWorkspaceOverlay(props: PromaxShellRuntimeProps) {
@@ -2176,114 +1682,168 @@ export function PromaxWorkspaceOverlay(props: PromaxShellRuntimeProps) {
   const workspaceState = props.useWorkspaces(state => state)
   const sessionState = props.useSessions(state => state)
   const [tab, setTab] = useState<WorkbenchTab>('workbench')
-  const [handoffSessionId, setHandoffSessionId] = useState<string | null>(null)
-  const [coverageReviewOpen, setCoverageReviewOpen] = useState(false)
-  const [toastMessage, setToastMessage] = useState<string | null>(null)
-  const [taskState, setTaskState] = useState<ConsoleTaskStateResponse | undefined>(undefined)
   const [taskRunFiles, setTaskRunFiles] = useState<TaskRunFileSnapshot | undefined>(undefined)
-  const toastTimerRef = useRef<number | undefined>(undefined)
+  const [taskRunReadError, setTaskRunReadError] = useState<string | undefined>(undefined)
+  const [taskRunReadScope, setTaskRunReadScope] = useState<string | undefined>(undefined)
+  const readFailureStability = useRef<{ message?: string; consecutiveReads: number }>({ consecutiveReads: 0 })
+  const snapshotStability = useRef<TaskRunSnapshotStability>({ consecutiveReads: 0 })
   const scrollRef = useRef<HTMLDivElement>(null)
   const selectedContext = teamState.selected
+  const selectedSession = selectedContext.kind === 'team' && selectedContext.view === 'session'
   const productTeam = teamState.teams.find(item => item.id === PRODUCT_TEAM_ID)
-  const productProjects = productTeam === undefined ? [] : workspacesForTeam(productTeam, workspaceState.items)
-  const team = selectedContext.kind === 'team' ? teamState.teams.find(item => item.id === selectedContext.teamId) : undefined
-  const workspace = team === undefined || selectedContext.kind !== 'team' ? undefined : workspacesForTeam(team, workspaceState.items).find(item => item.workspaceId === selectedContext.workspaceId)
-  const sessionId = selectedContext.kind === 'team' && selectedContext.view === 'session' ? selectedContext.sessionId ?? sessionState.current : undefined
+  const team = selectedSession ? teamState.teams.find(item => item.id === selectedContext.teamId) : productTeam
+  const productWorkspaces = productTeam === undefined ? [] : workspacesForTeam(productTeam, workspaceState.items)
+  const history = useTaskHistory(productWorkspaces, props.readTaskHistory)
+  const defaultWorkspace = productWorkspaceOf(productWorkspaces) ?? productWorkspaces[0]
+  const sessionId = selectedSession ? selectedContext.sessionId ?? sessionState.current : undefined
   const session = sessionId === undefined ? undefined : sessionState.byId[sessionId]
+  const nativeSession = sessionState.current === undefined ? undefined : sessionState.byId[sessionState.current]
+  const viewingDescendant = sessionId !== undefined
+    && nativeSession !== undefined
+    && nativeSession.id !== sessionId
+    && belongsToTeamSession(sessionId, nativeSession, sessionState)
+  const visibleSession = viewingDescendant ? nativeSession : session
+  const workspace = selectedSession && team !== undefined && sessionId !== undefined
+    ? workspaceForTeamSession(team, teamState, workspaceState.items, sessionId)
+    : defaultWorkspace
   const taskBinding = sessionId === undefined ? undefined : bindingForSession(teamState, sessionId)
   const taskKey = taskBinding?.taskKey
+  const currentTaskRunReadScope = !taskReadyBinding(taskBinding) || workspace === undefined ? undefined : JSON.stringify([workspace.workspaceId, workspace.path, taskBinding.sessionId, taskBinding.taskKey])
+  const currentTaskRunFiles = taskRunReadScope === currentTaskRunReadScope ? taskRunFiles : undefined
+  const currentTaskRunReadError = taskRunReadScope === currentTaskRunReadScope ? taskRunReadError : undefined
   const snapshot = useTeamSessionProgress(sessionId)
-  const projection = useMemo(() => team === undefined || !reviewableBinding(taskBinding)
-    ? undefined
-    : taskRunProjectionOf({
-      team,
-      binding: taskBinding,
-      ...(taskState === undefined ? {} : { taskState }),
-      ...(taskRunFiles === undefined ? {} : { files: taskRunFiles }),
-      ...(snapshot === undefined ? {} : { snapshot }),
-      sessions: sessionState,
-    }),
-  [sessionState, snapshot, taskRunFiles, taskState, taskBinding, team])
-  const progress = useMemo(() => team === undefined ? undefined : teamProgressOf(team, projection), [projection, team])
+  const projectionResult = useMemo<{ projection?: TaskRunProjection; error?: string }>(() => {
+    if (team === undefined || !taskReadyBinding(taskBinding)) return {}
+    if (currentTaskRunFiles === undefined) return currentTaskRunReadError === undefined ? {} : { error: currentTaskRunReadError }
+    try {
+      const projection = taskRunProjectionOf({
+        team,
+        binding: taskBinding,
+        files: currentTaskRunFiles,
+      })
+      return { projection, ...(currentTaskRunReadError === undefined ? {} : { error: currentTaskRunReadError }) }
+    } catch (reason: unknown) {
+      return { error: reason instanceof Error ? reason.message : String(reason) }
+    }
+  }, [currentTaskRunFiles, currentTaskRunReadError, taskBinding, team])
+  const projection = projectionResult.projection
+  const projectionError = projectionResult.error
+  const progress = useMemo(() => team === undefined ? undefined : teamProgressOf(team, projection, taskBinding?.confirmedMemberIds), [projection, taskBinding?.confirmedMemberIds, team])
   const tree = teamSessionTreeOf(sessionId, sessionState)
-  const availability = teamAvailabilityOf(snapshot, session, tree)
+  const availability = taskBinding?.dispatchState !== 'running'
+    ? teamAvailabilityOf(snapshot, session, tree)
+    : projectionError !== undefined
+      ? { label: '状态读取失败', tone: 'error' as const }
+    : projection === undefined
+      ? { label: projectionError === undefined ? '状态同步中' : '状态读取失败', tone: projectionError === undefined ? 'active' as const : 'error' as const }
+      : projection.phase === 'completed'
+        ? { label: '任务完成', tone: 'idle' as const }
+        : projection.phase === 'blocked'
+          ? { label: '任务受阻', tone: 'error' as const }
+          : projection.phase === 'cancelled'
+            ? { label: '任务已停止', tone: 'warning' as const }
+            : projection.phase === 'stopping'
+              ? { label: '已请求停止 · 正在中止当前步骤', tone: 'warning' as const }
+              : projection.phase === 'repairing' && projection.repair !== undefined
+                ? { label: `第 ${String(projection.repair.round)}/${String(projection.repair.maxRounds)} 轮返修中`, tone: 'warning' as const }
+              : projection.phase === 'judging'
+                ? { label: projection.repair?.state === 'judging' ? `第 ${String(projection.repair.round)}/${String(projection.repair.maxRounds)} 轮复判中` : 'Judge 判定中', tone: 'active' as const }
+                : { label: '任务运行中', tone: 'active' as const }
 
   useEffect(() => {
-    if (projection !== undefined) publishTaskRunProjection(projection)
-  }, [projection])
-  useEffect(() => {
-    if (taskRunFiles !== undefined && taskBinding !== undefined && taskBinding.runState !== taskRunFiles.cancellation) {
-      setTeamSessionRunState(taskBinding.sessionId, taskRunFiles.cancellation, taskRunFiles.observedAt)
+    if (currentTaskRunFiles !== undefined && taskBinding !== undefined && taskBinding.runState !== currentTaskRunFiles.cancellation) {
+      setTeamSessionRunState(taskBinding.sessionId, currentTaskRunFiles.cancellation, currentTaskRunFiles.observedAt)
     }
-  }, [taskBinding, taskRunFiles])
+  }, [currentTaskRunFiles, taskBinding])
   useEffect(() => {
-    setTaskState(undefined)
+    setTaskRunReadScope(currentTaskRunReadScope)
     setTaskRunFiles(undefined)
-    if (!reviewableBinding(taskBinding) || workspace === undefined) return
+    setTaskRunReadError(undefined)
+    readFailureStability.current = { consecutiveReads: 0 }
+    snapshotStability.current = { consecutiveReads: 0 }
+    if (!taskReadyBinding(taskBinding) || workspace === undefined) return
     let active = true
-    const api = new PromaxApiClient(props.apiBaseUrl, new BrowserTokenStore())
     const refresh = async (): Promise<void> => {
-      const [backend, files] = await Promise.allSettled([
-        api.taskState({ session_id: taskBinding.sessionId, task_key: taskBinding.taskKey }),
-        props.readTaskRunFiles({
+      try {
+        const files = await props.readTaskRunFiles({
           workspaceId: workspace.workspaceId,
           projectPath: workspace.path,
           sessionId: taskBinding.sessionId,
           taskKey: taskBinding.taskKey,
-          artifactPaths: taskBinding.artifactPaths,
-        }),
-      ])
-      if (!active) return
-      if (backend.status === 'fulfilled' && backend.value.session_id === taskBinding.sessionId && backend.value.task_key === taskBinding.taskKey) setTaskState(backend.value)
-      if (files.status === 'fulfilled' && files.value.parentSessionId === taskBinding.sessionId && files.value.taskKey === taskBinding.taskKey) setTaskRunFiles(files.value)
+        })
+        if (!active) return
+        if (files.parentSessionId === taskBinding.sessionId && files.taskKey === taskBinding.taskKey) {
+          readFailureStability.current = { consecutiveReads: 0 }
+          setTaskRunReadError(undefined)
+          const decision = taskRunSnapshotDecision(snapshotStability.current, files)
+          snapshotStability.current = decision.next
+          if (decision.publish) setTaskRunFiles(files)
+        }
+      } catch (reason) {
+        if (active) {
+          const message = reason instanceof Error ? reason.message : String(reason)
+          const consecutiveReads = readFailureStability.current.message === message ? readFailureStability.current.consecutiveReads + 1 : 1
+          readFailureStability.current = { message, consecutiveReads }
+          setTaskRunReadError(current => surfacedTaskReadError(current, message, consecutiveReads))
+        }
+      }
     }
     void refresh()
     const interval = window.setInterval(() => { void refresh() }, 1_000)
     return () => { active = false; window.clearInterval(interval) }
-  }, [props.apiBaseUrl, props.readTaskRunFiles, taskBinding?.artifactPaths, taskBinding?.coverageRevision, taskBinding?.sessionId, taskBinding?.taskKey, workspace])
+  }, [currentTaskRunReadScope, props.readTaskRunFiles, taskBinding?.sessionId, taskBinding?.taskKey, workspace])
 
-  useEffect(() => { setTab('workbench') }, [teamState.selected.kind, selectedContext.kind === 'team' ? selectedContext.workspaceId : undefined])
-  useEffect(() => () => { if (toastTimerRef.current !== undefined) window.clearTimeout(toastTimerRef.current) }, [])
+  useEffect(() => { setTab(viewingDescendant ? 'trace' : 'workbench') }, [sessionId, viewingDescendant, visibleSession?.id])
   useEffect(() => {
-    const listener = (event: Event): void => {
-      const detail = (event as CustomEvent<{ sessionId?: unknown }>).detail
-      if (typeof detail?.sessionId === 'string') setHandoffSessionId(detail.sessionId)
-    }
-    window.addEventListener('promax:handoff-request', listener)
-    return () => { window.removeEventListener('promax:handoff-request', listener) }
-  }, [])
-  useEffect(() => {
-    if (selectedContext.kind === 'team' && selectedContext.view === 'home' && sessionState.current !== undefined) props.clearSession()
-  }, [props, selectedContext, sessionState.current])
+    if (!selectedSession && sessionState.current !== undefined) props.clearSession()
+  }, [props.clearSession, selectedSession, sessionState.current])
   const activate = (next: WorkbenchTab): void => { setTab(next); if (scrollRef.current !== null) scrollRef.current.scrollTop = 0 }
-  const notify = (message: string): void => {
-    setToastMessage(message)
-    if (toastTimerRef.current !== undefined) window.clearTimeout(toastTimerRef.current)
-    toastTimerRef.current = window.setTimeout(() => { setToastMessage(null) }, 2200)
+
+  if (!selectedSession) {
+    if (productTeam === undefined) return <EmptyWorkspace title="产品团队不可用" copy="没有找到产品智能体团队配置。" />
+    return <TeamHome
+      team={productTeam}
+      workspace={defaultWorkspace}
+      startSession={props.startSession}
+      sendSessionMessage={props.sendSessionMessage}
+      openSession={props.openSession}
+      renameSession={props.renameSession}
+      saveTaskAttachments={props.saveTaskAttachments}
+      beginDispatchPlan={props.beginDispatchPlan}
+      openTaskFolder={props.openTaskFolder}
+      history={history}
+    />
   }
 
   if (team === undefined || progress === undefined) {
-    const current = sessionState.current === undefined ? undefined : sessionState.byId[sessionState.current]
-    const empty = current === undefined || current.blank === true
-    return <><div className={`promax-draft-chrome${empty ? ' promax-draft-chrome--empty' : ''}`}><header className="topbar"><button className="promax-workbench-icon-button mobile-sidebar-button" type="button" aria-label="展开导航" aria-controls="promax-navigation-panel" aria-expanded="false" title="展开导航" onClick={props.layout.toggleSidebar}><Icon name="panelRight" size={18} /></button><div className="topbar-title-wrap"><div className="topbar-kicker">PROMAX / 草稿</div><div className="topbar-title">草稿</div></div><div className="topbar-actions"><button className="toolbar-button" type="button" onClick={() => { window.dispatchEvent(new Event('promax:open-preferences')) }}><Icon name="settings" size={15} /><span className="button-label">设置</span></button>{props.detailsOpen === false ? <button className="toolbar-button" type="button" aria-label="展开状态栏" aria-controls="promax-status-panel" aria-expanded="false" title="展开状态栏" onClick={props.layout.openDetails}><Icon name="panelRight" size={15} /><span className="button-label">状态栏</span></button> : null}</div></header>{current === undefined ? <div className="promax-opaque-empty"><EmptyWorkspace title="开始一份草稿" copy="从左侧新建草稿，先把想法聊清楚，再交给产品智能体团队。" /></div> : <DraftStatusBanner sessionId={current.id} />}<PromaxComposerHost view="draft" /></div>{handoffSessionId !== null && productTeam !== undefined ? <TransferDialog sessionId={handoffSessionId} sourceSessionTitle={sessionState.byId[handoffSessionId]?.displayTitle} projects={productProjects} team={productTeam} actions={{ writeTaskPackage: props.writeTaskPackage, startSession: props.startSession, openSession: props.openSession, renameSession: props.renameSession, prepareSessionScope: props.prepareSessionScope }} onClose={() => { setHandoffSessionId(null) }} /> : null}</>
+    return <EmptyWorkspace title="需求记录不可用" copy="没有找到这个需求记录对应的团队配置。" />
   }
 
+  const dispatchReview = dispatchReviewBinding(taskBinding) && taskBinding.dispatchState !== 'running'
   return <>
     <section className={`promax-workbench-layer${tab === 'trace' ? ' promax-workbench-layer--trace' : ''}`} aria-label="产品智能体团队工作区">
-      <header className="topbar"><button className="promax-workbench-icon-button mobile-sidebar-button" type="button" aria-label="展开导航" aria-controls="promax-navigation-panel" aria-expanded="false" title="展开导航" onClick={props.layout.toggleSidebar}><Icon name="panelRight" size={18} /></button><div className="topbar-title-wrap"><nav className="topbar-kicker topbar-breadcrumb" aria-label="团队路径"><span>团队 /</span><button type="button" onClick={() => { selectTeamHome(team.id) }}>产品智能体团队</button>{workspace === undefined ? null : <><span>/</span><button type="button" onClick={() => { selectTeamHome(team.id, workspace.workspaceId) }}>{workspace.title}</button></>}</nav><div className="topbar-title">{workspace?.title ?? '产品智能体团队'}</div></div><div className={`team-availability team-availability--${availability.tone}`} role="status" aria-atomic="true"><span className="status-dot" />{availability.label}</div><div className="topbar-actions">{reviewableBinding(taskBinding) && workspace !== undefined ? <button className="toolbar-button" type="button" onClick={() => { setCoverageReviewOpen(true) }}><Icon name="activity" size={15} /><span className="button-label">修正系统理解</span></button> : null}{workspace === undefined ? null : <button className="toolbar-button" type="button" onClick={() => { void props.openWorkspacePath(workspace.path) }}><Icon name="folder" size={15} /><span className="button-label">打开工作区</span></button>}<button className="toolbar-button" type="button" onClick={() => { window.dispatchEvent(new Event('promax:open-preferences')) }}><Icon name="settings" size={15} /><span className="button-label">团队设置</span></button>{props.detailsOpen === false ? <button className="toolbar-button" type="button" aria-label="展开状态栏" aria-controls="promax-status-panel" aria-expanded="false" title="展开状态栏" onClick={props.layout.openDetails}><Icon name="panelRight" size={15} /><span className="button-label">状态栏</span></button> : null}</div></header>
-      {workspace === undefined
-        ? <div className="promax-overview-nav"><Icon name="grid" size={15} /><strong>团队总览</strong><span>项目、会话与团队配置</span></div>
-        : <div className="view-tabs" role="tablist" aria-label="产品智能体团队视图">{([['workbench', 'grid', '工作台'], ['trace', 'activity', '任务轨迹'], ['deliverables', 'artifact', '交付物']] as const).map(([id, icon, label]) => <button className="view-tab" type="button" role="tab" aria-selected={tab === id} tabIndex={tab === id ? 0 : -1} key={id} onClick={() => { activate(id) }}><Icon name={icon} size={15} />{label}</button>)}</div>}
+      <header className="topbar"><button className="promax-workbench-icon-button mobile-sidebar-button" type="button" aria-label="展开导航" aria-controls="promax-navigation-panel" aria-expanded="false" title="展开导航" onClick={props.layout.toggleSidebar}><Icon name="panelRight" size={18} /></button><div className="topbar-title-wrap"><div className="topbar-kicker">{viewingDescendant ? '子 Agent 上下文' : '需求记录'}</div><div className="topbar-title">{visibleSession?.displayTitle ?? '需求'}</div></div><div className={`team-availability team-availability--${availability.tone}`} role="status" aria-atomic="true"><span className="status-dot" />{availability.label}</div><div className="topbar-actions">{workspace === undefined || !taskReadyBinding(taskBinding) ? null : <TaskFolderButton toolbar workspaceId={workspace.workspaceId} projectPath={workspace.path} sessionId={taskBinding.sessionId} taskKey={taskBinding.taskKey} openTaskFolder={props.openTaskFolder} />}<button className="toolbar-button" type="button" onClick={() => { window.dispatchEvent(new Event('promax:open-preferences')) }}><Icon name="settings" size={15} /><span className="button-label">团队设置</span></button>{props.detailsOpen === false ? <button className="toolbar-button" type="button" aria-label="展开状态栏" aria-controls="promax-status-panel" aria-expanded="false" title="展开状态栏" onClick={props.layout.openDetails}><Icon name="panelRight" size={15} /><span className="button-label">状态栏</span></button> : null}</div></header>
+      {dispatchReview ? null : <div className="view-tabs" role="tablist" aria-label="产品智能体团队视图">{([['workbench', 'grid', '工作台'], ['trace', 'activity', '任务轨迹'], ['deliverables', 'artifact', '交付物']] as const).map(([id, icon, label]) => <button className="view-tab" type="button" role="tab" aria-selected={tab === id} tabIndex={tab === id ? 0 : -1} key={id} onClick={() => { activate(id) }}><Icon name={icon} size={15} />{label}</button>)}</div>}
       <div ref={scrollRef} className="main-scroll">
-        {workspace === undefined ? <TeamOverviewDashboard team={team} teamState={teamState} workspaces={workspaceState.items} sessionState={sessionState} archivedSessionIds={workspaceState.archivedSessionIds} onOpenProject={project => { selectTeamHome(team.id, project.workspaceId); props.clearSession() }} /> : tab === 'workbench' ? <WorkbenchContent team={team} workspace={workspace} session={session} taskKey={taskKey} snapshot={snapshot} progress={progress} availability={availability} onArtifactClick={(row, state) => {
-          if (state !== 'ready') { notify(state === 'optional-missing' ? `${row.label} 未产出` : `${row.label} 仍在生成中`); return }
-          void props.openWorkspacePath(workspace.path).then(() => { notify(`${row.label} 已打开`) })
-        }} /> : tab === 'deliverables' ? <DeliverablesContent workspace={workspace} taskKey={taskKey} progress={progress} /> : sessionId === undefined ? <EmptyWorkspace title="还没有任务轨迹" copy="先在下方描述任务；启动团队会话后，这里显示 dsh 对话流、工具调用与审批面板。" /> : null}
+        {dispatchReview
+          ? workspace === undefined
+            ? <EmptyWorkspace title="工作目录不可用" copy="没有找到这个需求记录对应的工作目录。" />
+            : <DispatchPlanReview key={taskBinding.sessionId} binding={taskBinding} team={team} workspace={workspace} snapshot={snapshot} confirmDispatchPlan={props.confirmDispatchPlan} sendSessionMessage={props.sendSessionMessage} />
+          : workspace === undefined
+            ? <EmptyWorkspace title="工作目录不可用" copy="没有找到这个需求记录对应的工作目录。" />
+            : tab === 'trace'
+              ? null
+            : tab === 'workbench'
+              ? <WorkbenchContent team={team} workspace={workspace} session={session} taskKey={taskKey} progress={progress} availability={availability} {...currentTaskRunFiles === undefined ? {} : { files: currentTaskRunFiles }} showJudgeFailure={projection?.phase === 'blocked'} {...projectionError === undefined ? {} : { statusMessage: projectionError }} syncing={taskBinding?.dispatchState === 'running' && projection === undefined && projectionError === undefined} />
+              : tab === 'deliverables'
+                ? currentTaskRunFiles === undefined
+                  ? projectionError === undefined
+                    ? <EmptyWorkspace title="正在读取磁盘产出" copy="读取完成前不显示文件列表。" />
+                    : <div className="workspace-content"><TaskProjectionNotice message={projectionError} /></div>
+                  : <TaskResultContent workspace={workspace} files={currentTaskRunFiles} openTaskFolder={props.openTaskFolder} {...projectionError === undefined ? {} : { statusMessage: projectionError }} />
+                : null}
       </div>
-      {workspace === undefined ? null : <PromaxComposerHost view={tab} />}
+      {workspace === undefined || dispatchReview ? null : <PromaxComposerHost view={tab} />}
     </section>
-    {sessionId === undefined ? <aside className="promax-overlay-right-sidebar" id="promax-status-panel"><div className="right-header"><div><div className="right-kicker">PROMAX</div><div className="right-title">状态与结果</div></div><button className="promax-workbench-icon-button" type="button" aria-label="收起状态栏" aria-controls="promax-status-panel" aria-expanded="true" title="收起状态栏" onClick={props.layout.closeDetails}><Icon name="panelRight" size={17} /></button></div><div className="right-scroll"><TeamStatusContent team={team} progress={progress} /></div></aside> : null}
-    {coverageReviewOpen && reviewableBinding(taskBinding) && workspace !== undefined ? <CoverageReviewDialog binding={taskBinding} workspace={workspace} team={team} writeTaskPackage={props.writeTaskPackage} onClose={() => { setCoverageReviewOpen(false) }} /> : null}
-    {createPortal(<div className={`toast${toastMessage === null ? '' : ' show'}`} role="status" aria-live="polite" aria-atomic="true"><span className="toast-icon"><Icon name="check" size={16} /></span><span>{toastMessage ?? '操作已完成'}</span></div>, document.body)}
   </>
 }

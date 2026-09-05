@@ -1,4 +1,0 @@
-interface:
-  display_name: "需求澄清与默认兜底"
-  short_description: "识别产品方案的阻塞缺口，并生成关键问题与默认假设清单"
-  default_prompt: "Use $requirement-clarifier to identify blocking gaps and produce a concise clarification or fallback assumption set."

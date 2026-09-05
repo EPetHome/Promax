@@ -58,9 +58,3 @@ Include:
 - Do not claim WCAG conformance from heuristics alone.
 - Do not treat mock-data accuracy as production integration proof.
 - Do not downgrade a finding merely to obtain a pass result.
-
-## Promax 强制执行契约
-
-审计输入限定为不可变输入清单、最终 `prototype.html` 和任务包点名的 PRD/业务图；不得读取生成对话或自评作为证据。报告固定为：0. 输入与版本哈希；1. 静态单文件检查；2. 控件—处理器映射；3. 状态覆盖；4. 响应式取证；5. 可访问性取证；6. 规则与边界真值表；7. 跨产物一致性；8. 缺陷清单；9. 未验证项；10. 自检记录。
-
-浏览器取证必须写视口、步骤、观察结果、截图/快照路径与 SHA256；未实际打开页面的项目只能写未验证。逐项自检：`PA-01` 输入哈希明确；`PA-02` 无外链；`PA-03` 控件逐一核对；`PA-04` 三点边界实测或标未验证；`PA-05` 浏览器证据真实存在；`PA-06` 缺陷未静默修复；`PA-07` 不以启发式声称 WCAG 通过。

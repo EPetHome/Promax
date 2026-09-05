@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { chmod, cp, mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises'
+import { access, chmod, cp, mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -16,14 +16,10 @@ const packageSpecs = [
   { source: join(root, 'packages', 'promax-ui-console') },
   { source: resolve(root, '../promax-end/packages/promax-report') },
   { source: resolve(root, '../promax-agent/team-harness') },
-  {
-    source: join(root, 'packages', 'promax-bundle'),
-    dependencies: {},
-  },
+  { source: join(root, 'packages', 'promax-bundle') },
 ]
 
 try {
-  await rm(releaseDir, { recursive: true, force: true })
   await mkdir(releaseDir, { recursive: true })
 
   for (const spec of packageSpecs) {
@@ -41,18 +37,13 @@ try {
       manifest.version = `${manifest.version}-dist.1`
       const agentPayloads = [
         ['team-configurator'],
-        ['product-solution', 'skills-v1'],
-        ['product-solution', 'skills-v2'],
         ['product-solution', 'skills'],
-        ['customer-research', 'skills-v1'],
         ['customer-research', 'skills'],
         ['product-discovery', 'skills'],
-        ['product-discovery', 'skills-v1'],
         ['requirement-management', 'skills'],
         ['requirement-review', 'skills'],
-        ['requirement-review', 'skills-v1'],
         ['user-analysis', 'skills'],
-        ['user-analysis', 'skills-v1'],
+        ['shared', 'skills'],
       ]
       for (const segments of agentPayloads) {
         await cp(
@@ -67,8 +58,14 @@ try {
       manifest.files = [...new Set([...(manifest.files ?? []), 'agents'])]
     }
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
-    run('pnpm', ['pack', '--pack-destination', releaseDir], stageDir)
-    archivesByPackage.set(manifest.name, archiveFor(manifest.name, manifest.version))
+    const archiveName = archiveFor(manifest.name, manifest.version)
+    try {
+      await access(join(releaseDir, archiveName))
+      process.stdout.write(`Preserving existing release package: ${archiveName}\n`)
+    } catch {
+      run('pnpm', ['pack', '--pack-destination', releaseDir], stageDir)
+    }
+    archivesByPackage.set(manifest.name, archiveName)
   }
 
   await cp(join(root, 'packages', 'promax-ui-console', 'dist'), join(releaseDir, 'console-web'), { recursive: true })
@@ -131,38 +128,130 @@ else
     "$CONSOLE_ARCHIVE" \\
     "$BUNDLE_ARCHIVE"
 fi
-CONFIGURATOR_SOURCE="$DSH_ROOT/profiles/$PROFILE/node_modules/@promax/team-harness/agents/team-configurator"
-CONFIGURATOR_TARGET="$DSH_ROOT/.agent-presets/promax-team-configurator"
-PRODUCT_SOURCE="$DSH_ROOT/profiles/$PROFILE/node_modules/@promax/team-harness/generated/promax-team-mtcjsbcz-04tpe2-r12"
-PRODUCT_TARGET="$DSH_ROOT/.agent-presets/promax-team-mtcjsbcz-04tpe2-r12"
+HARNESS_ROOT="$DSH_ROOT/profiles/$PROFILE/node_modules/@promax/team-harness"
+CONFIGURATOR_SOURCE="$HARNESS_ROOT/agents/team-configurator"
+PRODUCT_SOURCE="$HARNESS_ROOT/generated/promax-team"
 GENERAL_SOURCE="$DSH_ROOT/profiles/$PROFILE/node_modules/@promax/promax-bundle/presets/general"
-GENERAL_TARGET="$DSH_ROOT/.agent-presets/general"
-node - "$CONFIGURATOR_SOURCE" "$CONFIGURATOR_TARGET" "$PRODUCT_SOURCE" "$PRODUCT_TARGET" "$GENERAL_SOURCE" "$GENERAL_TARGET" <<'NODE'
+PRESET_ROOT="$DSH_ROOT/.agent-presets"
+ARCHIVE_BASE="/Users/Admin/Desktop/Promax/.archive"
+INSTALL_STAGE="$(mktemp -d "$DSH_ROOT/.promax-install-stage.XXXXXX")"
+ARCHIVE_REPORT="$INSTALL_STAGE/archive-report.json"
+cleanup_stage() {
+  node - "$INSTALL_STAGE" <<'NODE'
 const fs = require('node:fs')
 const path = require('node:path')
-const [source, target, productSource, productTarget, generalSource, generalTarget] = process.argv.slice(2)
-fs.mkdirSync(target, { recursive: true })
+const target = path.resolve(process.argv[2])
+if (!path.basename(target).startsWith('.promax-install-stage.')) throw new Error('Refusing to remove an unexpected install-stage path')
+fs.rmSync(target, { recursive: true, force: true })
+NODE
+}
+trap cleanup_stage EXIT INT TERM
+
+node "$HARNESS_ROOT/src/cli.mjs" verify --revision "$PRODUCT_SOURCE"
+
+node - "$PRESET_ROOT" "$ARCHIVE_BASE" "$CONFIGURATOR_SOURCE" "$PRODUCT_SOURCE" "$GENERAL_SOURCE" "$INSTALL_STAGE" "$ARCHIVE_REPORT" <<'NODE'
+const crypto = require('node:crypto')
+const fs = require('node:fs')
+const path = require('node:path')
+const [presetRoot, archiveBase, configuratorSource, productSource, generalSource, stageRoot, reportPath] = process.argv.slice(2).map(value => path.resolve(value))
+const allowed = ['general', 'promax-team', 'promax-team-configurator']
+
+function timestamp() {
+  const now = new Date()
+  const part = value => String(value).padStart(2, '0')
+  return String(now.getFullYear()) + part(now.getMonth() + 1) + part(now.getDate()) + '-' + part(now.getHours()) + part(now.getMinutes()) + part(now.getSeconds())
+}
+
+function inventory(root) {
+  const rows = []
+  function walk(current, relative) {
+    for (const name of fs.readdirSync(current).sort()) {
+      const absolute = path.join(current, name)
+      const child = relative === '' ? name : path.join(relative, name)
+      const stat = fs.lstatSync(absolute)
+      if (stat.isDirectory()) {
+        rows.push('d ' + child)
+        walk(absolute, child)
+      } else if (stat.isSymbolicLink()) {
+        rows.push('l ' + child + ' ' + fs.readlinkSync(absolute))
+      } else if (stat.isFile()) {
+        rows.push('f ' + child + ' ' + stat.size + ' ' + crypto.createHash('sha256').update(fs.readFileSync(absolute)).digest('hex'))
+      } else {
+        throw new Error('Unsupported preset entry: ' + absolute)
+      }
+    }
+  }
+  walk(root, '')
+  return { count: rows.length, digest: crypto.createHash('sha256').update(rows.join('\\n')).digest('hex') }
+}
+
+for (const source of [configuratorSource, productSource, generalSource]) {
+  if (!fs.statSync(source).isDirectory()) throw new Error('Missing preset source: ' + source)
+}
+fs.mkdirSync(presetRoot, { recursive: true })
+const existing = fs.readdirSync(presetRoot).sort()
+if (existing.length === 0) throw new Error('Historical preset archive prerequisite failed: install state is empty')
+const firstInstall = !existing.includes('promax-team') || existing.some(name => !allowed.includes(name))
+const archivePath = path.join(archiveBase, (firstInstall ? 'pre-promax-team-' : 'promax-team-') + timestamp())
+if (fs.existsSync(archivePath)) throw new Error('Archive target already exists: ' + archivePath)
+fs.mkdirSync(archiveBase, { recursive: true })
+const archiveSource = firstInstall ? presetRoot : path.join(presetRoot, 'promax-team')
+if (!fs.existsSync(archiveSource)) throw new Error('Preset archive source is missing: ' + archiveSource)
+const archiveTarget = firstInstall ? archivePath : path.join(archivePath, 'promax-team')
+fs.cpSync(archiveSource, archiveTarget, { recursive: true, errorOnExist: true, force: false })
+const sourceInventory = inventory(archiveSource)
+const archiveInventory = inventory(archiveTarget)
+if (sourceInventory.count === 0 || sourceInventory.count !== archiveInventory.count || sourceInventory.digest !== archiveInventory.digest) {
+  throw new Error('Historical preset archive verification failed; refusing installation cleanup')
+}
+
+const configuratorStage = path.join(stageRoot, 'promax-team-configurator')
+fs.mkdirSync(configuratorStage)
 for (const name of ['agent.cordis.yml', 'preset.yml']) {
-  const sourceFile = path.join(source, name)
+  const sourceFile = path.join(configuratorSource, name)
   if (!fs.existsSync(sourceFile)) throw new Error('Missing configurator preset file: ' + name)
-  fs.copyFileSync(sourceFile, path.join(target, name))
+  fs.copyFileSync(sourceFile, path.join(configuratorStage, name))
 }
-if (!fs.existsSync(productSource)) throw new Error('Missing fixed product-team preset: ' + productSource)
-if (fs.existsSync(productTarget)) {
-  const sourceManifest = fs.readFileSync(path.join(productSource, 'manifest.sha256'), 'utf8')
-  const targetManifest = fs.readFileSync(path.join(productTarget, 'manifest.sha256'), 'utf8')
-  if (sourceManifest !== targetManifest) throw new Error('Existing fixed product-team preset differs: ' + productTarget)
-} else {
-  fs.cpSync(productSource, productTarget, { recursive: true })
-}
-if (!fs.existsSync(generalSource)) throw new Error('Missing Promax draft preset: ' + generalSource)
-fs.mkdirSync(generalTarget, { recursive: true })
+fs.cpSync(productSource, path.join(stageRoot, 'promax-team'), { recursive: true, errorOnExist: true, force: false })
+const generalStage = path.join(stageRoot, 'general')
+fs.mkdirSync(generalStage)
 for (const name of ['agent.cordis.yml', 'preset.yml']) {
   const sourceFile = path.join(generalSource, name)
-  if (!fs.existsSync(sourceFile)) throw new Error('Missing Promax draft preset file: ' + name)
-  fs.copyFileSync(sourceFile, path.join(generalTarget, name))
+  if (!fs.existsSync(sourceFile)) throw new Error('Missing Promax general preset file: ' + name)
+  fs.copyFileSync(sourceFile, path.join(generalStage, name))
 }
+fs.writeFileSync(reportPath, JSON.stringify({ archivePath, fileCount: archiveInventory.count, digest: archiveInventory.digest }) + '\\n')
 NODE
+
+node "$HARNESS_ROOT/src/cli.mjs" verify --revision "$INSTALL_STAGE/promax-team"
+
+node - "$PRESET_ROOT" "$INSTALL_STAGE" "$ARCHIVE_REPORT" <<'NODE'
+const fs = require('node:fs')
+const path = require('node:path')
+const [presetRoot, stageRoot, reportPath] = process.argv.slice(2).map(value => path.resolve(value))
+const allowed = ['general', 'promax-team', 'promax-team-configurator']
+const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'))
+if (!Number.isSafeInteger(report.fileCount) || report.fileCount < 1 || typeof report.archivePath !== 'string' || !fs.statSync(report.archivePath).isDirectory()) {
+  throw new Error('Verified non-empty archive report is required before preset cleanup')
+}
+for (const name of allowed) {
+  const staged = path.join(stageRoot, name)
+  if (!fs.statSync(staged).isDirectory()) throw new Error('Missing staged preset: ' + name)
+}
+for (const name of allowed) {
+  const target = path.join(presetRoot, name)
+  fs.rmSync(target, { recursive: true, force: true })
+  fs.renameSync(path.join(stageRoot, name), target)
+}
+for (const name of fs.readdirSync(presetRoot)) {
+  if (!allowed.includes(name)) fs.rmSync(path.join(presetRoot, name), { recursive: true, force: true })
+}
+const finalNames = fs.readdirSync(presetRoot).sort()
+if (JSON.stringify(finalNames) !== JSON.stringify(allowed)) throw new Error('Installed preset set is not the required fixed three')
+process.stdout.write('PROMAX_ARCHIVE_PATH=' + report.archivePath + '\\nPROMAX_ARCHIVE_FILES=' + report.fileCount + '\\n')
+NODE
+
+node "$HARNESS_ROOT/src/cli.mjs" verify --revision "$PRESET_ROOT/promax-team"
 `
   const installerPath = join(releaseDir, 'install-promax.sh')
   await writeFile(installerPath, installer)

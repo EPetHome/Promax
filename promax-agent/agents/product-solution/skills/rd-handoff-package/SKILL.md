@@ -61,9 +61,3 @@ Do not create fake preview, download, DOCX, PDF, or deployment links. Only list 
 - Do not turn product-level data needs into a physical data model.
 - Do not hide unresolved product decisions inside an “engineering to confirm” label.
 - Do not mark a package ready because files exist; validate their consistency and audit evidence.
-
-## Promax 强制执行契约
-
-交接包只引用不可变输入清单与实际存在的最终产物，不生成新的业务事实。输出固定为：0. 输入与版本；1. 交付物清单及 SHA256；2. 需求—产物追溯；3. 术语与角色一致性；4. 业务规则与边界真值表；5. 验收证据；6. 缺陷与阻断；7. 未决项；8. 未验证项；9. 就绪结论。每项来源标 `SRC-*`/`E-*`/`REQ-*`。
-
-逐项自检：`HO-01` 文件真实存在且非空；`HO-02` 哈希对应当前版本；`HO-03` 不列虚假链接；`HO-04` 边界跨产物一致；`HO-05` 浏览器/测试未跑不写通过；`HO-06` 未决产品问题未塞给研发；`HO-07` 不含实现架构决策。

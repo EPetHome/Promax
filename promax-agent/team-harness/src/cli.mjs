@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import {
   applyPromptRecipe,
+  appendWebEvidence,
   catalogResponse,
   captureWebSnapshot,
   compileTeam,
@@ -25,6 +26,10 @@ function parseArgs(argv) {
   for (let index = 0; index < rest.length; index += 1) {
     const key = rest[index]
     if (!key.startsWith('--')) throw new ContractError('无法识别的参数', [key])
+    if (key === '--allow-overwrite') {
+      options['allow-overwrite'] = true
+      continue
+    }
     const value = rest[index + 1]
     if (!value || value.startsWith('--')) throw new ContractError('参数缺少值', [key])
     options[key.slice(2)] = value
@@ -93,13 +98,23 @@ try {
   } else if (options.command === 'capture-web') {
     if (!options.url || !options.output) throw new ContractError('capture-web 需要 --url 与 --output')
     print(await captureWebSnapshot({ url: options.url, outputFile: options.output }))
+  } else if (options.command === 'append-web-evidence') {
+    if (!options.request) throw new ContractError('append-web-evidence 需要 --request <YAML>')
+    const request = readYaml(resolve(options.request))
+    print(appendWebEvidence({ ...request, content: readFileSync(resolve(request.content_file), 'utf8') }))
   } else if (options.command === 'compile' || options.command === 'publish') {
-    print(compileTeam({ ...common, revision: Number(options.revision), outputDir: resolve(options.output ?? resolve(HARNESS_DIR, 'generated')) }))
+    print(compileTeam({
+      ...common,
+      revision: Number(options.revision),
+      outputDir: resolve(options.output ?? resolve(HARNESS_DIR, 'generated')),
+      allowOverwrite: options['allow-overwrite'] === true,
+      archiveRoot: options['archive-root'] && resolve(options['archive-root']),
+    }))
   } else if (options.command === 'verify') {
     if (!options.revision) throw new ContractError('verify 需要 --revision <目录>')
     print({ status: 'valid', ...verifyCompiledRevision(resolve(options.revision)) })
   } else {
-    throw new ContractError('命令必须是 catalog、apply-recipe、instantiate、import、validate、validate-resources、validate-customer-research、freeze-input、validate-input、capture-web、publish/compile 或 verify')
+    throw new ContractError('命令必须是 catalog、apply-recipe、instantiate、import、validate、validate-resources、validate-customer-research、freeze-input、validate-input、capture-web、append-web-evidence、publish/compile 或 verify')
   }
 } catch (error) {
   const details = error instanceof ContractError ? error.details : []

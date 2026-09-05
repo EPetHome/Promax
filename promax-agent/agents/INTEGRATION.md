@@ -2,10 +2,7 @@
 
 Promax 使用自己的 Web 界面壳、团队/workspace 导航和团队编辑体验；DeepSeek Harness（dsh）继续提供会话、工具、Skill、subagent 生命周期和 preset 装载。Promax 不另写 Harness，也不修改 dsh 源码。
 
-当前保留两条兼容路径：
-
-- P0 固定层：`general` 与 `product-solution`；
-- 动态团队层：`配置会话 -> 受限角色蓝图 -> TeamDefinition（内部） -> TeamRevision -> 不可变 dsh preset`。
+当前保留通用 `general` 与 Agent 团队路径：`配置会话 -> 受限角色蓝图 -> TeamDefinition（内部） -> TeamRevision -> dsh preset`。正式产品团队固定解析到 `promax-team`。
 
 ## 1. 所有权
 
@@ -17,7 +14,7 @@ Promax 使用自己的 Web 界面壳、团队/workspace 导航和团队编辑体
 - 随 dsh profile 加载的 Promax 本地 Team API 适配器；
 - 内部 `promax-team-configurator` preset、配置 session→team 绑定和唯一受限发布工具；
 - dsh subagent 拓扑、最大深度、成员工具权限、结算和重试规则；
-- `general`、`product-solution` 兼容 preset 及三份产品 Skill。
+- `general` 与固定 `promax-team` 的装配、校验和归档策略。
 
 ### GUI 线拥有
 
@@ -43,7 +40,7 @@ Agent 契约不包含界面颜色/布局、本地绝对路径、多人组织、�
 
 稳定引用为 `<module_id>@<revision>`。模块的 `base_persona` 只由 Agent 线维护，GUI catalog 不返回该字段。TeamDefinition 只能提交 `persona_fragment` 与 `role_instructions`，编译器把它们以低优先级追加到基础 persona 之后。
 
-当前内置 `team-coordinator@1`、`general-worker@1`、`customer-research@1`、`product-discovery@1`、`requirement-management@1`、`product-solution@1`、`requirement-review@1`、`user-analysis@1`、`independent-judge@1`，并保留 `product-prd@1`、`product-diagram@1`、`product-prototype@1` 作为历史独立模块。
+当前只保留 `team-coordinator@1`、`general-worker@1`、`customer-research@1`、`product-discovery@1`、`requirement-management@1`、`product-solution@1`、`requirement-review@1`、`user-analysis@1`、`independent-judge@1` 九个顶层模块。
 
 ### SkillCatalog
 
@@ -190,7 +187,7 @@ GUI 新建会话时解析一次 `TeamRevision.spec.preset_id` 并显式传给 ds
 
 ### 7.1 r5 全链路装配模式
 
-`team-mtcjsbcz-04tpe2@r5` 是负责人选择的新不可变 revision，用于优先装配固定六业务角色的完整生产链。它不迁移 r3/r4 会话，也不代表原步骤二预案中的外部能力阶段已经完成。
+`promax-product-team@r1` 是固定六业务角色的完整生产链机器 revision；用户侧 preset 固定为 `promax-team`，不展示 rN。
 
 用户明确要求“全链路”“完整流程”“六个业务角色”或“8 份业务产物”时，coordinator 使用同一个 `task_key` 按四阶段编排：
 
@@ -209,23 +206,11 @@ TeamRevision 对外仍声明固定 7 名成员和 8 份业务产物，Judge 报�
 |---|---|---|
 | 通用工作区 | 固定 `general` | 缺失即拒绝 |
 | 动态 TeamInstance | 已发布 TeamRevision 的 `spec.preset_id` | revision/preset 缺失即拒绝 |
-| P0 产品 TeamInstance | 兼容映射 `product-solution@1 -> product-solution` | 仅限显式 legacy 模板 |
+| 产品 TeamInstance | 固定 `promax-product-team@r1` 的 `promax-team` | 缺失即拒绝 |
 | 高级 preset 创作页 | 固定 `cordis` | 不对普通用户开放 |
 
 普通会话不能全部固定到 `cordis`；否则会绕过正式团队的成员工具、Skill、文件责任、质量门禁和稳定回执。
 
-## 9. P0 兼容边界
+## 9. 固定 preset 与旧会话边界
 
-以下验收保持不变：
-
-- 通用工作区新会话使用 `general`；
-- 现有产品 TeamInstance 新会话使用 `product-solution`；
-- 产品团队仍是负责人 + PRD/流程图/原型三名专员；
-- 三份 Skill、四个稳定产物路径、A1、G0–G6 和稳定回执不变；
-- `task_type=all` 必须真实启动并等待三个 worker；
-- 成功回执中的相对路径必须在当前 workspace 找到非空文件；
-- 后端闭环不属于当前 Agent + UI P0，没有服务器证据不得宣称通过。
-
-新增会话交互门禁：连续消息必须可见且真实进入后续 turn；`ask_user_question`/审批不得因 Promax 团队壳隐藏而阻塞；处理中、排队、失败和 Trajectory 必须可访问。单次任务产物落盘不再足以证明团队聊天 P0 完整通过。
-
-动态 TeamRevision 是增量能力，不替换或迁移固定 P0 会话。
+通用工作区仍使用 `general`；产品团队新会话只使用 `promax-team`。旧 rN preset 清理后，记录旧 preset id 的历史会话不能直接恢复；完整归档保留恢复材料。任何真实会话、联网、外部 MCP 与跑批结果仍由负责人在人验阶段确认。

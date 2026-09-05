@@ -7,14 +7,15 @@ export const inject = ['skills', 'subagents', 'systemPrompt']
 
 const SKILL_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const MEMBER_ID = /^[a-z][a-z0-9_]{2,47}$/
+const CHILD_SKILL_INSTALLATIONS = new WeakMap()
 
 function parseSkill(path, expectedName) {
   const text = readFileSync(path, 'utf8')
   const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/)
   if (!match) throw new Error(`Promax member skill ${expectedName} 缺少 YAML frontmatter`)
   const metadata = YAML.parse(match[1]) ?? {}
-  if (metadata.name !== expectedName || typeof metadata.description !== 'string' || metadata.description.trim() === '') {
-    throw new Error(`Promax member skill ${expectedName} 的 name/description 无效`)
+  if (typeof metadata.name !== 'string' || metadata.name.trim() === '' || typeof metadata.description !== 'string' || metadata.description.trim() === '') {
+    throw new Error(`Promax member skill ${expectedName} 的原版 name/description 无效`)
   }
   return { metadata, content: text.slice(match[0].length) }
 }
@@ -51,10 +52,12 @@ export function apply(ctx, config = {}) {
     return [memberId, [...new Set(names)].sort()]
   }))
 
-  ctx.subagents.registerContinuableSetup((childCtx) => {
+  function retainProvider(childCtx) {
+    const current = CHILD_SKILL_INSTALLATIONS.get(childCtx)
+    if (current) return current
     const skills = childCtx.get('skills')
     if (!skills) throw new Error('Promax member skill provider 缺少 skills service')
-    return skills.registerProvider(() => {
+    const dispose = skills.registerProvider(() => {
       const parsed = new Map()
       return {
         name: providerName,
@@ -99,5 +102,21 @@ export function apply(ctx, config = {}) {
         },
       }
     })
+    const release = () => {
+      if (CHILD_SKILL_INSTALLATIONS.get(childCtx) !== release) return
+      CHILD_SKILL_INSTALLATIONS.delete(childCtx)
+      dispose()
+    }
+    CHILD_SKILL_INSTALLATIONS.set(childCtx, release)
+    return release
+  }
+
+  ctx.subagents.registerContinuableSetup((childCtx) => retainProvider(childCtx))
+  ctx.on('agent/created', ({ agent }) => {
+    if (agent.session.header.origin !== 'subagent' || CHILD_SKILL_INSTALLATIONS.has(agent.ctx)) return
+    agent.ctx.effect(
+      () => retainProvider(agent.ctx),
+      'promax-member-skill-provider.one-shot-child',
+    )
   })
 }

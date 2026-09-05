@@ -40,11 +40,11 @@ properties:
   spec:
     type: object
     additionalProperties: false
-    required: [preset_id, workspace_policy, coordinator, members, skills, capabilities, artifacts, domain_rubrics, coordination, receipt_fields, session_policy, compiled_files]
+    required: [preset_id, workspace_policy, coordinator, members, information_vocabulary, skills, capabilities, artifacts, domain_rubrics, coordination, receipt_fields, session_policy, compiled_files]
     properties:
       preset_id:
         type: string
-        pattern: ^promax-[a-z][a-z0-9-]{2,47}-r[1-9][0-9]*$
+        pattern: ^(?:promax-team|promax-[a-z][a-z0-9-]{2,47}-r[1-9][0-9]*)$
       workspace_policy:
         type: object
         additionalProperties: false
@@ -314,34 +314,11 @@ allOf:
               items:
                 type: object
                 required: [kind, validation_kind, relative_path, produced_by, required]
-  - if:
-      properties:
-        metadata:
-          type: object
-          required: [revision]
-          properties:
-            revision:
-              type: integer
-              minimum: 10
-    then:
-      properties:
-        spec:
-          type: object
-          required: [information_vocabulary]
-          properties:
-            coordinator:
-              type: object
-              required: [provides, requires]
-            members:
-              type: array
-              items:
-                type: object
-                required: [provides, requires]
 $defs:
   member:
     type: object
     additionalProperties: false
-    required: [member_id, display_name, role, runtime_tool_id, module_ref, skill_refs]
+    required: [member_id, display_name, role, runtime_tool_id, module_ref, skill_refs, provides, requires]
     properties:
       member_id:
         type: string
