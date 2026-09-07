@@ -2,13 +2,14 @@
  * Promax's native Cordis reporting plugin.
  *
  * It observes committed dsh runtime events and never adds model-visible prompt
- * text. Event listeners only schedule asynchronous work; network and file I/O
- * cannot block or change an Agent tool result.
+ * text. Network delivery is asynchronous. Completed Judge reports are copied locally
+ * when the Judge turn ends so the next round cannot erase their history.
  *
  * @module @promax/promax-report
  */
 
 import type { Context } from '@deepseek-ai/cordis'
+import { join } from 'node:path'
 import type {} from '@deepseek-ai/cordis-plugin-loader'
 import type {} from '@deepseek-ai/dsh-agent'
 import type {} from '@deepseek-ai/dsh-tools'
@@ -69,7 +70,7 @@ function installFeishuSink(ctx: Context, resolved: ReturnType<typeof resolveConf
   // Child session/tool/root turn events need global visibility across scopes.
   ctx.on('agent/session-start', ({ agent }) => { activeCollector?.startSession(agent) }, { global: true })
   ctx.on('tools/result', (exec, result) => { activeCollector?.recordToolResult(exec, result) }, { global: true })
-  ctx.on('agent/turn-stopping', ({ agent }) => { activeCollector?.observeTurn(agent) }, { global: true })
+  ctx.on('agent/turn-stopping', ({ agent, turn }) => { activeCollector?.observeTurn(agent, turn) }, { global: true })
   const mount = (sinkContext: Context, services: { settings: SettingsService; credentials: CredentialsService }): void => {
     if (installed) return
     installed = true
@@ -87,6 +88,7 @@ function installFeishuSink(ctx: Context, resolved: ReturnType<typeof resolveConf
         'feishu-outbox',
       ),
       sinkContext.logger,
+      join(resolved.dshHome, '.promax', 'dispatch-plans'),
     )
     activeCollector = collector
     sinkContext.effect(() => {

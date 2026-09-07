@@ -94,6 +94,22 @@ describe('model-backed dispatch planning', () => {
     expect(message).toContain('judge.md 未产生不得汇总为完成')
   })
 
+  it('accepts omitted files only for explicitly skipped workers and never executes a Judge-only plan', () => {
+    const text = modelPlan().replace('"selected":true', '"selected":false').replace(',"deliverables":["deliverables/登录流程/prd.md"]', '')
+    const plan = parseDispatchPlan(text, team, 'dispatch-plan-1', '登录流程')
+    expect(plan.members[0]).toMatchObject({ selected: false, deliverables: ['deliverables/登录流程/prd.md'] })
+    expect(() => dispatchExecutionMessage({ demand: '你好', attachmentPaths: [], plan, selectedMemberIds: ['quality_judge'], taskKey: '登录流程' })).toThrow('至少选择一名业务成员')
+    expect(() => parseDispatchPlan(text.replace('"selected":false', '"selected":true'), team, 'dispatch-plan-1', '登录流程')).toThrow('会产出什么文件')
+    expect(() => parseDispatchPlan(text.replace(',"deliverables":[]', ''), team, 'dispatch-plan-1', '登录流程')).toThrow('会产出什么文件')
+  })
+
+  it('still rejects malformed or foreign files on skipped workers', () => {
+    const text = modelPlan().replace('"selected":true', '"selected":false')
+    for (const files of [null, '', {}, [42], ['.promax/judge/登录流程/judge.md']]) {
+      expect(() => parseDispatchPlan(text.replace('["deliverables/登录流程/prd.md"]', JSON.stringify(files)), team, 'dispatch-plan-1', '登录流程')).toThrow()
+    }
+  })
+
   it('accepts a useful assessment longer than the old 240-character display limit', () => {
     const longAssessment = '这是对上传方案的具体判断。'.repeat(30)
     const plan = parseDispatchPlan(modelPlan().replace('我看这是一份产品功能需求。', longAssessment), team, 'dispatch-plan-1', '登录流程')

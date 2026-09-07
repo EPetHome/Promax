@@ -20,6 +20,8 @@ importers:
 
   contracts: {}
 
+  packages/promax-feishu-api: {}
+
   packages/promax-report:
     dependencies:
       '@deepseek-ai/schemastery':
@@ -47,6 +49,9 @@ importers:
       '@promax/contracts':
         specifier: workspace:*
         version: link:../../contracts
+      '@promax/feishu-api':
+        specifier: workspace:*
+        version: link:../promax-feishu-api
 
   server:
     dependencies:

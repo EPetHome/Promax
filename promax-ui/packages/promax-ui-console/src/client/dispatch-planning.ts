@@ -1,4 +1,4 @@
-import type { PromaxTeam, TeamArtifactDefinition, TeamMember } from './team-state.ts'
+import type { TeamArtifactDefinition, TeamMember } from './team-state.ts'
 import type { TaskAttachmentContext } from './task-attachments.ts'
 
 export const DISPATCH_PLAN_PROTOCOL = 'promax.dispatch-plan/v1'
@@ -24,6 +24,11 @@ export interface DispatchPlanResolution {
   error?: string
 }
 
+export interface DispatchPlanTeam {
+  members: Pick<TeamMember, 'memberId' | 'displayName' | 'objective'>[]
+  artifacts: TeamArtifactDefinition[]
+}
+
 const MAX_PLAN_ASSESSMENT_LENGTH = 4_000
 const MAX_MEMBER_REASON_LENGTH = 2_000
 
@@ -31,7 +36,7 @@ function recordOf(value: unknown): Record<string, unknown> | undefined {
   return typeof value === 'object' && value !== null && !Array.isArray(value) ? value as Record<string, unknown> : undefined
 }
 
-function materializedArtifacts(team: PromaxTeam, taskKey: string): Map<string, TeamArtifactDefinition[]> {
+function materializedArtifacts(team: DispatchPlanTeam, taskKey: string): Map<string, TeamArtifactDefinition[]> {
   const byMember = new Map<string, TeamArtifactDefinition[]>()
   for (const artifact of team.artifacts) {
     const current = byMember.get(artifact.producedBy) ?? []
@@ -43,7 +48,7 @@ function materializedArtifacts(team: PromaxTeam, taskKey: string): Map<string, T
 
 function checkedPlanMember(
   value: unknown,
-  expected: TeamMember,
+  expected: DispatchPlanTeam['members'][number],
   allowedArtifacts: readonly TeamArtifactDefinition[],
 ): DispatchPlanMember {
   const row = recordOf(value)
@@ -53,12 +58,14 @@ function checkedPlanMember(
   const reason = typeof row.reason === 'string' ? row.reason.trim() : ''
   if (reason === '') throw new Error(`模型计划没有说明 ${expected.displayName} 的具体理由`)
   if (reason.length > MAX_MEMBER_REASON_LENGTH) throw new Error(`模型对 ${expected.displayName} 的判断异常冗长，请重新生成`)
-  if (!Array.isArray(row.deliverables) || row.deliverables.some(item => typeof item !== 'string')) {
+  const fixedJudge = expected.memberId === 'quality_judge'
+  // Skipped workers may omit files; manual selection still uses the published team's files.
+  const files = row.deliverables === undefined && !row.selected && !fixedJudge ? [] : row.deliverables
+  if (!Array.isArray(files) || files.some(item => typeof item !== 'string')) {
     throw new Error(`模型计划没有说明 ${expected.displayName} 会产出什么文件`)
   }
   const allowed = new Set(allowedArtifacts.map(artifact => artifact.relativePath))
-  const stated = [...new Set(row.deliverables.map(item => String(item).trim()))]
-  const fixedJudge = expected.memberId === 'quality_judge'
+  const stated = [...new Set(files.map(item => String(item).trim()))]
   if ((row.selected || fixedJudge) && stated.length === 0 && allowedArtifacts.length === 0) throw new Error(`模型计划没有说明 ${expected.displayName} 会产出什么文件`)
   const deliverables = stated.length > 0 ? stated : allowedArtifacts.map(artifact => artifact.relativePath)
   if (deliverables.length === 0) throw new Error(`当前团队版本没有定义 ${expected.displayName} 的产出文件`)
@@ -72,7 +79,7 @@ function checkedPlanMember(
 }
 
 /** Parses only the model's framed JSON response; it never infers selection from demand keywords. */
-export function parseDispatchPlan(text: string, team: PromaxTeam, planId: string, taskKey: string): DispatchPlan {
+export function parseDispatchPlan(text: string, team: DispatchPlanTeam, planId: string, taskKey: string): DispatchPlan {
   const start = text.lastIndexOf(DISPATCH_PLAN_START)
   const end = start < 0 ? -1 : text.indexOf(DISPATCH_PLAN_END, start + DISPATCH_PLAN_START.length)
   if (start < 0 || end < 0) throw new Error('模型没有返回可确认的结构化计划')
@@ -101,7 +108,7 @@ export function parseDispatchPlan(text: string, team: PromaxTeam, planId: string
   return { protocol: DISPATCH_PLAN_PROTOCOL, planId, assessment, members }
 }
 
-export function latestDispatchPlanResult(nodes: readonly unknown[], team: PromaxTeam, planId: string, taskKey: string): DispatchPlanResolution {
+export function latestDispatchPlanResult(nodes: readonly unknown[], team: DispatchPlanTeam, planId: string, taskKey: string): DispatchPlanResolution {
   const assistantTexts = nodes.flatMap(node => {
     const row = recordOf(node)
     if (row?.kind !== 'assistant' || !Array.isArray(row.blocks)) return []
@@ -123,11 +130,11 @@ export function latestDispatchPlanResult(nodes: readonly unknown[], team: Promax
   return latestError === undefined ? {} : { error: latestError }
 }
 
-export function latestDispatchPlan(nodes: readonly unknown[], team: PromaxTeam, planId: string, taskKey: string): DispatchPlan | undefined {
+export function latestDispatchPlan(nodes: readonly unknown[], team: DispatchPlanTeam, planId: string, taskKey: string): DispatchPlan | undefined {
   return latestDispatchPlanResult(nodes, team, planId, taskKey).plan
 }
 
-function rosterForPrompt(team: PromaxTeam, taskKey: string): Array<Record<string, unknown>> {
+function rosterForPrompt(team: DispatchPlanTeam, taskKey: string): Array<Record<string, unknown>> {
   const artifacts = materializedArtifacts(team, taskKey)
   return team.members.map(member => ({
     member_id: member.memberId,
@@ -141,7 +148,7 @@ export function dispatchPlanningMessage(input: {
   demand: string
   attachmentPaths: readonly string[]
   attachmentContexts?: readonly TaskAttachmentContext[]
-  team: PromaxTeam
+  team: DispatchPlanTeam
   planId: string
   taskKey: string
 }): string {
@@ -164,7 +171,7 @@ export function dispatchPlanningMessage(input: {
     })),
     roster: rosterForPrompt(input.team, input.taskKey),
   }
-  return `这是一次调度计划请求，不是执行请求。附件正文已经由 Promax 预解析到 attachment_context；请结合需求和正文摘录真实判断最小必要成员，不要只根据文件名猜测。不要调用任何工具、不要启动成员、不要创建或修改文件。\n\n逐个判断 roster 中的全部成员。quality_judge 是固定成员，必须 selected=true，且必须登记它的 judge.md；其他业务成员按最小必要原则选择。assessment 和 reason 应简洁具体。selected=false 时，reason 必须结合本次输入说明为什么不叫；禁止写“按需调度”“不需要”这类空话。selected=true 时，reason 说明它在本次任务中的具体职责。selected=true 的 deliverables 只能从该成员的 allowed_deliverables 中选择，且至少一项；selected=false 时可以返回空数组，页面会用当前团队版本的 allowed_deliverables 展示勾选后会产出的文件。\n\n只输出下面两个标记及其中一份 JSON，不要输出 Markdown 围栏或其他文字：\n${DISPATCH_PLAN_START}\n{"protocol":"${DISPATCH_PLAN_PROTOCOL}","plan_id":"${input.planId}","assessment":"我看这是一份……","members":[{"member_id":"...","selected":true,"reason":"...","deliverables":["..."]}]}\n${DISPATCH_PLAN_END}\n\n本次请求数据：\n${JSON.stringify(request, null, 2)}`
+  return `这是一次调度计划请求，不是执行请求。附件正文已经由 Promax 预解析到 attachment_context；请结合需求和正文摘录真实判断最小必要成员，不要只根据文件名猜测。不要调用任何工具、不要启动成员、不要创建或修改文件。\n\n逐个判断 roster 中的全部成员。quality_judge 是固定成员，必须 selected=true，且必须登记它的 judge.md；其他业务成员按最小必要原则选择。assessment 和 reason 应简洁具体。selected=false 时，reason 必须结合本次输入说明为什么不叫；禁止写“按需调度”“不需要”这类空话。selected=true 时，reason 说明它在本次任务中的具体职责。selected=true 的 deliverables 只能从该成员的 allowed_deliverables 中选择，且至少一项；selected=false 时 deliverables 返回空数组 []，不要省略该字段；页面会用当前团队版本的 allowed_deliverables 展示勾选后会产出的文件。\n\n问候、闲聊、与团队职责无关的问题，或尚不足以开展工作的输入，都是正常的暂不派工情况：所有业务成员 selected=false，不要为了生成计划而编造业务任务。assessment 用面向用户的简短自然语言回应，并引导其补充产品目标、问题或期望结果，不要向用户解释协议字段。仍按上述格式逐个返回全部成员。quality_judge 只预留未来业务产物的质量检查；没有业务成员时不会启动任何成员，不需要对空产物集生成 judge.md。\n\n只输出下面两个标记及其中一份 JSON，不要输出 Markdown 围栏或其他文字：\n${DISPATCH_PLAN_START}\n{"protocol":"${DISPATCH_PLAN_PROTOCOL}","plan_id":"${input.planId}","assessment":"我看这是一份……","members":[{"member_id":"...","selected":true,"reason":"...","deliverables":["..."]}]}\n${DISPATCH_PLAN_END}\n\n本次请求数据：\n${JSON.stringify(request, null, 2)}`
 }
 
 export function dispatchExecutionMessage(input: {

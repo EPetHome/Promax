@@ -1,3 +1,4 @@
+import { recycleBinApi } from './recycle-bin.ts'
 import type { ComponentType } from 'react'
 import { PromaxConsole } from '../components/PromaxConsole.tsx'
 import { ConsoleLauncher } from './ConsoleLauncher.tsx'
@@ -246,6 +247,17 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
     return () => { active = false }
   }, 'promax: sync fixed product-team roster from runtime preset')
   const shellActions: WorkspaceShellActions = {
+    createProject: async projectName => {
+      const response = await fetch('/promax-workspace-api/project', {
+        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ projectName }),
+      })
+      const value = await response.json() as Record<string, unknown>
+      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : '项目创建失败')
+      if (typeof value.workspaceId !== 'string' || typeof value.path !== 'string' || typeof value.title !== 'string' || !Array.isArray(value.sessionIds)) throw new Error('项目返回格式无效')
+      // Refresh the native workspace registry projection; no separate project list is stored in the browser.
+      await ctx.workspaces.create({ path: value.path })
+      return value as unknown as Awaited<ReturnType<WorkspaceShellActions['createProject']>>
+    },
     startSession: async (workspaceId, presetId) => {
       const response = await connection.api.sessions.create({ workspaceId, agentPreset: presetId })
       if (!response.result.ok) throw new Error(response.result.error.message)
@@ -267,7 +279,7 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
     },
     openSession: sessionId => { ctx.sessions.open(sessionId) },
     clearSession: () => { ctx.sessions.clear() },
-    archiveSession: async sessionId => { await ctx.workspaces.archiveSession(sessionId) },
+    recycleBin: recycleBinApi,
     renameSession: async (sessionId, title) => {
       const session = ctx.sessions.binding(sessionId)?.session
       if (session === undefined) throw new Error(`找不到会话“${sessionId}”`)
@@ -384,17 +396,26 @@ export function apply(ctx: ClientContext, config: PluginConfig = {}): void {
       })) throw new Error('任务历史响应格式无效')
       return value.items as Awaited<ReturnType<WorkspaceShellActions['readTaskHistory']>>
     },
-    openTaskFolder: async input => {
-      const response = await fetch('/promax-workspace-api/task-folder/resolve', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(input),
-      })
+    listProjectFiles: async input => {
+      const response = await fetch('/promax-workspace-api/project-files/list', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(input) })
       const value = await response.json() as Record<string, unknown>
-      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `产出目录读取失败（HTTP ${response.status}）`)
-      if (typeof value.path !== 'string' || value.path === '') throw new Error('产出目录响应格式无效')
+      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `目录读取失败（HTTP ${response.status}）`)
+      if (value.relativePath !== input.relativePath || !Array.isArray(value.items) || typeof value.truncated !== 'boolean' || value.items.some((row: Record<string, unknown>) => row === null || typeof row.name !== 'string' || typeof row.relativePath !== 'string' || !['directory', 'file', 'unavailable'].includes(String(row.kind)))) throw new Error('目录响应格式无效')
+      return value as unknown as Awaited<ReturnType<WorkspaceShellActions['listProjectFiles']>>
+    },
+    readProjectFile: async input => {
+      const response = await fetch('/promax-workspace-api/project-files/read', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(input) })
+      const value = await response.json() as Record<string, unknown>
+      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `文件读取失败（HTTP ${response.status}）`)
+      if (value.relativePath !== input.relativePath || !['markdown', 'text', 'unsupported'].includes(String(value.kind)) || typeof value.content !== 'string') throw new Error('文件预览响应格式无效')
+      return value as unknown as Awaited<ReturnType<WorkspaceShellActions['readProjectFile']>>
+    },
+    revealProjectFile: async input => {
+      const response = await fetch('/promax-workspace-api/project-files/resolve', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(input) })
+      const value = await response.json() as Record<string, unknown>
+      if (!response.ok) throw new Error(typeof value.error === 'string' ? value.error : `目录读取失败（HTTP ${response.status}）`)
+      if (typeof value.path !== 'string' || value.path === '') throw new Error('目录响应格式无效')
       await ctx.workspaces.openPath(value.path)
-      return { path: value.path }
     },
     stopTeamTask: async input => {
       let control = await controlTaskRun({ ...input, state: 'stop_requested' })

@@ -4,7 +4,12 @@ import { lstat, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { homedir } from 'node:os'
 import { basename, extname, join, resolve, sep } from 'node:path'
+import { isDeepStrictEqual } from 'node:util'
 
+import { FeishuApi } from '@promax/feishu-api'
+import { readSpreadsheet } from './feishu-sheets.ts'
+import { listProjectFiles, readTaskArtifact, resolveProjectFile } from './task-artifact.ts'
+import { createRecycleBin, type DeleteTarget, type RecycleHost } from './recycle-bin.ts'
 import z from '@deepseek-ai/schemastery'
 import { createUserMessage } from '@deepseek-ai/dsh-llm'
 import ExcelJS from 'exceljs'
@@ -12,6 +17,7 @@ import mammoth from 'mammoth'
 import { PDFParse } from 'pdf-parse'
 import YAML from 'yaml'
 import { createApiProxy } from '../../promax-ui-console/src/host/api-proxy.ts'
+import { parseDispatchPlan, type DispatchPlan, type DispatchPlanTeam } from '../../promax-ui-console/src/client/dispatch-planning.ts'
 
 interface WorkspaceRecord {
   id: string
@@ -23,6 +29,7 @@ interface WorkspaceRecord {
 interface WorkspaceRegistry {
   create(path: string, title?: string): Promise<WorkspaceRecord>
   get?(workspaceId: string): WorkspaceRecord | undefined
+  delete?(workspaceId: string): Promise<boolean>
 }
 
 interface WebServer {
@@ -112,7 +119,7 @@ interface CreatedAgentPayload {
   }
 }
 
-interface HostContext {
+interface HostContext extends Omit<RecycleHost, 'workspaceRegistry'> {
   workspaceRegistry: WorkspaceRegistry
   webServer: WebServer
   settings: SettingsService
@@ -130,7 +137,7 @@ interface HostContext {
 }
 
 export const name = 'promax-workspace-bootstrap'
-export const inject = ['workspaceRegistry', 'webServer', 'settings', 'credentials', 'tools']
+export const inject = ['workspaceRegistry', 'webServer', 'settings', 'credentials', 'tools', 'apiProxy', 'sessionPersistence', 'agents', 'sessions']
 
 export interface Config {
   apiBaseUrl: string
@@ -244,6 +251,8 @@ export function frozenInputMutationReason(exec: DispatchToolExecution): string |
 interface DispatchSessionEvent {
   type: string
   data: unknown
+  seq?: number
+  time?: number
 }
 
 interface DispatchAgent {
@@ -269,7 +278,17 @@ interface DispatchPlanControl {
     roster_member_ids: string[]
     confirmed_member_ids?: string[]
     confirmed_at?: string
+    team_revision?: unknown
+    model_plan?: GeneratedDispatchPlan
   }
+}
+
+interface GeneratedDispatchPlan {
+  plan: DispatchPlan
+  source_text: string
+  source_event_seq: number
+  source_message_sha256: string
+  generated_at: string
 }
 
 const API_PROXY_PREFIX = '/promax-api'
@@ -400,6 +419,7 @@ export interface FeishuToolMapping {
   actions: Readonly<Record<string, string>>
   parameters: Record<string, unknown>
   unsupportedReason?: string
+  transport?: 'open-api'
 }
 
 const FEISHU_STRING_PROPERTY = { type: 'string' } as const
@@ -418,7 +438,7 @@ function feishuAliasParameters(properties: Record<string, unknown>, required: st
 }
 
 /**
- * The only OpenClaw-to-lark-mcp name map. Targets are the exact public names
+ * OpenClaw aliases route to the observed lark-mcp tools or the two read-only Sheets APIs. Targets are the exact public names
  * registered by dsh-mcp-client for @larksuiteoapi/lark-mcp 0.5.1. An empty
  * action table is intentional evidence that the current MCP has no equivalent;
  * those aliases remain callable only so they can fail with an actionable error.
@@ -440,10 +460,13 @@ export const FEISHU_TOOL_MAPPINGS: readonly FeishuToolMapping[] = [
     openClawTool: 'feishu_bitable_app_table',
     skillIds: ['feishu-requirement-board'],
     defaultAction: 'list',
-    actions: { list: 'mcp__feishu__bitable_v1_appTable_list' },
+    actions: { list: 'mcp__feishu__bitable_v1_appTable_list', create: 'mcp__feishu__bitable_v1_appTable_create' },
     parameters: feishuAliasParameters({
-      action: { type: 'string', enum: ['list'] },
+      action: { type: 'string', enum: ['list', 'create'] },
       app_token: FEISHU_STRING_PROPERTY,
+      name: FEISHU_STRING_PROPERTY,
+      default_view_name: FEISHU_STRING_PROPERTY,
+      fields: { type: 'array', items: FEISHU_JSON_OBJECT_PROPERTY },
       page_token: FEISHU_STRING_PROPERTY,
       page_size: FEISHU_NUMBER_PROPERTY,
       useUAT: FEISHU_BOOLEAN_PROPERTY,
@@ -496,12 +519,12 @@ export const FEISHU_TOOL_MAPPINGS: readonly FeishuToolMapping[] = [
     openClawTool: 'feishu_spreadsheet_sheet',
     skillIds: ['pm-weekly-monitor'],
     defaultAction: 'list',
-    actions: {},
+    transport: 'open-api',
+    actions: { list: 'GET /sheets/v3/spreadsheets/{spreadsheet_token}/sheets/query' },
     parameters: feishuAliasParameters({
-      action: FEISHU_STRING_PROPERTY,
+      action: { type: 'string', enum: ['list'] },
       spreadsheet_token: FEISHU_STRING_PROPERTY,
     }, ['spreadsheet_token']),
-    unsupportedReason: '当前 @larksuiteoapi/lark-mcp 0.5.1 的 tools/list 中没有飞书电子表格工作表能力',
   },
   {
     openClawTool: 'feishu_docx_import',
@@ -530,13 +553,14 @@ export const FEISHU_TOOL_MAPPINGS: readonly FeishuToolMapping[] = [
   {
     openClawTool: 'feishu_spreadsheet_sheet_range_read',
     skillIds: ['pm-weekly-monitor'],
-    actions: {},
+    defaultAction: 'read',
+    transport: 'open-api',
+    actions: { read: 'GET /sheets/v2/spreadsheets/{spreadsheet_token}/values/{sheet_id}!{range}' },
     parameters: feishuAliasParameters({
       spreadsheet_token: FEISHU_STRING_PROPERTY,
       sheet_id: FEISHU_STRING_PROPERTY,
       range: FEISHU_STRING_PROPERTY,
     }, ['spreadsheet_token', 'sheet_id', 'range']),
-    unsupportedReason: '当前 @larksuiteoapi/lark-mcp 0.5.1 的 tools/list 中没有飞书电子表格区域读取能力',
   },
 ] as const
 
@@ -571,6 +595,17 @@ function convertedFeishuArguments(mapping: FeishuToolMapping, action: string, ar
         ...useUAT,
       }
     case 'feishu_bitable_app_table':
+      if (action === 'create') {
+        if (args.fields !== undefined && (!Array.isArray(args.fields) || args.fields.some(field => {
+          const row = recordValue(field, '飞书字段');
+          return typeof row.field_name !== 'string' || row.field_name.trim() === '' || !Number.isInteger(row.type)
+        }))) throw new Error('飞书建表 fields 必须包含有效的字段名和数字类型')
+        return {
+          path: { app_token: appToken() },
+          data: { table: { name: requiredFeishuString(args, 'name'), ...copyDefined(args, ['default_view_name', 'fields']) } },
+          ...useUAT,
+        }
+      }
       return {
         path: { app_token: appToken() },
         ...Object.keys(copyDefined(args, ['page_token', 'page_size'])).length === 0 ? {} : { params: copyDefined(args, ['page_token', 'page_size']) },
@@ -613,7 +648,7 @@ function convertedFeishuArguments(mapping: FeishuToolMapping, action: string, ar
       }
     case 'feishu_spreadsheet_sheet':
     case 'feishu_spreadsheet_sheet_range_read':
-      throw new Error(mapping.unsupportedReason ?? '当前飞书 MCP 没有对应能力')
+      throw new Error('电子表格读取应通过开放平台只读适配器执行')
     default:
       throw new Error(`未知飞书映射工具：${String(mapping.openClawTool)}`)
   }
@@ -661,7 +696,7 @@ async function assertFeishuCredentials(ctx: HostContext): Promise<void> {
   }
 }
 
-function feishuMappingDefinition(ctx: HostContext, scope: SettingsScope<FeishuMcpSettings>, mapping: FeishuToolMapping): MappedToolDefinition {
+function feishuMappingDefinition(ctx: HostContext, scope: SettingsScope<FeishuMcpSettings>, mapping: FeishuToolMapping, api: FeishuApi): MappedToolDefinition {
   return {
     name: mapping.openClawTool,
     description: `${mappingSkillLabel(mapping)} 使用的 OpenClaw 兼容入口。${FEISHU_IDENTITY_FALLBACK_NOTICE}`,
@@ -678,9 +713,13 @@ function feishuMappingDefinition(ctx: HostContext, scope: SettingsScope<FeishuMc
       if (action === undefined) throw new Error(`${mappingSkillLabel(mapping)} 调用 ${mapping.openClawTool} 时必须提供 action`)
       const targetName = mapping.actions[action]
       if (targetName === undefined) {
+        if (mapping.transport === 'open-api') throw new Error('电子表格仅支持列出工作表和读取区域，不支持写入或其他操作。')
         throw new Error(`${mappingSkillLabel(mapping)} 需要工具 ${mapping.openClawTool}${action === '' ? '' : `（action=${action}）`}；${mapping.unsupportedReason ?? `当前 MCP 没有与该 action 对应的工具`}，未创建伪映射。`)
       }
       if (!scope.get().enabled) throw new Error('飞书连接未启用：请到“设置 → 连接”启用飞书条目后重试。')
+      if (mapping.openClawTool === 'feishu_spreadsheet_sheet' || mapping.openClawTool === 'feishu_spreadsheet_sheet_range_read') {
+        return readSpreadsheet(api, mapping.openClawTool, args, exec.signal)
+      }
       if (ctx.tools.get(targetName) === undefined) {
         throw new Error(`${mappingSkillLabel(mapping)} 需要工具 ${mapping.openClawTool}，映射目标 ${targetName} 当前未注册；请到“设置 → 连接”对飞书条目运行连接测试并检查权限。`)
       }
@@ -704,9 +743,10 @@ function feishuMappingDefinition(ctx: HostContext, scope: SettingsScope<FeishuMc
 }
 
 function installFeishuToolMappings(ctx: HostContext, scope: SettingsScope<FeishuMcpSettings>): () => void {
+  const api = new FeishuApi(ctx.credentials, 30_000, fetch)
   const disposers: Array<() => void> = []
   try {
-    for (const mapping of FEISHU_TOOL_MAPPINGS) disposers.push(ctx.tools.register(feishuMappingDefinition(ctx, scope, mapping)))
+    for (const mapping of FEISHU_TOOL_MAPPINGS) disposers.push(ctx.tools.register(feishuMappingDefinition(ctx, scope, mapping, api)))
   } catch (error) {
     for (const dispose of disposers.reverse()) dispose()
     throw error
@@ -729,10 +769,11 @@ function registerFeishuToolMappingsForChild(
   scope: SettingsScope<FeishuMcpSettings>,
   childCtx: ChildAgentContext,
 ): () => void {
+  const api = new FeishuApi(ctx.credentials, 30_000, fetch)
   const disposers: Array<() => void> = []
   try {
     for (const mapping of FEISHU_TOOL_MAPPINGS) {
-      const rootDefinition = feishuMappingDefinition(ctx, scope, mapping)
+      const rootDefinition = feishuMappingDefinition(ctx, scope, mapping, api)
       disposers.push(childCtx.tools.register({
         ...rootDefinition,
         async execute(args, exec) {
@@ -1164,7 +1205,7 @@ function writeJson(response: ServerResponse, status: number, value: Record<strin
 
 function projectNameOf(value: unknown): string {
   const name = typeof value === 'string' ? value.trim() : ''
-  if (name === '' || name.length > 80 || name === '.' || name === '..' || /[/\\\0]/u.test(name)) {
+  if (name === '' || name.length > 80 || name.startsWith('.') || /[<>:"/\\|?*\u0000-\u001F\u007F]/u.test(name) || /[. ]$/u.test(name)) {
     throw new Error('项目组名称格式无效')
   }
   return name
@@ -1387,13 +1428,13 @@ export async function ensureSessionOutputDirectory(
 async function scaffoldProject(path: string): Promise<void> {
   await Promise.all([
     mkdir(join(path, '输入', '源文件'), { recursive: true }),
-    mkdir(join(path, '产出'), { recursive: true }),
+    mkdir(join(path, 'deliverables'), { recursive: true }),
     mkdir(join(path, '.promax', 'judge'), { recursive: true }),
   ])
   try {
     await writeFile(
       join(path, '.promax', 'source-ledger.md'),
-      '# 来源台账\n\n> 由 Promax 管理。团队只读取“输入”，正式结果写入“产出”。\n',
+      '# 来源台账\n\n> 由 Promax 管理。正式结果写入 deliverables。\n',
       { encoding: 'utf8', flag: 'wx' },
     )
   } catch (error) {
@@ -1401,17 +1442,52 @@ async function scaffoldProject(path: string): Promise<void> {
   }
 }
 
+export async function projectOwnerFromAuth(authPath: string): Promise<{ employee_id: string; name: string; role: 'owner' }> {
+  const auth = objectRow(JSON.parse(await readFile(authPath, 'utf8')), '本地登录记录')
+  const employeeId = typeof auth.employee_id === 'string' ? auth.employee_id.trim() : ''
+  // The locally stored login claim supplies a display name only; this is not an authorization check.
+  const payload = typeof auth.access_token === 'string' ? auth.access_token.split('.')[1] : undefined
+  const claims = payload === undefined ? {} : objectRow(JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')), '登录身份')
+  const name = typeof auth.name === 'string' ? auth.name.trim() : typeof claims.name === 'string' ? claims.name.trim() : ''
+  if (employeeId === '' || name === '') throw new Error('本地登录记录缺少工号或姓名，请重新登录后创建项目')
+  return { employee_id: employeeId, name, role: 'owner' }
+}
+
 export async function ensureProjectWorkspace(
   workspaceRegistry: WorkspaceRegistry,
   root: string,
   projectName: string,
+  owner: { employee_id: string; name: string; role: 'owner' },
 ): Promise<WorkspaceRecord> {
   const trimmedName = projectNameOf(projectName)
   const normalizedRoot = resolve(root)
   const workspacePath = resolve(normalizedRoot, trimmedName)
   if (!workspacePath.startsWith(`${normalizedRoot}${sep}`)) throw new Error('项目组路径越界')
+  try {
+    if (!(await lstat(workspacePath)).isDirectory()) throw new Error('项目路径必须是独立目录，不能是文件或符号链接')
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+  }
   await scaffoldProject(workspacePath)
+  try {
+    await writeFile(join(workspacePath, 'project.yml'), YAML.stringify({
+      api_version: 'promax.ai/v1alpha2',
+      kind: 'Project',
+      metadata: { project_id: randomUUID(), name: trimmedName, created_at: new Date().toISOString() },
+      spec: { members: [owner] },
+    }), { encoding: 'utf8', flag: 'wx' })
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
+  }
   return workspaceRegistry.create(workspacePath, trimmedName)
+}
+
+export async function registerProjectWorkspaces(registry: WorkspaceRegistry, root: string, owner: { employee_id: string; name: string; role: 'owner' }): Promise<WorkspaceRecord[]> {
+  await mkdir(root, { recursive: true })
+  const directories = (await readdir(root, { withFileTypes: true })).filter(entry => entry.isDirectory() && !entry.name.startsWith('.'))
+  const projects: WorkspaceRecord[] = []
+  for (const directory of directories) projects.push(await ensureProjectWorkspace(registry, root, directory.name, owner))
+  return projects
 }
 
 function taskKeyOf(value: unknown): string {
@@ -1437,6 +1513,38 @@ function dispatchPlanPath(root: string, sessionId: string, state: 'planning' | '
   return join(resolve(root), `${sessionId}.${state}.json`)
 }
 
+export function dispatchTeamFromRevision(value: unknown): DispatchPlanTeam {
+  const row = objectRow(value, 'TeamRevision')
+  const metadata = objectRow(row.metadata, 'TeamRevision.metadata')
+  const spec = objectRow(row.spec, 'TeamRevision.spec')
+  if (row.api_version !== 'promax.ai/v1alpha2' || row.kind !== 'TeamRevision' || metadata.status !== 'published'
+    || typeof metadata.team_revision_id !== 'string' || !Array.isArray(spec.members) || !Array.isArray(spec.artifacts)) {
+    throw new Error('调度计划缺少已发布团队版本')
+  }
+  const members = spec.members.map(value => {
+    const member = objectRow(value, 'TeamRevision 成员')
+    if (typeof member.member_id !== 'string' || typeof member.display_name !== 'string') throw new Error('团队成员无效')
+    return { memberId: member.member_id, displayName: member.display_name, objective: typeof member.objective === 'string' ? member.objective : `负责 ${member.display_name} 的专业工作` }
+  })
+  dispatchMemberIds(members.map(member => member.memberId), '已发布团队名单')
+  const artifacts = spec.artifacts.map(value => {
+    const artifact = objectRow(value, 'TeamRevision 产物')
+    if (typeof artifact.relative_path !== 'string' || typeof artifact.produced_by !== 'string') throw new Error('团队产物无效')
+    return { relativePath: artifact.relative_path, producedBy: artifact.produced_by }
+  })
+  return { members, artifacts }
+}
+
+function generatedDispatchPlanOf(value: unknown, teamRevision: unknown, planId: string, taskKey: string): GeneratedDispatchPlan {
+  const row = objectRow(value, '模型计划记录')
+  if (typeof row.source_text !== 'string' || !Number.isSafeInteger(row.source_event_seq) || Number(row.source_event_seq) < 0
+    || typeof row.generated_at !== 'string' || Number.isNaN(Date.parse(row.generated_at))
+    || row.source_message_sha256 !== createHash('sha256').update(row.source_text).digest('hex')) throw new Error('模型计划来源记录无效')
+  const plan = parseDispatchPlan(row.source_text, dispatchTeamFromRevision(teamRevision), planId, taskKey)
+  if (!isDeepStrictEqual(row.plan, plan)) throw new Error('保存的计划与模型原文不一致')
+  return { plan, source_text: row.source_text, source_event_seq: Number(row.source_event_seq), source_message_sha256: String(row.source_message_sha256), generated_at: row.generated_at }
+}
+
 function dispatchPlanControlOf(value: unknown, expectedState: 'planning' | 'confirmed'): DispatchPlanControl {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) throw new Error('调度计划控制文件无效')
   const row = value as Record<string, unknown>
@@ -1450,12 +1558,18 @@ function dispatchPlanControlOf(value: unknown, expectedState: 'planning' | 'conf
     throw new Error('调度计划控制文件格式无效')
   }
   const rosterMemberIds = dispatchMemberIds(spec.roster_member_ids, '调度计划团队名单')
+  const teamRevision = spec.team_revision
+  if (teamRevision !== undefined && dispatchTeamFromRevision(teamRevision).members.map(member => member.memberId).join('\0') !== rosterMemberIds.join('\0')) {
+    throw new Error('调度团队名单与已发布版本不一致')
+  }
+  const modelPlan = spec.model_plan === undefined ? undefined : generatedDispatchPlanOf(spec.model_plan, teamRevision, planId, taskKey)
+  const generated = { ...(teamRevision === undefined ? {} : { team_revision: teamRevision }), ...(modelPlan === undefined ? {} : { model_plan: modelPlan }) }
   if (expectedState === 'planning') {
     return {
       api_version: 'promax.ai/v1alpha2',
       kind: 'DispatchPlanControl',
       metadata: { session_id: sessionId, plan_id: planId, task_key: taskKey, created_at: createdAt },
-      spec: { state: 'planning', roster_member_ids: rosterMemberIds },
+      spec: { state: 'planning', roster_member_ids: rosterMemberIds, ...generated },
     }
   }
   const confirmedMemberIds = dispatchMemberIds(spec.confirmed_member_ids, '已确认成员名单')
@@ -1466,7 +1580,7 @@ function dispatchPlanControlOf(value: unknown, expectedState: 'planning' | 'conf
     api_version: 'promax.ai/v1alpha2',
     kind: 'DispatchPlanControl',
     metadata: { session_id: sessionId, plan_id: planId, task_key: taskKey, created_at: createdAt },
-    spec: { state: 'confirmed', roster_member_ids: rosterMemberIds, confirmed_member_ids: confirmedMemberIds, confirmed_at: confirmedAt },
+    spec: { state: 'confirmed', roster_member_ids: rosterMemberIds, confirmed_member_ids: confirmedMemberIds, confirmed_at: confirmedAt, ...generated },
   }
 }
 
@@ -1482,16 +1596,18 @@ async function optionalDispatchPlanControl(path: string, state: 'planning' | 'co
 }
 
 /** Opens a server-owned planning gate before the model sees the demand. */
-export async function beginDispatchPlan(root: string, input: { sessionId: string; taskKey: string; rosterMemberIds: string[] }): Promise<{ planId: string; taskKey: string }> {
+export async function beginDispatchPlan(root: string, input: { sessionId: string; taskKey: string; rosterMemberIds: string[]; teamRevision: unknown }): Promise<{ planId: string; taskKey: string }> {
   const sessionId = sessionIdOf(input.sessionId)
   const taskKey = taskKeyOf(input.taskKey)
   const rosterMemberIds = dispatchMemberIds(input.rosterMemberIds, '调度计划团队名单')
+  const team = dispatchTeamFromRevision(input.teamRevision)
+  if (team.members.map(member => member.memberId).join('\0') !== rosterMemberIds.join('\0')) throw new Error('调度团队名单与已发布版本不一致')
   if (!rosterMemberIds.includes('quality_judge')) throw new Error('调度团队缺少固定 Judge')
   const directory = resolve(root)
   await mkdir(directory, { recursive: true })
   const existing = await optionalDispatchPlanControl(dispatchPlanPath(directory, sessionId, 'planning'), 'planning')
   if (existing !== undefined) {
-    if (existing.metadata.task_key !== taskKey || existing.spec.roster_member_ids.join('\0') !== rosterMemberIds.join('\0')) throw new Error('当前会话已有另一份调度计划')
+    if (existing.metadata.task_key !== taskKey || !isDeepStrictEqual(existing.spec.team_revision, input.teamRevision)) throw new Error('当前会话已有另一份调度计划，请新建需求')
     return { planId: existing.metadata.plan_id, taskKey }
   }
   const planId = `dispatch-${randomUUID()}`
@@ -1499,14 +1615,51 @@ export async function beginDispatchPlan(root: string, input: { sessionId: string
     api_version: 'promax.ai/v1alpha2',
     kind: 'DispatchPlanControl',
     metadata: { session_id: sessionId, plan_id: planId, task_key: taskKey, created_at: new Date().toISOString() },
-    spec: { state: 'planning', roster_member_ids: rosterMemberIds },
+    spec: { state: 'planning', roster_member_ids: rosterMemberIds, team_revision: input.teamRevision },
   }
   await writeFile(dispatchPlanPath(directory, sessionId, 'planning'), `${JSON.stringify(control, null, 2)}\n`, { encoding: 'utf8', flag: 'wx', mode: 0o600 })
   return { planId, taskKey }
 }
 
+/** Only the native turn hook supplies these committed events; no HTTP route accepts a generated plan. */
+export async function saveGeneratedDispatchPlan(root: string, session: DispatchAgent['session']): Promise<void> {
+  if (session.header.origin === 'subagent') return
+  const sessionId = sessionIdOf(session.header.id)
+  if (await optionalDispatchPlanControl(dispatchPlanPath(root, sessionId, 'confirmed'), 'confirmed')) return
+  const path = dispatchPlanPath(root, sessionId, 'planning')
+  const control = await optionalDispatchPlanControl(path, 'planning')
+  if (control?.spec.team_revision === undefined) return
+  const team = dispatchTeamFromRevision(control.spec.team_revision)
+  for (const event of [...session.events].reverse()) {
+    if (event.type !== 'assistant/message' || !Number.isSafeInteger(event.seq) || Number(event.seq) < 0
+      || typeof event.time !== 'number' || event.time < Date.parse(control.metadata.created_at)) continue
+    const message = objectRow(objectRow(event.data, '会话事件').message, '模型回复')
+    if (!Array.isArray(message.content)) continue
+    const text = message.content.flatMap(value => {
+      const block = objectRow(value, '模型内容')
+      return block.type === 'text' && typeof block.text === 'string' ? [block.text] : []
+    }).join('')
+    let plan: DispatchPlan
+    try { plan = parseDispatchPlan(text, team, control.metadata.plan_id, control.metadata.task_key) } catch { continue }
+    if (control.spec.model_plan?.source_event_seq === event.seq) return
+    control.spec.model_plan = { plan, source_text: text, source_event_seq: Number(event.seq), source_message_sha256: createHash('sha256').update(text).digest('hex'), generated_at: new Date(event.time).toISOString() }
+    const temporary = `${path}.${randomUUID()}.tmp`
+    try {
+      await writeFile(temporary, `${JSON.stringify(control, null, 2)}\n`, { encoding: 'utf8', flag: 'wx', mode: 0o600 })
+      await rename(temporary, path)
+    } finally { await rm(temporary, { force: true }) }
+    return
+  }
+}
+
+export async function readGeneratedDispatchPlan(root: string, input: { sessionId: string; planId: string }): Promise<DispatchPlan | undefined> {
+  const control = await optionalDispatchPlanControl(dispatchPlanPath(root, sessionIdOf(input.sessionId), 'planning'), 'planning')
+  if (!control || control.metadata.plan_id !== dispatchPlanIdOf(input.planId)) throw new Error('找不到当前待确认的调度计划')
+  return control.spec.model_plan?.plan
+}
+
 /** Freezes the user-picked member ids once; a different retry cannot replace them. */
-export async function confirmDispatchPlan(root: string, input: { sessionId: string; planId: string; confirmedMemberIds: string[] }): Promise<{ planId: string; taskKey: string; confirmedMemberIds: string[]; confirmedAt: string }> {
+export async function confirmDispatchPlan(root: string, input: { sessionId: string; planId: string; confirmedMemberIds: string[]; plan?: unknown }): Promise<{ planId: string; taskKey: string; confirmedMemberIds: string[]; confirmedAt: string }> {
   const sessionId = sessionIdOf(input.sessionId)
   const planId = dispatchPlanIdOf(input.planId)
   const confirmedMemberIds = dispatchMemberIds(input.confirmedMemberIds, '已确认成员名单')
@@ -1515,14 +1668,17 @@ export async function confirmDispatchPlan(root: string, input: { sessionId: stri
   const directory = resolve(root)
   const confirmedPath = dispatchPlanPath(directory, sessionId, 'confirmed')
   const existing = await optionalDispatchPlanControl(confirmedPath, 'confirmed')
+  const planning = existing ?? await optionalDispatchPlanControl(dispatchPlanPath(directory, sessionId, 'planning'), 'planning')
+  if (planning === undefined || planning.metadata.plan_id !== planId) throw new Error('找不到当前待确认的调度计划')
+  if (planning.spec.team_revision === undefined) throw new Error('历史计划缺少团队版本快照，请新建需求并重新规划')
+  if (planning.spec.model_plan === undefined) throw new Error('模型计划尚未生成并保存，不能确认派工；请先完成模型规划')
+  if (!isDeepStrictEqual(input.plan, planning.spec.model_plan.plan)) throw new Error('确认的计划与服务端保存的模型计划不一致，请刷新计划后确认')
   if (existing !== undefined) {
     if (existing.metadata.plan_id !== planId || existing.spec.confirmed_member_ids?.join('\0') !== confirmedMemberIds.join('\0')) {
       throw new Error('调度名单已经确认，不能再次修改')
     }
     return { planId, taskKey: existing.metadata.task_key, confirmedMemberIds, confirmedAt: existing.spec.confirmed_at! }
   }
-  const planning = await optionalDispatchPlanControl(dispatchPlanPath(directory, sessionId, 'planning'), 'planning')
-  if (planning === undefined || planning.metadata.plan_id !== planId) throw new Error('找不到当前待确认的调度计划')
   if (confirmedMemberIds.some(memberId => !planning.spec.roster_member_ids.includes(memberId))) throw new Error('已确认成员不属于当前团队名单')
   const confirmedAt = new Date().toISOString()
   const control: DispatchPlanControl = {
@@ -1532,6 +1688,8 @@ export async function confirmDispatchPlan(root: string, input: { sessionId: stri
       roster_member_ids: planning.spec.roster_member_ids,
       confirmed_member_ids: confirmedMemberIds,
       confirmed_at: confirmedAt,
+      team_revision: planning.spec.team_revision,
+      model_plan: planning.spec.model_plan,
     },
   }
   try {
@@ -3110,23 +3268,38 @@ export async function apply(ctx: HostContext, config: Config): Promise<void> {
   const dshHome = process.env.DSH_HOME?.trim() || join(homedir(), '.dsh')
   const dispatchPlanRoot = join(dshHome, '.promax', 'dispatch-plans')
   ctx.on('tools/pre-execute', (exec, next) => enforceDispatchPlanTool(dispatchPlanRoot, exec, next))
-  ctx.on('agent/turn-stopping', payload => enforceConfirmedDispatchCompleteness(dispatchPlanRoot, payload))
+  ctx.on('agent/turn-stopping', async payload => {
+    // Publish the proposal after this planning turn's execution gate has finished.
+    await enforceConfirmedDispatchCompleteness(dispatchPlanRoot, payload)
+    await saveGeneratedDispatchPlan(dispatchPlanRoot, payload.agent.session)
+  })
   const generalWorkspacePath = resolve(process.env.PROMAX_GENERAL_WORKSPACE?.trim() || join(dshHome, 'workspaces', 'general'))
   const projectRoot = resolve(process.env.PROMAX_PROJECT_ROOT?.trim() || join(homedir(), 'Promax'))
   const compatibilityProductPath = resolve(process.env.PROMAX_PRODUCT_WORKSPACE?.trim() || join(projectRoot, '产品'))
   const knownWorkspaces = new Map<string, WorkspaceRecord>()
+  const recycle = await createRecycleBin(ctx, projectRoot, dshHome)
+  ctx.effect(() => () => { recycle.dispose() }, 'promax-recycle-bin')
+  ctx.on('tools/pre-execute', (exec, next) => {
+    recycle.assertAllowed({ sessionId: exec.agent?.session.header.id, cwd: exec.agent?.session.header.cwd })
+    return next()
+  })
 
   await mkdir(generalWorkspacePath, { recursive: true })
   const general = await ctx.workspaceRegistry.create(generalWorkspacePath, '通用')
   knownWorkspaces.set(general.id, general)
-  await scaffoldProject(compatibilityProductPath)
-  const product = await ctx.workspaceRegistry.create(compatibilityProductPath, '产品')
-  knownWorkspaces.set(product.id, product)
+  const owner = await projectOwnerFromAuth(join(dshHome, 'promax', 'auth.json'))
+  const product = recycle.wasDeleted(compatibilityProductPath) ? undefined : await ensureProjectWorkspace(ctx.workspaceRegistry, resolve(compatibilityProductPath, '..'), basename(compatibilityProductPath), owner)
+  if (product !== undefined) knownWorkspaces.set(product.id, product)
+  for (const project of await registerProjectWorkspaces(ctx.workspaceRegistry, projectRoot, owner)) knownWorkspaces.set(project.id, project)
+  ctx.on('webserver/index-inject', table => {
+    table.push({ kind: 'html', placement: 'head', html: `<meta name="promax-projects" content="${encodeURIComponent(JSON.stringify({ root: projectRoot, defaultWorkspaceId: product?.id }))}">` })
+  })
 
   ctx.effect(() => ctx.webServer.register({
     kind: 'prefix',
     path: WORKSPACE_API_PREFIX,
     handler: async (request, response) => {
+      let release: (() => void) | undefined
       try {
         if (request.method !== 'POST') {
           writeJson(response, 405, { error: '只接受 POST 请求' })
@@ -3137,13 +3310,39 @@ export async function apply(ctx: HostContext, config: Config): Promise<void> {
           ? await readJson(request, MAX_ATTACHMENT_REQUEST_BYTES, '附件总大小不能超过 20 MiB')
           : await readJson(request)
 
+        if (path.startsWith(`${WORKSPACE_API_PREFIX}/recycle/`)) {
+          if (!request.headers['content-type']?.startsWith('application/json') || request.headers['sec-fetch-site'] === 'cross-site'
+            || (request.headers.origin !== undefined && new URL(request.headers.origin).host !== request.headers.host)) throw new Error('回收站只接受当前 Promax 页面的 JSON 请求')
+          const target: DeleteTarget = { kind: input.kind as DeleteTarget['kind'], workspaceId: String(input.workspaceId ?? ''), ...(typeof input.sessionId === 'string' ? { sessionId: input.sessionId } : {}) }
+          const operation = path.slice(`${WORKSPACE_API_PREFIX}/recycle/`.length)
+          const result = operation === 'list' ? recycle.list()
+            : operation === 'preview' ? await recycle.preview(target)
+            : operation === 'delete' ? await recycle.remove(target, String(input.revision ?? ''))
+            : operation === 'restore' ? await recycle.restore(String(input.id ?? ''))
+            : operation === 'purge' ? await recycle.purge(String(input.id ?? ''))
+            : undefined
+          if (result === undefined) throw new Error('未知回收站操作')
+          writeJson(response, 200, { ...result })
+          return
+        }
+        release = recycle.beginRequest({ ...input, ...(path.endsWith('/project') ? { path: resolve(projectRoot, String(input.projectName ?? '')) } : {}) })
+
         if (path.endsWith('/dispatch-plan/begin')) {
           const result = await beginDispatchPlan(dispatchPlanRoot, {
             sessionId: String(input.sessionId ?? ''),
             taskKey: String(input.taskKey ?? ''),
             rosterMemberIds: dispatchMemberIds(input.rosterMemberIds, '调度计划团队名单'),
+            teamRevision: YAML.parse(await readFile(join(dshHome, '.agent-presets', 'promax-team', 'team-revision.yml'), 'utf8')) as unknown,
           })
           writeJson(response, 200, result)
+          return
+        }
+
+        if (path.endsWith('/dispatch-plan/read')) {
+          const plan = await readGeneratedDispatchPlan(dispatchPlanRoot, {
+            sessionId: String(input.sessionId ?? ''), planId: String(input.planId ?? ''),
+          })
+          writeJson(response, 200, { plan: plan ?? null })
           return
         }
 
@@ -3152,6 +3351,7 @@ export async function apply(ctx: HostContext, config: Config): Promise<void> {
             sessionId: String(input.sessionId ?? ''),
             planId: String(input.planId ?? ''),
             confirmedMemberIds: dispatchMemberIds(input.confirmedMemberIds, '已确认成员名单'),
+            plan: input.plan,
           })
           const workspaceId = typeof input.workspaceId === 'string' ? input.workspaceId : ''
           const registered = ctx.workspaceRegistry.get?.(workspaceId) ?? knownWorkspaces.get(workspaceId)
@@ -3164,7 +3364,7 @@ export async function apply(ctx: HostContext, config: Config): Promise<void> {
             confirmedAt: result.confirmedAt,
             confirmedMemberIds: result.confirmedMemberIds,
             artifacts: taskRunArtifactRegistrations(input.artifacts),
-            teamRevision: YAML.parse(await readFile(join(dshHome, '.agent-presets', 'promax-team', 'team-revision.yml'), 'utf8')) as unknown,
+            teamRevision: (await optionalDispatchPlanControl(dispatchPlanPath(dispatchPlanRoot, String(input.sessionId), 'confirmed'), 'confirmed'))!.spec.team_revision,
           })
           ctx.emit('promax/decision', {
             sessionId: String(input.sessionId ?? ''),
@@ -3207,10 +3407,7 @@ export async function apply(ctx: HostContext, config: Config): Promise<void> {
         }
 
         if (path.endsWith('/project')) {
-          const customParent = typeof input.parentPath === 'string' && input.parentPath.trim() !== ''
-            ? resolve(input.parentPath.trim())
-            : projectRoot
-          const workspace = await ensureProjectWorkspace(ctx.workspaceRegistry, customParent, String(input.projectName ?? ''))
+          const workspace = await ensureProjectWorkspace(ctx.workspaceRegistry, projectRoot, String(input.projectName ?? ''), await projectOwnerFromAuth(join(dshHome, 'promax', 'auth.json')))
           knownWorkspaces.set(workspace.id, workspace)
           writeJson(response, 200, {
             workspaceId: workspace.id,
@@ -3229,6 +3426,33 @@ export async function apply(ctx: HostContext, config: Config): Promise<void> {
           if (workspaceId === '' || workspacePath === undefined || basename(workspacePath) === '') throw new Error('目标项目组无效')
           const items = await readTaskHistory(workspacePath)
           writeJson(response, 200, { items, observedAt: new Date().toISOString() })
+          return
+        }
+
+        if (path.startsWith(`${WORKSPACE_API_PREFIX}/project-files/`)) {
+          if (!request.headers['content-type']?.startsWith('application/json') || request.headers['sec-fetch-site'] === 'cross-site'
+            || (request.headers.origin !== undefined && new URL(request.headers.origin).host !== request.headers.host)) throw new Error('项目文件只接受当前 Promax 页面的 JSON 请求')
+          const workspaceId = typeof input.workspaceId === 'string' ? input.workspaceId : ''
+          const registered = ctx.workspaceRegistry.get?.(workspaceId) ?? knownWorkspaces.get(workspaceId)
+          if (registered === undefined || resolve(registered.path, '..') !== resolve(projectRoot)) throw new Error('目标项目无效')
+          if (typeof input.relativePath !== 'string') throw new Error('文件路径无效')
+          const operation = path.slice(`${WORKSPACE_API_PREFIX}/project-files/`.length)
+          if (operation === 'list') writeJson(response, 200, await listProjectFiles(registered.path, input.relativePath))
+          else if (operation === 'read') writeJson(response, 200, await readTaskArtifact(registered.path, registered.path, input.relativePath))
+          else if (operation === 'resolve') {
+            const target = await resolveProjectFile(registered.path, input.relativePath)
+            writeJson(response, 200, { path: (await lstat(target)).isDirectory() ? target : resolve(target, '..') })
+          } else throw new Error('未知项目文件操作')
+          return
+        }
+
+        if (path.endsWith('/task-file/read')) {
+          const workspaceId = typeof input.workspaceId === 'string' ? input.workspaceId : ''
+          const registered = ctx.workspaceRegistry.get?.(workspaceId) ?? knownWorkspaces.get(workspaceId)
+          if (registered === undefined || (typeof input.projectPath === 'string' && resolve(input.projectPath) !== resolve(registered.path))) throw new Error('目标项目无效')
+          const directory = await resolveTaskDeliverableDirectory(registered.path, { sessionId: String(input.sessionId ?? ''), taskKey: String(input.taskKey ?? '') })
+          const preview = await readTaskArtifact(registered.path, directory, String(input.relativePath ?? ''))
+          writeJson(response, 200, { ...preview })
           return
         }
 
@@ -3301,6 +3525,8 @@ export async function apply(ctx: HostContext, config: Config): Promise<void> {
           : '附件处理失败，请确认文件可读取且工作目录可写后重试'
         const path = requestPath(request)
         writeJson(response, 400, { error: (path.endsWith('/attachments') || path.endsWith('/attachments/freeze')) ? attachmentMessage : message || '请求处理失败' })
+      } finally {
+        release?.()
       }
     },
   }), 'promax-project-workspace-api')

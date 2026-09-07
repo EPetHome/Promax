@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ComponentType, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useState, type ComponentType, type ReactNode } from 'react'
 
 const STYLE_ID = 'promax-ui-layout-styles'
 
@@ -53,84 +53,28 @@ export class LayoutController implements LayoutActions {
 }
 
 export const PROMAX_LAYOUT_CSS = String.raw`
+.promax-desktop-viewport { width: 100%; height: 100%; overflow: auto; }
 .app-shell {
   --promax-left-track: var(--dsw-promax-sidebar-left);
   --promax-right-track: var(--dsw-promax-sidebar-right);
+  --promax-composer-height: 106px;
   position: relative;
-  z-index: 1;
   display: grid;
-  grid-template-columns: var(--promax-left-track) minmax(0, 1fr) var(--promax-right-track);
-  height: calc(100% - 28px);
-  min-height: 620px;
-  margin: 14px;
+  grid-template-columns: var(--promax-left-track) minmax(640px, 1fr) var(--promax-right-track);
+  min-width: calc(var(--promax-left-track) + 640px + var(--promax-right-track));
+  height: 100%;
+  min-height: 560px;
   overflow: hidden;
-  border: 1px solid var(--dsw-promax-shell-border);
-  border-radius: 28px;
   background: var(--dsw-promax-shell-background);
-  box-shadow: var(--dsw-promax-shell-shadow);
-  backdrop-filter: blur(18px) saturate(120%);
 }
-.app-shell.left-collapsed { --promax-left-track: 0px; }
-.app-shell.right-collapsed { --promax-right-track: 0px; }
-.promax-layout-sidebar,
-.promax-layout-details { position: relative; z-index: 2; min-width: 0; min-height: 0; overflow: hidden; }
+.app-shell.left-collapsed { --promax-left-track: 64px; }
+.app-shell.right-collapsed { --promax-right-track: 44px; }
+.promax-layout-sidebar, .promax-layout-details { position: relative; z-index: 2; min-width: 0; min-height: 0; overflow: hidden; }
 .promax-layout-sidebar { border-right: 1px solid var(--dsw-promax-line); background: var(--dsw-promax-sidebar-background); }
-.promax-layout-details { border-left: 1px solid var(--dsw-promax-line); background: var(--dsw-promax-sidebar-background); }
-.left-collapsed > .promax-layout-sidebar,
-.right-collapsed > .promax-layout-details { visibility: hidden; pointer-events: none; }
-.main-column {
-  position: relative;
-  min-width: 0;
-  min-height: 0;
-  overflow: hidden;
-  background: var(--dsw-promax-main-background);
-}
+.promax-layout-details { border-left: 1px solid var(--dsw-promax-line); background: var(--dsw-promax-panel); }
+.main-column { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: var(--dsw-promax-main-background); }
 .promax-conversation-seat { position: absolute; inset: 0; min-width: 0; min-height: 0; }
-.promax-shell-overlay {
-  position: absolute;
-  z-index: 20;
-  inset: 0;
-  display: grid;
-  grid-template-columns: var(--promax-left-track) minmax(0, 1fr) var(--promax-right-track);
-  overflow: hidden;
-  pointer-events: none;
-}
-.promax-mobile-scrim { display: none; }
-@media (max-width: 1180px) {
-  .app-shell { --promax-right-track: 0px; grid-template-columns: var(--promax-left-track) minmax(0, 1fr); }
-  .promax-layout-details { display: none; }
-  .promax-shell-overlay { grid-template-columns: var(--promax-left-track) minmax(0, 1fr); }
-}
-@media (max-width: 820px) {
-  .app-shell { height: 100%; min-height: 0; margin: 0; grid-template-columns: minmax(0, 1fr); border: 0; border-radius: 0; }
-  .promax-layout-sidebar {
-    position: fixed;
-    z-index: 70;
-    inset-block: 0;
-    inset-inline-start: 0;
-    width: min(290px, 86vw);
-    visibility: hidden;
-    box-shadow: var(--dsw-promax-mobile-drawer-shadow);
-    transform: translateX(-105%);
-    transition: transform 220ms cubic-bezier(.2,.8,.2,1), visibility 0s linear 220ms;
-  }
-  .mobile-sidebar-open > .promax-layout-sidebar { visibility: visible; pointer-events: auto; transform: translateX(0); transition: transform 220ms cubic-bezier(.2,.8,.2,1), visibility 0s; }
-  .promax-mobile-scrim {
-    position: fixed;
-    z-index: 65;
-    inset: 0;
-    display: block;
-    visibility: hidden;
-    border: 0;
-    background: var(--dsw-promax-mobile-scrim);
-    opacity: 0;
-    pointer-events: none;
-    backdrop-filter: blur(2px);
-    transition: opacity 180ms ease, visibility 0s linear 180ms;
-  }
-  .mobile-sidebar-open > .promax-mobile-scrim { visibility: visible; opacity: 1; pointer-events: auto; transition: opacity 180ms ease, visibility 0s; }
-  .promax-shell-overlay { grid-template-columns: minmax(0, 1fr); }
-}
+.promax-shell-overlay { position: absolute; z-index: 20; inset: 0; display: grid; grid-template-columns: var(--promax-left-track) minmax(640px, 1fr) var(--promax-right-track); overflow: hidden; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) {
   .app-shell *, .app-shell *::before, .app-shell *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
@@ -180,46 +124,27 @@ class ThemePresenter {
 
 export function PromaxAppShell(props: RootProps) {
   const { layoutController, renderSlot } = props
-  const shellRef = useRef<HTMLDivElement>(null)
-  const [leftOpen, setLeftOpen] = useState(() => window.innerWidth > 820)
+  const [leftOpen, setLeftOpen] = useState(true)
   const [rightOpen, setRightOpen] = useState(true)
-  const [mobile, setMobile] = useState(() => window.innerWidth <= 820)
-  const mobileRef = useRef(mobile)
-
   useEffect(() => installStyles(), [])
-  useEffect(() => {
-    const shell = shellRef.current
-    if (shell === null) return
-    const observer = new ResizeObserver(() => {
-      const next = window.innerWidth <= 820
-      if (next !== mobileRef.current) {
-        mobileRef.current = next
-        setLeftOpen(!next)
-      }
-      setMobile(next)
-    })
-    observer.observe(shell)
-    return () => { observer.disconnect() }
-  }, [])
   useLayoutEffect(() => layoutController.attach({
     toggleSidebar: () => { setLeftOpen(value => !value) },
     openDetails: () => { setRightOpen(true) },
     closeDetails: () => { setRightOpen(false) },
   }), [layoutController])
 
-  return <div ref={shellRef} className={`app-shell${leftOpen ? '' : ' left-collapsed'}${rightOpen ? '' : ' right-collapsed'}${mobile && leftOpen ? ' mobile-sidebar-open' : ''}`}>
+  return <div className="promax-desktop-viewport"><div className={`app-shell${leftOpen ? '' : ' left-collapsed'}${rightOpen ? '' : ' right-collapsed'}`}>
     <aside className="promax-layout-sidebar" aria-label="Promax 导航">
-      {renderSlot('sidebar', { collapsed: !leftOpen, width: leftOpen ? 250 : 0 })}
+      {renderSlot('sidebar', { collapsed: !leftOpen, width: leftOpen ? 240 : 64 })}
     </aside>
     <main className="main-column">
       <div className="promax-conversation-seat">{renderSlot('conversation', {})}</div>
     </main>
     <aside className="promax-layout-details" aria-label="状态与结果">
-      {renderSlot('details', {})}
+      {renderSlot('details', { collapsed: !rightOpen })}
     </aside>
     <div className="promax-shell-overlay" data-shell-overlay>{renderSlot('shell.overlay', { detailsOpen: rightOpen })}</div>
-    <button className="promax-mobile-scrim" type="button" aria-label="关闭导航" onClick={() => { setLeftOpen(false) }} />
-  </div>
+  </div></div>
 }
 
 export const inject = ['slots', 'theme']

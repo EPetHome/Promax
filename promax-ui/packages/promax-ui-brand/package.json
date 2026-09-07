@@ -1,6 +1,6 @@
 {
   "name": "@promax/promax-ui-brand",
-  "version": "0.1.8",
+  "version": "0.1.11",
   "private": true,
   "type": "module",
   "main": "lib/index.mjs",
@@ -24,7 +24,9 @@
       "platform": "web"
     }
   },
-  "files": ["lib"],
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "build": "tsdown",
     "typecheck": "tsc --noEmit -p ../../tsconfig.json"

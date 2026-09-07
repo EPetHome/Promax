@@ -35,8 +35,8 @@ describe('Promax browser brand', () => {
     const style = document.querySelector<HTMLStyleElement>('style#promax-global-theme')
 
     expect(style?.textContent).toContain('background: var(--dsw-promax-body-background)')
-    expect(style?.textContent).toContain('background-size: 12px 12px')
-    expect(style?.textContent).toContain('.main-column::before')
+    expect(style?.textContent).not.toContain('background-size: 12px 12px')
+    expect(style?.textContent).not.toContain('.main-column::before')
     expect(style?.textContent).toContain('html { overflow: clip; color-scheme: light; }')
     expect(style?.textContent).toContain('overflow: clip;')
     expect(style?.textContent).toContain('position: fixed;')
