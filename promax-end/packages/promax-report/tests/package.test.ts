@@ -12,6 +12,7 @@ test('packed plugin installs outside the workspace with self-contained contract 
   const directory = await mkdtemp(join(tmpdir(), 'promax-package-install-'))
   const { version } = JSON.parse(await readFile(resolve('packages/promax-report/package.json'), 'utf8')) as { version: string }
   const tarball = join(directory, `promax-promax-report-${version}.tgz`)
+  const apiVersion = (JSON.parse(await readFile(resolve('packages/promax-feishu-api/package.json'), 'utf8')) as { version: string }).version
   try {
     await writeFile(join(directory, 'package.json'), JSON.stringify({
       name: 'promax-package-consumer',
@@ -24,7 +25,8 @@ test('packed plugin installs outside the workspace with self-contained contract 
       '--filter', '@promax/promax-report', 'pack',
       '--pack-destination', directory,
     ])
-    await run('pnpm', ['--dir', directory, 'add', '--offline', tarball])
+    await run('pnpm', ['--filter', '@promax/feishu-api', 'pack', '--pack-destination', directory])
+    await run('pnpm', ['--dir', directory, 'add', '--offline', join(directory, `promax-feishu-api-${apiVersion}.tgz`), tarball])
 
     const installedPackage = JSON.parse(await readFile(
       join(directory, 'node_modules', '@promax', 'promax-report', 'package.json'),

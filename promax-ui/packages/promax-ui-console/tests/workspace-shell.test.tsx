@@ -1,11 +1,13 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
+  memberDisplayName,
   PromaxComposerBar,
   PromaxComposerHost,
   PromaxDetailsSidebar,
   PromaxSessionBrowser,
+  PromaxLeftSidebar,
   PromaxTeamSessionHeader,
   PromaxWorkspaceOverlay,
   TASK_RUN_FAILURE_STABILITY_THRESHOLD,
@@ -78,11 +80,19 @@ function useSessions<Selected>(selector: (state: SessionListState) => Selected):
 
 function actions(overrides: Partial<WorkspaceShellActions> = {}): WorkspaceShellActions {
   return {
+    createProject: vi.fn(async projectName => ({ workspaceId: 'new-project', title: projectName, path: `/tmp/Promax/${projectName}`, sessionIds: [] })),
     startSession: vi.fn(async () => 'new-session'),
     sendSessionMessage: vi.fn(async () => {}),
     openSession: vi.fn(),
     clearSession: vi.fn(),
-    archiveSession: vi.fn(async () => {}),
+    recycleBin: {
+      preview: vi.fn(async target => ({ ...target, title: target.kind === 'project' ? '产品' : '产品方案', projectTitle: '产品', sessionCount: 1, fileCount: 6, bytes: 100, revision: 'checked' })),
+      remove: vi.fn(async () => ({ id: 'recycled' })),
+      list: vi.fn(async () => ({ items: [] })),
+      restore: vi.fn(async () => ({ workspaceId: 'product' })),
+      purge: vi.fn(async () => ({})),
+      refresh: vi.fn(),
+    },
     renameSession: vi.fn(async () => {}),
     saveTaskAttachments: vi.fn(async input => {
       const taskKey = input.demand.trim() || '附件主题'
@@ -116,7 +126,13 @@ function actions(overrides: Partial<WorkspaceShellActions> = {}): WorkspaceShell
       judge: { path: '.promax/judge/产品方案/judge.md', memberId: 'quality_judge' as const, state: 'pass' as const, exists: true, nonEmpty: true },
       observedAt: '2026-09-03T12:03:00.000Z',
     }]),
-    openTaskFolder: vi.fn(async input => ({ path: `${input.projectPath}/deliverables/${input.taskKey}` })),
+    listProjectFiles: vi.fn(async input => {
+      const keys = readTeamState().sessionBindings.map(binding => binding.taskKey).filter((key): key is string => key !== undefined)
+      const paths = input.relativePath === '' ? ['输入', 'deliverables', '.promax'] : input.relativePath === 'deliverables' ? [...keys, '其他会话'] : ['prd.md']
+      return { relativePath: input.relativePath, truncated: false, items: paths.map(name => ({ name, relativePath: [input.relativePath, name].filter(Boolean).join('/'), kind: name.endsWith('.md') ? 'file' as const : 'directory' as const })) }
+    }),
+    readProjectFile: vi.fn(async input => ({ relativePath: input.relativePath, kind: 'markdown' as const, content: '# 本次产物\n正文' })),
+    revealProjectFile: vi.fn(async () => {}),
     stopTeamTask: vi.fn(async input => ({ state: 'cancelled' as const, runEpoch: input.runEpoch })),
     teamRoutingAvailable: true,
     ...overrides,
@@ -126,8 +142,52 @@ function actions(overrides: Partial<WorkspaceShellActions> = {}): WorkspaceShell
 const layout = { toggleSidebar: vi.fn(), openDetails: vi.fn(), closeDetails: vi.fn() }
 
 describe('Promax direct-demand shell', () => {
+  it('unifies project browsing and current-session preview without leaving the project tree', async () => {
+    bindTeamSession({ sessionId: 'product-session', teamId: PRODUCT_TEAM_ID, revision: 1, presetId: PRODUCT_PRESET_ID, workspaceId: 'product', sessionName: '预览验收', taskKey: '预览验收', dispatchPlanId: 'preview-plan', dispatchState: 'running', dispatchDemand: '预览验收', dispatchAttachmentPaths: [], confirmedMemberIds: ['solution_design', 'quality_judge'] })
+    selectTeamSession(PRODUCT_TEAM_ID, 'product-session', 'product')
+    const defaults = actions()
+    const shellActions = actions({
+      readTaskRunFiles: vi.fn(async input => ({ ...await defaults.readTaskRunFiles(input), deliverableFiles: [{ name: 'prd.md', relativePath: 'prd.md', path: `deliverables/${input.taskKey}/prd.md`, bytes: 20, modifiedAt: new Date().toISOString() }] })),
+      readProjectFile: vi.fn(async input => ({ relativePath: input.relativePath, kind: 'markdown' as const, content: '# 验收预览\n\n| 名称 | 结果 |\n|---|---|\n| 文件 | 正确 |\n\n<script>window.bad=1</script>' })),
+    })
+    render(<div className="app-shell"><PromaxSessionBrowser useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} /><PromaxWorkspaceOverlay useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} layout={layout} /><PromaxDetailsSidebar useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} layout={layout} /></div>)
+    fireEvent.click(screen.getByRole('button', { name: '项目文件' }))
+    expect(await screen.findByRole('navigation', { name: '项目目录树' })).toBeVisible()
+    expect(shellActions.revealProjectFile).not.toHaveBeenCalled()
+    const outputs = screen.getByRole('region', { name: '本次产物' })
+    fireEvent.click(await within(outputs).findByRole('button', { name: '查看产物 prd.md' }))
+    const iframe = await screen.findByTitle('预览 prd.md')
+    expect(shellActions.readProjectFile).toHaveBeenCalledWith({ workspaceId: 'product', relativePath: 'deliverables/预览验收/prd.md' })
+    expect(iframe).toHaveAttribute('sandbox', '')
+    expect(iframe.getAttribute('srcdoc')).toContain('<table>')
+    expect(iframe.getAttribute('srcdoc')).not.toContain('<script>')
+    expect(screen.getByRole('tab', { name: '项目文件' })).toHaveAttribute('aria-selected', 'true')
+    fireEvent.click(screen.getByRole('button', { name: '返回文件列表' }))
+    expect(screen.queryByTitle('预览 prd.md')).not.toBeInTheDocument()
+    fireEvent.click(within(outputs).getByRole('button', { name: '在项目中定位' }))
+    expect(await screen.findByText('当前会话的产物目录')).toBeVisible()
+    expect(screen.getByRole('button', { name: '其他会话' })).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: '其他会话' }))
+    const otherFolder = within(screen.getByRole('navigation', { name: '项目目录树' })).getByRole('button', { name: '其他会话' }).closest('li')!
+    fireEvent.click(await within(otherFolder).findByRole('button', { name: 'prd.md' }))
+    await waitFor(() => { expect(shellActions.readProjectFile).toHaveBeenCalledWith({ workspaceId: 'product', relativePath: 'deliverables/其他会话/prd.md' }) })
+    fireEvent.click(screen.getByRole('button', { name: '刷新' }))
+    await waitFor(() => { expect(within(screen.getByRole('navigation', { name: '项目目录树' })).getByRole('button', { name: '其他会话' })).toHaveAttribute('aria-expanded', 'true') })
+    expect(await within(otherFolder).findByRole('button', { name: 'prd.md' })).toHaveAttribute('aria-current', 'location')
+    expect(screen.getByRole('navigation', { name: '项目目录树' })).toBeVisible()
+    expect(readTeamState().selected).toMatchObject({ sessionId: 'product-session', workspaceId: 'product' })
+    fireEvent.click(within(outputs).getByRole('button', { name: '在项目中定位' }))
+    expect(await screen.findByText('当前会话的产物目录')).toBeVisible()
+  })
+
   beforeEach(() => {
+    document.querySelector('meta[name="promax-projects"]')?.remove()
+    const configuration = document.createElement('meta')
+    configuration.name = 'promax-projects'
+    configuration.content = encodeURIComponent(JSON.stringify({ root: '/tmp/Promax', defaultWorkspaceId: 'product' }))
+    document.head.append(configuration)
     window.localStorage.clear()
+    window.sessionStorage.clear()
     resetTeamStateForTests()
     syncProductTeamRuntimeRoster({
       presetId: PRODUCT_PRESET_ID,
@@ -141,41 +201,155 @@ describe('Promax direct-demand shell', () => {
     delete sessionState.byId['product-session-2']
   })
 
-  it('shows one flat demand list and hides unrelated workspaces', async () => {
+  it('groups demand records under collapsible projects and hides unrelated workspaces', async () => {
     render(<PromaxSessionBrowser useWorkspaces={useWorkspaces} useSessions={useSessions} {...actions()} />)
 
     expect(screen.getByRole('button', { name: '新需求' })).toBeVisible()
-    expect(screen.getByRole('heading', { name: '需求记录' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: '项目' })).toBeVisible()
     expect(await screen.findByText('产品方案')).toBeVisible()
     expect(screen.getByText(/已完成 · 0 个文件/u)).toBeVisible()
     expect(screen.queryByText('通用记录')).not.toBeInTheDocument()
     expect(screen.queryByText('smoke 残留')).not.toBeInTheDocument()
     expect(screen.queryByText('新建草稿')).not.toBeInTheDocument()
     expect(screen.queryByText('团队总览')).not.toBeInTheDocument()
-    expect(screen.queryByText('项目')).not.toBeInTheDocument()
+    expect(screen.queryByRole('combobox', { name: '当前项目' })).not.toBeInTheDocument()
+    const project = screen.getByRole('button', { name: '产品' })
+    expect(project).toHaveAttribute('aria-expanded', 'true')
+    fireEvent.click(project)
+    expect(project).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByText('产品方案')).not.toBeInTheDocument()
+    fireEvent.click(project)
+    expect(await screen.findByText('产品方案')).toBeVisible()
   })
 
-  it('opens an existing demand directly from the flat list', async () => {
+  it('switches disk history and new demand scope without exposing the previous project while loading', async () => {
+    const second = { workspaceId: 'second', path: '/tmp/Promax/隔离项目', title: '隔离项目', sessionIds: ['second-session'] }
+    const projects = { ...workspaceState, items: [...workspaceState.items, second] }
+    const sessions = { ...sessionState, ids: [...sessionState.ids, 'second-session'], byId: { ...sessionState.byId, 'second-session': { ...sessionState.byId['product-session']!, id: 'second-session', displayTitle: '独立需求' } } }
+    const finishReads: Array<(items: Awaited<ReturnType<WorkspaceShellActions['readTaskHistory']>>) => void> = []
+    const shellActions = actions({
+      createProject: vi.fn(async () => second),
+      readTaskHistory: vi.fn<WorkspaceShellActions['readTaskHistory']>(input => input.workspaceId === 'second' ? new Promise(resolve => { finishReads.push(resolve) }) : actions().readTaskHistory(input)),
+    })
+    render(<><PromaxSessionBrowser useWorkspaces={selector => selector(projects)} useSessions={selector => selector(sessions)} {...shellActions} /><PromaxWorkspaceOverlay useWorkspaces={selector => selector(projects)} useSessions={selector => selector(sessions)} {...shellActions} layout={layout} /></>)
+    expect(await within(screen.getByRole('navigation')).findByText('产品方案')).toBeVisible()
+    fireEvent.change(screen.getByRole('textbox', { name: '需求输入' }), { target: { value: '第一项目未发送内容' } })
+    const secondProject = screen.getByRole('region', { name: '隔离项目项目' })
+    expect(within(secondProject).getByRole('button', { name: '隔离项目' })).toHaveAttribute('aria-expanded', 'false')
+    expect(shellActions.readTaskHistory).not.toHaveBeenCalledWith({ workspaceId: 'second', projectPath: second.path })
+    fireEvent.click(within(secondProject).getByRole('button', { name: '隔离项目' }))
+    expect(within(secondProject).queryByText('产品方案')).not.toBeInTheDocument()
+    expect(within(secondProject).getByRole('status')).toHaveTextContent('正在读取磁盘记录')
+    expect(within(screen.getByRole('region', { name: '产品项目' })).getByText('产品方案')).toBeVisible()
+    expect(within(screen.getByRole('complementary', { name: '最近产出' })).queryByText('产品方案')).not.toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: '需求输入' })).toHaveValue('')
+    expect(readTeamState().selected).toMatchObject({ workspaceId: 'second', view: 'home' })
+    const records = await actions().readTaskHistory({ workspaceId: 'second', projectPath: second.path })
+    await act(async () => { finishReads.forEach(finish => finish(records.map(item => ({ ...item, sessionId: 'second-session', taskKey: '独立需求' })))) })
+    expect(within(screen.getByRole('navigation')).getByText('独立需求')).toBeVisible()
+    expect(within(secondProject).queryByText('产品方案')).not.toBeInTheDocument()
+    expect(shellActions.readTaskHistory).toHaveBeenCalledWith({ workspaceId: 'second', projectPath: second.path })
+    fireEvent.change(screen.getByRole('textbox', { name: '需求输入' }), { target: { value: '隔离新需求' } })
+    fireEvent.click(screen.getByRole('button', { name: '生成计划' }))
+    await waitFor(() => { expect(shellActions.saveTaskAttachments).toHaveBeenCalledWith(expect.objectContaining({ workspaceId: 'second', projectPath: second.path, demand: '隔离新需求' })) })
+    fireEvent.click(screen.getByRole('button', { name: '新建项目' }))
+    fireEvent.change(screen.getByRole('textbox', { name: '项目名称' }), { target: { value: '隔离项目' } })
+    fireEvent.click(screen.getByRole('button', { name: '创建项目' }))
+    await waitFor(() => { expect(shellActions.createProject).toHaveBeenCalledWith('隔离项目') })
+  })
+
+  it('uses GUI names without changing preset names and falls back for future members', () => {
+    expect(memberDisplayName('team_lead', '主智能体')).toBe('团队协调员')
+    expect(members.map(([id, name]) => memberDisplayName(id, name))).toEqual([
+      '客户研究员', '竞品分析师', '需求管理员', '方案设计师', '需求评审员', '数据分析师', '质量审核',
+    ])
+    expect(memberDisplayName('future_worker', '新成员显示名')).toBe('新成员显示名')
+    expect(memberDisplayName('constructor', '自定义成员')).toBe('自定义成员')
+    expect(readTeamState().teams.find(team => team.id === PRODUCT_TEAM_ID)?.members[0]?.displayName).toBe('客研管理智能体')
+  })
+
+  it('does not advertise Judge merely because the team roster contains it', async () => {
+    bindTeamSession({
+      sessionId: 'product-session', teamId: PRODUCT_TEAM_ID, revision: 1, presetId: PRODUCT_PRESET_ID,
+      workspaceId: 'product', sessionName: '无审核安排', taskKey: '无审核安排', dispatchPlanId: 'no-judge',
+      dispatchState: 'running', dispatchDemand: '研究', dispatchAttachmentPaths: [], confirmedMemberIds: ['customer_research'],
+    })
+    selectTeamSession(PRODUCT_TEAM_ID, 'product-session', 'product')
+    render(<PromaxWorkspaceOverlay useWorkspaces={useWorkspaces} useSessions={useSessions} {...actions({ readTaskRunFiles: vi.fn(() => new Promise<Awaited<ReturnType<WorkspaceShellActions['readTaskRunFiles']>>>(() => {})) })} layout={layout} />)
+    expect(await screen.findByText('客户研究员')).toBeVisible()
+    expect(screen.queryByText('质量审核已开启')).not.toBeInTheDocument()
+    expect(document.querySelectorAll('.agent-card')).toHaveLength(1)
+  })
+
+  it('restores the native session behind a persisted task selection', async () => {
+    bindTeamSession({ sessionId: 'product-session', teamId: PRODUCT_TEAM_ID, revision: 1, presetId: PRODUCT_PRESET_ID, workspaceId: 'product', sessionName: '产品方案', taskKey: '产品方案', dispatchState: 'running', confirmedMemberIds: ['solution_design', 'quality_judge'] })
+    selectTeamSession(PRODUCT_TEAM_ID, 'product-session', 'product')
+    const shellActions = actions()
+    render(<PromaxWorkspaceOverlay useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} layout={layout} />)
+    await waitFor(() => { expect(shellActions.openSession).toHaveBeenCalledWith('product-session') })
+  })
+
+  it('opens an existing demand and preserves selection when its project is collapsed', async () => {
     const shellActions = actions()
     render(<PromaxSessionBrowser useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} />)
 
     fireEvent.click(await screen.findByText('产品方案'))
     expect(shellActions.openSession).toHaveBeenCalledWith('product-session')
+    fireEvent.click(screen.getByRole('button', { name: '产品' }))
+    expect(readTeamState().selected).toMatchObject({ workspaceId: 'product', sessionId: 'product-session', view: 'session' })
+    expect(shellActions.clearSession).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: '在产品中新建需求' }))
+    expect(readTeamState().selected).toMatchObject({ workspaceId: 'product', view: 'home' })
+    expect(screen.getByRole('button', { name: '产品' })).toHaveAttribute('aria-expanded', 'true')
   })
 
-  it('requires confirmation before hiding a record and leaves disk files untouched', async () => {
+  it('confirms the server deletion scope, clears the selected session and offers undo', async () => {
     const shellActions = actions()
+    sessionState.current = 'product-session'
+    selectTeamSession(PRODUCT_TEAM_ID, 'product-session', 'product')
     render(<PromaxSessionBrowser useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} />)
-
     await screen.findByText('产品方案')
     fireEvent.click(screen.getByRole('button', { name: '会话操作：产品方案' }))
-    fireEvent.click(screen.getByRole('menuitem', { name: '隐藏记录' }))
-    expect(screen.getByRole('heading', { name: '隐藏这条记录？' })).toBeVisible()
-    expect(screen.getByText(/磁盘里的 `deliverables\/产品方案\/`、冻结输入和 Judge 报告都不会删除/u)).toBeVisible()
-    fireEvent.click(screen.getByRole('button', { name: '确认隐藏' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: '删除会话' }))
+    expect(await screen.findByText('“产品方案”包含 1 个会话、6 个文件。')).toBeVisible()
+    expect(shellActions.recycleBin.remove).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: '移入回收站' }))
+    await waitFor(() => { expect(shellActions.recycleBin.remove).toHaveBeenCalledWith(expect.objectContaining({ workspaceId: 'product', sessionId: 'product-session', revision: 'checked' })) })
+    expect(shellActions.clearSession).toHaveBeenCalled()
+    expect(readTeamState().selected).toMatchObject({ workspaceId: 'product', view: 'home' })
+    fireEvent.click(await screen.findByRole('button', { name: '撤销' }))
+    await waitFor(() => { expect(shellActions.recycleBin.restore).toHaveBeenCalledWith('recycled') })
+  })
 
-    await waitFor(() => { expect(shellActions.archiveSession).toHaveBeenCalledWith('product-session') })
-    expect(await screen.findByText('已隐藏“产品方案”；磁盘文件未删除')).toBeVisible()
+  it('exposes project deletion and blocks confirmation when the backend reports running work', async () => {
+    const shellActions = actions()
+    shellActions.recycleBin.preview = vi.fn(async () => { throw new Error('有任务正在运行，请先停止任务再删除') })
+    render(<PromaxSessionBrowser useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} />)
+    fireEvent.click(screen.getByRole('button', { name: '项目操作：产品' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: '删除项目' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('请先停止任务再删除')
+    expect(screen.getByRole('button', { name: '移入回收站' })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: '取消' }))
+    expect(shellActions.recycleBin.remove).not.toHaveBeenCalled()
+  })
+
+  it('offers restore and requires a second confirmation for permanent deletion in the recycle bin', async () => {
+    const shellActions = actions()
+    const entry = { kind: 'project' as const, workspaceId: 'product', title: '产品', projectTitle: '产品', sessionCount: 1, fileCount: 6, bytes: 100, revision: 'checked', id: 'trash-one', deletedAt: '2026-09-05T12:00:00Z' }
+    shellActions.recycleBin.list = vi.fn(async () => ({ items: [entry] }))
+    render(<PromaxLeftSidebar useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} layout={layout} />)
+    fireEvent.click(screen.getByRole('button', { name: '回收站' }))
+    fireEvent.click(await screen.findByRole('button', { name: '永久删除' }))
+    expect(screen.getByRole('button', { name: '关闭回收站' })).toHaveFocus()
+    expect(screen.getByText(/永久删除后无法恢复/u)).toBeVisible()
+    expect(shellActions.recycleBin.purge).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: '取消' }))
+    fireEvent.click(screen.getByRole('button', { name: '恢复' }))
+    await waitFor(() => { expect(shellActions.recycleBin.restore).toHaveBeenCalledWith('trash-one') })
+    fireEvent.click(screen.getByRole('button', { name: '永久删除' }))
+    fireEvent.click(screen.getByRole('button', { name: '确认永久删除' }))
+    await waitFor(() => { expect(shellActions.recycleBin.purge).toHaveBeenCalledWith('trash-one') })
+    expect(await screen.findByText('回收站为空')).toBeVisible()
   })
 
   it('renders the root as a single demand input with one start action and the latest disk output', async () => {
@@ -183,7 +357,7 @@ describe('Promax direct-demand shell', () => {
 
     expect(screen.getAllByRole('textbox')).toHaveLength(1)
     expect(screen.getByRole('textbox', { name: '需求输入' })).toBeVisible()
-    expect(screen.getAllByRole('button', { name: '开始' })).toHaveLength(1)
+    expect(screen.getAllByRole('button', { name: '生成计划' })).toHaveLength(1)
     expect(screen.queryByText(/工作目录：/u)).not.toBeInTheDocument()
     expect(await screen.findByRole('heading', { name: '产品方案' })).toBeVisible()
     expect(screen.getByText('最近一次的产出')).toBeVisible()
@@ -206,7 +380,7 @@ describe('Promax direct-demand shell', () => {
     render(<div className="app-shell"><PromaxWorkspaceOverlay useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} layout={layout} detailsOpen /></div>)
 
     fireEvent.change(screen.getByRole('textbox', { name: '需求输入' }), { target: { value: '为移动端设计登录流程' } })
-    fireEvent.click(screen.getByRole('button', { name: '开始' }))
+    fireEvent.click(screen.getByRole('button', { name: '生成计划' }))
 
     await waitFor(() => {
       expect(shellActions.startSession).toHaveBeenCalledWith('product', PRODUCT_PRESET_ID)
@@ -251,7 +425,7 @@ describe('Promax direct-demand shell', () => {
 
     fireEvent.change(fileInput!, { target: { files: [file] } })
     fireEvent.change(screen.getByRole('textbox', { name: '需求输入' }), { target: { value: '分析这份资料' } })
-    fireEvent.click(screen.getByRole('button', { name: '开始' }))
+    fireEvent.click(screen.getByRole('button', { name: '生成计划' }))
 
     await waitFor(() => {
       expect(shellActions.saveTaskAttachments).toHaveBeenCalledWith(expect.objectContaining({
@@ -283,7 +457,7 @@ describe('Promax direct-demand shell', () => {
     const fileInput = document.querySelector<HTMLInputElement>('input[type="file"]')!
 
     fireEvent.change(fileInput, { target: { files: [file] } })
-    fireEvent.click(screen.getByRole('button', { name: '开始' }))
+    fireEvent.click(screen.getByRole('button', { name: '生成计划' }))
 
     await waitFor(() => {
       expect(shellActions.renameSession).toHaveBeenCalledWith('new-session', '会员续费提醒关闭入口')
@@ -306,7 +480,7 @@ describe('Promax direct-demand shell', () => {
     expect(screen.getByRole('button', { name: 'brief.txt ×' })).toBeVisible()
     expect(screen.getByRole('button', { name: 'brief（2）.txt ×' })).toBeVisible()
     fireEvent.change(screen.getByRole('textbox', { name: '需求输入' }), { target: { value: '分析两个文件' } })
-    fireEvent.click(screen.getByRole('button', { name: '开始' }))
+    fireEvent.click(screen.getByRole('button', { name: '生成计划' }))
 
     await waitFor(() => {
       expect(shellActions.saveTaskAttachments).toHaveBeenCalledWith(expect.objectContaining({
@@ -323,7 +497,7 @@ describe('Promax direct-demand shell', () => {
     fireEvent.change(fileInput, { target: { files: [new File(['binary'], 'setup.exe')] } })
 
     expect(screen.getByRole('alert')).toHaveTextContent('不支持文件“setup.exe”。支持的格式：')
-    expect(screen.getByRole('button', { name: '开始' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '生成计划' })).toBeDisabled()
     expect(shellActions.saveTaskAttachments).not.toHaveBeenCalled()
   })
 
@@ -336,7 +510,7 @@ describe('Promax direct-demand shell', () => {
     fireEvent.change(fileInput, { target: { files: [oversized] } })
 
     expect(screen.getByRole('alert')).toHaveTextContent('附件总大小不能超过 20 MiB，请移除部分文件后重试')
-    expect(screen.getByRole('button', { name: '开始' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '生成计划' })).toBeDisabled()
     expect(shellActions.saveTaskAttachments).not.toHaveBeenCalled()
   })
 
@@ -361,7 +535,7 @@ describe('Promax direct-demand shell', () => {
     const planRows = members.map(([memberId], index) => ({
       member_id: memberId,
       selected: memberId === 'solution_design' || memberId === 'quality_judge',
-      reason: memberId === 'solution_design' ? '需要把登录流程整理成可执行的产品需求。' : memberId === 'quality_judge' ? '需要独立检查 PRD 是否满足本次目标。' : `本次输入没有提供需要 ${memberId} 处理的材料。`,
+      reason: memberId === 'solution_design' ? '需要把登录流程整理成可执行的产品需求。' : memberId === 'quality_judge' ? '需要独立检查 PRD 是否满足本次目标。文件名 customer_research.md 保持原样。' : `本次输入没有提供需要 ${memberId} 处理的材料。`,
       deliverables: memberId === 'solution_design'
         ? ['deliverables/登录流程/prd.md']
         : artifacts.filter(([owner]) => owner === memberId).map(([, path]) => path.replaceAll('{task_key}', '登录流程')),
@@ -382,15 +556,21 @@ describe('Promax direct-demand shell', () => {
     expect(await screen.findByRole('heading', { name: '这次打算怎么干' })).toBeVisible()
     expect(screen.getByText('我看这是一份移动端产品功能需求。')).toBeVisible()
     expect(screen.getByRole('heading', { name: '打算叫 2 个人' })).toBeVisible()
+    expect(screen.getByText('方案设计师')).toBeVisible()
+    expect(screen.getByText('本次输入没有提供需要 客户研究员 处理的材料。')).toBeVisible()
+    expect(screen.queryByText(/需要 customer_research 处理/u)).not.toBeInTheDocument()
+    expect(screen.getByText('需要独立检查 PRD 是否满足本次目标。文件名 customer_research.md 保持原样。')).toBeVisible()
     expect(shellActions.confirmDispatchPlan).not.toHaveBeenCalled()
-    fireEvent.click(screen.getByRole('button', { name: '打开产物文件夹' }))
-    await waitFor(() => { expect(shellActions.openTaskFolder).toHaveBeenCalledWith({ workspaceId: 'product', projectPath: '/tmp/Promax/产品', sessionId: 'product-session', taskKey: '登录流程' }) })
+    expect(screen.queryByRole('button', { name: '打开产物目录' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('tab', { name: '项目文件' }))
+    expect(await screen.findByRole('navigation', { name: '项目目录树' })).toBeVisible()
+    fireEvent.click(screen.getByRole('tab', { name: '工作台' }))
 
     fireEvent.click(screen.getByRole('button', { name: '我要改' }))
     expect(screen.getByRole('dialog', { name: '选择本次参与的员工' })).toBeVisible()
     expect(screen.getByRole('button', { name: '关闭员工选择' })).toHaveFocus()
     expect(document.body.style.overflow).toBe('hidden')
-    const judge = screen.getByRole('checkbox', { name: /独立 Judge/u })
+    const judge = screen.getByRole('checkbox', { name: /质量审核/u })
     expect(judge).toBeChecked()
     expect(judge).toBeDisabled()
     fireEvent.click(judge)
@@ -403,6 +583,7 @@ describe('Promax direct-demand shell', () => {
         sessionId: 'product-session',
         planId: 'dispatch-plan-1',
         confirmedMemberIds: ['solution_design', 'quality_judge'],
+        plan: expect.objectContaining({ planId: 'dispatch-plan-1', protocol: 'promax.dispatch-plan/v1' }),
         artifacts: [
           { path: 'deliverables/登录流程/prd.md', memberId: 'solution_design' },
           { path: '.promax/judge/登录流程/judge.md', memberId: 'quality_judge' },
@@ -495,6 +676,133 @@ describe('Promax direct-demand shell', () => {
     expect(manualSelection).toBeDisabled()
   })
 
+  describe('dispatch countdown', () => {
+    beforeEach(() => { vi.useFakeTimers() })
+    afterEach(() => { vi.useRealTimers() })
+
+    async function showPlan(options: { running?: boolean; failed?: boolean; rejectConfirmation?: boolean; businessIds?: string[]; omitSkippedFiles?: boolean } = {}) {
+      bindTeamSession({
+        sessionId: 'product-session', teamId: PRODUCT_TEAM_ID, revision: 1, presetId: PRODUCT_PRESET_ID,
+        workspaceId: 'product', sessionName: '登录流程', taskKey: '登录流程', dispatchPlanId: 'dispatch-countdown',
+        dispatchState: 'planning', dispatchDemand: '设计登录流程', dispatchAttachmentPaths: [],
+      })
+      selectTeamSession(PRODUCT_TEAM_ID, 'product-session', 'product')
+      const selected = [...(options.businessIds ?? ['customer_research', 'solution_design']), 'quality_judge']
+      const text = `PROMAX_DISPATCH_PLAN_V1_START\n${JSON.stringify({
+        protocol: 'promax.dispatch-plan/v1', plan_id: 'dispatch-countdown', assessment: '根据客户材料设计登录流程。',
+        members: members.map(([memberId]) => ({
+          member_id: memberId, selected: selected.includes(memberId), reason: `本次对 ${memberId} 的具体判断。`,
+          deliverables: options.omitSkippedFiles && !selected.includes(memberId) ? undefined : artifacts.filter(([owner]) => owner === memberId).slice(0, 1).map(([, path]) => path.replaceAll('{task_key}', '登录流程')),
+        })),
+      })}\nPROMAX_DISPATCH_PLAN_V1_END`
+      const snapshot = {
+        nodes: [{ kind: 'assistant', turn: 1, messageId: 'countdown-plan', blocks: [{ kind: 'text', text: options.failed ? '计划生成失败' : text }] }],
+        turnTimings: new Map([[1, { startTime: 1, endTime: 2 }]]), running: options.running ?? false,
+      }
+      const shellActions = actions(options.rejectConfirmation ? { confirmDispatchPlan: vi.fn(async () => { throw new Error('计划校验拒绝确认') }) } : {})
+      const content = () => <div className="app-shell">
+        <PromaxTeamSessionHeader sessionId="product-session" useSession={selector => selector(snapshot)} />
+        <PromaxWorkspaceOverlay useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} layout={layout} detailsOpen />
+      </div>
+      let view: ReturnType<typeof render>
+      await act(async () => { view = render(content()) })
+      return {
+        shellActions, snapshot,
+        rerender: async () => { await act(async () => { view!.rerender(content()) }) },
+        remount: async () => { await act(async () => { view!.unmount() }); await act(async () => { view = render(content()) }) },
+      }
+    }
+
+    it('waits for generation to finish, displays every second, then confirms the model roster exactly once', async () => {
+      const { shellActions, snapshot, rerender } = await showPlan({ running: true })
+      await act(async () => { await vi.advanceTimersByTimeAsync(21_000) })
+      expect(screen.queryByText(/秒后自动开始/u)).not.toBeInTheDocument()
+      expect(shellActions.confirmDispatchPlan).not.toHaveBeenCalled()
+      snapshot.running = false
+      await rerender()
+      for (let remaining = 20; remaining >= 1; remaining -= 1) {
+        expect(screen.getByText(`${remaining} 秒后自动开始`)).toBeVisible()
+        expect(shellActions.confirmDispatchPlan).not.toHaveBeenCalled()
+        // Equivalent transcript updates must not reset the twenty-second window.
+        snapshot.nodes = [...snapshot.nodes]
+        await rerender()
+        await act(async () => { await vi.advanceTimersByTimeAsync(1_000) })
+      }
+      expect(shellActions.confirmDispatchPlan).toHaveBeenCalledTimes(1)
+      expect(shellActions.confirmDispatchPlan).toHaveBeenCalledWith(expect.objectContaining({ confirmedMemberIds: ['customer_research', 'solution_design', 'quality_judge'] }))
+      expect(shellActions.sendSessionMessage).toHaveBeenCalledTimes(1)
+      await act(async () => { await vi.advanceTimersByTimeAsync(10_000) })
+      expect(shellActions.confirmDispatchPlan).toHaveBeenCalledTimes(1)
+    })
+
+    it('starts immediately during the countdown without a second execution at the deadline', async () => {
+      const { shellActions } = await showPlan()
+      await act(async () => { await vi.advanceTimersByTimeAsync(1_000) })
+      expect(screen.getByText('19 秒后自动开始')).toBeVisible()
+      await act(async () => { fireEvent.click(screen.getByRole('button', { name: '立即开始' })) })
+      expect(shellActions.confirmDispatchPlan).toHaveBeenCalledTimes(1)
+      await act(async () => { await vi.advanceTimersByTimeAsync(21_000) })
+      expect(shellActions.sendSessionMessage).toHaveBeenCalledTimes(1)
+    })
+
+    it('cancels permanently on edit, stays stopped after closing, and executes only the edited roster', async () => {
+      const { shellActions, snapshot, rerender, remount } = await showPlan()
+      await act(async () => { await vi.advanceTimersByTimeAsync(4_000) })
+      fireEvent.click(screen.getByRole('button', { name: '我要改' }))
+      expect(screen.getByRole('dialog', { name: '选择本次参与的员工' })).toBeVisible()
+      expect(screen.queryByText(/秒后自动开始/u)).not.toBeInTheDocument()
+      await act(async () => { await vi.advanceTimersByTimeAsync(21_000) })
+      expect(shellActions.confirmDispatchPlan).not.toHaveBeenCalled()
+      fireEvent.click(screen.getByRole('button', { name: '关闭员工选择' }))
+      snapshot.nodes = [...snapshot.nodes]
+      await rerender()
+      await remount()
+      expect(screen.getByText('自动开始已取消，等待你确认')).toBeVisible()
+      await act(async () => { await vi.advanceTimersByTimeAsync(21_000) })
+      expect(shellActions.confirmDispatchPlan).not.toHaveBeenCalled()
+      fireEvent.click(screen.getByRole('button', { name: '我要改' }))
+      fireEvent.click(screen.getByRole('checkbox', { name: /客户研究员/u }))
+      await act(async () => { fireEvent.click(screen.getByRole('button', { name: '按这个名单跑（2）' })) })
+      expect(shellActions.confirmDispatchPlan).toHaveBeenCalledWith(expect.objectContaining({ confirmedMemberIds: ['solution_design', 'quality_judge'] }))
+      const execution = vi.mocked(shellActions.sendSessionMessage).mock.calls[0]![1]
+      expect(execution).not.toContain('customer_research')
+      expect(execution).toContain('"solution_design"')
+    })
+
+    it('never counts down a failed plan and keeps retry available', async () => {
+      const { shellActions } = await showPlan({ failed: true })
+      expect(screen.getByRole('heading', { name: '这次计划没有生成成功' })).toBeVisible()
+      expect(screen.getByRole('button', { name: '重新判断' })).toBeEnabled()
+      await act(async () => { await vi.advanceTimersByTimeAsync(30_000) })
+      expect(screen.queryByText(/秒后自动开始/u)).not.toBeInTheDocument()
+      expect(shellActions.confirmDispatchPlan).not.toHaveBeenCalled()
+      await act(async () => { fireEvent.click(screen.getByRole('button', { name: '重新判断' })) })
+      expect(shellActions.sendSessionMessage).toHaveBeenCalledWith('product-session', expect.stringContaining('PROMAX_DISPATCH_PLAN_V1_START'))
+    })
+
+    it('guides a text-only zero-business plan with omitted worker files without auto-confirming', async () => {
+      const empty = await showPlan({ businessIds: [], omitSkippedFiles: true })
+      await act(async () => { await vi.advanceTimersByTimeAsync(21_000) })
+      expect(screen.getByText('暂未派单')).toBeVisible()
+      expect(screen.getByRole('heading', { name: '你想让团队帮你做什么？' })).toBeVisible()
+      expect(screen.getByRole('textbox', { name: '补充任务目标' })).toBeVisible()
+      expect(screen.queryByText('你希望怎么分析这份文档？')).not.toBeInTheDocument()
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+      expect(screen.queryByText(/秒后自动开始/u)).not.toBeInTheDocument()
+      expect(empty.shellActions.confirmDispatchPlan).not.toHaveBeenCalled()
+      expect(empty.shellActions.sendSessionMessage).not.toHaveBeenCalled()
+    })
+
+    it('surfaces a rejected confirmation without sending execution or automatically retrying', async () => {
+      const { shellActions } = await showPlan({ rejectConfirmation: true })
+      await act(async () => { await vi.advanceTimersByTimeAsync(20_000) })
+      expect(screen.getByRole('alert')).toHaveTextContent('计划校验拒绝确认')
+      await act(async () => { await vi.advanceTimersByTimeAsync(10_000) })
+      expect(shellActions.confirmDispatchPlan).toHaveBeenCalledTimes(1)
+      expect(shellActions.sendSessionMessage).not.toHaveBeenCalled()
+    })
+  })
+
   it('does not infer member progress from transcript tool calls when the file is missing', async () => {
     bindTeamSession({
       sessionId: 'product-session',
@@ -523,9 +831,14 @@ describe('Promax direct-demand shell', () => {
       <PromaxWorkspaceOverlay useWorkspaces={useWorkspaces} useSessions={useSessions} {...actions()} layout={layout} detailsOpen />
     </div>)
 
-    const solutionCard = (await screen.findByText('solution_design')).closest('article')
+    const solutionCard = (await screen.findByText('方案设计师')).closest('article')
     expect(solutionCard).not.toBeNull()
-    expect(within(solutionCard!).getByText('未生成')).toBeVisible()
+    expect(await screen.findByText('0 / 1 就绪')).toBeVisible()
+    expect(within(solutionCard!).getByText('待生成')).toBeVisible()
+    expect(within(solutionCard!).queryByText('已完成')).not.toBeInTheDocument()
+    expect(document.querySelectorAll('.agent-card')).toHaveLength(2)
+    expect(screen.getByText('质量审核')).toBeVisible()
+    expect(screen.queryByText('quality_judge')).not.toBeInTheDocument()
     expect(screen.queryByText('customer_research')).not.toBeInTheDocument()
     expect(screen.getByText('0 / 1 就绪')).toBeVisible()
   })
@@ -610,19 +923,23 @@ describe('Promax direct-demand shell', () => {
       <PromaxWorkspaceOverlay useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} layout={layout} detailsOpen />
     </div>)
 
-    expect(await screen.findByText('团队成员')).toBeVisible()
-    expect(screen.getByText('solution_design')).toBeVisible()
+    expect(await screen.findByText('成员分工')).toBeVisible()
+    expect(screen.getByText('方案设计师')).toBeVisible()
+    expect(screen.getByText('2 位成员参与')).toBeVisible()
+    expect(screen.getByText('质量审核')).toBeVisible()
+    expect(document.querySelectorAll('.agent-card')).toHaveLength(2)
+    expect(screen.queryByText('solution_design')).not.toBeInTheDocument()
     expect(screen.getByText('1 / 1 就绪')).toBeVisible()
-    expect(screen.getByLabelText('产出目录：/tmp/Promax/产品/deliverables/续费提醒')).toBeVisible()
-    expect(screen.queryByRole('heading', { name: '跑完了。1 个文件。' })).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('tab', { name: '交付物' }))
-    expect(await screen.findByRole('heading', { name: '跑完了。1 个文件。' })).toBeVisible()
-    expect(screen.getByText('prd.md')).toBeVisible()
-    expect(screen.getByText('✓ 判定通过')).toBeVisible()
-    expect(screen.queryByText('judge.md')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /打开文件夹/u }))
-    await waitFor(() => { expect(shellActions.openTaskFolder).toHaveBeenCalledWith({ workspaceId: 'product', projectPath: '/tmp/Promax/产品', sessionId: 'product-session', taskKey: '续费提醒' }) })
-    expect(await screen.findByText('已在系统文件管理器打开：/tmp/Promax/产品/deliverables/续费提醒')).toBeVisible()
+    fireEvent.click(screen.getByRole('tab', { name: '项目文件' }))
+    expect(await screen.findByRole('heading', { name: '项目文件', level: 1 })).toBeVisible()
+    fireEvent.click(await screen.findByRole('button', { name: '产物' }))
+    fireEvent.click(await screen.findByRole('button', { name: /^续费提醒/ }))
+    fireEvent.click(await screen.findByRole('button', { name: 'prd.md' }))
+    expect(await screen.findByTitle('预览 prd.md')).toBeVisible()
+    fireEvent.click(screen.getByLabelText('文件操作：prd.md'))
+    fireEvent.click(screen.getByRole('button', { name: '在系统文件管理器中显示' }))
+    await waitFor(() => { expect(shellActions.revealProjectFile).toHaveBeenCalledWith({ workspaceId: 'product', relativePath: 'deliverables/续费提醒/prd.md' }) })
+    expect(await screen.findByText('已在系统文件管理器中打开所在目录。')).toBeVisible()
   })
 
   it('keeps a specific disk validation failure when a later poll only loses the service', async () => {
@@ -651,12 +968,14 @@ describe('Promax direct-demand shell', () => {
     render(<div className="app-shell"><PromaxWorkspaceOverlay useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} layout={layout} detailsOpen /></div>)
 
     expect(await screen.findByRole('heading', { name: '任务文件校验未通过' }, { timeout: 3_500 })).toBeVisible()
+    fireEvent.click(screen.getByText('查看详细原因'))
     expect(screen.getByText(exactError)).toBeVisible()
-    expect(screen.getByLabelText('产出目录：/tmp/Promax/产品/deliverables/损坏清单')).toBeVisible()
-    expect(screen.getByText('当前目标')).toBeVisible()
-    expect(screen.getByText('团队成员')).toBeVisible()
-    expect(screen.getAllByText('交付物').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getByText('solution_design')).toBeVisible()
+    expect(screen.getByRole('heading', { name: '状态读取失败' })).toBeVisible()
+    expect(screen.queryByText('0%')).not.toBeInTheDocument()
+    expect(screen.getByText('当前工作')).toBeVisible()
+    expect(screen.getByText('成员分工')).toBeVisible()
+    expect(screen.getAllByText(/^项目文件/u).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByText('方案设计师')).toBeVisible()
     expect(screen.queryByText(/manifest 与当前团队版本不一致/u)).not.toBeInTheDocument()
   })
 
@@ -716,11 +1035,12 @@ describe('Promax direct-demand shell', () => {
     render(<PromaxDetailsSidebar useWorkspaces={useWorkspaces} useSessions={useSessions} {...actions({ readTaskRunFiles: vi.fn(async () => { throw new Error(exactError) }) })} layout={layout} />)
 
     expect(await screen.findByRole('heading', { name: '任务文件校验未通过' }, { timeout: 3_500 })).toBeVisible()
+    fireEvent.click(screen.getByText('查看详细原因'))
     expect(screen.getByText(exactError)).toBeVisible()
-    expect(screen.getByRole('heading', { name: '当前成员' })).toBeVisible()
-    expect(screen.getByRole('heading', { name: '业务产物' })).toBeVisible()
-    expect(screen.getByText('产品需求方案智能体')).toBeVisible()
-    expect(screen.getByText('独立 Judge')).toBeVisible()
+    expect(screen.getByRole('heading', { name: '执行信息' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: '交付检查' })).toBeVisible()
+    expect(screen.getByText(/方案设计师/u)).toBeVisible()
+    expect(screen.queryByText('独立 Judge')).not.toBeInTheDocument()
   })
 
   it('reveals the native child-agent context when the current session is a descendant', async () => {
@@ -740,8 +1060,8 @@ describe('Promax direct-demand shell', () => {
     const shellActions = actions({ readTaskRunFiles: vi.fn(async () => { throw new Error('child trace status read failed') }) })
     render(<div className="app-shell"><PromaxWorkspaceOverlay useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} layout={layout} detailsOpen /></div>)
 
-    expect(await screen.findByText('子 Agent 上下文')).toBeVisible()
-    expect(screen.getByText('客研子 Agent')).toBeVisible()
+    expect(await screen.findByText('子 Agent 上下文', { selector: '.topbar-project' })).toBeVisible()
+    expect(screen.getByText('客研子 Agent', { selector: '.topbar-title' })).toBeVisible()
     expect(screen.getByRole('tab', { name: '任务轨迹' })).toHaveAttribute('aria-selected', 'true')
     await waitFor(() => { expect(shellActions.readTaskRunFiles).toHaveBeenCalled() })
     expect(screen.queryByRole('heading', { name: '任务文件校验未通过' })).not.toBeInTheDocument()
@@ -784,12 +1104,13 @@ describe('Promax direct-demand shell', () => {
     render(<div className="app-shell"><PromaxWorkspaceOverlay useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} layout={layout} detailsOpen /></div>)
 
     expect(await screen.findByText('验收追溯表缺少来源编号。', {}, { timeout: 3_500 })).toBeVisible()
-    expect(screen.getByText('团队成员')).toBeVisible()
-    expect(screen.getByText('solution_design')).toBeVisible()
-    expect(screen.queryByRole('heading', { name: '跑完了。1 个文件。' })).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('tab', { name: '交付物' }))
-    expect(await screen.findByText('✕ 判定不通过')).toBeVisible()
-    expect(screen.getByText('2 KB')).toBeVisible()
+    expect(screen.getByText('成员分工')).toBeVisible()
+    expect(screen.getByText('方案设计师')).toBeVisible()
+    expect(screen.queryByRole('heading', { name: '本次产物', level: 1 })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('tab', { name: /^项目文件/u }))
+    expect(await screen.findByRole('navigation', { name: '项目目录树' })).toBeVisible()
+    fireEvent.click(screen.getByRole('tab', { name: '工作台' }))
+    expect(screen.getByText('验收追溯表缺少来源编号。')).toBeVisible()
   })
 
   it('shows the current repair round from the disk snapshot instead of a generic running state', async () => {
@@ -841,9 +1162,11 @@ describe('Promax direct-demand shell', () => {
 
     render(<div className="app-shell"><PromaxWorkspaceOverlay useWorkspaces={useWorkspaces} useSessions={useSessions} {...shellActions} layout={layout} detailsOpen /></div>)
     expect(await screen.findByText(reason)).toBeVisible()
-    expect(screen.getByText('团队成员')).toBeVisible()
-    fireEvent.click(screen.getByRole('tab', { name: '交付物' }))
-    expect(await screen.findByText('✕ 判定不通过')).toBeVisible()
+    expect(screen.getByText('成员分工')).toBeVisible()
+    fireEvent.click(screen.getByRole('tab', { name: /^项目文件/u }))
+    expect(await screen.findByRole('navigation', { name: '项目目录树' })).toBeVisible()
+    fireEvent.click(screen.getByRole('tab', { name: '工作台' }))
+    expect(screen.getByText(reason)).toBeVisible()
   })
 
   it('describes an accepted stop request truthfully while the current step is still draining', () => {

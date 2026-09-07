@@ -1,6 +1,6 @@
 {
   "name": "@promax/promax-bundle",
-  "version": "0.1.36",
+  "version": "0.1.48",
   "private": true,
   "type": "module",
   "main": "lib/index.mjs",
@@ -32,7 +32,8 @@
     "@promax/promax-report": "file:../../../promax-end/packages/promax-report",
     "@promax/promax-ui-brand": "file:../promax-ui-brand",
     "@promax/promax-ui-console": "file:../promax-ui-console",
-    "@promax/promax-ui-layout": "file:../promax-ui-layout"
+    "@promax/promax-ui-layout": "file:../promax-ui-layout",
+    "@promax/feishu-api": "file:../../../promax-end/packages/promax-feishu-api"
   },
   "dependencies": {
     "@deepseek-ai/dsh-llm": "0.1.1-rc.2",
@@ -42,5 +43,8 @@
     "mammoth": "1.12.2",
     "pdf-parse": "2.4.5",
     "yaml": "2.8.1"
+  },
+  "peerDependencies": {
+    "@promax/feishu-api": "0.1.0"
   }
 }

@@ -1,0 +1,35 @@
+{
+  "version": "0.3.104",
+  "clientSha256": "d66c13a36b409059e49b8b642427c1b4d45538c7cfc4034a7ea24c6957fcb601",
+  "tests": {
+    "files": 3,
+    "passed": 44
+  },
+  "typecheck": "passed",
+  "build": "passed",
+  "browser": {
+    "origin": "http://127.0.0.1:3080",
+    "projects": {
+      "云盘": 1,
+      "产品": 43
+    },
+    "keyboardCollapsePreservesDraft": true,
+    "viewports": {
+      "1280x720": {
+        "inputWidth": 640,
+        "inputHeight": 120,
+        "actionBottom": 696
+      },
+      "1920x1080": {
+        "inputWidth": 640,
+        "inputHeight": 120,
+        "actionBottom": 1056
+      },
+      "1024x640": {
+        "inputWidth": 592,
+        "note": "输入区自适应；既有三栏布局保留横向滚动。"
+      }
+    },
+    "consoleErrors": []
+  }
+}

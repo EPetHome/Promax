@@ -14,6 +14,7 @@ const packageSpecs = [
   { source: join(root, 'packages', 'promax-ui-brand') },
   { source: join(root, 'packages', 'promax-ui-layout') },
   { source: join(root, 'packages', 'promax-ui-console') },
+  { source: resolve(root, '../promax-end/packages/promax-feishu-api') },
   { source: resolve(root, '../promax-end/packages/promax-report') },
   { source: resolve(root, '../promax-agent/team-harness') },
   { source: join(root, 'packages', 'promax-bundle') },
@@ -93,6 +94,7 @@ PROFILE="\${1:-web}"
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 DSH_ROOT="\${DSH_HOME:-\${HOME}/.dsh}"
 PROFILE_MANIFEST="$DSH_ROOT/profiles/$PROFILE/package.json"
+FEISHU_API_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/feishu-api')}"
 REPORT_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/promax-report')}"
 TEAM_HARNESS_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/team-harness')}"
 BRAND_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/promax-ui-brand')}"
@@ -101,6 +103,7 @@ CONSOLE_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/promax-ui-console')}"
 BUNDLE_ARCHIVE="$SCRIPT_DIR/${requiredArchive('@promax/promax-bundle')}"
 ${dshRunner}if [ -f "$PROFILE_MANIFEST" ]; then
   node - "$PROFILE_MANIFEST" \\
+    "@promax/feishu-api=$FEISHU_API_ARCHIVE" \\
     "@promax/promax-report=$REPORT_ARCHIVE" \\
     "@promax/team-harness=$TEAM_HARNESS_ARCHIVE" \\
     "@promax/promax-ui-brand=$BRAND_ARCHIVE" \\
@@ -121,6 +124,7 @@ NODE
   run_dsh plugin --profile "$PROFILE" install
 else
   run_dsh plugin --profile "$PROFILE" add \\
+    "$FEISHU_API_ARCHIVE" \\
     "$REPORT_ARCHIVE" \\
     "$TEAM_HARNESS_ARCHIVE" \\
     "$BRAND_ARCHIVE" \\

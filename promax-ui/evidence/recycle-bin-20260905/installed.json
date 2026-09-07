@@ -1,0 +1,11 @@
+{
+  "promax-ui-console": {
+    "version": "0.3.109",
+    "lib/client.js": "9b7f3d83c281e99ea4677f72c667860feb83dfc8de59b4ca5d6ea8e501ced2c0",
+    "lib/index.mjs": "4dadf4672ec1ec5fa24d6d4527e57cb4273992466c2a4dfab1a2b28b129fde3d"
+  },
+  "promax-bundle": {
+    "version": "0.1.47",
+    "lib/index.mjs": "4335376e6cc9b5dffbb0d8cfb147cc973678f42fac3c996dbb52570b451598ce"
+  }
+}

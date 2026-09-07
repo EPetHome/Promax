@@ -115,7 +115,7 @@ export interface TeamSessionBinding {
 
 export type PromaxContext =
   | { kind: 'general'; workspaceId?: string }
-  | { kind: 'team'; teamId: string; view: 'home' | 'session'; sessionId?: string; workspaceId?: string }
+  | { kind: 'team'; teamId: string; view: 'home' | 'session'; sessionId?: string; workspaceId?: string; filePath?: string; fileRequest?: number }
 
 export interface PromaxTeamState {
   version: 2
@@ -387,6 +387,7 @@ function contextOf(value: unknown, teams: readonly PromaxTeam[]): PromaxContext 
     view,
     ...(sessionId === undefined ? {} : { sessionId }),
     ...(workspaceId === undefined ? {} : { workspaceId }),
+    ...(typeof row.filePath === 'string' ? { filePath: row.filePath, fileRequest: typeof row.fileRequest === 'number' ? row.fileRequest : 0 } : {}),
   }
 }
 
@@ -613,6 +614,24 @@ export function selectTeamHome(teamId: string, workspaceId?: string): void {
     ...current,
     selected: { kind: 'team', teamId, view: 'home', ...(workspaceId === undefined ? {} : { workspaceId }) },
   }))
+}
+
+/** File browsing keeps the active session when it belongs to the same project. */
+export function selectProjectFiles(workspaceId: string, filePath = ''): void {
+  updateTeamState(current => ({
+    ...current,
+    selected: current.selected.kind === 'team' && current.selected.workspaceId === workspaceId
+      ? { ...current.selected, filePath, fileRequest: (current.selected.fileRequest ?? 0) + 1 }
+      : { kind: 'team', teamId: PRODUCT_TEAM_ID, view: 'home', workspaceId, filePath, fileRequest: 1 },
+  }))
+}
+
+export function closeProjectFiles(): void {
+  updateTeamState(current => {
+    if (current.selected.kind !== 'team') return current
+    const { filePath: _filePath, fileRequest: _fileRequest, ...selected } = current.selected
+    return { ...current, selected }
+  })
 }
 
 export function selectTeamSession(teamId: string, sessionId: string, workspaceId?: string): void {

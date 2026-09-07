@@ -1,7 +1,8 @@
 import type { ComponentType } from 'react'
+import { act, render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
-import { LayoutController, apply } from '../src/client/index.tsx'
+import { LayoutController, PromaxAppShell, apply } from '../src/client/index.tsx'
 
 describe('Promax root layout', () => {
   it('declares exactly the four inherited child slots and provides ctx.layout', () => {
@@ -47,5 +48,29 @@ describe('Promax root layout', () => {
     expect(actions.closeDetails).toHaveBeenCalledOnce()
     detach()
     expect(() => { controller.toggleSidebar() }).toThrow(/not mounted/u)
+  })
+
+  it('keeps both panels open until explicitly collapsed, regardless of window resize', () => {
+    const controller = new LayoutController()
+    const renderSlot = vi.fn(() => null)
+    const { container } = render(<PromaxAppShell layoutController={controller} renderSlot={renderSlot} />)
+    const shell = container.querySelector('.app-shell')!
+    const originalWidth = window.innerWidth
+    try {
+      for (const width of [1024, 1440, 800]) {
+        act(() => { Object.defineProperty(window, 'innerWidth', { configurable: true, value: width }); window.dispatchEvent(new Event('resize')) })
+        expect(shell).not.toHaveClass('left-collapsed', 'right-collapsed')
+      }
+      act(() => { controller.toggleSidebar(); controller.closeDetails() })
+      expect(shell).toHaveClass('left-collapsed', 'right-collapsed')
+      expect(renderSlot).toHaveBeenCalledWith('sidebar', { collapsed: true, width: 64 })
+      expect(renderSlot).toHaveBeenCalledWith('details', { collapsed: true })
+      act(() => { window.dispatchEvent(new Event('resize')) })
+      expect(shell).toHaveClass('left-collapsed', 'right-collapsed')
+      act(() => { controller.toggleSidebar(); controller.openDetails() })
+      expect(shell).not.toHaveClass('left-collapsed', 'right-collapsed')
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: originalWidth })
+    }
   })
 })

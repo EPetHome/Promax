@@ -1,7 +1,9 @@
 import { createHash } from 'node:crypto'
+import { readFileSync, readdirSync, renameSync, writeFileSync } from 'node:fs'
 import { readFile, readdir, stat } from 'node:fs/promises'
 import { basename, extname, isAbsolute, relative, resolve, sep } from 'node:path'
 
+import { FeishuApi as SharedFeishuApi, FeishuDeliveryError } from '@promax/feishu-api'
 import z from '@deepseek-ai/schemastery'
 import { parse } from 'yaml'
 
@@ -9,10 +11,10 @@ import type { AgentLike, SessionLike, ToolExecutionLike, ToolResultLike } from '
 import type { ReportLogger } from './outbox.ts'
 import type { DeliveryResult, ReportRequest, ReportTransport } from './transport.ts'
 import { DurableReportQueue } from './outbox.ts'
+import { parseJudgeDefects, type JudgeDefect } from './judge-defects.ts'
 
 export const FEISHU_TELEMETRY_SETTINGS_NS = 'promax-feishu-telemetry'
-export const FEISHU_APP_ID_REF = 'APP_ID'
-export const FEISHU_APP_SECRET_REF = 'APP_SECRET'
+export { FEISHU_APP_ID_REF, FEISHU_APP_SECRET_REF } from '@promax/feishu-api'
 
 export interface FeishuTelemetrySettings {
   appToken: string
@@ -50,7 +52,7 @@ export interface FeishuRunSnapshot {
   inputType: string
   plannedMembers: string[]
   actualMembers: string[]
-  dispatchChanged: boolean
+  dispatchChanged: boolean | null
   artifacts: string[]
   judgeVerdict: 'pass' | 'block' | '未产生'
   judgeRuleIds: string[]
@@ -62,6 +64,8 @@ export interface FeishuRunSnapshot {
   tokenCount: number
   sessionId: string
   skillCalls: FeishuSkillCall[]
+  judgeReports?: Array<{ round: number; time: number; text: string; path: string }>
+  defects?: JudgeDefect[]
 }
 
 interface FeishuDeliveryState {
@@ -69,6 +73,7 @@ interface FeishuDeliveryState {
   docUrl?: string
   runWritten?: boolean
   skillsWritten?: boolean
+  defectsWritten?: boolean
 }
 
 interface FeishuTable {
@@ -95,24 +100,9 @@ interface TableSchema {
 interface FeishuSchema {
   runs: TableSchema
   skills: TableSchema
+  defects: TableSchema
 }
 
-interface FeishuErrorOptions {
-  kind: 'retry' | 'dead'
-  status?: number
-}
-
-class FeishuDeliveryError extends Error {
-  readonly kind: 'retry' | 'dead'
-  readonly status: number | undefined
-
-  constructor(message: string, options: FeishuErrorOptions) {
-    super(message)
-    this.name = 'FeishuDeliveryError'
-    this.kind = options.kind
-    this.status = options.status
-  }
-}
 
 const RUN_FIELDS = [
   { field_name: '任务名', type: 1 },
@@ -122,6 +112,7 @@ const RUN_FIELDS = [
   { field_name: '计划派工', type: 1 },
   { field_name: '实际派工', type: 1 },
   { field_name: '派工被改', type: 7 },
+  { field_name: '计划状态', type: 1 },
   { field_name: '产物清单', type: 1 },
   { field_name: '产物数', type: 2, property: { formatter: '0' } },
   { field_name: 'Judge 结论', type: 3, property: { options: [{ name: 'pass' }, { name: 'block' }, { name: '未产生' }] } },
@@ -143,6 +134,21 @@ const SKILL_FIELDS = [
   { field_name: 'Skill 名', type: 1 },
   { field_name: '成败', type: 3, property: { options: [{ name: '成功' }, { name: '失败' }] } },
   { field_name: '耗时秒', type: 2, property: { formatter: '0.00' } },
+] as const
+
+export const DEFECT_FIELDS = [
+  { field_name: '时间', type: 5, property: { date_formatter: 'yyyy/MM/dd HH:mm' } },
+  { field_name: '任务名', type: 1 },
+  { field_name: '轮次', type: 2, property: { formatter: '0' } },
+  { field_name: '产物', type: 1 },
+  { field_name: '责任对象类型', type: 3, property: { options: ['skill', 'agent', 'judge', '输入', '未判定'].map(name => ({ name })) } },
+  { field_name: '责任对象名', type: 1 },
+  { field_name: '缺陷类型', type: 1 },
+  { field_name: 'Judge 理由', type: 1 },
+  { field_name: '我的判断', type: 3, property: { options: ['Judge判对了', 'Judge误判', '部分对'].map(name => ({ name })) } },
+  { field_name: '根因归属', type: 3, property: { options: ['skill正文缺指导', 'persona边界不清', '模型能力不够', '输入信息不足', 'Judge规则过严'].map(name => ({ name })) } },
+  { field_name: '改进动作', type: 1 },
+  { field_name: '是否已改', type: 7 },
 ] as const
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -214,31 +220,28 @@ function matchingToolStartedAt(session: SessionLike, callId: string | undefined)
   return undefined
 }
 
-function messageText(event: unknown): string {
-  if (!isRecord(event) || event.type !== 'assistant/message') return ''
-  const message = record(record(event.data).message)
-  return list(message.content).flatMap(block => isRecord(block) && block.type === 'text' && typeof block.text === 'string' ? [block.text] : []).join('\n')
-}
-
-function plannedMembers(events: readonly unknown[]): string[] {
-  let selected: string[] = []
-  const matcher = /PROMAX_DISPATCH_PLAN_V1_START\s*([\s\S]*?)\s*PROMAX_DISPATCH_PLAN_V1_END/gu
-  for (const event of events) {
-    const text = messageText(event)
-    for (const match of text.matchAll(matcher)) {
-      try {
-        const payload: unknown = JSON.parse(match[1]!)
-        if (!isRecord(payload) || payload.protocol !== 'promax.dispatch-plan/v1') continue
-        const members = list(payload.members).flatMap(value => {
-          const row = record(value)
-          const id = string(row.member_id)
-          return id !== undefined && row.selected === true ? [id] : []
-        })
-        if (members.length > 0) selected = members
-      } catch { /* planning prompts contain a deliberately non-JSON example */ }
-    }
+export async function readDispatchTelemetry(root: string, sessionId: string, taskName: string, actual: string[]): Promise<Pick<FeishuRunSnapshot, 'plannedMembers' | 'dispatchChanged'>> {
+  const missing = { plannedMembers: [], dispatchChanged: null }
+  let control: Record<string, unknown>
+  try { control = await readStructured(safeWorkspacePath(root, `${sessionId}.confirmed.json`)) } catch (error: unknown) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return missing
+    throw error
   }
-  return selected
+  const metadata = record(control.metadata)
+  const spec = record(control.spec)
+  const generated = record(spec.model_plan)
+  if (spec.model_plan === undefined) return missing
+  const plan = record(generated.plan)
+  if (metadata.session_id !== sessionId || metadata.task_key !== taskName || spec.state !== 'confirmed'
+    || plan.planId !== metadata.plan_id || plan.protocol !== 'promax.dispatch-plan/v1'
+    || typeof generated.source_text !== 'string'
+    || generated.source_message_sha256 !== createHash('sha256').update(generated.source_text).digest('hex')
+    || !sameMembers(stringArray(spec.confirmed_member_ids), actual)) throw new Error('遥测模型计划与当前确认记录不一致')
+  const plannedMembers = list(plan.members).flatMap(value => {
+    const row = record(value)
+    return row.selected === true && typeof row.memberId === 'string' ? [row.memberId] : []
+  })
+  return { plannedMembers, dispatchChanged: plannedMembers.length === 0 ? null : !sameMembers(plannedMembers, actual) }
 }
 
 function tokenCount(sessions: readonly SessionLike[]): number {
@@ -260,7 +263,7 @@ export function judgeSummary(
   allowedRuleIds?: readonly string[],
 ): { verdict: 'pass' | 'block' | '未产生'; ruleIds: string[] } {
   let verdict: 'pass' | 'block' | '未产生' = '未产生'
-  for (const match of text.matchAll(/(?:整体\s*verdict|overall\s*verdict)\s*[:：]\s*(?:\*{1,2})?\s*(PASS|FAIL|BLOCK)/giu)) {
+  for (const match of text.matchAll(/(?:整体\s*verdict|overall\s*verdict|最终判定)\s*(?:[:：]|\n)\s*(?:\*{1,2})?\s*(PASS|FAIL|BLOCK)/giu)) {
     verdict = match[1]!.toUpperCase() === 'PASS' ? 'pass' : 'block'
   }
   if (verdict === '未产生') {
@@ -272,6 +275,40 @@ export function judgeSummary(
   const allowlist = allowedRuleIds === undefined ? undefined : new Set(allowedRuleIds)
   const ruleIds = allowlist === undefined ? candidates : candidates.filter(ruleId => allowlist.has(ruleId))
   return { verdict, ruleIds }
+}
+
+/** Snapshots a completed Judge turn before its caller can start another evaluation (including background calls). */
+export function archiveJudgeReport(agent: AgentLike, turn: number): void {
+  const cwd = agent.session.header.cwd
+  const parent = parentSessionId(agent.session)
+  if (!cwd || !parent || memberId(agent.session) !== 'quality_judge') return
+  const scope = JSON.parse(readFileSync(safeWorkspacePath(cwd, `.promax/session-scopes/${parent}.json`), 'utf8')) as Record<string, unknown>
+  const taskName = string(scope.taskKey)
+  if (!taskName) throw new Error('Judge 留档缺少 task_key')
+  const directory = safeWorkspacePath(cwd, `.promax/judge/${taskName}`)
+  let text: string
+  try { text = readFileSync(resolve(directory, 'judge.md'), 'utf8') } catch (error: unknown) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return
+    throw error
+  }
+  if (!text.trim()) throw new Error('Judge 留档拒绝空报告')
+  const indexPath = resolve(directory, 'judge-history.json')
+  let history: Record<string, number> = {}
+  try { history = JSON.parse(readFileSync(indexPath, 'utf8')) as Record<string, number> } catch (error: unknown) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+  }
+  const key = `${agent.id}:${String(turn)}`
+  const round = history[key] ?? Math.max(0, ...readdirSync(directory).flatMap(name => /^judge-r[1-9]\d*\.md$/u.test(name) ? [Number(name.match(/\d+/u)![0])] : [])) + 1
+  const archived = resolve(directory, `judge-r${String(round)}.md`)
+  try {
+    writeFileSync(archived, text, { encoding: 'utf8', flag: 'wx', mode: 0o600 })
+  } catch (error: unknown) {
+    if ((error as NodeJS.ErrnoException).code !== 'EEXIST' || readFileSync(archived, 'utf8') !== text) throw error
+  }
+  history[key] = round
+  const temporary = `${indexPath}.tmp`
+  writeFileSync(temporary, JSON.stringify(history, null, 2) + '\n', { mode: 0o600 })
+  renameSync(temporary, indexPath)
 }
 
 function taskRuleIds(taskPackage: Record<string, unknown>): string[] {
@@ -373,6 +410,7 @@ export class FeishuTelemetryCollector {
     private readonly settings: () => FeishuTelemetrySettings,
     private readonly queue: DurableReportQueue,
     private readonly logger: ReportLogger,
+    private readonly dispatchPlanRoot: string,
   ) {}
 
   startSession(agent: AgentLike): void {
@@ -405,8 +443,9 @@ export class FeishuTelemetryCollector {
     this.skillsByRoot.set(root, calls)
   }
 
-  observeTurn(agent: AgentLike): void {
+  observeTurn(agent: AgentLike, turn = 0): void {
     this.startSession(agent)
+    archiveJudgeReport(agent, turn)
     if (sessionOrigin(agent.session) === 'subagent' || parentSessionId(agent.session)) return
     const configured = this.settings()
     if (configured.appToken.trim() === '' || configured.folderToken.trim() === '') return
@@ -466,11 +505,23 @@ export class FeishuTelemetryCollector {
     const startedAtText = string(record(manifest.metadata).frozen_at) ?? string(record(taskPackage.metadata).confirmed_at)
     const startedAt = startedAtText === undefined ? Date.now() : Date.parse(startedAtText)
     const observedAt = Date.now()
-    const parentEvents = agent.session.events
-    const planned = plannedMembers(parentEvents)
     const actual = stringArray(record(taskPackage.spec).members_confirmed)
+    const dispatch = await readDispatchTelemetry(this.dispatchPlanRoot, agent.id, taskName, actual)
     const artifacts = await actualArtifacts(cwd, taskName)
     const skillCalls = (this.skillsByRoot.get(agent.id) ?? []).map(call => ({ ...call, taskName }))
+    const judgeReports: NonNullable<FeishuRunSnapshot['judgeReports']> = []
+    const judgeDirectory = safeWorkspacePath(cwd, `.promax/judge/${taskName}`)
+    let historyNames: string[] = []
+    try { historyNames = await readdir(judgeDirectory) } catch (error: unknown) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+    }
+    for (const name of historyNames.filter(name => /^judge-r[1-9]\d*\.md$/u.test(name)).sort((a, b) => Number(a.match(/\d+/u)![0]) - Number(b.match(/\d+/u)![0]))) {
+      const path = safeWorkspacePath(cwd, `.promax/judge/${taskName}/${name}`)
+      judgeReports.push({ round: Number(name.match(/\d+/u)![0]), time: (await stat(path)).mtimeMs, text: await readFile(path, 'utf8'), path })
+    }
+    const owners = list(record(taskPackage.spec).artifacts).map(record).map(row => ({ relative_path: string(row.relative_path) ?? '', produced_by: string(row.produced_by) ?? '未判定' }))
+    const defects = judgeReports.flatMap(report => judgeSummary(report.text).verdict === 'block'
+      ? parseJudgeDefects({ ...report, artifacts: owners, ruleIds: taskRuleIds(taskPackage), skillNames: skillCalls.map(call => call.skillName) }) : [])
     const sessions = [...(this.sessionsByRoot.get(agent.id)?.values() ?? [agent.session])]
     return {
       startedAt: Number.isFinite(startedAt) ? startedAt : observedAt,
@@ -478,9 +529,8 @@ export class FeishuTelemetryCollector {
       taskName,
       demand: await originalDemand(cwd, manifest),
       inputType: inputDescription(manifest),
-      plannedMembers: planned,
+      ...dispatch,
       actualMembers: actual,
-      dispatchChanged: planned.length > 0 && !sameMembers(planned, actual),
       artifacts,
       judgeVerdict: judge.verdict,
       judgeRuleIds: judge.ruleIds,
@@ -492,6 +542,8 @@ export class FeishuTelemetryCollector {
       tokenCount: tokenCount(sessions),
       sessionId: agent.id,
       skillCalls,
+      judgeReports,
+      defects,
     }
   }
 }
@@ -514,81 +566,13 @@ function markdownEscape(value: string): string {
 export function runDetailMarkdown(snapshot: FeishuRunSnapshot): string {
   const artifacts = snapshot.artifacts.length === 0 ? '- 无' : snapshot.artifacts.map(path => `- \`${path}\``).join('\n')
   const rules = snapshot.judgeRuleIds.length === 0 ? '未记录' : snapshot.judgeRuleIds.map(markdownEscape).join('、')
-  return `# Promax 运行明细：${snapshot.taskName}\n\n## 需求原文\n\n${snapshot.demand || '（空）'}\n\n## 派工\n\n| 项目 | 成员 |\n|---|---|\n| 计划派工 | ${snapshot.plannedMembers.map(markdownEscape).join('、') || '未记录'} |\n| 实际派工 | ${snapshot.actualMembers.map(markdownEscape).join('、') || '未记录'} |\n| 派工被改 | ${snapshot.dispatchChanged ? '是' : '否'} |\n\n## 产物清单\n\n${artifacts}\n\n> 业务产物仅列本机路径，未自动上传。\n\n## Judge 摘要\n\n- verdict：${snapshot.judgeVerdict}\n- 命中的 rule_id：${rules}\n- Judge 本机路径：\`${snapshot.judgePath}\`\n\n> Judge 全文未上传。\n\n## 运行结果\n\n- 最终状态：${snapshot.finalStatus}\n- 失败原因：${snapshot.failureReason || '无'}\n- 返修轮数：${String(snapshot.repairRounds)}\n- 耗时：${String(snapshot.durationSeconds)} 秒\n- token：${String(snapshot.tokenCount)}\n- 会话ID：${snapshot.sessionId}\n`
+  const summary = `# Promax 运行明细：${snapshot.taskName}\n\n## 需求原文\n\n${snapshot.demand || '（空）'}\n\n## 派工\n\n| 项目 | 成员 |\n|---|---|\n| 计划派工 | ${snapshot.plannedMembers.map(markdownEscape).join('、') || '未记录'} |\n| 实际派工 | ${snapshot.actualMembers.map(markdownEscape).join('、') || '未记录'} |\n| 派工被改 | ${snapshot.plannedMembers.length === 0 || snapshot.dispatchChanged == null ? '无法判断（缺少已保存模型计划）' : snapshot.dispatchChanged ? '是' : '否'} |\n\n## 产物清单\n\n${artifacts}\n\n> 业务产物仅列本机路径，未自动上传。\n\n## Judge 摘要\n\n- verdict：${snapshot.judgeVerdict}\n- 命中的 rule_id：${rules}\n- Judge 本机路径：\`${snapshot.judgePath}\`\n\n> Judge 全文未上传。\n\n## 运行结果\n\n- 最终状态：${snapshot.finalStatus}\n- 失败原因：${snapshot.failureReason || '无'}\n- 返修轮数：${String(snapshot.repairRounds)}\n- 耗时：${String(snapshot.durationSeconds)} 秒\n- token：${String(snapshot.tokenCount)}\n- 会话ID：${snapshot.sessionId}\n`
+  const reports = snapshot.judgeReports ?? []
+  return reports.length === 0 ? summary : summary.replace('> Judge 全文未上传。',
+    reports.map(report => `### 第 ${String(report.round)} 轮 Judge 全文\n\n${report.text}`).join('\n\n---\n\n'))
 }
 
-class FeishuApi {
-  private tokenValue?: { value: string; expiresAt: number; appId: string }
-
-  constructor(
-    private readonly credentials: CredentialsService,
-    private readonly timeoutMs: number,
-    private readonly fetchImplementation: typeof fetch,
-  ) {}
-
-  private async accessToken(): Promise<string> {
-    const [appId, appSecret] = await Promise.all([
-      this.credentials.resolve(FEISHU_APP_ID_REF),
-      this.credentials.resolve(FEISHU_APP_SECRET_REF),
-    ])
-    if (!appId || !appSecret) throw new FeishuDeliveryError('飞书 APP_ID 或 APP_SECRET 未配置', { kind: 'retry' })
-    if (this.tokenValue && this.tokenValue.appId === appId.value && this.tokenValue.expiresAt > Date.now() + 60_000) return this.tokenValue.value
-    const response = await this.raw('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: jsonBody({ app_id: appId.value, app_secret: appSecret.value }),
-    })
-    const payload = await this.responseJson(response)
-    const token = string(payload.tenant_access_token)
-    if (!response.ok || payload.code !== 0 || !token) throw this.apiFailure(response.status, payload, '获取 tenant_access_token 失败')
-    const expires = typeof payload.expire === 'number' ? payload.expire : 7200
-    this.tokenValue = { value: token, expiresAt: Date.now() + expires * 1000, appId: appId.value }
-    return token
-  }
-
-  private async raw(url: string, init: RequestInit): Promise<Response> {
-    try {
-      return await this.fetchImplementation(url, { ...init, signal: AbortSignal.timeout(this.timeoutMs) })
-    } catch (error: unknown) {
-      throw new FeishuDeliveryError(error instanceof Error ? error.message : String(error), { kind: 'retry' })
-    }
-  }
-
-  private async responseJson(response: Response): Promise<Record<string, unknown>> {
-    try {
-      const value: unknown = await response.json()
-      return record(value)
-    } catch {
-      throw new FeishuDeliveryError(`飞书返回了非 JSON 响应（HTTP ${String(response.status)}）`, {
-        kind: response.status === 429 || response.status >= 500 ? 'retry' : 'dead',
-        status: response.status,
-      })
-    }
-  }
-
-  private apiFailure(status: number, payload: Record<string, unknown>, context: string): FeishuDeliveryError {
-    const code = typeof payload.code === 'number' ? payload.code : undefined
-    const message = string(payload.msg) ?? 'unknown error'
-    const httpFailure = status < 200 || status >= 300
-    const retryable = !httpFailure || status === 401 || status === 408 || status === 409 || status === 429 || status >= 500
-    return new FeishuDeliveryError(`${context}: ${message}${code === undefined ? '' : ` (code ${String(code)})`}`, {
-      kind: retryable ? 'retry' : 'dead',
-      status,
-    })
-  }
-
-  async json(method: string, path: string, body?: unknown): Promise<Record<string, unknown>> {
-    const token = await this.accessToken()
-    const response = await this.raw(`https://open.feishu.cn/open-apis${path}`, {
-      method,
-      headers: { authorization: `Bearer ${token}`, ...(body === undefined ? {} : { 'content-type': 'application/json' }) },
-      ...(body === undefined ? {} : { body: jsonBody(body) }),
-    })
-    const payload = await this.responseJson(response)
-    if (!response.ok || (typeof payload.code === 'number' && payload.code !== 0)) throw this.apiFailure(response.status, payload, `${method} ${path}`)
-    return payload
-  }
-
+class FeishuApi extends SharedFeishuApi {
   async uploadMarkdown(markdown: string): Promise<string> {
     const token = await this.accessToken()
     const bytes = Buffer.from(markdown, 'utf8')
@@ -676,6 +660,7 @@ async function ensureView(api: FeishuApi, appToken: string, tableId: string, nam
 async function ensureSchema(api: FeishuApi, appToken: string): Promise<FeishuSchema> {
   const runs = await ensureTable(api, appToken, '运行记录', RUN_FIELDS, '全部')
   const skills = await ensureTable(api, appToken, 'Skill 调用', SKILL_FIELDS, '全部')
+  const defects = await ensureTable(api, appToken, '缺陷归因', DEFECT_FIELDS, '全部')
   await ensureView(api, appToken, runs.tableId, '全部')
   const reviewView = await ensureView(api, appToken, runs.tableId, '待复盘')
   const reviewFieldId = runs.fields.get('_待复盘')?.field_id
@@ -691,7 +676,7 @@ async function ensureSchema(api: FeishuApi, appToken: string): Promise<FeishuSch
       hidden_fields: [reviewFieldId],
     },
   })
-  return { runs, skills }
+  return { runs, skills, defects }
 }
 
 /** Uses the same idempotent provisioning path as live delivery without creating a run row. */
@@ -700,9 +685,9 @@ export async function provisionFeishuTelemetry(
   credentials: CredentialsService,
   timeoutMs = 15_000,
   fetchImplementation: typeof fetch = fetch,
-): Promise<{ runTableId: string; skillTableId: string }> {
+): Promise<{ runTableId: string; skillTableId: string; defectTableId: string }> {
   const schema = await ensureSchema(new FeishuApi(credentials, timeoutMs, fetchImplementation), settings.appToken.trim())
-  return { runTableId: schema.runs.tableId, skillTableId: schema.skills.tableId }
+  return { runTableId: schema.runs.tableId, skillTableId: schema.skills.tableId, defectTableId: schema.defects.tableId }
 }
 
 async function importDocument(api: FeishuApi, folderToken: string, snapshot: FeishuRunSnapshot): Promise<{ token: string; url: string }> {
@@ -732,8 +717,9 @@ async function importDocument(api: FeishuApi, folderToken: string, snapshot: Fei
   throw new FeishuDeliveryError('云文档导入轮询超时', { kind: 'retry' })
 }
 
-function runFields(snapshot: FeishuRunSnapshot, docUrl: string, includeFollowDefaults: boolean): Record<string, unknown> {
-  const needsReview = snapshot.judgeVerdict === 'block' || snapshot.dispatchChanged
+export function runFields(snapshot: FeishuRunSnapshot, docUrl: string, includeFollowDefaults: boolean): Record<string, unknown> {
+  const unknownPlan = snapshot.plannedMembers.length === 0 || snapshot.dispatchChanged == null
+  const needsReview = unknownPlan || snapshot.judgeVerdict === 'block' || snapshot.dispatchChanged === true
     || snapshot.finalStatus === '已停止' || snapshot.finalStatus === '失败' || snapshot.repairRounds >= 2
   return {
     任务名: snapshot.taskName,
@@ -742,7 +728,8 @@ function runFields(snapshot: FeishuRunSnapshot, docUrl: string, includeFollowDef
     输入类型: snapshot.inputType,
     计划派工: snapshot.plannedMembers.join('、'),
     实际派工: snapshot.actualMembers.join('、'),
-    派工被改: snapshot.dispatchChanged,
+    派工被改: unknownPlan ? null : snapshot.dispatchChanged,
+    计划状态: unknownPlan ? '缺少已保存模型计划，无法判断' : '已保存模型计划',
     产物清单: snapshot.artifacts.join('\n'),
     产物数: snapshot.artifacts.length,
     'Judge 结论': snapshot.judgeVerdict,
@@ -797,6 +784,21 @@ async function writeSkills(api: FeishuApi, appToken: string, tableId: string, sn
   await api.json('POST', `/bitable/v1/apps/${encodeURIComponent(appToken)}/tables/${encodeURIComponent(tableId)}/records/batch_create?client_token=${stableClientToken(`skills:${snapshot.sessionId}`)}`, { records })
 }
 
+export function defectFields(taskName: string, defect: JudgeDefect): Record<string, unknown> {
+  // Explicit allowlist: never initialize, clear, or update the four human-owned fields.
+  return { 时间: Math.round(defect.time), 任务名: taskName, 轮次: defect.round, 产物: defect.artifact,
+    责任对象类型: defect.ownerType, 责任对象名: defect.ownerName, 缺陷类型: defect.ruleId, 'Judge 理由': defect.reason }
+}
+
+async function writeDefects(api: FeishuApi, appToken: string, tableId: string, snapshot: FeishuRunSnapshot): Promise<void> {
+  const defects = snapshot.defects ?? []
+  for (let offset = 0; offset < defects.length; offset += 500) {
+    await api.json('POST', `/bitable/v1/apps/${encodeURIComponent(appToken)}/tables/${encodeURIComponent(tableId)}/records/batch_create?client_token=${stableClientToken(`defects:${snapshot.sessionId}:${String(offset)}`)}`, {
+      records: defects.slice(offset, offset + 500).map(defect => ({ fields: defectFields(snapshot.taskName, defect) })),
+    })
+  }
+}
+
 export class FeishuReportTransport implements ReportTransport {
   private readonly api: FeishuApi
 
@@ -840,6 +842,11 @@ export class FeishuReportTransport implements ReportTransport {
       if (!state.skillsWritten) {
         await writeSkills(this.api, configured.appToken.trim(), schema.skills.tableId, snapshot)
         state.skillsWritten = true
+        await persist()
+      }
+      if (!state.defectsWritten) {
+        await writeDefects(this.api, configured.appToken.trim(), schema.defects.tableId, snapshot)
+        state.defectsWritten = true
         await persist()
       }
       return { kind: 'success', status: 200 }

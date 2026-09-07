@@ -1,0 +1,13 @@
+{
+  "packages": [
+    {
+      "name": "promax-ui-console",
+      "version": "0.3.113"
+    },
+    {
+      "name": "promax-bundle",
+      "version": "0.1.48"
+    }
+  ],
+  "servedClientMatchesBuild": true
+}

@@ -57,15 +57,15 @@ describe('console color policy', () => {
 
   it('keeps the Promax room palette in the brand token package', () => {
     const source = readFileSync(resolve(process.cwd(), 'packages/promax-ui-brand/src/theme.ts'), 'utf8')
-    expect(source).toContain("'--dsw-promax-ink': fixed('#17191f')")
-    expect(source).toContain("'--dsw-promax-canvas': fixed('#f3f4f7')")
+    expect(source).toContain("'--dsw-promax-ink': fixed('#20242e')")
+    expect(source).toContain("'--dsw-promax-canvas': fixed('#ffffff')")
     expect(source).toContain("'--dsw-promax-blue': fixed('#356df3')")
     expect(source).toContain("'--dsw-promax-draft-banner-background': fixed('#ffed8a')")
     expect(source).toContain("'--dsw-promax-draft-banner-text': fixed('#594200')")
-    expect(source).toContain("'--dsw-promax-sidebar-left': fixed('250px')")
-    expect(source).toContain("'--dsw-promax-sidebar-right': fixed('270px')")
-    expect(source).toContain('background-size: 12px 12px')
-    expect(source).toContain('.main-column::before')
+    expect(source).toContain("'--dsw-promax-sidebar-left': fixed('240px')")
+    expect(source).toContain("'--dsw-promax-sidebar-right': fixed('304px')")
+    expect(source).not.toContain('background-size: 12px 12px')
+    expect(source).not.toContain('.main-column::before')
   })
 
 })

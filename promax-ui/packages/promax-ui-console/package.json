@@ -1,6 +1,6 @@
 {
   "name": "@promax/promax-ui-console",
-  "version": "0.3.92",
+  "version": "0.3.113",
   "private": true,
   "type": "module",
   "main": "lib/index.mjs",
@@ -34,7 +34,10 @@
       "platform": "web"
     }
   },
-  "files": ["lib", "dist"],
+  "files": [
+    "lib",
+    "dist"
+  ],
   "scripts": {
     "build": "tsdown && vite build",
     "dev": "vite --host 127.0.0.1 --port 3090",
@@ -42,6 +45,8 @@
     "typecheck": "tsc --noEmit -p ../../tsconfig.json"
   },
   "dependencies": {
+    "micromark": "4.0.2",
+    "micromark-extension-gfm": "3.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

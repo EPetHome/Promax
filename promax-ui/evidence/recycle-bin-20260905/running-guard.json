@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "sessionId": "session-a650d346-6ec6-431b-8f1d-a69d40993ef9",
+  "response": {
+    "error": "有任务正在运行或等待执行，请先停止任务再删除"
+  }
+}

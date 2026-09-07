@@ -12,54 +12,54 @@ function fixed(value: string): ThemeModes {
 export const PROMAX_THEME_TOKENS: ThemeTokens = {
   // Promax workbench primitives. The visual baseline defines one locked light
   // palette, so both host modes intentionally resolve to the same values.
-  '--dsw-promax-ink': fixed('#17191f'),
+  '--dsw-promax-ink': fixed('#20242e'),
   '--dsw-promax-ink-2': fixed('#414754'),
-  '--dsw-promax-ink-3': fixed('#737b8a'),
-  '--dsw-promax-ink-4': fixed('#9aa1ad'),
-  '--dsw-promax-canvas': fixed('#f3f4f7'),
-  '--dsw-promax-panel': fixed('#f7f8fa'),
+  '--dsw-promax-ink-3': fixed('#697180'),
+  '--dsw-promax-ink-4': fixed('#798291'),
+  '--dsw-promax-canvas': fixed('#ffffff'),
+  '--dsw-promax-panel': fixed('#fbfcfd'),
   '--dsw-promax-surface': fixed('#ffffff'),
   '--dsw-promax-surface-glass': fixed('rgba(255, 255, 255, 0.84)'),
-  '--dsw-promax-line': fixed('rgba(23, 25, 31, 0.09)'),
-  '--dsw-promax-line-strong': fixed('rgba(23, 25, 31, 0.15)'),
+  '--dsw-promax-line': fixed('#e6e8ee'),
+  '--dsw-promax-line-strong': fixed('#dce0e8'),
   '--dsw-promax-blue': fixed('#356df3'),
   '--dsw-promax-blue-hover': fixed('#2859d7'),
   '--dsw-promax-blue-soft': fixed('#eaf0ff'),
   '--dsw-promax-blue-soft-2': fixed('#f4f7ff'),
-  '--dsw-promax-green': fixed('#259b68'),
+  '--dsw-promax-green': fixed('#187454'),
   '--dsw-promax-green-soft': fixed('#e6f6ee'),
-  '--dsw-promax-amber': fixed('#b97b24'),
+  '--dsw-promax-amber': fixed('#956312'),
   '--dsw-promax-amber-soft': fixed('#fff4df'),
   '--dsw-promax-draft-banner-background': fixed('#ffed8a'),
   '--dsw-promax-draft-banner-border': fixed('#dfad28'),
   '--dsw-promax-draft-banner-text': fixed('#594200'),
   '--dsw-promax-draft-banner-icon-background': fixed('rgba(255, 255, 255, 0.62)'),
-  '--dsw-promax-red': fixed('#d34c5e'),
+  '--dsw-promax-red': fixed('#ad3838'),
   '--dsw-promax-pink': fixed('#ffdfe8'),
   '--dsw-promax-purple': fixed('#e8e1ff'),
   '--dsw-promax-sky': fixed('#dcecff'),
   '--dsw-promax-shadow-sm': fixed('0 4px 16px rgba(37, 45, 73, 0.055)'),
   '--dsw-promax-shadow-md': fixed('0 18px 56px rgba(37, 45, 73, 0.09)'),
-  '--dsw-promax-radius-sm': fixed('10px'),
-  '--dsw-promax-radius-md': fixed('15px'),
-  '--dsw-promax-radius-lg': fixed('22px'),
-  '--dsw-promax-sidebar-left': fixed('250px'),
-  '--dsw-promax-sidebar-right': fixed('270px'),
+  '--dsw-promax-radius-sm': fixed('6px'),
+  '--dsw-promax-radius-md': fixed('8px'),
+  '--dsw-promax-radius-lg': fixed('10px'),
+  '--dsw-promax-sidebar-left': fixed('240px'),
+  '--dsw-promax-sidebar-right': fixed('304px'),
 
   // Composite background values stay in the token package so functional UI
   // packages never need to repeat palette literals.
-  '--dsw-promax-body-background': fixed('radial-gradient(circle at 7% 12%, rgba(255, 223, 232, 0.50), transparent 24rem), radial-gradient(circle at 94% 6%, rgba(220, 236, 255, 0.72), transparent 30rem), radial-gradient(circle at 70% 96%, rgba(232, 225, 255, 0.48), transparent 28rem), var(--dsw-promax-canvas)'),
-  '--dsw-promax-dot-pattern': fixed('radial-gradient(rgba(23, 25, 31, 0.20) 0.5px, transparent 0.5px)'),
-  '--dsw-promax-dot-mask': fixed('linear-gradient(to bottom, black, transparent 68%)'),
+  '--dsw-promax-body-background': fixed('#f5f6f8'),
+  '--dsw-promax-dot-pattern': fixed('none'),
+  '--dsw-promax-dot-mask': fixed('none'),
   '--dsw-promax-main-background': fixed('radial-gradient(circle at 92% 4%, rgba(220, 236, 255, 0.68), transparent 25rem), radial-gradient(circle at 8% 96%, rgba(255, 223, 232, 0.32), transparent 23rem), #fbfbfc'),
   '--dsw-promax-main-ring-border': fixed('rgba(53, 109, 243, 0.10)'),
-  '--dsw-promax-main-ring-shadow': fixed('inset 0 0 0 54px rgba(255, 255, 255, 0.10), inset 0 0 0 55px rgba(53, 109, 243, 0.045)'),
+  '--dsw-promax-main-ring-shadow': fixed('none'),
 
   // Workbench component tokens. Literal colors stay centralized here; the
   // layout and console packages consume only semantic variables.
-  '--dsw-promax-shell-border': fixed('rgba(255, 255, 255, 0.95)'),
-  '--dsw-promax-shell-background': fixed('rgba(255, 255, 255, 0.66)'),
-  '--dsw-promax-shell-shadow': fixed('0 32px 90px rgba(39, 47, 75, 0.13), inset 0 0 0 1px rgba(23, 25, 31, 0.06)'),
+  '--dsw-promax-shell-border': fixed('#e6e8ee'),
+  '--dsw-promax-shell-background': fixed('#ffffff'),
+  '--dsw-promax-shell-shadow': fixed('none'),
   '--dsw-promax-sidebar-background': fixed('rgba(246, 247, 249, 0.90)'),
   '--dsw-promax-header-background': fixed('rgba(255, 255, 255, 0.50)'),
   '--dsw-promax-topbar-background': fixed('rgba(255, 255, 255, 0.74)'),
@@ -71,23 +71,23 @@ export const PROMAX_THEME_TOKENS: ThemeTokens = {
   '--dsw-promax-focus': fixed('rgba(53, 109, 243, 0.38)'),
   '--dsw-promax-text-icon': fixed('#525966'),
   '--dsw-promax-text-sidebar': fixed('#5f6674'),
-  '--dsw-promax-text-section': fixed('#8b929f'),
+  '--dsw-promax-text-section': fixed('#697180'),
   '--dsw-promax-text-conversation': fixed('#555c69'),
-  '--dsw-promax-text-conversation-meta': fixed('#9aa0ab'),
+  '--dsw-promax-text-conversation-meta': fixed('#697180'),
   '--dsw-promax-text-footer': fixed('#606774'),
-  '--dsw-promax-text-kicker': fixed('#8c93a0'),
+  '--dsw-promax-text-kicker': fixed('#697180'),
   '--dsw-promax-text-green': fixed('#287d57'),
   '--dsw-promax-text-toolbar': fixed('#4f5663'),
-  '--dsw-promax-text-workspace-kicker': fixed('#8a919f'),
-  '--dsw-promax-text-agent-role': fixed('#9299a5'),
+  '--dsw-promax-text-workspace-kicker': fixed('#697180'),
+  '--dsw-promax-text-agent-role': fixed('#697180'),
   '--dsw-promax-text-agent-task': fixed('#5d6572'),
   '--dsw-promax-text-agent-footer': fixed('#717987'),
   '--dsw-promax-text-file': fixed('#6e7582'),
-  '--dsw-promax-text-file-meta': fixed('#a0a6b1'),
+  '--dsw-promax-text-file-meta': fixed('#697180'),
   '--dsw-promax-text-ready': fixed('#277d57'),
   '--dsw-promax-text-muted-strong': fixed('#747c8a'),
   '--dsw-promax-text-placeholder': fixed('#9ba2ae'),
-  '--dsw-promax-text-member-role': fixed('#969da8'),
+  '--dsw-promax-text-member-role': fixed('#697180'),
   '--dsw-promax-primary-text': fixed('#2f5fd7'),
   '--dsw-promax-primary-border': fixed('rgba(53, 109, 243, 0.16)'),
   '--dsw-promax-primary-border-hover': fixed('rgba(53, 109, 243, 0.28)'),
@@ -139,8 +139,9 @@ export const PROMAX_THEME_TOKENS: ThemeTokens = {
   '--dsw-alias-border-l1': fixed('rgba(23, 25, 31, 0.09)'),
   '--dsw-alias-border-l2': fixed('rgba(23, 25, 31, 0.15)'),
   '--dsw-alias-brand-primary': fixed('#17191f'),
-  '--dsw-alias-label-primary': fixed('#17191f'),
-  '--dsw-alias-label-secondary': fixed('#737b8a'),
+  '--dsw-alias-label-primary': fixed('#20242e'),
+  '--dsw-alias-label-secondary': fixed('#697180'),
+  '--dsw-alias-markdown-inline-code': fixed('#eef0f4'),
   '--dsw-alias-state-error-primary': fixed('#d34c5e'),
   '--dsw-alias-state-success-primary': fixed('#259b68'),
   '--dsw-alias-state-warn-primary': fixed('#b97b24'),
@@ -150,7 +151,7 @@ export const PROMAX_THEME_TOKENS: ThemeTokens = {
   '--dsw-promax-accent-strong': fixed('#2859d7'),
   '--dsw-promax-accent-soft': fixed('#eaf0ff'),
   '--dsw-promax-panel-strong': fixed('#ffffff'),
-  '--dsw-promax-rail': fixed('#f7f8fa'),
+  '--dsw-promax-rail': fixed('#f5f6f8'),
   '--dsw-promax-grid-line': fixed('rgba(23, 25, 31, 0.09)'),
   '--dsw-promax-backdrop': fixed('rgba(23, 25, 31, 0.38)'),
   '--dsw-promax-shadow': fixed('rgba(37, 45, 73, 0.09)'),
@@ -180,30 +181,9 @@ body {
   font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-body::before {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.18;
-  background-image: var(--dsw-promax-dot-pattern);
-  background-size: 12px 12px;
-  -webkit-mask-image: var(--dsw-promax-dot-mask);
-  mask-image: var(--dsw-promax-dot-mask);
-  content: "";
-}
-.main-column::before {
-  position: absolute;
-  z-index: 0;
-  top: -170px;
-  right: -170px;
-  width: 440px;
-  height: 440px;
-  border: 1px solid var(--dsw-promax-main-ring-border);
-  border-radius: 50%;
-  box-shadow: var(--dsw-promax-main-ring-shadow);
-  pointer-events: none;
-  content: "";
-}
+button, input, select, textarea { font: inherit; }
+body { font-size: 14px; }
+
 `
 
 const GLOBAL_STYLE_ID = 'promax-global-theme'

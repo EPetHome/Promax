@@ -1,11 +1,12 @@
-import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import ExcelJS from 'exceljs'
 import YAML from 'yaml'
 
-import { beginDispatchPlan, confirmDispatchPlan, enforceConfirmedDispatchCompleteness, enforceDispatchPlanTool, ensureSessionOutputDirectory, prepareDispatchEvidenceInput, prepareTaskAttachmentsForPlanning, prepareTaskSubmission, prepareTaskSubmissionInput, readTaskRunFiles, saveTaskAttachments, sealTaskRunManifest, taskKeyFromSubmission } from '../src/index.ts'
+import { beginDispatchPlan, confirmDispatchPlan, enforceConfirmedDispatchCompleteness, enforceDispatchPlanTool, ensureSessionOutputDirectory, prepareDispatchEvidenceInput, prepareTaskAttachmentsForPlanning, prepareTaskSubmission, prepareTaskSubmissionInput, readTaskRunFiles, saveTaskAttachments, sealTaskRunManifest, taskKeyFromSubmission, saveGeneratedDispatchPlan, readGeneratedDispatchPlan } from '../src/index.ts'
+import { ensureProjectWorkspace, projectOwnerFromAuth, registerProjectWorkspaces } from '../src/index.ts'
 
 const temporaryRoots: string[] = []
 
@@ -14,12 +15,20 @@ const TEAM_REVISION = {
   kind: 'TeamRevision',
   metadata: { team_revision_id: 'promax-product-team@r1', status: 'published' },
   spec: {
+    members: [{ member_id: 'solution_design', display_name: '方案' }, { member_id: 'quality_judge', display_name: 'Judge' }],
     artifacts: [
       { kind: 'prd', validation_kind: 'prd', relative_path: 'deliverables/{task_key}/prd.md', produced_by: 'solution_design' },
       { kind: 'judge-report', validation_kind: 'judge-report', relative_path: '.promax/judge/{task_key}/judge.md', produced_by: 'quality_judge' },
     ],
     domain_rubrics: { prd: { display_name: 'PRD', rules: [{ rule_id: 'PRD_REQUIRED_SECTIONS', check: 'check' }] } },
   },
+}
+
+async function modelPlanFixture(root: string, sessionId: string, opened: { planId: string; taskKey: string }) {
+  const text = `PROMAX_DISPATCH_PLAN_V1_START\n${JSON.stringify({ protocol: 'promax.dispatch-plan/v1', plan_id: opened.planId, assessment: '测试计划', members: TEAM_REVISION.spec.members.map(member => ({ member_id: member.member_id, selected: true, reason: '负责测试交付', deliverables: TEAM_REVISION.spec.artifacts.filter(artifact => artifact.produced_by === member.member_id).map(artifact => artifact.relative_path.replaceAll('{task_key}', opened.taskKey)) })) })}\nPROMAX_DISPATCH_PLAN_V1_END`
+  const event = { type: 'assistant/message', seq: 0, time: Date.now(), data: { message: { content: [{ type: 'text', text }] } } }
+  await saveGeneratedDispatchPlan(root, { header: { id: sessionId }, events: [event] })
+  return (await readGeneratedDispatchPlan(root, { sessionId, planId: opened.planId }))!
 }
 
 async function temporaryRoot(): Promise<string> {
@@ -35,8 +44,9 @@ afterEach(async () => {
 async function judgeRepairFixture(sessionId: string, taskKey: string) {
   const root = await temporaryRoot()
   const prepared = await prepareTaskSubmission({ workspacePath: root, sessionId, demand: taskKey, attachmentPaths: [], frozenAt: '2026-09-03T12:00:00.000Z' })
-  const opened = await beginDispatchPlan(root, { sessionId, taskKey: prepared.taskKey, rosterMemberIds: ['solution_design', 'quality_judge'] })
-  const confirmed = await confirmDispatchPlan(root, { sessionId, planId: opened.planId, confirmedMemberIds: ['solution_design', 'quality_judge'] })
+  const opened = await beginDispatchPlan(root, { sessionId, taskKey: prepared.taskKey, rosterMemberIds: ['solution_design', 'quality_judge'], teamRevision: TEAM_REVISION })
+  const plan = await modelPlanFixture(root, sessionId, opened)
+  const confirmed = await confirmDispatchPlan(root, { sessionId, planId: opened.planId, plan, confirmedMemberIds: ['solution_design', 'quality_judge'] })
   await sealTaskRunManifest(root, {
     sessionId,
     taskKey: prepared.taskKey,
@@ -78,6 +88,41 @@ async function judgeRepairFixture(sessionId: string, taskKey: string) {
 }
 
 describe('per-session output directories', () => {
+  it('registers independent local projects with stable owner metadata and unchanged relative task paths', async () => {
+    const root = await temporaryRoot()
+    const authPath = join(root, 'auth.json')
+    await writeFile(authPath, JSON.stringify({ employee_id: '10086', access_token: `header.${Buffer.from(JSON.stringify({ name: '创建者' })).toString('base64url')}.signature` }))
+    const owner = await projectOwnerFromAuth(authPath)
+    expect(owner).toEqual({ employee_id: '10086', name: '创建者', role: 'owner' })
+    const registry = { create: async (path: string, title = '') => ({ id: path, path, title, sessionIds: [] }) }
+    await mkdir(join(root, '产品', 'deliverables', '历史记录'), { recursive: true })
+    await writeFile(join(root, '产品', 'deliverables', '历史记录', 'prd.md'), '原始内容')
+    await mkdir(join(root, '另一个项目'))
+    await mkdir(join(root, '.内部目录'))
+    await symlink(join(root, '产品'), join(root, '项目链接'))
+    const projects = await registerProjectWorkspaces(registry, root, owner)
+    expect(projects.map(project => project.title).sort()).toEqual(['产品', '另一个项目'])
+    const a = projects.find(project => project.title === '产品')!
+    const b = projects.find(project => project.title === '另一个项目')!
+    const first = await readFile(join(a.path, 'project.yml'), 'utf8')
+    const manifestA = YAML.parse(first)
+    const manifestB = YAML.parse(await readFile(join(b.path, 'project.yml'), 'utf8'))
+    expect(manifestA.metadata.project_id).not.toBe(manifestB.metadata.project_id)
+    expect(manifestA.spec.members).toEqual([owner])
+    expect(manifestB.spec.members).toEqual([owner])
+    await ensureProjectWorkspace(registry, root, '产品', owner)
+    expect(await readFile(join(a.path, 'project.yml'), 'utf8')).toBe(first)
+    for (const [index, project] of [a, b].entries()) {
+      const prepared = await prepareTaskSubmission({ workspacePath: project.path, sessionId: `session-${index}`, demand: '相同任务名', attachmentPaths: [], frozenAt: '2026-09-05T15:00:00.000Z' })
+      expect(prepared.taskKey).toBe('相同任务名')
+      expect(await readdir(project.path)).not.toContain('产出')
+    }
+    expect(await readFile(join(a.path, 'deliverables', '历史记录', 'prd.md'), 'utf8')).toBe('原始内容')
+    expect(await readdir(join(b.path, 'deliverables'))).toEqual(['相同任务名'])
+    expect(await readdir(join(b.path, '.promax', 'session-scopes'))).toEqual(['session-1.json'])
+    await expect(ensureProjectWorkspace(registry, root, '../越界', owner)).rejects.toThrow()
+    await expect(ensureProjectWorkspace(registry, root, '项目链接', owner)).rejects.toThrow('项目路径必须是独立目录')
+  })
   it('uses the visible Chinese session name and suffixes duplicate folders', async () => {
     const root = await temporaryRoot()
     const first = await ensureSessionOutputDirectory(root, 'session-1', '图书馆座位预约')
@@ -104,12 +149,56 @@ describe('per-session output directories', () => {
 })
 
 describe('dispatch confirmation gate', () => {
+  it('requires a persisted native model plan, rejects forged and stale plans, and allows adding an unselected team member', async () => {
+    const root = await temporaryRoot()
+    const sessionId = 'session-model-gate'
+    const opened = await beginDispatchPlan(root, { sessionId, taskKey: '计划门禁', rosterMemberIds: ['solution_design', 'quality_judge'], teamRevision: TEAM_REVISION })
+    const input = { sessionId, planId: opened.planId, confirmedMemberIds: ['solution_design', 'quality_judge'] }
+    const raw = { protocol: 'promax.dispatch-plan/v1', plan_id: opened.planId, assessment: '等待用户选择业务成员', members: [
+      { member_id: 'solution_design', selected: false, reason: '目标尚未明确，用户可手动加入方案成员' },
+      { member_id: 'quality_judge', selected: true, reason: '独立验收', deliverables: ['.promax/judge/计划门禁/judge.md'] },
+    ] }
+    const frame = (value: unknown) => `PROMAX_DISPATCH_PLAN_V1_START\n${JSON.stringify(value)}\nPROMAX_DISPATCH_PLAN_V1_END`
+    const event = (text: string, type = 'assistant/message', seq = 1) => ({ type, seq, time: Date.now(), data: { message: { content: [{ type: 'text', text }] } } })
+    const save = async (events: ReturnType<typeof event>[], id = sessionId) => saveGeneratedDispatchPlan(root, { header: { id }, events })
+    for (const candidate of [event(frame(raw), 'user/message'), event(frame({ ...raw, plan_id: 'wrong-plan' })), event('invalid JSON'), event(frame({ ...raw, members: [] }))]) {
+      await save([candidate])
+      await expect(confirmDispatchPlan(root, { ...input, plan: raw })).rejects.toThrow('模型计划尚未生成并保存')
+      expect(await readdir(root)).toEqual([`${sessionId}.planning.json`])
+    }
+    await save([event(frame(raw))], 'session-other')
+    expect(await readGeneratedDispatchPlan(root, input)).toBeUndefined()
+    await save([event(frame(raw))])
+    const plan = (await readGeneratedDispatchPlan(root, input))!
+    expect(plan.members[0]?.selected).toBe(false)
+    expect(plan.members[0]?.deliverables).toEqual(['deliverables/计划门禁/prd.md'])
+    await expect(confirmDispatchPlan(root, { ...input, plan, confirmedMemberIds: ['quality_judge'] })).rejects.toThrow('至少一名业务成员')
+    await expect(confirmDispatchPlan(root, { ...input, plan: { ...plan, assessment: '伪造计划' } })).rejects.toThrow('与服务端保存的模型计划不一致')
+    await expect(confirmDispatchPlan(root, { ...input, plan, confirmedMemberIds: ['outside_member', 'quality_judge'] })).rejects.toThrow('不属于当前团队名单')
+    await save([event(frame({ ...raw, assessment: '更新后的模型计划' }), 'assistant/message', 2)])
+    await expect(confirmDispatchPlan(root, { ...input, plan })).rejects.toThrow('与服务端保存的模型计划不一致')
+    const latest = (await readGeneratedDispatchPlan(root, input))!
+    const confirmed = await confirmDispatchPlan(root, { ...input, plan: latest })
+    expect(confirmed.confirmedMemberIds).toEqual(input.confirmedMemberIds)
+    await expect(confirmDispatchPlan(root, { ...input, plan: { members: latest.members, assessment: latest.assessment, planId: latest.planId, protocol: latest.protocol } })).resolves.toEqual(confirmed)
+    const saved = JSON.parse(await readFile(join(root, `${sessionId}.confirmed.json`), 'utf8'))
+    expect(saved.spec.model_plan.plan.members[0].selected).toBe(false)
+    expect(saved.spec.model_plan.source_event_seq).toBe(2)
+    await save([event(frame(raw), 'assistant/message', 3)])
+    expect(JSON.parse(await readFile(join(root, `${sessionId}.confirmed.json`), 'utf8'))).toEqual(saved)
+    delete saved.spec.team_revision
+    delete saved.spec.model_plan
+    await writeFile(join(root, `${sessionId}.confirmed.json`), JSON.stringify(saved))
+    await expect(confirmDispatchPlan(root, { ...input, plan: latest })).rejects.toThrow('历史计划缺少团队版本快照，请新建需求')
+  })
+
   it('blocks all planning tools and then enforces the immutable confirmed member list', async () => {
     const root = await temporaryRoot()
     const opened = await beginDispatchPlan(root, {
       sessionId: 'session-plan',
       taskKey: '登录流程',
       rosterMemberIds: ['solution_design', 'quality_judge'],
+      teamRevision: TEAM_REVISION,
     })
     let dispatched = 0
     const next = async () => { dispatched += 1; return { kind: 'allow' } }
@@ -133,10 +222,13 @@ describe('dispatch confirmation gate', () => {
     await expect(enforceDispatchPlanTool(root, execution('bash'), next)).resolves.toEqual(expect.objectContaining({ kind: 'deny' }))
     expect(dispatched).toBe(0)
 
+    await expect(confirmDispatchPlan(root, { sessionId: 'session-plan', planId: opened.planId, confirmedMemberIds: ['solution_design', 'quality_judge'] })).rejects.toThrow('模型计划尚未生成并保存')
+    const plan = await modelPlanFixture(root, 'session-plan', opened)
     const confirmed = await confirmDispatchPlan(root, {
       sessionId: 'session-plan',
       planId: opened.planId,
       confirmedMemberIds: ['solution_design', 'quality_judge'],
+      plan,
     })
     expect(confirmed.confirmedMemberIds).toEqual(['solution_design', 'quality_judge'])
     await expect(enforceDispatchPlanTool(root, execution('solution_design'), next)).resolves.toEqual({ kind: 'allow' })
@@ -155,6 +247,7 @@ describe('dispatch confirmation gate', () => {
       sessionId: 'session-plan',
       planId: opened.planId,
       confirmedMemberIds: ['quality_judge', 'solution_design'],
+      plan,
     })).rejects.toThrow('调度名单已经确认，不能再次修改')
   })
 
@@ -201,11 +294,14 @@ describe('dispatch confirmation gate', () => {
       sessionId: 'session-evidence',
       taskKey: '续费提醒',
       rosterMemberIds: ['solution_design', 'quality_judge'],
+      teamRevision: TEAM_REVISION,
     })
+    const plan = await modelPlanFixture(root, 'session-evidence', opened)
     await confirmDispatchPlan(root, {
       sessionId: 'session-evidence',
       planId: opened.planId,
       confirmedMemberIds: ['solution_design', 'quality_judge'],
+      plan,
     })
     const invalidRoot = join(workspace, '.promax', 'input', '续费提醒')
     await mkdir(invalidRoot, { recursive: true })
@@ -337,11 +433,14 @@ describe('dispatch confirmation gate', () => {
       sessionId: 'session-complete',
       taskKey: prepared.taskKey,
       rosterMemberIds: ['solution_design', 'quality_judge'],
+      teamRevision: TEAM_REVISION,
     })
+    const plan = await modelPlanFixture(root, 'session-complete', opened)
     const confirmed = await confirmDispatchPlan(root, {
       sessionId: 'session-complete',
       planId: opened.planId,
       confirmedMemberIds: ['solution_design', 'quality_judge'],
+      plan,
     })
     await sealTaskRunManifest(root, {
       sessionId: 'session-complete',

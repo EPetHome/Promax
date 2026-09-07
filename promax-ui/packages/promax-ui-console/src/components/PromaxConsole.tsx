@@ -25,6 +25,7 @@ import {
 import { installPromaxConsoleStyles } from '../styles.ts'
 import { formatBytes, formatDateTime, formatPercent, inputDateToIso, kindLabels, statusLabels } from './format.ts'
 import { Icon, type IconName } from './icons.tsx'
+import { PromaxLogo } from './BrandAssets.tsx'
 
 type ConsoleView = 'overview' | 'users' | 'artifacts' | 'telemetry'
 
@@ -97,7 +98,7 @@ export function PromaxConsole({ apiBaseUrl, standalone = false }: PromaxConsoleP
     <main className={rootClassName} aria-label="Promax 管理控制台">
       <aside className="promax-console-rail">
         <div className="promax-console-brand">
-          <span className="promax-console-brand-mark"><PromaxGlyph /></span>
+          <PromaxLogo className="promax-console-brand-mark" />
           <span>Promax</span>
         </div>
         <nav className="promax-console-nav" aria-label="控制台页面">
@@ -171,7 +172,7 @@ function Login({ api, className }: { api: PromaxApiClient; className: string }) 
   return (
     <main className={`${className} promax-login`} aria-label="Promax 登录">
       <section className="promax-login-card">
-        <div className="promax-login-mark"><PromaxGlyph /></div>
+        <PromaxLogo className="promax-login-mark" />
         <h1>登录 Promax</h1>
         <p className="promax-login-intro">使用员工账号进入管理控制台。管理员可以查看团队接入、产出与分轨用量。</p>
         {error === undefined ? null : <div className="promax-alert" role="alert">{error}</div>}
@@ -509,10 +510,6 @@ function StatePanel({ title, message, action }: { title: string; message: string
 
 function PageLoading() { return <div className="promax-state-panel" role="status" aria-live="polite">正在加载…</div> }
 function PageError({ message }: { message: string }) { return <div className="promax-state-panel" role="alert"><div><strong>页面加载失败</strong><div>{message}</div></div></div> }
-
-function PromaxGlyph() {
-  return <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 5.5h8.25a5.25 5.25 0 0 1 0 10.5H9v3H5V5.5Zm4 4v2.5h4.25a1.25 1.25 0 1 0 0-2.5H9Z" /><path d="m16.9 15.2 2.6 3.8h-4.2l-2.4-3.8h4Z" opacity=".56" /></svg>
-}
 
 function sortedUsers(users: ConsoleUsersResponse): ConsoleUser[] {
   const rank: Record<UserReportStatus, number> = { never: 0, stale: 1, ok: 2 }

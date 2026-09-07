@@ -39,6 +39,7 @@ const TEAM_REVISION = {
 }
 
 afterEach(async () => {
+  vi.unstubAllEnvs()
   if (temporaryHome !== undefined) await rm(temporaryHome, { recursive: true, force: true })
   temporaryHome = undefined
   delete process.env.PROMAX_GENERAL_WORKSPACE
@@ -241,17 +242,17 @@ describe('Promax bundle config policy', () => {
       unsupported: mapping.unsupportedReason !== undefined,
     }))).toEqual([
       { tool: 'feishu_bitable_app', actions: { create: 'mcp__feishu__bitable_v1_app_create' }, unsupported: false },
-      { tool: 'feishu_bitable_app_table', actions: { list: 'mcp__feishu__bitable_v1_appTable_list' }, unsupported: false },
+      { tool: 'feishu_bitable_app_table', actions: { list: 'mcp__feishu__bitable_v1_appTable_list', create: 'mcp__feishu__bitable_v1_appTable_create' }, unsupported: false },
       { tool: 'feishu_bitable_app_table_field', actions: { list: 'mcp__feishu__bitable_v1_appTableField_list' }, unsupported: false },
       { tool: 'feishu_bitable_app_table_record', actions: {
         create: 'mcp__feishu__bitable_v1_appTableRecord_create',
         list: 'mcp__feishu__bitable_v1_appTableRecord_search',
         search: 'mcp__feishu__bitable_v1_appTableRecord_search',
       }, unsupported: false },
-      { tool: 'feishu_spreadsheet_sheet', actions: {}, unsupported: true },
+      { tool: 'feishu_spreadsheet_sheet', actions: { list: 'GET /sheets/v3/spreadsheets/{spreadsheet_token}/sheets/query' }, unsupported: false },
       { tool: 'feishu_docx_import', actions: { create: 'mcp__feishu__docx_builtin_import' }, unsupported: false },
       { tool: 'feishu_docx_raw_content', actions: { read: 'mcp__feishu__docx_v1_document_rawContent' }, unsupported: false },
-      { tool: 'feishu_spreadsheet_sheet_range_read', actions: {}, unsupported: true },
+      { tool: 'feishu_spreadsheet_sheet_range_read', actions: { read: 'GET /sheets/v2/spreadsheets/{spreadsheet_token}/values/{sheet_id}!{range}' }, unsupported: false },
     ])
 
     interface CapturedDefinition {
@@ -396,6 +397,20 @@ describe('Promax bundle config policy', () => {
       },
     ])
     expect(runtime.tools.execute).not.toHaveBeenCalledWith(expect.objectContaining({ agent: expect.anything() }))
+    const fields = [
+      { field_name: '需求名称', type: 1 },
+      { field_name: '状态', type: 3, property: { options: [{ name: '已上线' }, { name: '需求转出' }] } },
+    ]
+    await childRegistered.get('feishu_bitable_app_table')!.execute({
+      action: 'create', app_token: 'app-demo', name: '需求池', default_view_name: '全部', fields,
+    }, context)
+    expect(executions.at(-1)).toMatchObject({
+      name: 'mcp__feishu__bitable_v1_appTable_create',
+      arguments: { path: { app_token: 'app-demo' }, data: { table: { name: '需求池', default_view_name: '全部', fields } } },
+    })
+    await expect(childRegistered.get('feishu_bitable_app_table')!.execute({
+      action: 'create', app_token: 'app-demo', name: '需求池', fields: [{ field_name: '状态', type: '3' }],
+    }, context)).rejects.toThrow('fields')
     expect([...childRegistered.values()].every(definition => definition.description.includes('身份不可得时继续执行并记为匿名 / unknown'))).toBe(true)
     childMemberId = 'solution_design'
     await expect(childRegistered.get('feishu_bitable_app')!.execute({
@@ -403,7 +418,7 @@ describe('Promax bundle config policy', () => {
     }, context)).rejects.toThrow('feishu_bitable_app 仅允许 requirement_management')
   })
 
-  it('returns actionable Chinese errors for missing credentials and capabilities absent from lark-mcp', async () => {
+  it('returns actionable Chinese errors for missing credentials and rejects spreadsheet writes', async () => {
     interface CapturedDefinition {
       name: string
       execute(args: unknown, exec: { callId: string; rootCallId: string; token: symbol; signal: AbortSignal; deferContext(context: unknown): void; concludeTurn(): void }): Promise<unknown>
@@ -449,12 +464,16 @@ describe('Promax bundle config policy', () => {
     credentialsConfigured = true
     state = { ...state!, enabled: true }
     await expect(registered.get('feishu_spreadsheet_sheet')!.execute({
-      action: 'list', spreadsheet_token: 'sheet-demo',
-    }, context)).rejects.toThrow('Skill pm-weekly-monitor 需要工具 feishu_spreadsheet_sheet（action=list）；当前 @larksuiteoapi/lark-mcp 0.5.1 的 tools/list 中没有飞书电子表格工作表能力，未创建伪映射。')
+      action: 'write', spreadsheet_token: 'sheetDemo',
+    }, context)).rejects.toThrow('电子表格仅支持列出工作表和读取区域，不支持写入或其他操作。')
   })
 
   it('bootstraps the direct-demand workspace without draft directories', async () => {
     temporaryHome = await mkdtemp(join(tmpdir(), 'promax-bundle-test-'))
+    vi.stubEnv('DSH_HOME', temporaryHome)
+    vi.stubEnv('PROMAX_PROJECT_ROOT', join(temporaryHome, 'projects'))
+    await mkdir(join(temporaryHome, 'promax'), { recursive: true })
+    await writeFile(join(temporaryHome, 'promax/auth.json'), JSON.stringify({ employee_id: '10086', name: '测试用户' }))
     process.env.PROMAX_GENERAL_WORKSPACE = join(temporaryHome, 'general')
     process.env.PROMAX_PRODUCT_WORKSPACE = join(temporaryHome, 'product')
     let workspaceOrdinal = 0
@@ -464,7 +483,11 @@ describe('Promax bundle config policy', () => {
     })
     const register = vi.fn(() => () => {})
     await apply({
-      workspaceRegistry: { create },
+      workspaceRegistry: { create, delete: vi.fn(async () => true) },
+      agents: { list: () => [], create: vi.fn(), resume: vi.fn() },
+      sessions: { flush: vi.fn() },
+      sessionPersistence: { list: async () => [], locate: () => undefined },
+      apiProxy: {},
       webServer: { register },
       settings: { register: <T>(_ns: string, _schema: unknown, options: { base: T; applies: 'live' | 'restart' }) => ({
         get: () => options.base,
@@ -480,7 +503,7 @@ describe('Promax bundle config policy', () => {
     }, { apiBaseUrl: 'http://127.0.0.1:3100' })
 
     expect(create).toHaveBeenNthCalledWith(1, join(temporaryHome, 'general'), '通用')
-    expect(create).toHaveBeenNthCalledWith(2, join(temporaryHome, 'product'), '产品')
+    expect(create).toHaveBeenNthCalledWith(2, join(temporaryHome, 'product'), 'product')
     expect(readFileSync(join(temporaryHome, 'product', '.promax', 'source-ledger.md'), 'utf8')).toContain('来源台账')
     expect(register).toHaveBeenCalledWith(expect.objectContaining({
       kind: 'prefix',

@@ -1,7 +1,10 @@
 import { clientPlugin } from '../../scripts/client-plugin.ts'
 
 export default [
-  ...clientPlugin('@promax/promax-ui-console'),
+  ...clientPlugin('@promax/promax-ui-console').map(config => ({
+    ...config,
+    loader: { '.png': 'dataurl' as const },
+  })),
   {
     name: '@promax/promax-ui-console:server',
     entry: { server: 'src/server.ts' },
