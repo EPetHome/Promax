@@ -1,0 +1,21 @@
+npm notice
+npm notice 📦  @promax/promax-bundle@0.1.97
+npm notice Tarball Contents
+npm notice 2.3kB cordis.patch.yml
+npm notice 56.9kB lib/index.d.mts
+npm notice 763.5kB lib/index.mjs
+npm notice 1.1kB package.json
+npm notice 1.5kB presets/general/agent.cordis.yml
+npm notice 127B presets/general/preset.yml
+npm notice Tarball Details
+npm notice name: @promax/promax-bundle
+npm notice version: 0.1.97
+npm notice filename: promax-promax-bundle-0.1.97.tgz
+npm notice package size: 233.2 kB
+npm notice unpacked size: 825.5 kB
+npm notice shasum: 38d40f95164d43e2a00ea6a5ee53b863d5f30b00
+npm notice integrity: sha512-ARmAQ10iW+c0V[...]sIHQzWyKWRXaQ==
+npm notice total files: 6
+npm notice
+promax-promax-bundle-0.1.97.tgz
+Selected archives prepared at /Users/Admin/Desktop/Promax/.runtime/releases/gc-sr01-repair2-20260925; no runtime sources changed and no full installer generated.

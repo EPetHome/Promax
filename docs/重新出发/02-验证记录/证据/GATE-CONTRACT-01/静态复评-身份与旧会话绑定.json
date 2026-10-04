@@ -1,0 +1,67 @@
+{
+  "scope": "独立静态复评：读取源码/差异/测试/既有日志/安装文件；未运行产品测试、复现、接口、模型、浏览器、构建或服务操作。",
+  "before_archive_matches": {
+    "promax-ui/packages/promax-ui-console/src/work-protocol.ts": true,
+    "promax-ui/packages/promax-bundle/src/structured-results.ts": true,
+    "promax-agent/team-harness/modules/team-coordinator/agent-module.yml": true,
+    "promax-ui/packages/promax-bundle/tests/orchestration-closure.test.ts": true,
+    "promax-ui/packages/promax-bundle/tests/work-spine.test.ts": true,
+    "promax-agent/team-harness/package.json": true,
+    "promax-ui/packages/promax-bundle/package.json": true,
+    "promax-ui/packages/promax-ui-console/package.json": true
+  },
+  "current_sources_match": {
+    "promax-ui/packages/promax-ui-console/src/work-protocol.ts": true,
+    "promax-ui/packages/promax-bundle/src/structured-results.ts": true,
+    "promax-agent/team-harness/modules/team-coordinator/agent-module.yml": true,
+    "promax-ui/packages/promax-bundle/tests/orchestration-closure.test.ts": true,
+    "promax-ui/packages/promax-bundle/tests/work-spine.test.ts": true,
+    "promax-agent/team-harness/package.json": true,
+    "promax-ui/packages/promax-bundle/package.json": true,
+    "promax-ui/packages/promax-ui-console/package.json": true,
+    "promax-agent/team-harness/generated/r9/promax-team/team-revision.yml": true
+  },
+  "old_session": {
+    "path": "/Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/session-aa8e657a-a011-42f2-a337-bf960bdd6d2d/session.jsonl.zstd",
+    "id": "session-aa8e657a-a011-42f2-a337-bf960bdd6d2d",
+    "agentPreset": "promax-team",
+    "preset_selection_events": []
+  },
+  "preset_files": [
+    {
+      "path": "/Users/Admin/.dsh-promax-first/.agent-presets/promax-team/team-revision.yml",
+      "sha256": "5369793b1e952593a5a75e5337e26dbee9711d78f82fe918aee0a5e01bcef3a3"
+    },
+    {
+      "path": "/Users/Admin/.dsh-promax-first/.agent-presets/.promax-team-gate-r8-backup-20260925/team-revision.yml",
+      "sha256": "d77684ccd16c11010fa7901f793e097af13e9a18f141fd039561255f3ab23b00"
+    }
+  ],
+  "revision_tree_changed_files": [
+    "agent.cordis.yml",
+    "manifest.sha256",
+    "team-revision.yml"
+  ],
+  "finding": {
+    "id": "GC-SR01",
+    "priority": "P2",
+    "criterion": "G06：新会话使用r9，旧会话保持原绑定",
+    "trigger": "本轮已重启服务之后，恢复历史agentPreset=promax-team的旧会话",
+    "static_chain": [
+      "session.ts:48 resolveSessionPreset仅取最新选择或header中的preset名称",
+      "api-proxy.ts:1208-1211 冷恢复按上述名称调用composeAgent；1168-1186按名称resolve并mount",
+      "agent-presets/index.ts:213及mount按当前目录解析",
+      "discovery.ts:150-160使用目录名作preset id，点开头备份不满足PRESET_ID",
+      "已安装promax-team目录为r9；旧r8只存于隐藏备份"
+    ],
+    "impact": "旧记录仍可标r8，但恢复时同名preset会解析当前r9；未迁移历史数据不等于固定旧执行绑定。",
+    "runtime_reproduction": "not_run",
+    "required_followup": "为新旧会话保留可区分、可解析的版本身份或复用明确的按会话版本绑定机制；不得改写旧会话头/日志；开发补冷恢复旧会话及新建会话的隔离反例。"
+  },
+  "other_conclusions": [
+    "G01-G05相关改动与消费路径静态未发现新增需返修问题；59/59仅是开发已有记录，本轮未重跑",
+    "原生raw register直接调用execute，未发现新增参数schema先于本工具解析器吞掉定制错误的路径",
+    "r8/r9资源目录仅3文件有差异，成员/技能快照保留",
+    "真实模型成功率、业务效率、浏览器体验未验"
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "scope": "返修2独立静态复评：源码/差异/测试/已有日志与文件SHA；未运行产品测试/复现/类型/构建/接口/模型/浏览器/服务操作",
+  "identity_checks": [
+    {
+      "path": "promax-ui/packages/promax-bundle/src/promax-session-binding.ts",
+      "matches": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/index.ts",
+      "matches": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/package.json",
+      "matches": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/lib/index.mjs",
+      "matches": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/promax-session-binding.test.ts",
+      "matches": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/orchestration-closure.test.ts",
+      "matches": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/effective-completion.test.ts",
+      "matches": true
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/tests/work-route-fixture.ts",
+      "matches": true
+    },
+    {
+      "path": "promax-agent/deepseek-harness/packages/host/apiproxy/src/api-proxy.ts",
+      "matches": true
+    },
+    {
+      "path": "promax-agent/deepseek-harness/packages/host/apiproxy/lib/index.js",
+      "matches": true
+    },
+    {
+      "path": "promax-agent/deepseek-harness/apps/cli/tests/web-agent-presets.e2e.ts",
+      "matches": true
+    },
+    {
+      "path": "/Users/Admin/.dsh-promax-first/profiles/web/package.json",
+      "matches": true
+    },
+    {
+      "path": "/Users/Admin/.dsh-promax-first/profiles/web/pnpm-lock.yaml",
+      "matches": true
+    },
+    {
+      "path": "/Users/Admin/.dsh-promax-first/profiles/web/node_modules/@promax/promax-bundle/lib/index.mjs",
+      "matches": true
+    },
+    {
+      "path": "/Users/Admin/.dsh-promax-first/.agent-presets/promax-team-r10/agent.cordis.yml",
+      "matches": true
+    }
+  ],
+  "static_disposition": {
+    "GC-SR01-A": "实际模板及manifest与可信已安装发布目录核对，静态可关闭",
+    "GC-SR01-D": "新增真实JSONL/产品resolver/原生restore+mount/systemPrompt.assemble/合同读取隔离链，静态可关闭旧替身范围缺口",
+    "GC-SR01-B/C": "分别场景改善，保留一个选择历史与fork组合缺口"
+  },
+  "finding": {
+    "id": "GC-SR01-BC",
+    "priority": "P2",
+    "trigger": "有agent-preset/selected=promax-team历史、已可靠绑定r8/r9且已有完成回合的旧会话进行fork，再读取产品合同或冷恢复派生会话",
+    "facts": [
+      "api-proxy.ts:2342在events=[]下按版本别名预建子pin；recorded_preset写为别名",
+      "api-proxy.ts:2349把原选择事件连同source.events原样seed到子会话",
+      "core/session保留合法seed事件；resolveSessionPreset/resolveProductSessionPreset取最后选择事件，得到promax-team",
+      "promax-session-binding.ts:85只允许旧名pin改以别名读取，未允许别名pin与继承旧名事件的同版对应；报固定绑定身份无效",
+      "web-agent-presets.e2e.ts恢复gc-selected但只fork gc-old；没有选择历史+fork组合断言"
+    ],
+    "runtime_reproduction": "not_run",
+    "minimal_followup": "复用当前真实隔离链，为gc-selected补完成回合后fork并冷恢复/读取合同；统一创建pin与有效选择历史的身份口径，保留父版本/资源/合同保护，不修改旧历史。"
+  },
+  "preserved_evidence": [
+    "原生真实隔离链1/1，native定向47/47，bundle54/54为开发已有记录",
+    "bundle0.1.97与已安装/历史运行meta字节一致，console0.3.157、team-harness0.6.18-dist.1/r10保留",
+    "30份未知旧会话和业务模型/浏览器/效率限制不扩大处理"
+  ],
+  "status": "one_existing_B_C_combination_pending"
+}

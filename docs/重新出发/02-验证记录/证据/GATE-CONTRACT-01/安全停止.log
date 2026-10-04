@@ -1,0 +1,7 @@
+2026-09-25T04:32:15Z
+PID=68452
+68452     1 /Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open
+session_recent_3m=0
+children=0
+TERM
+stopped_self_at_poll=2

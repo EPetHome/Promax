@@ -1,0 +1,27 @@
+2026-09-25T06:41:18Z
+Promax 正在运行：http://127.0.0.1:8800/（PID 74827）
+核对运行包：/Users/Admin/.dsh-promax-first/profiles/web
+  ✓ @promax/feishu-api@0.1.0（来源 plugins-core-20260919.vf47J6，3 个文件一致）
+  ✓ @promax/promax-bundle@0.1.96（来源 gc-sr01-20260925，6 个文件一致）
+  ✓ @promax/promax-feishu-bridge@0.1.2（来源 plugins-core-20260919.vf47J6，3 个文件一致）
+  ✓ @promax/promax-report@0.2.4（来源 chain-context-v01-20260921-report-final，75 个文件一致）
+  ✓ @promax/promax-ui-brand@0.1.11（来源 plugins-core-20260919.vf47J6，4 个文件一致）
+  ✓ @promax/promax-ui-console@0.3.157（来源 gc-sr01-20260925，17 个文件一致）
+  ✓ @promax/promax-ui-layout@0.1.7（来源 plugins-core-20260919.vf47J6，4 个文件一致）
+  ✓ @promax/team-harness@0.6.18-dist.1（来源 gc-sr01-20260925，1572 个文件一致）
+核对运行进程是否加载了已安装内容：
+  ✓ 进程 09-25 01:50:26 不早于最近安装 09-25 01:49:23，运行的就是已安装版本
+PROCESS
+COMMAND   PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    74827 Admin   18u  IPv4 0xe13404ddd09a5787      0t0  TCP 127.0.0.1:8800 (LISTEN)
+CONNECTIONS
+COMMAND     PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+Google     2476 Admin   27u  IPv4 0xe9bed11ce02c6582      0t0  TCP 127.0.0.1:53299->127.0.0.1:8800 (ESTABLISHED)
+Google     2476 Admin   34u  IPv4 0x36e0271d26d0b422      0t0  TCP 127.0.0.1:53318->127.0.0.1:8800 (ESTABLISHED)
+Google     2476 Admin   37u  IPv4 0x785a776773f1d861      0t0  TCP 127.0.0.1:53320->127.0.0.1:8800 (ESTABLISHED)
+node      74827 Admin   18u  IPv4 0xe13404ddd09a5787      0t0  TCP 127.0.0.1:8800 (LISTEN)
+node      74827 Admin   22u  IPv4 0x9254af5ea11dba00      0t0  TCP 127.0.0.1:8800->127.0.0.1:53299 (ESTABLISHED)
+node      74827 Admin   36u  IPv4 0xf2b0cae5af521a30      0t0  TCP 127.0.0.1:8800->127.0.0.1:53318 (ESTABLISHED)
+node      74827 Admin   40u  IPv4 0xe0afe3ade0c983c6      0t0  TCP 127.0.0.1:8800->127.0.0.1:53320 (ESTABLISHED)
+SESSION RECENT
+WORK RECENT

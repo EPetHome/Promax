@@ -1,0 +1,38 @@
+declaration_changed [('@promax/promax-bundle', 'file:/Users/Admin/Desktop/Promax/.runtime/releases/gc-sr01-bc-20260925/promax-promax-bundle-0.1.98.tgz', 'file:/Users/Admin/Desktop/Promax/.runtime/releases/evidence-feedback-01-20260925/promax-promax-bundle-0.1.99.tgz')]
+lock_diff --- 
+
++++ 
+
+@@ -14,4 +14,4 @@
+
+       '@promax/promax-bundle':
+-        specifier: file:/Users/Admin/Desktop/Promax/.runtime/releases/gc-sr01-bc-20260925/promax-promax-bundle-0.1.98.tgz
+-        version: file:../../../Desktop/Promax/.runtime/releases/gc-sr01-bc-20260925/promax-promax-bundle-0.1.98.tgz(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz)(@promax/promax-feishu-bridge@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-promax-feishu-bridge-0.1.2.tgz(@promax/promax-report@file:../../../Desktop/Promax/.runtime/releases/chain-context-v01-20260921-report-final/promax-promax-report-0.2.4.tgz(@deepseek-ai/dsh-agent@0.1.1-rc.2(@deepseek-ai/dsh-llm@0.1.1-rc.2))(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz)))(@promax/promax-report@file:../../../Desktop/Promax/.runtime/releases/chain-context-v01-20260921-report-final/promax-promax-report-0.2.4.tgz(@deepseek-ai/dsh-agent@0.1.1-rc.2(@deepseek-ai/dsh-llm@0.1.1-rc.2))(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz))
++        specifier: file:/Users/Admin/Desktop/Promax/.runtime/releases/evidence-feedback-01-20260925/promax-promax-bundle-0.1.99.tgz
++        version: file:../../../Desktop/Promax/.runtime/releases/evidence-feedback-01-20260925/promax-promax-bundle-0.1.99.tgz(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz)(@promax/promax-feishu-bridge@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-promax-feishu-bridge-0.1.2.tgz(@promax/promax-report@file:../../../Desktop/Promax/.runtime/releases/chain-context-v01-20260921-report-final/promax-promax-report-0.2.4.tgz(@deepseek-ai/dsh-agent@0.1.1-rc.2(@deepseek-ai/dsh-llm@0.1.1-rc.2))(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz)))(@promax/promax-report@file:../../../Desktop/Promax/.runtime/releases/chain-context-v01-20260921-report-final/promax-promax-report-0.2.4.tgz(@deepseek-ai/dsh-agent@0.1.1-rc.2(@deepseek-ai/dsh-llm@0.1.1-rc.2))(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz))
+       '@promax/promax-feishu-bridge':
+@@ -217,5 +217,5 @@
+
+ 
+-  '@promax/promax-bundle@file:../../../Desktop/Promax/.runtime/releases/gc-sr01-bc-20260925/promax-promax-bundle-0.1.98.tgz':
+-    resolution: {integrity: sha512-kvbrVhEJoED1L+9Bd6+YCDOgSjyRNuW+PyXj190fxTRqGJms2fUsHxMrpCP333SPmwdaTBMErJu2L0FfZy5h6w==, tarball: file:../../../Desktop/Promax/.runtime/releases/gc-sr01-bc-20260925/promax-promax-bundle-0.1.98.tgz}
+-    version: 0.1.98
++  '@promax/promax-bundle@file:../../../Desktop/Promax/.runtime/releases/evidence-feedback-01-20260925/promax-promax-bundle-0.1.99.tgz':
++    resolution: {integrity: sha512-Z1DXpzopB8Z3SL9JIwgyGIrZ2f5VzRziNIu6AXHKVIQxJGva8lgCeV+k3GthNfeKrIs0ri4Si7iz+zFws1poqg==, tarball: file:../../../Desktop/Promax/.runtime/releases/evidence-feedback-01-20260925/promax-promax-bundle-0.1.99.tgz}
++    version: 0.1.99
+     peerDependencies:
+@@ -1609,3 +1609,3 @@
+
+ 
+-  ? '@promax/promax-bundle@file:../../../Desktop/Promax/.runtime/releases/gc-sr01-bc-20260925/promax-promax-bundle-0.1.98.tgz(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz)(@promax/promax-feishu-bridge@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-promax-feishu-bridge-0.1.2.tgz(@promax/promax-report@file:../../../Desktop/Promax/.runtime/releases/chain-context-v01-20260921-report-final/promax-promax-report-0.2.4.tgz(@deepseek-ai/dsh-agent@0.1.1-rc.2(@deepseek-ai/dsh-llm@0.1.1-rc.2))(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz)))(@promax/promax-report@file:../../../Desktop/Promax/.runtime/releases/chain-context-v01-20260921-report-final/promax-promax-report-0.2.4.tgz(@deepseek-ai/dsh-agent@0.1.1-rc.2(@deepseek-ai/dsh-llm@0.1.1-rc.2))(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz))'
++  ? '@promax/promax-bundle@file:../../../Desktop/Promax/.runtime/releases/evidence-feedback-01-20260925/promax-promax-bundle-0.1.99.tgz(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz)(@promax/promax-feishu-bridge@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-promax-feishu-bridge-0.1.2.tgz(@promax/promax-report@file:../../../Desktop/Promax/.runtime/releases/chain-context-v01-20260921-report-final/promax-promax-report-0.2.4.tgz(@deepseek-ai/dsh-agent@0.1.1-rc.2(@deepseek-ai/dsh-llm@0.1.1-rc.2))(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz)))(@promax/promax-report@file:../../../Desktop/Promax/.runtime/releases/chain-context-v01-20260921-report-final/promax-promax-report-0.2.4.tgz(@deepseek-ai/dsh-agent@0.1.1-rc.2(@deepseek-ai/dsh-llm@0.1.1-rc.2))(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz))'
+   : dependencies:
+@promax/feishu-api 0.1.0 3 archive/installed identical
+@promax/promax-bundle 0.1.99 6 archive/installed identical
+@promax/promax-feishu-bridge 0.1.2 3 archive/installed identical
+@promax/promax-report 0.2.4 75 archive/installed identical
+@promax/promax-ui-brand 0.1.11 4 archive/installed identical
+@promax/promax-ui-console 0.3.157 17 archive/installed identical
+@promax/promax-ui-layout 0.1.7 4 archive/installed identical
+@promax/team-harness 0.6.18-dist.1 1572 archive/installed identical
+built module SHA256 1325800575b1755d760fc96cda571c30b15a921c7347f3338a922b8fabc623ae

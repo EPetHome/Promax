@@ -1,0 +1,44 @@
+The plugin "vite-tsconfig-paths" is detected. Vite now supports tsconfig paths resolution natively via the resolve.tsconfigPaths option. You can remove the plugin and set resolve.tsconfigPaths: true in your Vite config instead.
+The plugin "vite-tsconfig-paths" is detected. Vite now supports tsconfig paths resolution natively via the resolve.tsconfigPaths option. You can remove the plugin and set resolve.tsconfigPaths: true in your Vite config instead.
+The plugin "vite-tsconfig-paths" is detected. Vite now supports tsconfig paths resolution natively via the resolve.tsconfigPaths option. You can remove the plugin and set resolve.tsconfigPaths: true in your Vite config instead.
+
+ RUN  v4.1.8 /Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+
+ ❯ |thread-safe| packages/host/apiproxy/tests/api-proxy-agent-preset.spec.ts (39 tests | 1 failed | 38 skipped) 12ms
+   × GC-SR01 cold resume mounts the separately bound revision instead of the overwritten legacy name 12ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |thread-safe| packages/host/apiproxy/tests/api-proxy-agent-preset.spec.ts > GC-SR01 cold resume mounts the separately bound revision instead of the overwritten legacy name
+AssertionError: expected [ { session: 'gc-old-r8', …(1) } ] to deep equally contain { session: 'gc-old-r8', …(1) }
+
+- Expected:
+{
+  "preset": "promax-team-r8-legacy",
+  "session": "gc-old-r8",
+}
+
++ Received:
+[
+  {
+    "preset": "promax-team",
+    "session": "gc-old-r8",
+  },
+]
+
+ ❯ packages/host/apiproxy/tests/api-proxy-agent-preset.spec.ts:175:26
+    173|   await api.sessions.models(request({ sessionId: meta.id }))
+    174|   expect(resume).toHaveBeenCalledOnce()
+    175|   expect(mountedPresets).toContainEqual({ session: 'gc-old-r8', preset…
+       |                          ^
+    176|   expect(meta.agentPreset).toBe('promax-team') // historical header st…
+    177| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 38 skipped (39)
+   Start at  01:18:10
+   Duration  717ms (transform 526ms, setup 148ms, import 489ms, tests 12ms, environment 0ms)
+

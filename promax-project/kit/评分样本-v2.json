@@ -1,0 +1,2558 @@
+[
+  {
+    "record_id": "T0234",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0083",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0006",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "打开较长附件时一直等待，缺少进度说明。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0042",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "切换材料后偶尔需要重新打开预览。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0168",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0017",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "连续上传时出现重复材料，难以区分。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0001",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "导入附件后找不到文件入口。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0110",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0093",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0046",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "附件解析比较慢，不知道还要等多久。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0233",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0312",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "整理资料的功能基本可用。",
+    "source_type": "synthetic_test",
+    "rating": "3"
+  },
+  {
+    "record_id": "T0147",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0184",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0208",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0049",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "附件解析比较慢，不知道还要等多久。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0188",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0220",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0122",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0205",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0248",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0216",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0030",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "打开较长附件时一直等待，缺少进度说明。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0013",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "导入附件后找不到文件入口。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0320",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "整理资料的功能基本可用。",
+    "source_type": "synthetic_test",
+    "rating": false
+  },
+  {
+    "record_id": "T0041",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "材料引用位置不够明确，核对原文费时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0187",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0076",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0007",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "导入附件后找不到文件入口。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0102",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0207",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0195",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0166",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0254",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0221",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0064",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "附件解析比较慢，不知道还要等多久。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0250",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0162",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0245",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0269",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0178",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0073",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "附件解析比较慢，不知道还要等多久。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0293",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0267",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0319",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "材料引用能够定位原文，会更方便。",
+    "source_type": "synthetic_test",
+    "rating": true
+  },
+  {
+    "record_id": "T0309",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "希望上传后能明确看到材料处理状态。",
+    "source_type": "synthetic_test",
+    "rating": "5"
+  },
+  {
+    "record_id": "T0212",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0008",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "连续上传时出现重复材料，难以区分。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0176",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0044",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "材料引用位置不够明确，核对原文费时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0075",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "切换材料后偶尔需要重新打开预览。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0257",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0223",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0120",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0141",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0127",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0256",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0019",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "导入附件后找不到文件入口。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0276",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0230",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0038",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "材料引用位置不够明确，核对原文费时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0316",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "整理资料的功能基本可用。",
+    "source_type": "synthetic_test",
+    "rating": 1.5
+  },
+  {
+    "record_id": "T0025",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "导入附件后找不到文件入口。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0060",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "切换材料后偶尔需要重新打开预览。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0317",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "希望上传后能明确看到材料处理状态。",
+    "source_type": "synthetic_test",
+    "rating": true
+  },
+  {
+    "record_id": "T0284",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0219",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0063",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "切换材料后偶尔需要重新打开预览。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0123",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0107",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0138",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0108",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0210",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0251",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0072",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "切换材料后偶尔需要重新打开预览。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0302",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "预览入口有时不容易找到。",
+    "source_type": "synthetic_test",
+    "rating": null
+  },
+  {
+    "record_id": "T0281",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0057",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "切换材料后偶尔需要重新打开预览。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0002",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "连续上传时出现重复材料，难以区分。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0265",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0155",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0154",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0018",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "打开较长附件时一直等待，缺少进度说明。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0175",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0023",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "连续上传时出现重复材料，难以区分。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0285",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0135",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0273",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0040",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "附件解析比较慢，不知道还要等多久。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0095",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0137",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0124",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0096",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0050",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "材料引用位置不够明确，核对原文费时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0048",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "切换材料后偶尔需要重新打开预览。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0097",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0241",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0231",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0126",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0304",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "整理资料的功能基本可用。",
+    "source_type": "synthetic_test",
+    "rating": null
+  },
+  {
+    "record_id": "T0077",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0087",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0115",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0232",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0246",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0172",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0101",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0300",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0282",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0065",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "材料引用位置不够明确，核对原文费时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0297",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0307",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "材料引用能够定位原文，会更方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0164",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0239",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0261",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0148",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0218",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0204",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0237",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0022",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "导入附件后找不到文件入口。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0252",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0157",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0117",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0143",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0227",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0128",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0244",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0066",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "切换材料后偶尔需要重新打开预览。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0314",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "预览入口有时不容易找到。",
+    "source_type": "synthetic_test",
+    "rating": 6
+  },
+  {
+    "record_id": "T0214",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0238",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0118",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0134",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0271",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0291",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0259",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0196",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0037",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "附件解析比较慢，不知道还要等多久。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0217",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0165",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0104",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0181",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0082",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0058",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "附件解析比较慢，不知道还要等多久。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0194",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0222",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0182",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0242",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0296",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0301",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "希望上传后能明确看到材料处理状态。",
+    "source_type": "synthetic_test",
+    "rating": null
+  },
+  {
+    "record_id": "T0098",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0158",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0081",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0253",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0215",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0047",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "材料引用位置不够明确，核对原文费时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0159",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0289",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0014",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "连续上传时出现重复材料，难以区分。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0198",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0170",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0179",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0190",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0071",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "材料引用位置不够明确，核对原文费时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0270",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0142",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0200",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0288",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0305",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "希望上传后能明确看到材料处理状态。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0247",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0129",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0150",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0116",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0113",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0280",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0103",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0186",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0275",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0089",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0206",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0029",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "连续上传时出现重复材料，难以区分。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0163",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0290",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0229",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0119",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0167",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0109",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0226",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0202",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0005",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "连续上传时出现重复材料，难以区分。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0021",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "打开较长附件时一直等待，缺少进度说明。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0114",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0315",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "材料引用能够定位原文，会更方便。",
+    "source_type": "synthetic_test",
+    "rating": -1
+  },
+  {
+    "record_id": "T0068",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "材料引用位置不够明确，核对原文费时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0015",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "打开较长附件时一直等待，缺少进度说明。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0287",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0130",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0249",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0026",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "连续上传时出现重复材料，难以区分。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0169",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0139",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0308",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "整理资料的功能基本可用。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0112",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0193",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0306",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "预览入口有时不容易找到。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0084",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0090",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0086",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0177",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0069",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "切换材料后偶尔需要重新打开预览。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0311",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "材料引用能够定位原文，会更方便。",
+    "source_type": "synthetic_test",
+    "rating": "4"
+  },
+  {
+    "record_id": "T0140",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0258",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0192",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0272",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0028",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "导入附件后找不到文件入口。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0146",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0091",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0016",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "导入附件后找不到文件入口。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0183",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0295",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0151",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0121",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0286",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0279",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0318",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "预览入口有时不容易找到。",
+    "source_type": "synthetic_test",
+    "rating": false
+  },
+  {
+    "record_id": "T0240",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0009",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "打开较长附件时一直等待，缺少进度说明。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0099",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0236",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0067",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "附件解析比较慢，不知道还要等多久。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0313",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "希望上传后能明确看到材料处理状态。",
+    "source_type": "synthetic_test",
+    "rating": 0
+  },
+  {
+    "record_id": "T0043",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "附件解析比较慢，不知道还要等多久。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0278",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0024",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "打开较长附件时一直等待，缺少进度说明。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0054",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "切换材料后偶尔需要重新打开预览。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0156",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0131",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0298",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0152",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0035",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "材料引用位置不够明确，核对原文费时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0197",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0225",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0191",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0003",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "打开较长附件时一直等待，缺少进度说明。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0085",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0173",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0145",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0228",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0153",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0203",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0055",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "附件解析比较慢，不知道还要等多久。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0292",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0224",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0209",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0062",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "材料引用位置不够明确，核对原文费时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0133",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0174",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0171",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0027",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "打开较长附件时一直等待，缺少进度说明。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0045",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "切换材料后偶尔需要重新打开预览。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0263",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0180",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0243",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0051",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "切换材料后偶尔需要重新打开预览。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0136",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0012",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "打开较长附件时一直等待，缺少进度说明。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0299",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0100",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0074",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "材料引用位置不够明确，核对原文费时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0079",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0032",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "材料引用位置不够明确，核对原文费时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0070",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "附件解析比较慢，不知道还要等多久。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0092",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0011",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "连续上传时出现重复材料，难以区分。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0303",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "材料引用能够定位原文，会更方便。",
+    "source_type": "synthetic_test",
+    "rating": null
+  },
+  {
+    "record_id": "T0080",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0094",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0010",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "导入附件后找不到文件入口。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0144",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0161",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0036",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "切换材料后偶尔需要重新打开预览。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0125",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0106",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0255",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0294",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0211",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0061",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "附件解析比较慢，不知道还要等多久。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0059",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "材料引用位置不够明确，核对原文费时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0033",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "切换材料后偶尔需要重新打开预览。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0189",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0201",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0052",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "附件解析比较慢，不知道还要等多久。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0160",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0132",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0149",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "能看到材料内容，希望引用位置更清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0088",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "基本能完成材料上传，但预览操作还可以简化。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0199",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0105",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0277",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0056",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "材料引用位置不够明确，核对原文费时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0268",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0274",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0078",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0111",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 3,
+    "text": "日常笔记可用，长附件的阅读体验一般。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0264",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "整理资料和核对来源的过程很清楚。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0031",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "附件解析比较慢，不知道还要等多久。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0213",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "材料目录清晰，整理笔记比较省时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0235",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "导入和预览顺畅，能快速查看需要的材料。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0310",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "text": "预览入口有时不容易找到。",
+    "source_type": "synthetic_test",
+    "rating": "1"
+  },
+  {
+    "record_id": "T0034",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "附件解析比较慢，不知道还要等多久。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0020",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "连续上传时出现重复材料，难以区分。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0266",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0283",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0039",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "切换材料后偶尔需要重新打开预览。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0262",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "附件导入、预览和引用都很顺畅。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0004",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 1,
+    "text": "导入附件后找不到文件入口。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0260",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 5,
+    "text": "长材料也能快速找到对应内容，体验很好。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0053",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 2,
+    "text": "材料引用位置不够明确，核对原文费时间。",
+    "source_type": "synthetic_test"
+  },
+  {
+    "record_id": "T0185",
+    "product": "星河笔记（虚构产品）",
+    "date": "2026-09-10",
+    "rating": 4,
+    "text": "引用能回到原文，核对信息比较方便。",
+    "source_type": "synthetic_test"
+  }
+]

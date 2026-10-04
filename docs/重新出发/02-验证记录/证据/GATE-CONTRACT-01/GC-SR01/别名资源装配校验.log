@@ -1,0 +1,38 @@
+{
+  "status": "valid",
+  "files": 138,
+  "revisionDir": "/Users/Admin/.dsh-promax-first/.agent-presets/.promax-team-r4-legacy-gc-stage"
+}
+promax-team-r4-legacy 607265f156a24f18c6d8bda18ef74d92f0cdeb533ae5c197627f0113fd4e8099  /Users/Admin/.dsh-promax-first/.agent-presets/promax-team-r4-legacy/team-revision.yml
+{
+  "status": "valid",
+  "files": 139,
+  "revisionDir": "/Users/Admin/.dsh-promax-first/.agent-presets/.promax-team-r5-legacy-gc-stage"
+}
+promax-team-r5-legacy e30acf7e0866a62412cb3b47b8db177d422ed91b8be0f343a7825190fead3b1c  /Users/Admin/.dsh-promax-first/.agent-presets/promax-team-r5-legacy/team-revision.yml
+{
+  "status": "valid",
+  "files": 139,
+  "revisionDir": "/Users/Admin/.dsh-promax-first/.agent-presets/.promax-team-r7-legacy-gc-stage"
+}
+promax-team-r7-legacy ba0b26e6f81d35a096ecdfc1596401631ea612adaffea6bca577c105215c7963  /Users/Admin/.dsh-promax-first/.agent-presets/promax-team-r7-legacy/team-revision.yml
+{
+  "status": "valid",
+  "files": 139,
+  "revisionDir": "/Users/Admin/.dsh-promax-first/.agent-presets/.promax-team-r8-legacy-gc-stage"
+}
+promax-team-r8-legacy d77684ccd16c11010fa7901f793e097af13e9a18f141fd039561255f3ab23b00  /Users/Admin/.dsh-promax-first/.agent-presets/promax-team-r8-legacy/team-revision.yml
+{
+  "status": "valid",
+  "files": 139,
+  "revisionDir": "/Users/Admin/.dsh-promax-first/.agent-presets/.promax-team-r9-legacy-gc-stage"
+}
+promax-team-r9-legacy 5369793b1e952593a5a75e5337e26dbee9711d78f82fe918aee0a5e01bcef3a3  /Users/Admin/.dsh-promax-first/.agent-presets/promax-team-r9-legacy/team-revision.yml
+{
+  "status": "valid",
+  "files": 139,
+  "revisionDir": "/Users/Admin/.dsh-promax-first/.agent-presets/.promax-team-r10-gc-stage"
+}
+promax-team-r10 cd483e22883c2c8beac8976df649722198a78a0ede56740b04f31706708ccb18  /Users/Admin/.dsh-promax-first/.agent-presets/promax-team-r10/team-revision.yml
+six aliases exactly match installed published revision files; old promx-team r9 untouched
+legacy r8 bytes=unchanged backup, mutable name still published r9

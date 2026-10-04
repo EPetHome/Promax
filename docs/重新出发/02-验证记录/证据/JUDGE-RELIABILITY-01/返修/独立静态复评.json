@@ -1,0 +1,214 @@
+{
+  "task": "JUDGE-RELIABILITY-01 §12返修",
+  "mode": "独立静态复评，无产品/测试/复现/类型/构建/接口/模型/浏览器/进程/服务执行",
+  "identities": [
+    {
+      "record": "接手身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/src/judge-evidence.ts",
+      "sha256": "7da6d95075cf2b9c1fca2e8d66778658e5bec8a3ab01395932ac309a1abbbea8",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/src/work-store.ts",
+      "sha256": "b395e024be7c5eb34b8dfb59ab08e88441fdf6cc3edba35f92f4e2bc1cc4ce38",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/src/index.ts",
+      "sha256": "9b549799bbfb997239c443edf73dadaf74d82a406f4c3bfaaa2aab7af82ecfda",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/src/structured-results.ts",
+      "sha256": "74d59394cfc9a554f6e4d75b56852c9635377b082a2f87d663c75be67cfc5229",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "promax-ui/packages/promax-ui-console/src/review-protocol.ts",
+      "sha256": "478e5fecd7c4c8c19fc9ce385e535afad16f015bb3b1cd469106bbf7ab0c3fcb",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/tests/judge-reliability.test.ts",
+      "sha256": "de689ec1ad9604e50071172eca1324271b8dd0a7caac1949741d6937fdf61b54",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/tests/review-continuity.test.ts",
+      "sha256": "abc6669c2aee245d92050b038b82d4ebe79470f08b6655f51562659861c5019b",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/tests/session-output.test.ts",
+      "sha256": "e2be12ff1fdadf26c59e526d4a4433b724681e441734c27a35070554424c201f",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/package.json",
+      "sha256": "28558fde802ff6803eaad006e778a5aa0920acb1e7890e5eb81d9c3d446d2e27",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/src/task-key.ts",
+      "sha256": "ea6e4a7dcb1d8ecd399c933da375bfe4656c97b840a80ab3c45bc08af1664fa0",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/src/judge-evidence.ts",
+      "sha256": "0aa0175f028696dcdad49270cb240aa189d3801c1dbdade5e27dac68f3c6ac8c",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/src/work-store.ts",
+      "sha256": "2e7732e2d3d064b29f41ff8d0f8d9a8fc847e0605b45859f49f83be9f99df82e",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/src/index.ts",
+      "sha256": "3123bbc06145d11690c1402af3331444233e2d3ed09298ab306b71f7678e5ce6",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/src/structured-results.ts",
+      "sha256": "74d59394cfc9a554f6e4d75b56852c9635377b082a2f87d663c75be67cfc5229",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/tests/judge-repair.test.ts",
+      "sha256": "92e9b0a1d75e69fb774893e3597e09fc3fde23995f132f8d93eade7ee398edb6",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/tests/judge-reliability.test.ts",
+      "sha256": "de689ec1ad9604e50071172eca1324271b8dd0a7caac1949741d6937fdf61b54",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/tests/review-continuity.test.ts",
+      "sha256": "abc6669c2aee245d92050b038b82d4ebe79470f08b6655f51562659861c5019b",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/tests/session-output.test.ts",
+      "sha256": "e2be12ff1fdadf26c59e526d4a4433b724681e441734c27a35070554424c201f",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-ui-console/src/review-protocol.ts",
+      "sha256": "34913405d16e37f6466bcd800cae6a4ca3344f56e7c0730e0de0525d7bc29312",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/package.json",
+      "sha256": "3540849f09a16db43f6f014a06b7f1f269369eed8221cfbdba61fd880f56efb5",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/lib/index.mjs",
+      "sha256": "2c69557dc78a49135c97f75c1afd2d183055f5f7c027648607141a8dbaf7a51a",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-agent/team-harness/generated/r11/promax-team-r11/manifest.sha256",
+      "sha256": "19abde82140494303edd6004ae6731e53d12a70886884f543b3b6497cbe54326",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-ui-console/lib/client.js",
+      "sha256": "422f3e11a0754d290800639d1eaf3b545820794ac4c4908b09205c8bb886c10d",
+      "match": true
+    }
+  ],
+  "installation": {
+    "changed_dependencies": [
+      "@promax/promax-bundle"
+    ],
+    "bundle_archive": "/Users/Admin/Desktop/Promax/.runtime/releases/jr-sr01-sr02-20260925/promax-promax-bundle-0.1.103.tgz",
+    "files": [
+      {
+        "path": "package.json",
+        "sha256": "dbf874c6969f75f2403f6b0008cd7601413880c6e1e723916c84801116b8826a",
+        "installed_match": true
+      },
+      {
+        "path": "lib/index.mjs",
+        "sha256": "2c69557dc78a49135c97f75c1afd2d183055f5f7c027648607141a8dbaf7a51a",
+        "installed_match": true
+      },
+      {
+        "path": "lib/index.d.mts",
+        "sha256": "ffec8dcdd74fbf5588a5f3b352ea97a9682003049c3ff8c22f38c60a5e105056",
+        "installed_match": true
+      },
+      {
+        "path": "presets/general/agent.cordis.yml",
+        "sha256": "aef446c49a9ad8a772ad141bd80cdd7a124dd3dfba3040d7ec47a378538ffc92",
+        "installed_match": true
+      },
+      {
+        "path": "cordis.patch.yml",
+        "sha256": "6f2da68a0700cb0173880c8b88c744abab4ef1a0d0b9524a93ab0ada6ed60a01",
+        "installed_match": true
+      },
+      {
+        "path": "presets/general/preset.yml",
+        "sha256": "49b9096e3de608f76666920ad50be4dbd62ff95724e805fc90618b714e355955",
+        "installed_match": true
+      }
+    ],
+    "module_matches_build_and_historical_load": true,
+    "historical_load_at": "2026-09-25T11:00:35.259510+00:00",
+    "current_process": "not_checked",
+    "resources": [
+      {
+        "revision": 10,
+        "count": 139,
+        "mismatches": []
+      },
+      {
+        "revision": 11,
+        "count": 139,
+        "mismatches": []
+      }
+    ]
+  },
+  "closed_findings": [
+    {
+      "id": "JR-SR01",
+      "result": "shared task-key.ts保留原new/legacy安全规则；Judge只接受与绑定字节名一致的规范安全名，不再ASCII限缩。实际任务命名/创建→r11合同→工具定义execute→commit的5类正向与危险路径反例保留。"
+    },
+    {
+      "id": "JR-SR02",
+      "result": "新history.origin区分issue/recheck，原声明摘要保持；旧无marker/无hash条目回读各自限定路径报告，核round/hash/ID/evidence/state后分类；缺证据/真冲突仍拒。same/changed open后两种关闭、旧报告缺失及幂等有测试。"
+    }
+  ],
+  "findings": [],
+  "validation_limits": [
+    "定向17/17、修前7/13失败及任务名原有3/3均为已有Pi记录，本轮未重跑。",
+    "10文件集成94通过2失败，xlsx预览truncated及停止话术断言对应代码/测试未在本次改动；静态未见本轮引入联系，未运行旧版对照，不称全包通过。",
+    "旧team8失败保留；真实Judge/旧会话/浏览器/效率仍未验。"
+  ],
+  "decision": "两项返修通过独立静态复评，JR-SR01/JR-SR02可关闭，阶段三工程/静态范围可收口；不代表真实Judge业务效果通过。"
+}

@@ -1,0 +1,16 @@
+vite v6.4.3 building for production...
+transforming...
+✓ 50 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                       0.46 kB │ gzip:  0.29 kB
+dist/assets/requirement_review-76-CbdVBR8X.png        5.94 kB
+dist/assets/logo-76-BxuC6YF3.png                      5.97 kB
+dist/assets/solution_design-76-DCRHj5MS.png           6.00 kB
+dist/assets/user_analysis-76-CrTMicR2.png             6.20 kB
+dist/assets/requirement_management-76-B6ZCPq3G.png    6.48 kB
+dist/assets/customer_research-76-daGXivKC.png         6.68 kB
+dist/assets/product_discovery-76-BiNhGLWz.png         6.98 kB
+dist/assets/index-BFRA1ZDs.css                        0.28 kB │ gzip:  0.23 kB
+dist/assets/index--wC1C1yq.js                       351.90 kB │ gzip: 83.41 kB │ map: 629.32 kB
+✓ built in 394ms

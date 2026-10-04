@@ -1,0 +1,15 @@
+checked_utc= 2026-09-25T13:18:49Z
+listener_pids= ['88713']
+process= 88713 Fri Sep 25 07:00:15 2026 /Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open
+cwd= p88713
+fcwd
+n/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+children= none
+connections= 4 all_peer_localhost= True
+   127.0.0.1:8800 (LISTEN)
+   127.0.0.1:8800->127.0.0.1:53467 (ESTABLISHED)
+   127.0.0.1:8800->127.0.0.1:53470 (ESTABLISHED)
+   127.0.0.1:8800->127.0.0.1:53475 (ESTABLISHED)
+sessions= 135 recent600= 0 newest_age_s= 93720
+profile_bundle_decl= file:/Users/Admin/Desktop/Promax/.runtime/releases/status-explanation-20260925/promax-promax-bundle-0.1.104.tgz
+installed_bundle_version= 0.1.104

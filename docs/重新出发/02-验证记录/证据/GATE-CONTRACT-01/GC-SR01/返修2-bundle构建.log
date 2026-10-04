@@ -1,0 +1,10 @@
+[34mℹ[39m [34mtsdown v0.22.14[39m powered by [38;2;255;126;23mrolldown v1.2.5[39m
+[34mℹ[39m config file: [4m/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/package.json[24m 
+[34mℹ[39m entry: [34msrc/index.ts[39m
+[34mℹ[39m tsconfig: [34m../../tsconfig.json[39m
+[34mℹ[39m Build start
+[34mℹ[39m Cleaning 2 files
+[34mℹ[39m [2mlib/[22m[1mindex.mjs[22m    [2m763.53 kB[22m [2m│ gzip: 214.96 kB[22m
+[34mℹ[39m [2mlib/[22m[32m[1mindex.d.mts[22m[39m  [2m 56.94 kB[22m [2m│ gzip:  16.42 kB[22m
+[34mℹ[39m 2 files, total: 820.47 kB
+[32m✔[39m Build complete in [32m1206ms[39m

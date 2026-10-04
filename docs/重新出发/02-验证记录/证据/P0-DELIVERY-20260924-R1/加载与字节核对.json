@@ -1,0 +1,34 @@
+{
+  "endpoint": "http://127.0.0.1:8800/",
+  "pid": "38133",
+  "bundle": {
+    "component": "promax-bundle",
+    "version": "0.1.90",
+    "evaluated_at": "2026-09-24T08:16:54.681Z",
+    "module_sha256": "6b4d280329a13c1b080861e70115c02bbf82d45eeb3afbbfbb973344dbf65158"
+  },
+  "console": {
+    "version": "0.3.155",
+    "url": "/plugins/@promax/promax-ui-console/client.js?rev=5bea8ca8d4b0",
+    "sha256": "c7ae81c4932b203c8611b4677f4b92f028156ac99797a6de8d54ec03eb63149a",
+    "bytes": 3951347,
+    "matches_installed_and_build": true
+  },
+  "archive_proof": {
+    "promax-bundle": {
+      "version": "0.1.90",
+      "sha256": "d7737d91938d7ae4d0d968d53d07f776841740598b5f3abfa702d6f8300a3e02",
+      "files_exact": 6,
+      "manifest_lock_integrity": true
+    },
+    "promax-ui-console": {
+      "version": "0.3.155",
+      "sha256": "3b6811a73f73fc33289fe7249f104b6f167afd602ec3a032c802a6b56994980e",
+      "files_exact": 17,
+      "manifest_lock_integrity": true
+    }
+  },
+  "sessions": 127,
+  "newest_session_write_age_seconds": 89556,
+  "no_business_model_or_browser_test": true
+}

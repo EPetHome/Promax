@@ -1,0 +1,157 @@
+{
+  "task": "JUDGE-RELIABILITY-01",
+  "stream": "judge-reliability-20260925",
+  "mode": "任务书静态准备；产品/测试/模型/服务均未执行",
+  "sources": [
+    {
+      "path": "promax-ui/packages/promax-bundle/src/structured-results.ts",
+      "sha256": "e50c56607946db318cb9dc52e0824b1415a87758e6fc901bf044c407b992d690"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/work-store.ts",
+      "sha256": "369157603ecd593907df0779c5bc68199e2f20ca40085900ff300982e925be64"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/index.ts",
+      "sha256": "b010c64ae30ff697738c3b95046235840994db2828a24f7e6e3083746edd42bd"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/promax-session-binding.ts",
+      "sha256": "9056e7edad288887174ffa0ef3806bbf6d50b58072a9bdab4d9f83c7a336b9b6"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/judge-report.ts",
+      "sha256": "a664d77ec448a17d023c34a2a4a348b23bedd358b95d40d1b9eadf097dacf269"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/judge-evaluation.ts",
+      "sha256": "e6668c9ff4f52e1561735f1e2762305fd3e56e43f1e1bd72a2dc9e939fbf3ed7"
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/src/review-protocol.ts",
+      "sha256": "3eb335c1fe3ca4a65a2a4d83272499ecd2575a242eabb3eea6a1998bbf499dc9"
+    },
+    {
+      "path": "promax-agent/team-harness/modules/independent-judge/agent-module.yml",
+      "sha256": "a6fc3caef10895df7712224b9104153e003c0cc0cda2688691fec444bc41143d"
+    },
+    {
+      "path": "promax-agent/team-harness/catalogs/rubrics.yml",
+      "sha256": "8069ceff552818eb93af7596d0ac68b899d35e369e9ed2927e6382e78b391704"
+    },
+    {
+      "path": "promax-agent/team-harness/fixtures/judge-reference-cases.yml",
+      "sha256": "99d71402b4577ec257d664a30b530467e2474acbdb2e9bb65aca113b72a10450"
+    },
+    {
+      "path": "promax-agent/team-harness/src/harness.mjs",
+      "sha256": "017de1f27ba645423a9460df93b6e231fe4b698b7cce70cfe37b53e984998936"
+    },
+    {
+      "path": "promax-agent/team-harness/schemas/team-revision.schema.yml",
+      "sha256": "7ae282b4cd8d00117da7a2c94087468fa589f35b7017a6b0c3218f51fd807117"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "重新出发/01-指派任务/03-Judge可靠判定任务.md/01-指派任务.md",
+      "sha256": "a6faae562256a6f3911cdb6c0ee6960d63b1672434fd51723f1ca85bb7e83314"
+    },
+    {
+      "path": "重新出发/00-基线/03-阶段三Judge可靠判定方案.md",
+      "sha256": "48b30c96a6da475c25a9af51d50ae17427d1220113f6067ffb798960ae5aef1c"
+    },
+    {
+      "path": "重新出发/02-验证记录/03-阶段三Judge可靠判定结果.md",
+      "sha256": "8fbaf8cd07016ebf5f62b03977c36a2c3ca548c34f08fc64d3e0a21f914c7867"
+    }
+  ],
+  "missing_links": [],
+  "pi": {
+    "version": "0.84.3",
+    "permission_version": "32.0.2",
+    "args_sha256": "bfb311d2c5d919fa4015d6aaa3c5a71a90b90011320e5e40f56b12e448c44dfc",
+    "loader_sha256": "8e8a1bc1c5bc9e955f6a2314dd1db02071be56d48b1fea7b8b2cacb4fc9a0628",
+    "flags_present": {
+      "--offline": true,
+      "--provider": true,
+      "--model": true,
+      "--thinking": true,
+      "--no-extensions": true,
+      "--no-skills": true,
+      "--no-prompt-templates": true,
+      "--no-themes": true,
+      "--tools": true,
+      "--extension": true,
+      "--skill": true
+    },
+    "resources": [
+      {
+        "path": "/Users/Admin/.local/bin/pi",
+        "exists": true
+      },
+      {
+        "path": "/Users/Admin/.hermes/node/bin/node",
+        "exists": true
+      },
+      {
+        "path": "/Users/Admin/.pi/agent/npm/node_modules/@gotgenes/pi-permission-system/src/index.ts",
+        "exists": true
+      },
+      {
+        "path": "/Users/Admin/.agents/skills/context-relay/SKILL.md",
+        "exists": true
+      },
+      {
+        "path": "/Users/Admin/.agents/skills/llm-wiki-query/SKILL.md",
+        "exists": true
+      }
+    ],
+    "model_present": true
+  },
+  "wiki": {
+    "library": "work-wiki",
+    "source_snapshot": "ai-agent-book v2.0，SOURCE同步日期2026-08-30；方法参考，不是本机运行证明",
+    "cards": [
+      {
+        "path": "/Users/Admin/Desktop/进步走方针/LLM-Wiki4COM/out/work-wiki/wiki/concepts/LLM-as-a-Judge.md",
+        "sha256": "1a5169009c140d4e199058a47ef735ae618d560c6e743f312c438f8348df72f2"
+      },
+      {
+        "path": "/Users/Admin/Desktop/进步走方针/LLM-Wiki4COM/out/work-wiki/wiki/concepts/Agent评估.md",
+        "sha256": "f82abe2d97e6d23998a5103e5440d508c4dccf3cdc5452dcfdf031977f703191"
+      },
+      {
+        "path": "/Users/Admin/Desktop/进步走方针/LLM-Wiki4COM/out/work-wiki/wiki/concepts/工具设计原则.md",
+        "sha256": "53cddcd8109b4331d69f66309690306bff9d224a35be8b3c4259c4f4851b0589"
+      },
+      {
+        "path": "/Users/Admin/Desktop/进步走方针/LLM-Wiki4COM/out/work-wiki/practice/2026-09-05-门禁全绿不等于语义正确.md",
+        "sha256": "74bdaef2a80249bb5c0458b2394c26f990e176ec1eb2a59cb5b6b42ccbc92ab4"
+      }
+    ],
+    "backfill": false,
+    "adopted": [
+      "确定性验证与Judge语义职责分开",
+      "固定版本与首错回归；调试/评估样本分开",
+      "schema/参数保真与有界可修复错误",
+      "结构门禁不冒充语义效果"
+    ]
+  },
+  "boundaries": [
+    "独立流/结果，阶段二待复评不自动关闭",
+    "整批JR01—JR08，非新子批",
+    "真实Judge只准备不调用；后续需明确样本/模型/次数预算",
+    "共享文件/合并/发布串行，不从干净HEAD漏掉现役未跟踪代码"
+  ],
+  "git": {
+    "root": "promax-ui",
+    "branch": "pi/first-usable",
+    "head": "8f761c9c26a642bbc81e733cf19e363e3b875466",
+    "status_counts": {
+      " D": 222,
+      " M": 32,
+      "??": 95
+    }
+  }
+}

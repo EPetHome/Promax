@@ -1,0 +1,23 @@
+{
+  "name": "dsh-profile-web",
+  "private": true,
+  "dependencies": {
+    "@promax/feishu-api": "file:/Users/Admin/Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz",
+    "@promax/promax-bundle": "file:/Users/Admin/Desktop/Promax/.runtime/releases/gc-sr01-repair2-20260925/promax-promax-bundle-0.1.97.tgz",
+    "@promax/promax-feishu-bridge": "file:/Users/Admin/Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-promax-feishu-bridge-0.1.2.tgz",
+    "@promax/promax-report": "file:/Users/Admin/Desktop/Promax/.runtime/releases/chain-context-v01-20260921-report-final/promax-promax-report-0.2.4.tgz",
+    "@promax/promax-ui-brand": "file:/Users/Admin/Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-promax-ui-brand-0.1.11.tgz",
+    "@promax/promax-ui-console": "file:/Users/Admin/Desktop/Promax/.runtime/releases/gc-sr01-20260925/promax-promax-ui-console-0.3.157.tgz",
+    "@promax/promax-ui-layout": "file:/Users/Admin/Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-promax-ui-layout-0.1.7.tgz",
+    "@promax/team-harness": "file:/Users/Admin/Desktop/Promax/.runtime/releases/gc-sr01-20260925/promax-team-harness-0.6.18-dist.1.tgz"
+  },
+  "dsh": {
+    "profile": {
+      "bundles": [
+        "@deepseek-ai/dsh-base",
+        "@deepseek-ai/dsh-web-app",
+        "@promax/promax-bundle"
+      ]
+    }
+  }
+}

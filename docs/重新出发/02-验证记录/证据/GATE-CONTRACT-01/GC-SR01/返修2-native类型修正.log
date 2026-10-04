@@ -1,0 +1,7 @@
+packages/host/apiproxy/src/api-proxy.ts(2343,15): error TS2375: Type '{ id: SessionId; parentSession: SessionId; agentPreset: string | undefined; version: number; createdAt: number; cwd?: string; seedLength?: number; origin?: "subagent"; delegationDepth?: number; }' is not assignable to type 'SessionHeader' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'agentPreset' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+apps/cli/tests/web-agent-presets.e2e.ts(210,99): error TS2345: Argument of type '{ header: { id: string; cwd?: string; parentSession?: string; agentPreset?: string; }; events: readonly unknown[]; }' is not assignable to parameter of type 'PresetBearingSession'.
+  Types of property 'header' are incompatible.
+    Type '{ id: string; cwd?: string; parentSession?: string; agentPreset?: string; }' is missing the following properties from type 'SessionHeader': version, createdAt

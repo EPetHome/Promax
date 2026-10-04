@@ -1,0 +1,4 @@
+interface:
+  display_name: "产品方案研发交接"
+  short_description: "把PRD、交互和原型整理为研发可承接的产品级交接包"
+  default_prompt: "Use $rd-handoff-package to assemble a traceable product-to-engineering handoff package from these artifacts."

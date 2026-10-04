@@ -1,0 +1,15 @@
+checked_utc=2026-09-25T10:17:19Z
+COMMAND   PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    74179 Admin   17u  IPv4 0x99a3e64f50104fbe      0t0  TCP 127.0.0.1:8800 (LISTEN)
+74179     1 Fri Sep 25 05:15:27 2026     /Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open
+p74179
+fcwd
+n/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+connections:
+header
+IPv4 TCP
+IPv4 TCP
+IPv4 TCP
+launch_cwd= /Users/Admin/Desktop/Promax/promax-agent/deepseek-harness executable= node args_has_port_8800= True
+session_files= 135 modified_120s= 0 modified_600s= 0 newest_age_s= 82830
+profile_decl_sha= 9ca35724e816395ff2d2aca0ee9e75d4d9e116f09dceb517c920729243faa7c1 lock_sha= 09e0ae4e27c2b601c91e5140f8ff104bbdb5460a55629596c9454241b9fa9ccc

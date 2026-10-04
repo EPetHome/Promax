@@ -1,0 +1,189 @@
+{
+  "task": "EC-SR01返修",
+  "review_mode": "独立静态复评，无测试/复现/构建/接口/进程或服务执行",
+  "identities": [
+    {
+      "record": "接手身份.sha256",
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-CONTINUITY-01/EC-SR01/接手/evidence-links.test.ts",
+      "sha256": "7183d14ef71ead16f206988bf58db11684c80c3512cc87b50b9d47b44db72e84",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-CONTINUITY-01/EC-SR01/接手/evidence-links.ts",
+      "sha256": "1da0fdf645d71d77f43e85a20beccfed4b7529a77607de7f738a9fc49feb4d58",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-CONTINUITY-01/EC-SR01/接手/package.json",
+      "sha256": "ebefefe73170580ab643cad382c1dcc9d6238815dbb644a5957e1498f97d14b4",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-CONTINUITY-01/EC-SR01/接手/rating-usability.test.ts",
+      "sha256": "5d1d9508883ad4a64de69577f357c0704ccdc53666e898d234e298052c01b3c4",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-CONTINUITY-01/EC-SR01/接手/work-store.ts",
+      "sha256": "aeddf9ad5be81630c56f4549af896167466f992de45fae24c58642b33d75f801",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/src/evidence-links.ts",
+      "sha256": "238fc4afbcbdac1833638be79b648735e74ef1b29e557f441209f93f2ee38ac7",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/src/work-store.ts",
+      "sha256": "369157603ecd593907df0779c5bc68199e2f20ca40085900ff300982e925be64",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/src/structured-results.ts",
+      "sha256": "e50c56607946db318cb9dc52e0824b1415a87758e6fc901bf044c407b992d690",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/tests/rating-usability.test.ts",
+      "sha256": "9545f2e5d4fb8e877d271447ee3a480a0926a4dcfa26e88a61d88a4d0bca1d01",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/tests/evidence-links.test.ts",
+      "sha256": "e7dcc3b9cf9756a5f3b63e2cf9e21217db32e083a7d04d278c1383db1e8c0785",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/tests/evidence-gate-commit.test.ts",
+      "sha256": "29cdff17d1f6871824e8101a5849a00922da48cf73cf1d4fbe9972321d51c5bb",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/package.json",
+      "sha256": "6fc802f40862cf63738a436cdfdd126408d34f851fab1de520219dbcdde2af6a",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/lib/index.mjs",
+      "sha256": "b25880dd48d6adb59e3b174e568f12e91f75f974ea6f776998086cf7ad69bb65",
+      "match": true
+    }
+  ],
+  "backup_vs_previous_final": [
+    {
+      "name": "evidence-links.ts",
+      "matches_prior_final": true
+    },
+    {
+      "name": "work-store.ts",
+      "matches_prior_final": true
+    },
+    {
+      "name": "evidence-links.test.ts",
+      "matches_prior_final": true
+    },
+    {
+      "name": "rating-usability.test.ts",
+      "matches_prior_final": true
+    },
+    {
+      "name": "package.json",
+      "matches_prior_final": true
+    }
+  ],
+  "backup_caveat": "Pi披露work-store接手字节为事后逆向恢复；其SHA与上批最终身份及修改前记录一致，不表述为修改前完成备份。",
+  "installation": {
+    "profile": "/Users/Admin/.dsh-promax-first/profiles/web",
+    "changed_dependencies": [
+      "@promax/promax-bundle"
+    ],
+    "archive": "/Users/Admin/Desktop/Promax/.runtime/releases/ec-sr01-20260925/promax-promax-bundle-0.1.101.tgz",
+    "files": [
+      {
+        "path": "package.json",
+        "sha256": "cd3b17c2b31ecc977e771efca67e7f109389f39ba5084507717c8c62b6951849",
+        "matches_installed": true
+      },
+      {
+        "path": "lib/index.mjs",
+        "sha256": "b25880dd48d6adb59e3b174e568f12e91f75f974ea6f776998086cf7ad69bb65",
+        "matches_installed": true
+      },
+      {
+        "path": "lib/index.d.mts",
+        "sha256": "4ccad363e3370fc4cb339b22959413c65f90058d52e22583f0ee44b54bc875af",
+        "matches_installed": true
+      },
+      {
+        "path": "presets/general/agent.cordis.yml",
+        "sha256": "aef446c49a9ad8a772ad141bd80cdd7a124dd3dfba3040d7ec47a378538ffc92",
+        "matches_installed": true
+      },
+      {
+        "path": "cordis.patch.yml",
+        "sha256": "6f2da68a0700cb0173880c8b88c744abab4ef1a0d0b9524a93ab0ada6ed60a01",
+        "matches_installed": true
+      },
+      {
+        "path": "presets/general/preset.yml",
+        "sha256": "49b9096e3de608f76666920ad50be4dbd62ff95724e805fc90618b714e355955",
+        "matches_installed": true
+      }
+    ],
+    "matches_build_and_historical_load": true,
+    "historical_load_at": "2026-09-25T09:15:43.122981+00:00",
+    "current_process": "not_checked"
+  },
+  "git": {
+    "branch": "pi/first-usable",
+    "head": "8f761c9c26a642bbc81e733cf19e363e3b875466",
+    "status_counts": {
+      " D": 222,
+      " M": 32,
+      "??": 95
+    }
+  },
+  "reviewed_paths": [
+    "v3只在绑定范围内唯一候选时收窄，歧义保留父范围",
+    "锚点前同句不被当成绑定候选；无歧义H1正向保留",
+    "旧v2同版实际字节或可信旧快照+v2指纹核对，再按v3比较旧新",
+    "旧v1有旧快照/原hash、无旧字节拒绝等保护未移除",
+    "新stage调用v3，legacyV2只用于旧身份核对",
+    "真实注册反例3失败→定向7通过/11跳过→三文件43通过均为已有日志"
+  ],
+  "findings": [],
+  "decision": "通过本次静态复评，EC-SR01可关闭；阶段二工程及独立静态范围可收口，真实模型/浏览器/效率未验。",
+  "not_run": [
+    "产品测试/fixture/复现",
+    "类型/构建",
+    "接口/进程/服务",
+    "模型/浏览器"
+  ],
+  "post_review_workspace_drift": {
+    "changed": [
+      {
+        "path": "promax-ui/packages/promax-bundle/src/work-store.ts",
+        "reviewed_sha256": "369157603ecd593907df0779c5bc68199e2f20ca40085900ff300982e925be64",
+        "observed_later_sha256": "5b85e67545d0c68e976770ec5ced18fd2beb6eecdf32087493804deeadceee80"
+      },
+      {
+        "path": "promax-ui/packages/promax-bundle/src/structured-results.ts",
+        "reviewed_sha256": "e50c56607946db318cb9dc52e0824b1415a87758e6fc901bf044c407b992d690",
+        "observed_later_sha256": "c91b1711648eedbc8fde9ff1fdb128d56d0e51908aa9d7760b888956d50c897d"
+      }
+    ],
+    "scope": "以上为核对完成后的共享工作区后续修改，本轮未审查/回滚。通过结论限定已审查0.1.101交付及所列reviewed_sha256。"
+  }
+}

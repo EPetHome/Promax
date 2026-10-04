@@ -1,0 +1,31 @@
+The plugin "vite-tsconfig-paths" is detected. Vite now supports tsconfig paths resolution natively via the resolve.tsconfigPaths option. You can remove the plugin and set resolve.tsconfigPaths: true in your Vite config instead.
+
+ RUN  v4.1.8 /Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+
+(node:46749) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ apps/cli/tests/web-agent-presets.e2e.ts (31 tests | 1 failed | 30 skipped) 4207ms
+   × GC-SR01 isolated durable product recovery uses the mounted prompt and same-version contract 3716ms (retry x2)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/cli/tests/web-agent-presets.e2e.ts > GC-SR01 isolated durable product recovery uses the mounted prompt and same-version contract
+ FAIL  apps/cli/tests/web-agent-presets.e2e.ts > GC-SR01 isolated durable product recovery uses the mounted prompt and same-version contract
+ FAIL  apps/cli/tests/web-agent-presets.e2e.ts > GC-SR01 isolated durable product recovery uses the mounted prompt and same-version contract
+Error: {"id":"gc-selected","error":{"code":"internal","message":"resume failed for session \"gc-selected\": Error: a new session cannot select the mutable legacy promax-team preset without an original revision binding","details":{}}}
+ ❯ apps/cli/tests/web-agent-presets.e2e.ts:238:38
+    236|     for (const [id, expected] of [['gc-old', 8], ['gc-r9', 9], ['gc-se…
+    237|       const response = await second.apiProxy.sessions.models(rpc(id))
+    238|       if (!response.result.ok) throw new Error(JSON.stringify({ id, er…
+       |                                      ^
+    239|       const agent = second.agents.get(SessionId(id))!
+    240|       const assembly = await second.systemPrompt.assemble({ scope: age…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 30 skipped (31)
+   Start at  02:27:59
+   Duration  4.84s (transform 438ms, setup 133ms, import 434ms, tests 4.21s, environment 0ms)
+

@@ -1,0 +1,12 @@
+Promax 正在运行：http://127.0.0.1:8800/（PID 74827）
+核对运行包：/Users/Admin/.dsh-promax-first/profiles/web
+  ✓ @promax/feishu-api@0.1.0（来源 plugins-core-20260919.vf47J6，3 个文件一致）
+  ✓ @promax/promax-bundle@0.1.96（来源 gc-sr01-20260925，6 个文件一致）
+  ✓ @promax/promax-feishu-bridge@0.1.2（来源 plugins-core-20260919.vf47J6，3 个文件一致）
+  ✓ @promax/promax-report@0.2.4（来源 chain-context-v01-20260921-report-final，75 个文件一致）
+  ✓ @promax/promax-ui-brand@0.1.11（来源 plugins-core-20260919.vf47J6，4 个文件一致）
+  ✓ @promax/promax-ui-console@0.3.157（来源 gc-sr01-20260925，17 个文件一致）
+  ✓ @promax/promax-ui-layout@0.1.7（来源 plugins-core-20260919.vf47J6，4 个文件一致）
+  ✓ @promax/team-harness@0.6.18-dist.1（来源 gc-sr01-20260925，1572 个文件一致）
+核对运行进程是否加载了已安装内容：
+  ✓ 进程 09-25 01:50:26 不早于最近安装 09-25 01:49:23，运行的就是已安装版本

@@ -1,0 +1,5 @@
+recent_session_writes_600s=0, inspected_files= 135
+verified_pid= 74179 local_connections= 3 children=0 utc= 2026-09-25T10:18:18Z
+sent=SIGTERM pid=74179
+exited voluntarily after 2 checks
+port_free=true

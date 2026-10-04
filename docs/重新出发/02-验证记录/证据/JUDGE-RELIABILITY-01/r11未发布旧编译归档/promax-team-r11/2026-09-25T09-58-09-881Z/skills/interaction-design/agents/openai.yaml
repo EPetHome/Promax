@@ -1,0 +1,4 @@
+interface:
+  display_name: "产品交互设计"
+  short_description: "把产品方案转化为任务流、页面状态、反馈和异常交互规格"
+  default_prompt: "Use $interaction-design to create task flows, page states, and interaction specifications for this product requirement."

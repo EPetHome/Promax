@@ -1,0 +1,3 @@
+listener 70161 cwd /Users/Admin/Desktop/Promax/promax-agent/deepseek-harness cmd /Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open recent_sessions_or_work 0 children [] connections ['node    70161 Admin   17u  IPv4 0xb68ef2334c2f62ef      0t0  TCP 127.0.0.1:8800 (LISTEN)', 'node    70161 Admin   28u  IPv4 0x493264718dd3d118      0t0  TCP 127.0.0.1:8800->127.0.0.1:50520 (ESTABLISHED)', 'node    70161 Admin   30u  IPv4 0x1a37816d977de721      0t0  TCP 127.0.0.1:8800->127.0.0.1:50528 (ESTABLISHED)', 'node    70161 Admin   34u  IPv4 0xd916fbd63bbebbcb      0t0  TCP 127.0.0.1:8800->127.0.0.1:50536 (ESTABLISHED)']
+TERM sent 70161
+listener exited elapsed 0.25 new_listener 

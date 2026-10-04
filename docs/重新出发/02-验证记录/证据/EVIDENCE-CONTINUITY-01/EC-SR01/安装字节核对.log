@@ -1,0 +1,11 @@
+profile declaration change: [('@promax/promax-bundle', 'file:/Users/Admin/Desktop/Promax/.runtime/releases/evidence-continuity-01-20260925/promax-promax-bundle-0.1.100.tgz', 'file:/Users/Admin/Desktop/Promax/.runtime/releases/ec-sr01-20260925/promax-promax-bundle-0.1.101.tgz')]
+lock_diff_line_count 17 only bundle identity? True
+@promax/feishu-api 0.1.0 files 3 match
+@promax/promax-bundle 0.1.101 files 6 match
+@promax/promax-feishu-bridge 0.1.2 files 3 match
+@promax/promax-report 0.2.4 files 75 match
+@promax/promax-ui-brand 0.1.11 files 4 match
+@promax/promax-ui-console 0.3.157 files 17 match
+@promax/promax-ui-layout 0.1.7 files 4 match
+@promax/team-harness 0.6.18-dist.1 files 1572 match
+bundle built installed sha256 b25880dd48d6adb59e3b174e568f12e91f75f974ea6f776998086cf7ad69bb65

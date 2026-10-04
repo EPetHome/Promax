@@ -1,0 +1,41 @@
+{
+  "task": "EC-SR01返修提示词",
+  "scope": "只准备，未改产品/运行测试或启动Pi",
+  "sources": [
+    {
+      "path": "promax-ui/packages/promax-bundle/src/evidence-links.ts",
+      "sha256": "1da0fdf645d71d77f43e85a20beccfed4b7529a77607de7f738a9fc49feb4d58"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/work-store.ts",
+      "sha256": "aeddf9ad5be81630c56f4549af896167466f992de45fae24c58642b33d75f801"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/evidence-links.test.ts",
+      "sha256": "7183d14ef71ead16f206988bf58db11684c80c3512cc87b50b9d47b44db72e84"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/rating-usability.test.ts",
+      "sha256": "5d1d9508883ad4a64de69577f357c0704ccdc53666e898d234e298052c01b3c4"
+    }
+  ],
+  "task_sha256": "d6c4650f9658d030ecad9e68c73de80ad53af51a114f2ed8d76e5cc136f5639f",
+  "missing_links": [],
+  "pi": {
+    "version": "0.84.3",
+    "permission_version": "32.0.2",
+    "args_sha256": "bfb311d2c5d919fa4015d6aaa3c5a71a90b90011320e5e40f56b12e448c44dfc",
+    "loader_sha256": "8e8a1bc1c5bc9e955f6a2314dd1db02071be56d48b1fea7b8b2cacb4fc9a0628",
+    "model_present": true
+  },
+  "parallel_discussion": {
+    "stage3_sources": [
+      "promax-agent/team-harness/modules/independent-judge/agent-module.yml",
+      "promax-agent/team-harness/catalogs/rubrics.yml",
+      "promax-agent/team-harness/fixtures/judge-reference-cases.yml",
+      "promax-ui/packages/promax-bundle/src/index.ts",
+      "promax-ui/packages/promax-bundle/src/rating-facts.ts"
+    ],
+    "shared_constraints": "若阶段三进入开发，独立副本/流；共享bundle消费者与测试须协调，发布串行。当前仅讨论，未启动第二开发会话。"
+  }
+}

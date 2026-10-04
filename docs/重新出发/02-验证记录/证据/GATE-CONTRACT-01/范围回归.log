@@ -1,0 +1,31 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts (13 tests | 1 failed) 4282ms
+   × T5 structured entries accept legal results, reject missing fields/illegal values/wrong versions, dedupe receipts, and render a parseable report; the old quoting failure no longer ends work 121ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T5 structured entries accept legal results, reject missing fields/illegal values/wrong versions, dedupe receipts, and render a parseable report; the old quoting failure no longer ends work
+AssertionError: expected { …(2) } to match object { isError: true, …(1) }
+
+- Expected
++ Received
+
+  {
+    "isError": true,
+-   "value": StringContaining "缺少 completion",
++   "value": "card_patch.nodes[1].completion 实际 缺失；期望非空文字（最多 500 字）；card_patch.nodes[1].filenames 实际 缺失；期望团队登记成果文件名数组（无关联可传 []）；card_patch.nodes[1].gate 实际 缺失；期望 employee | checked_artifacts | accepted_artifacts（例：{\"gate\":\"employee\",\"filenames\":[]}）（第 3/3 次恢复）",
+  }
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:326:71
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 57 passed (58)
+   Start at  00:24:48
+   Duration  17.23s (transform 2.26s, setup 426ms, import 5.51s, tests 24.45s, environment 1.66s)
+

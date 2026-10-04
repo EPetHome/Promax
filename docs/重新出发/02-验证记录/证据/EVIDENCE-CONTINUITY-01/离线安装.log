@@ -1,0 +1,14 @@
+✓ Lockfile passes supply-chain policies (verified 59m ago)
+Progress: resolved 0, reused 1, downloaded 0, added 0
+[WARN] The metadata of @deepseek-ai/dsh-mcp-client is missing the "time" field; skipping the minimumReleaseAge check for this package.
+[WARN] The metadata of @deepseek-ai/dsh-llm-deepseek is missing the "time" field; skipping the minimumReleaseAge check for this package.
+[WARN] The metadata of @deepseek-ai/dsh-agent is missing the "time" field; skipping the minimumReleaseAge check for this package.
+[WARN] The metadata of @deepseek-ai/dsh-llm is missing the "time" field; skipping the minimumReleaseAge check for this package.
+[WARN] The metadata of vscode-languageserver-textdocument is missing the "time" field; skipping the minimumReleaseAge check for this package.
+[WARN] 6 deprecated subdependencies found: fstream@1.0.12, glob@7.2.3, inflight@1.0.6, lodash.isequal@4.5.0, rimraf@2.7.1, uuid@8.3.2
+[WARN] Issues with peer dependencies found. Run "pnpm peers check" to list them.
+
+Packages: +1 -16
++----------------
+Progress: resolved 374, reused 25, downloaded 1, added 1, done
+Done in 791ms using pnpm v11.7.0

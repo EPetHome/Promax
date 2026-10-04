@@ -1,0 +1,11 @@
+checked_utc= 2026-09-25T13:46:31Z
+listener_pids= ['5501']
+process= 5501 Fri Sep 25 09:19:03 2026 /Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open
+cwd= p5501
+fcwd
+n/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+children= none
+connections= 4 all_peer_localhost= True
+sessions= 135 recent600= 0 newest_age_s= 95382
+profile_bundle_decl= file:/Users/Admin/Desktop/Promax/.runtime/releases/se-sr01-20260925/promax-promax-bundle-0.1.105.tgz
+installed_bundle_version= 0.1.105

@@ -1,0 +1,40 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/effective-completion.test.ts (8 tests | 4 failed) 756ms
+   × T6 coordinator local=true real registered closure and UI share judgement without server or model 85ms
+   × T6 judge-end local=true real registered closure and UI share judgement without server or model 75ms
+   × T6 coordinator local=false real registered closure and UI share judgement without server or model 54ms
+   × T6 judge-end local=false real registered closure and UI share judgement without server or model 59ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/effective-completion.test.ts > T6 coordinator local=true real registered closure and UI share judgement without server or model
+ FAIL  packages/promax-bundle/tests/effective-completion.test.ts > T6 judge-end local=true real registered closure and UI share judgement without server or model
+ FAIL  packages/promax-bundle/tests/effective-completion.test.ts > T6 coordinator local=false real registered closure and UI share judgement without server or model
+ FAIL  packages/promax-bundle/tests/effective-completion.test.ts > T6 judge-end local=false real registered closure and UI share judgement without server or model
+AssertionError: {"error":"成果不属于团队合同：product_discovery.md"}
+: expected 400 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 400
+
+ ❯ packages/promax-bundle/tests/effective-completion.test.ts:155:48
+    153|   let r = (await store.round(key))!;
+    154|   const started = await route.request("work/card/update", { work_key: …
+    155|   expect(started.status, await started.text()).toBe(200);
+       |                                                ^
+    156|   r = (await store.round(key))!;
+    157|   const bytes = "# 比较\n本地 fixture 核实 A 支持，B 未知\n";
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  4 failed | 14 passed (18)
+   Start at  01:32:22
+   Duration  2.84s (transform 871ms, setup 287ms, import 1.89s, tests 1.97s, environment 937ms)
+

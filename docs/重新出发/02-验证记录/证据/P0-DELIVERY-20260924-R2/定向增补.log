@@ -1,0 +1,33 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts (23 tests | 1 failed | 19 skipped) 4019ms
+   × SR01 原生Judge结束通知不得消费未结算的被审快照变化 729ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01 原生Judge结束通知不得消费未结算的被审快照变化
+AssertionError: expected '被审草稿已变化 · 旧检查不适用于当前版本，继续生成或复查' to match /部分完成|生成中/
+
+- Expected:
+/部分完成|生成中/
+
++ Received:
+"被审草稿已变化 · 旧检查不适用于当前版本，继续生成或复查"
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:495:35
+    493|   expect(JSON.stringify(view)).not.toContain("报告已更新完成");
+    494|   expect((await w.loadPersisted()).events.some((e: any) => e.type === …
+    495|   expect(view.card.last_progress).toMatch(/部分完成|生成中/);
+       |                                   ^
+    496|   expect(view.card.delivery_receipts?.filter((r: any) => r.task_key ==…
+    497| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed | 19 skipped (23)
+   Start at  04:45:07
+   Duration  5.91s (transform 927ms, setup 215ms, import 1.57s, tests 4.02s, environment 0ms)
+

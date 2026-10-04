@@ -1,0 +1,46 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts (25 tests | 2 failed | 23 skipped) 1385ms
+   × SR01-A 未结算自动通知与真实解释问题混批：自动完成不可见、真实回答仍公开 845ms
+   × SR01-B 守卫激活时原生主循环错误完成受控，真实compaction摘要同会话保留 539ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01-A 未结算自动通知与真实解释问题混批：自动完成不可见、真实回答仍公开
+AssertionError: expected 1 to be greater than or equal to 2
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:515:59
+    513|   const events = w.parent.session.events;
+    514|   expect(events.filter((e: any) => e.type === "user/message" && e.data…
+    515|   expect(w.turns.filter(id => id === w.parent.id).length).toBeGreaterT…
+       |                                                           ^
+    516|   expect(parentVisibleText(w)).toContain("正常回答：草稿尚未复查");
+    517|   expect(JSON.stringify(events.filter((e: any) => e.type === "assistan…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01-B 守卫激活时原生主循环错误完成受控，真实compaction摘要同会话保留
+AssertionError: expected undefined to be true // Object.is equality
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:540:95
+    538|   w.unparkParent(); w.releaseJudge(); await w.ended(w.judge); await w.…
+    539|   expect(marked).toBe(true); // A real native loop request, not an inv…
+    540|   expect(summary?.summary.some((b: any) => b.type === "text" && b.text…
+       |                                                                                               ^
+    541|   expect(summary?.usage).toEqual({ inputTokens: 17, outputTokens: 13 }…
+    542|   expect(summary?.llmStreamCall).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 23 skipped (25)
+   Start at  05:18:47
+   Duration  3.12s (transform 644ms, setup 154ms, import 1.51s, tests 1.39s, environment 0ms)
+

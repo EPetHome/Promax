@@ -1,0 +1,107 @@
+{
+  "fixture": "promax-agent/team-harness/fixtures/judge-reference-cases.yml",
+  "fixture_sha256": "665229867b255fa3b6e6d37505a63eb9a30b3fc7c8932b65127dafc2de3af6e0",
+  "prepared_at": "2026-09-25T10:08:05.134Z",
+  "model_calls": 0,
+  "samples": [
+    {
+      "sample_id": "jr-correct-rating-categories",
+      "usage": "rule_debug",
+      "source_kind": "synthetic",
+      "input_sha256": "bfd856f960492620f40e14a4155c260f65ca5bb9bd558954f280c106444d39b6",
+      "artifacts": [
+        {
+          "filename": "analysis.md",
+          "sha256": "25f440c6e688ec57c1c32383b0e18b1ffc984243b64215731d81681bca6235f8"
+        }
+      ],
+      "reference_status": "pending_human_confirmation"
+    },
+    {
+      "sample_id": "jr-wrong-rating-category",
+      "usage": "rule_debug",
+      "source_kind": "synthetic",
+      "input_sha256": "bfd856f960492620f40e14a4155c260f65ca5bb9bd558954f280c106444d39b6",
+      "artifacts": [
+        {
+          "filename": "analysis.md",
+          "sha256": "624d17a532b0f6975f745d3294f7c46d43f6fed89998d148637a1043a0b4e093"
+        }
+      ],
+      "reference_status": "pending_human_confirmation"
+    },
+    {
+      "sample_id": "jr-frequency-overclaim",
+      "usage": "rule_debug",
+      "source_kind": "synthetic",
+      "input_sha256": "1c2a7f132c414e690a533ef7c4992d6770e2a1c93ac14958332a68daddd3d4cb",
+      "artifacts": [
+        {
+          "filename": "analysis.md",
+          "sha256": "a3def1aff65d4e1963635a539c6500a5e0b57f453cbc1fbb7d28fac769353b60"
+        }
+      ],
+      "reference_status": "pending_human_confirmation"
+    },
+    {
+      "sample_id": "jr-qualitative-limited",
+      "usage": "rule_debug",
+      "source_kind": "synthetic",
+      "input_sha256": "1c2a7f132c414e690a533ef7c4992d6770e2a1c93ac14958332a68daddd3d4cb",
+      "artifacts": [
+        {
+          "filename": "analysis.md",
+          "sha256": "e5ab2dcad5ce44e0612f71546b37465ca6c4f0514ba51a930e037b793a993fae"
+        }
+      ],
+      "reference_status": "pending_human_confirmation"
+    },
+    {
+      "sample_id": "jr-original-correct-false-positive",
+      "usage": "rule_debug",
+      "source_kind": "synthetic",
+      "input_sha256": "78920cc247357f78da99e269a25e55a3e5d7fefcd9ad8d9bf0f6890c267a8a45",
+      "artifacts": [
+        {
+          "filename": "original.md",
+          "sha256": "e7640cb59dec34fcea303719b2bab36f7ba8269d8e2e86e553483c6be9521186"
+        },
+        {
+          "filename": "current.md",
+          "sha256": "e7640cb59dec34fcea303719b2bab36f7ba8269d8e2e86e553483c6be9521186"
+        }
+      ],
+      "reference_status": "pending_human_confirmation"
+    },
+    {
+      "sample_id": "jr-original-wrong-now-fixed",
+      "usage": "rule_debug",
+      "source_kind": "synthetic",
+      "input_sha256": "78920cc247357f78da99e269a25e55a3e5d7fefcd9ad8d9bf0f6890c267a8a45",
+      "artifacts": [
+        {
+          "filename": "original.md",
+          "sha256": "b1a2a98316615e26bd44cfe30df6057868218348607d2a3a510c3bd193c53673"
+        },
+        {
+          "filename": "current.md",
+          "sha256": "e7640cb59dec34fcea303719b2bab36f7ba8269d8e2e86e553483c6be9521186"
+        }
+      ],
+      "reference_status": "pending_human_confirmation"
+    },
+    {
+      "sample_id": "jr-independent-paraphrase-candidate",
+      "usage": "excluded",
+      "source_kind": "synthetic",
+      "input_sha256": "f9b0a9e839b341f991cef0128b3a30f9bdbdf67ba7ad9f53188590fdd3b224f0",
+      "artifacts": [
+        {
+          "filename": "candidate.md",
+          "sha256": "25f43e794dd5c8ef1beb8847fd4122b125fda07d9c832adfb0db65c94ee51b95"
+        }
+      ],
+      "reference_status": "pending_human_confirmation"
+    }
+  ]
+}

@@ -1,0 +1,481 @@
+{
+  "scope": "仅读取现存业务文件/压缩会话/trace并计数比对；未执行Promax、模型、测试、接口、构建或服务操作；不是浏览器验收。",
+  "original_workspace": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718",
+  "sources": [
+    {
+      "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.promax/telemetry/a198a1a02040099cc1467125fdd0cfbe.jsonl",
+      "bytes": 530751,
+      "sha256": "595d4cb999159fff49548df50cf18f4df4439423e0af83d2e8919d9145684eab"
+    },
+    {
+      "path": "/Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/session-aa8e657a-a011-42f2-a337-bf960bdd6d2d/session.jsonl.zstd",
+      "bytes": 1177626,
+      "sha256": "8a67e339dd8e85cb69f5507374b660b0b4f1df1d29ac1acf08fe823754442585"
+    },
+    {
+      "path": "/Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/69808fce-611c-4232-b9bc-b662dd7e42cf/session.jsonl.zstd",
+      "bytes": 572942,
+      "sha256": "6b8d9923e1918d5b15403a9b98e296f25976de28f699bc877e363e0669105a13"
+    },
+    {
+      "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.任务/产品任务-7/输入/sources/SRC-001/SRC-001.json",
+      "bytes": 73962,
+      "sha256": "e5bc83370f54895cf21af80ffbb49169daf9ef21d59dc290e9acc08811ed12ff"
+    },
+    {
+      "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/回合.yml",
+      "bytes": 347118,
+      "sha256": "9d76700299fadbd76b9081d76a0108386d56baf41cacc4157884ffce8bddc293"
+    },
+    {
+      "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/工作卡.yml",
+      "bytes": 40946,
+      "sha256": "2c5b689e16b7d6befcd1159de26f147e39233daf18c42496d675d2a0b38e36ea"
+    },
+    {
+      "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/被审版本/a1bc22d1975f5798d87678a4fef826c3503f1ce0b61265b2a27ebeff381c892a",
+      "bytes": 11111,
+      "sha256": "a1bc22d1975f5798d87678a4fef826c3503f1ce0b61265b2a27ebeff381c892a"
+    },
+    {
+      "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.任务/产品任务-7/判定-r1.md",
+      "bytes": 16869,
+      "sha256": "5d3c8e7563acd22a66ee35ce98aebf5578c437164c6314ec435b966751f4c8bf"
+    },
+    {
+      "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.任务/产品任务-7/结论关联.yml",
+      "bytes": 73626,
+      "sha256": "d1c6c300a69ee9df27367e923ba0423298bb04a84278e1d7c3eac3746c876cad"
+    },
+    {
+      "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/被审版本/82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3",
+      "bytes": 12073,
+      "sha256": "82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3"
+    },
+    {
+      "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.对象库/82/82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3",
+      "bytes": 12073,
+      "sha256": "82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3"
+    },
+    {
+      "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.任务/产品任务-7/产物快照/user_analysis.md",
+      "bytes": 12073,
+      "sha256": "82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3"
+    },
+    {
+      "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/产物/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/user_analysis.md",
+      "bytes": 12073,
+      "sha256": "82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3"
+    }
+  ],
+  "trace_counts": {
+    "tools": 137,
+    "failed_tools": 20,
+    "unique_failed_calls": 20,
+    "failures_by_tool": {
+      "promax_work_proposal": 8,
+      "bash": 2,
+      "promax_member_receipt": 4,
+      "grep": 2,
+      "promax_check_result": 4
+    },
+    "models": 121,
+    "model_status": {
+      "success": 121
+    },
+    "model_routes": {
+      "opencode-go/deepseek-v4.1-flash": 121
+    },
+    "input_tokens": 6000347,
+    "cache_read_tokens": 4586496,
+    "failed_tool_duration_ms": 11767
+  },
+  "question": {
+    "user_line": 102,
+    "time_ms": 1790247361860,
+    "answer_time_ms": 1790247371122,
+    "full_answer_delay_s": 9.262,
+    "first_member_start": "2026-09-24T10:58:38.879Z"
+  },
+  "request_to_complete_s": 1272.03,
+  "public_text_chars_by_turn": {
+    "1": 763,
+    "2": 423,
+    "3": 313,
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0
+  },
+  "statistics": {
+    "total": 320,
+    "valid": 300,
+    "invalid": 20,
+    "rating_counts": {
+      "1": 30,
+      "2": 45,
+      "3": 75,
+      "4": 90,
+      "5": 60
+    },
+    "low_percent": 25.0,
+    "high_percent": 50.0
+  },
+  "quotes": {
+    "count": 15,
+    "matches": [
+      {
+        "id": "T0001",
+        "rating": 1,
+        "matches": true
+      },
+      {
+        "id": "T0017",
+        "rating": 1,
+        "matches": true
+      },
+      {
+        "id": "T0006",
+        "rating": 1,
+        "matches": true
+      },
+      {
+        "id": "T0046",
+        "rating": 2,
+        "matches": true
+      },
+      {
+        "id": "T0042",
+        "rating": 2,
+        "matches": true
+      },
+      {
+        "id": "T0041",
+        "rating": 2,
+        "matches": true
+      },
+      {
+        "id": "T0083",
+        "rating": 3,
+        "matches": true
+      },
+      {
+        "id": "T0093",
+        "rating": 3,
+        "matches": true
+      },
+      {
+        "id": "T0076",
+        "rating": 3,
+        "matches": true
+      },
+      {
+        "id": "T0234",
+        "rating": 4,
+        "matches": true
+      },
+      {
+        "id": "T0233",
+        "rating": 4,
+        "matches": true
+      },
+      {
+        "id": "T0184",
+        "rating": 4,
+        "matches": true
+      },
+      {
+        "id": "T0250",
+        "rating": 5,
+        "matches": true
+      },
+      {
+        "id": "T0248",
+        "rating": 5,
+        "matches": true
+      },
+      {
+        "id": "T0267",
+        "rating": 5,
+        "matches": true
+      }
+    ]
+  },
+  "delivery_receipts": [
+    {
+      "id": "delivery:b026c072dbece9619e23a812f7baa20b571eb4b24ab61b32cffbcca7af8aea74",
+      "at": "2026-09-24T11:16:46.585Z",
+      "task_key": "产品任务-7",
+      "reviewed_hashes": {
+        "user_analysis.md": "82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3"
+      },
+      "state": "saving",
+      "correction": false,
+      "text": "正在保存正式版本；可以查看草稿，尚未正式交付。",
+      "targets": [
+        {
+          "kind": "draft",
+          "filename": "user_analysis.md",
+          "sha256": "82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3",
+          "task_key": "产品任务-7",
+          "path": ".工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/草稿快照/82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3"
+        }
+      ]
+    },
+    {
+      "id": "delivery:f2096624e0df302b96d582996cebb5282ef5039fd54ef6a2dc03d8e306497d93",
+      "at": "2026-09-24T11:16:47.109Z",
+      "task_key": "产品任务-7",
+      "reviewed_hashes": {
+        "user_analysis.md": "82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3"
+      },
+      "state": "complete",
+      "correction": false,
+      "text": "正式交付已完成。当前版本已保存，必要检查已满足；业务变化详见成果。",
+      "targets": [
+        {
+          "kind": "formal",
+          "filename": "user_analysis.md",
+          "sha256": "82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3",
+          "task_key": "产品任务-7",
+          "path": "产物/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/user_analysis.md"
+        }
+      ]
+    }
+  ],
+  "formal_hashes": {
+    "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/被审版本/82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3": "82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3",
+    "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.对象库/82/82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3": "82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3",
+    "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.任务/产品任务-7/产物快照/user_analysis.md": "82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3",
+    "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/产物/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/user_analysis.md": "82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3"
+  },
+  "baseline": {
+    "version": "f72b2d7c07a2354da6552497f63d58b4305e137d08c37712c72f2156b0c0c0bd",
+    "items": [
+      {
+        "id": "R1",
+        "text": "范围、用途与原始要求及有效决定一致；主 Agent 新增限制有真实来源；基准未遗漏原始目标。",
+        "required": true,
+        "necessity": "required",
+        "source_refs": [
+          "origin",
+          "event:294bc032-af8b-40ea-972e-3b9928415fbe",
+          "decision:q1:2026-09-24T10:57:44.439Z",
+          "decision:q2:2026-09-24T10:57:47.017Z"
+        ],
+        "files": [
+          "user_analysis.md"
+        ],
+        "source_kind": "user_request",
+        "evidence_basis": [
+          "requirement_record"
+        ],
+        "evidence_obligation": {
+          "question": "本次交付范围与用途是否由用户原始要求/有效决定确定，主 Agent 的限制是否有权限或用户依据",
+          "min_basis": "原始要求与有效决定记录；无来源的限制不升级为权威要求；修改用途须走有效决定"
+        },
+        "capability_obligation": [
+          "读取原始要求、事件与决定记录",
+          "范围变更留版本"
+        ]
+      },
+      {
+        "id": "R4",
+        "text": "本次必交成果已保存、可读取；当前版本、引用和依据可追溯。",
+        "required": true,
+        "necessity": "required",
+        "source_refs": [
+          "origin",
+          "event:294bc032-af8b-40ea-972e-3b9928415fbe",
+          "decision:q1:2026-09-24T10:57:44.439Z",
+          "decision:q2:2026-09-24T10:57:47.017Z"
+        ],
+        "files": [
+          "user_analysis.md"
+        ],
+        "source_kind": "product_rule",
+        "evidence_basis": [
+          "program_check"
+        ],
+        "evidence_obligation": {
+          "question": "当前被审版本是否与实际保存的成果字节一致，关键结论能否定位回正文与依据",
+          "min_basis": "程序保存的成果哈希、版本与可读入口；结论关联与来源版本一致"
+        },
+        "capability_obligation": [
+          "成果哈希与版本绑定",
+          "可读入口检查"
+        ]
+      }
+    ]
+  },
+  "current_R1_R4_links": [],
+  "judge_submissions": [
+    {
+      "line": 403,
+      "time_ms": 1790247963785,
+      "verdict": "REVISION_REQUIRED",
+      "issues": [
+        {
+          "id": "J1-01",
+          "kind": "defect"
+        },
+        {
+          "id": "J1-02",
+          "kind": "defect"
+        }
+      ],
+      "unverified_requirement_ids": [
+        [],
+        [
+          "R3",
+          "D:USER_ANALYSIS_INFERENCE_BOUNDARY"
+        ],
+        [
+          "D:USER_ANALYSIS_NUMBER_TRACE"
+        ]
+      ]
+    },
+    {
+      "line": 428,
+      "time_ms": 1790247979464,
+      "verdict": "REVISION_REQUIRED",
+      "issues": [
+        {
+          "id": "J1-01",
+          "kind": "defect"
+        },
+        {
+          "id": "J1-02",
+          "kind": "defect"
+        }
+      ],
+      "unverified_requirement_ids": [
+        [],
+        [
+          "D:USER_ANALYSIS_NUMBER_TRACE"
+        ],
+        [
+          "R3",
+          "D:USER_ANALYSIS_INFERENCE_BOUNDARY"
+        ],
+        []
+      ]
+    },
+    {
+      "line": 463,
+      "time_ms": 1790247995646,
+      "verdict": "REVISION_REQUIRED",
+      "issues": [
+        {
+          "id": "J1-01",
+          "kind": "defect"
+        },
+        {
+          "id": "J1-02",
+          "kind": "defect"
+        }
+      ],
+      "unverified_requirement_ids": [
+        [],
+        []
+      ]
+    },
+    {
+      "line": 812,
+      "time_ms": 1790248531344,
+      "verdict": "PASS",
+      "issues": [
+        {
+          "id": "J2-01",
+          "kind": "evidence_gap"
+        }
+      ],
+      "unverified_requirement_ids": [
+        [],
+        []
+      ]
+    },
+    {
+      "line": 841,
+      "time_ms": 1790248551601,
+      "verdict": "PASS",
+      "issues": [],
+      "unverified_requirement_ids": [
+        [
+          "R1",
+          "R4"
+        ],
+        [],
+        []
+      ]
+    },
+    {
+      "line": 863,
+      "time_ms": 1790248572110,
+      "verdict": "PASS",
+      "issues": [],
+      "unverified_requirement_ids": [
+        [],
+        []
+      ]
+    }
+  ],
+  "explicit_rating_fact_calls": [
+    {
+      "session": "4bb0b36e-dbee-4a84-b410-79ba036a2434",
+      "time_ms": 1790247526438,
+      "arguments": "{\"source_id\":\"SRC-001\"}"
+    },
+    {
+      "session": "0a6aaa55-4004-4a77-8d85-2e9fa55f60a9",
+      "time_ms": 1790248070913,
+      "arguments": "{\"source_id\":\"SRC-001\"}"
+    },
+    {
+      "session": "69808fce-611c-4232-b9bc-b662dd7e42cf",
+      "time_ms": 1790247868859,
+      "arguments": "{\"source_id\":\"SRC-001\"}"
+    },
+    {
+      "session": "69808fce-611c-4232-b9bc-b662dd7e42cf",
+      "time_ms": 1790248409404,
+      "arguments": "{\"source_id\":\"SRC-001\"}"
+    }
+  ],
+  "limitations": [
+    "未核对任务5/6全量原始轨迹，本次不重作对照组结论",
+    "未定位R1/R4来源关联不续绑的完整根因；空link_ids不等于对应必需evidence_basis缺失",
+    "未覆盖真正成员/Judge执行中追问、同批竞态、刷新、旧版阅读或只复查",
+    "没有实时进程/前台探测；持久文件可读不是浏览器体验通过"
+  ],
+  "rating_fact_results": [
+    {
+      "session": "4bb0b36e-dbee-4a84-b410-79ba036a2434",
+      "time_ms": 1790247526840,
+      "fact_id": "rating-fact:8aea7bd298194c211d7f6a194e524ec79edfbd258874363ae522352b86179460",
+      "input_sha256": "e5bc83370f54895cf21af80ffbb49169daf9ef21d59dc290e9acc08811ed12ff",
+      "access_mode": "read_memory"
+    },
+    {
+      "session": "69808fce-611c-4232-b9bc-b662dd7e42cf",
+      "time_ms": 1790247869754,
+      "fact_id": "rating-fact:8aea7bd298194c211d7f6a194e524ec79edfbd258874363ae522352b86179460",
+      "input_sha256": "e5bc83370f54895cf21af80ffbb49169daf9ef21d59dc290e9acc08811ed12ff",
+      "access_mode": "read_saved"
+    },
+    {
+      "session": "0a6aaa55-4004-4a77-8d85-2e9fa55f60a9",
+      "time_ms": 1790248072871,
+      "fact_id": "rating-fact:8aea7bd298194c211d7f6a194e524ec79edfbd258874363ae522352b86179460",
+      "input_sha256": "e5bc83370f54895cf21af80ffbb49169daf9ef21d59dc290e9acc08811ed12ff",
+      "access_mode": "read_saved"
+    },
+    {
+      "session": "69808fce-611c-4232-b9bc-b662dd7e42cf",
+      "time_ms": 1790248411429,
+      "fact_id": "rating-fact:8aea7bd298194c211d7f6a194e524ec79edfbd258874363ae522352b86179460",
+      "input_sha256": "e5bc83370f54895cf21af80ffbb49169daf9ef21d59dc290e9acc08811ed12ff",
+      "access_mode": "read_saved"
+    }
+  ]
+}

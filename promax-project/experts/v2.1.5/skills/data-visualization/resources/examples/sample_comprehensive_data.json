@@ -1,0 +1,200 @@
+{
+  "_comment": "预约提醒 · 用户反馈与指标分析 —— 看板真实数据源。全部为虚构测试数据，逐字来自本次上游两个技能的实测结果，未做任何合成或补齐。缺失值统一使用 null，禁止替换为 0。",
+  "meta": {
+    "title": "预约提醒 · 用户反馈与指标分析",
+    "subtitle": "综合看板：指标 × 用户反馈 × 舆情 × 预警",
+    "project": "预约提醒功能迭代",
+    "task": "预约提醒 · 用户反馈与指标分析",
+    "mode": "测试",
+    "data_nature": "全部为虚构测试数据"
+  },
+
+  "metrics": {
+    "definition": {
+      "effective_bookings": "有效预约数 = 预约数 − 取消数",
+      "no_show_rate": "未到馆率 = 未到馆数 ÷ 有效预约数",
+      "overall_rate_rule": "总体未到馆率 = 分子之和 ÷ 分母之和（90 ÷ 380），非周度简单平均"
+    },
+    "weeks": [
+      {
+        "label": "第1周",
+        "bookings": 120,
+        "cancels": 20,
+        "arrived": 80,
+        "no_show": 20,
+        "effective": 100,
+        "no_show_rate": 20.00
+      },
+      {
+        "label": "第2周",
+        "bookings": 150,
+        "cancels": 30,
+        "arrived": 90,
+        "no_show": 30,
+        "effective": 120,
+        "no_show_rate": 25.00
+      },
+      {
+        "label": "第3周",
+        "bookings": 180,
+        "cancels": 20,
+        "arrived": 120,
+        "no_show": 40,
+        "effective": 160,
+        "no_show_rate": 25.00
+      }
+    ],
+    "overall": {
+      "no_show": 90,
+      "effective": 380,
+      "no_show_rate": 23.68,
+      "arrival_rate": 76.32
+    },
+    "limitations": [
+      "仅 3 周数据、380 条有效预约",
+      "无 DAU / MAU 指标",
+      "无异常阈值定义",
+      "无日期区间（仅以「第N周」表示）"
+    ],
+    "unavailable": {
+      "dau": null,
+      "mau": null,
+      "note": "本次未提供 DAU / MAU 指标，本区域不做展示"
+    }
+  },
+
+  "feedback": {
+    "channel": "访谈",
+    "total": 4,
+    "items": [
+      {
+        "id": "V1",
+        "source": "读者甲",
+        "category_l1": "SUG",
+        "category_l2": "新功能需求",
+        "sentiment": "中性",
+        "theme": "提醒触达的时机与渠道",
+        "confidence": 0.9
+      },
+      {
+        "id": "V2",
+        "source": "读者乙",
+        "category_l1": "SUG",
+        "category_l2": "交互改进",
+        "sentiment": "中性",
+        "theme": "提醒的粒度控制",
+        "confidence": 0.9
+      },
+      {
+        "id": "V3",
+        "source": "读者丙",
+        "category_l1": "SUG",
+        "category_l2": "交互改进",
+        "sentiment": "中性（可复核轻度负向）",
+        "theme": "取消后提醒终止",
+        "confidence": 0.75
+      },
+      {
+        "id": "V4",
+        "source": "工作人员丁",
+        "category_l1": "OTH",
+        "category_l2": "方法学提示",
+        "sentiment": "中性",
+        "theme": "未到馆归因方法警示",
+        "confidence": 0.7
+      }
+    ],
+    "category_distribution": [
+      { "name": "SUG / 新功能需求", "count": 1 },
+      { "name": "SUG / 交互改进", "count": 2 },
+      { "name": "OTH / 方法学提示", "count": 1 }
+    ],
+    "theme_distribution": [
+      { "name": "提醒触达的时机与渠道", "count": 1 },
+      { "name": "提醒的粒度控制", "count": 1 },
+      { "name": "取消后提醒终止", "count": 1 },
+      { "name": "未到馆归因方法警示", "count": 1 }
+    ],
+    "requirement_leads": [
+      { "id": "R1", "text": "开始前站内提醒" },
+      { "id": "R2", "text": "不走短信渠道" },
+      { "id": "R3", "text": "单条预约可单独关闭" },
+      { "id": "R4", "text": "取消后停止提醒" },
+      { "id": "R5", "text": "未到馆不可单一归因" }
+    ],
+    "sample_limitation": {
+      "count": 4,
+      "threshold": 50,
+      "label": "本次反馈数",
+      "threshold_label": "建议最小样本量",
+      "text": "仅 4 段访谈，反馈数 4 < 50，样本量不足，本看板反馈部分不代表全体读者。"
+    }
+  },
+
+  "market_sentiment": {
+    "available": false,
+    "source_name": "应用市场评论",
+    "empty_text": "暂无数据",
+    "note": "本次未提供任何应用市场评论，本区域不做情感分布、不做痛点排行、不做关键词云，也不生成任何合成评论。"
+  },
+
+  "alerts": {
+    "badge_counts": { "high": 0, "medium": 0, "low": 3 },
+    "items": [
+      {
+        "level": "low",
+        "icon": "💡",
+        "title": "指标数据量不足，统计异常检测无法执行",
+        "rule": "有效预约数 [100,120,160]、未到馆率 [20.00%,25.00%,25.00%] 各仅 3 个周粒度点，低于脚本 MIN_METRIC_POINTS=8；判「无法判断」而非「无异常」；阈值待业务方定义，看板不代设。",
+        "evidence": "三周有效预约数 100/120/160，未到馆率 20.00%/25.00%/25.00%。",
+        "status": "待补数据"
+      },
+      {
+        "level": "low",
+        "icon": "💡",
+        "title": "未到馆率前两周上升 5 个百分点后持平",
+        "rule": "类型=趋势观察（信号），非统计异常判定；无阈值、无 ≥7 天日粒度基线，且援引访谈 V4 不得归因提醒缺失。",
+        "evidence": "20.00% → 25.00% → 25.00%，总体 23.68%（90÷380）。",
+        "status": "观察中"
+      },
+      {
+        "level": "low",
+        "icon": "💡",
+        "title": "舆情数据源为空，舆情类规则无法判定",
+        "rule": "应用市场评论 0 条，分母与前置条件不成立；无法判定 ≠ 无风险。",
+        "evidence": "应用市场评论 0 条。",
+        "status": "待接入数据源"
+      }
+    ]
+  },
+
+  "sources": [
+    {
+      "name": "指标计算结果",
+      "path": "product-agent-output/<run_id>/预约未到馆率指标分析报告.md",
+      "note": "口径同上游 04_booking_stats.md：有效预约数 = 预约数 − 取消数；未到馆率 = 未到馆数 ÷ 有效预约数"
+    },
+    {
+      "name": "用户反馈分类结论",
+      "path": "product-agent-output/<run_id>/feedback_items.json",
+      "note": "同目录另有 feedback_structured_report.md、normalized_feedback.json；上游来源为 01_interviews.md，共 4 段访谈"
+    },
+    {
+      "name": "应用市场舆情",
+      "path": "product-agent-output/<run_id>/01_舆情分析报告（空输入）.md",
+      "note": "本次输入为空，无任何应用评论，看板对应区域显示「暂无数据」"
+    },
+    {
+      "name": "风险预警报告",
+      "path": "product-agent-output/<run_id>/risk_alert_report.md",
+      "note": "看板预警区口径以本报告为准；0 严重 / 0 警告 / 3 关注"
+    }
+  ],
+
+  "disclaimer": [
+    "全部为虚构测试数据。",
+    "本看板只做可视化呈现，不新增分析结论。",
+    "缺数据的区域显示「暂无数据」，不代表数值为 0。",
+    "预警区域为阈值触发提示，未做问题确认。"
+  ]
+}

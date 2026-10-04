@@ -1,0 +1,172 @@
+{
+  "task": "EVIDENCE-CONTINUITY-01",
+  "review": "独立静态复评；无产品/测试/接口/进程探测/服务操作",
+  "git": {
+    "branch": "pi/first-usable",
+    "head": "8f761c9c26a642bbc81e733cf19e363e3b875466",
+    "status_counts": {
+      " D": 222,
+      " M": 32,
+      "??": 95
+    }
+  },
+  "identities": [
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/src/evidence-links.ts",
+      "sha256": "1da0fdf645d71d77f43e85a20beccfed4b7529a77607de7f738a9fc49feb4d58",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/src/work-store.ts",
+      "sha256": "aeddf9ad5be81630c56f4549af896167466f992de45fae24c58642b33d75f801",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/src/structured-results.ts",
+      "sha256": "e50c56607946db318cb9dc52e0824b1415a87758e6fc901bf044c407b992d690",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/tests/rating-usability.test.ts",
+      "sha256": "5d1d9508883ad4a64de69577f357c0704ccdc53666e898d234e298052c01b3c4",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/tests/evidence-links.test.ts",
+      "sha256": "7183d14ef71ead16f206988bf58db11684c80c3512cc87b50b9d47b44db72e84",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/tests/evidence-gate-commit.test.ts",
+      "sha256": "29cdff17d1f6871824e8101a5849a00922da48cf73cf1d4fbe9972321d51c5bb",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/package.json",
+      "sha256": "ebefefe73170580ab643cad382c1dcc9d6238815dbb644a5957e1498f97d14b4",
+      "match": true
+    },
+    {
+      "record": "最终源码身份.sha256",
+      "path": "promax-ui/packages/promax-bundle/lib/index.mjs",
+      "sha256": "caf22af06ce43d9b0a5978925429ea447448391befa615964b2523412724280b",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-CONTINUITY-01/接手/evidence-gate-commit.test.ts",
+      "sha256": "29cdff17d1f6871824e8101a5849a00922da48cf73cf1d4fbe9972321d51c5bb",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-CONTINUITY-01/接手/evidence-links.test.ts",
+      "sha256": "3fc17ad4aa786f5d31aca772d614285ce24e4d44fb2999d9ab25aaad15c2cf06",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-CONTINUITY-01/接手/evidence-links.ts",
+      "sha256": "fae6c5f159f3c7c8b2fbb5bfa40ff20c577f04985ee977c7de24886bcc142ffd",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-CONTINUITY-01/接手/package.json",
+      "sha256": "809a2ac65321b165ec76a3241e094b7f2a5cfa617f3d9dbe9d51219af2318ccd",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-CONTINUITY-01/接手/rating-usability.test.ts",
+      "sha256": "e8ed5317d008b043b4e87fe09e485f540ee32dd81791e9b80bd5a43d4e6bc648",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-CONTINUITY-01/接手/structured-results.ts",
+      "sha256": "bc1a117d8856b186abf13d9753d882e418f324f7834371bd5237dc2866af202c",
+      "match": true
+    },
+    {
+      "record": "接手身份.sha256",
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-CONTINUITY-01/接手/work-store.ts",
+      "sha256": "1192c0215ab3f67327643510c8a41b5ccb9b66d47fa6ab7cc178a5d0a3a5c5be",
+      "match": true
+    }
+  ],
+  "other_unchanged": [
+    {
+      "path": "promax-ui/packages/promax-bundle/src/index.ts",
+      "match": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/evidence-gate-commit.test.ts",
+      "match": true
+    }
+  ],
+  "installation": {
+    "changed_dependencies": [
+      "@promax/promax-bundle"
+    ],
+    "archive": "/Users/Admin/Desktop/Promax/.runtime/releases/evidence-continuity-01-20260925/promax-promax-bundle-0.1.100.tgz",
+    "files": [
+      {
+        "path": "package.json",
+        "sha256": "e2df21c3a24fdf685afc90d9c697283e8bd3988db9a495ddd26d8ac7fbee8217",
+        "matches_installed": true
+      },
+      {
+        "path": "lib/index.mjs",
+        "sha256": "caf22af06ce43d9b0a5978925429ea447448391befa615964b2523412724280b",
+        "matches_installed": true
+      },
+      {
+        "path": "lib/index.d.mts",
+        "sha256": "3899358badc8b25dab1728dd192076cefa7cf7580323422e6679958467926a28",
+        "matches_installed": true
+      },
+      {
+        "path": "presets/general/agent.cordis.yml",
+        "sha256": "aef446c49a9ad8a772ad141bd80cdd7a124dd3dfba3040d7ec47a378538ffc92",
+        "matches_installed": true
+      },
+      {
+        "path": "cordis.patch.yml",
+        "sha256": "6f2da68a0700cb0173880c8b88c744abab4ef1a0d0b9524a93ab0ada6ed60a01",
+        "matches_installed": true
+      },
+      {
+        "path": "presets/general/preset.yml",
+        "sha256": "49b9096e3de608f76666920ad50be4dbd62ff95724e805fc90618b714e355955",
+        "matches_installed": true
+      }
+    ],
+    "module_matches_build_and_historical_load": true,
+    "historical_load_time": "2026-09-25T08:44:57.686873+00:00",
+    "current_process": "not_checked"
+  },
+  "findings": [
+    {
+      "id": "EC-SR01",
+      "severity": "P2",
+      "file": "promax-ui/packages/promax-bundle/src/evidence-links.ts",
+      "line": 238,
+      "title": "父标题下同一结论出现多次时，按首个命中缩小依赖，会漏掉另一处相关变化",
+      "static_trigger": "location为唯一父标题，conclusion相同原文位于两个子章节，标题均不命中公共scope关键词；仅修改第二处结论旁的支持/限定内容，第一处分支、前言、父标题、公共scope、来源及基准保持不变。",
+      "static_path": "validate/anchorBinds只要求location唯一且至少一处结论在范围内；evidenceDependencyParts的prefix.some或findIndex选择第一处，将另一子分支排除。当前Parts比较无变化，acceptReceiptLocked在无其它错误时continued。旧算法的local包含整个父章节，会失效。",
+      "impact": "新v2关联及从旧快照重分段的迁移均可能把受影响关联标continued，违反不默认首命中/有歧义保守的任务边界。",
+      "suggested_fix": "分支收窄须确认结论在锚点范围内的匹配唯一；有多处候选时保留原父范围或明确保守失效，不静默取首项。保留无歧义H1前言优化。",
+      "suggested_validation": "真实注册链中父标题唯一、两个子章节有同句结论，只改第二处分支，必须检测变化；同时保留单一结论的独立兄弟章节正向及旧v1有快照迁移保护。",
+      "runtime_verification": "not_run"
+    }
+  ],
+  "decision": "暂不通过；EC-SR01一个P2，阶段二暂不收口。开发35/35及0.1.100历史加载证据保留，不能抵消该未覆盖分支。"
+}

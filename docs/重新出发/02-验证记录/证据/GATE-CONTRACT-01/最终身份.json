@@ -1,0 +1,62 @@
+{
+  "at_utc": "2026-09-25T04:41:10.982784+00:00",
+  "sources": {
+    "promax-ui/packages/promax-ui-console/src/work-protocol.ts": {
+      "before": "e38ad7151fe4997e312185cdade7d5fd74e464003d9fdf241b93be87442078fc",
+      "after": "430870c972fc9bc9280e3bfe1544a36904d2a8b4d390c1de29b2031c6dca85e0",
+      "changed": true
+    },
+    "promax-ui/packages/promax-bundle/src/structured-results.ts": {
+      "before": "e60ebb4df424fafb28f92b5b1fe89eeebd797fc4b89e7b851a7872cde224648d",
+      "after": "f802fae4b03455b4b5c05ed81c2290d5a6193cdb9be154b3041e9a9f924c221e",
+      "changed": true
+    },
+    "promax-agent/team-harness/modules/team-coordinator/agent-module.yml": {
+      "before": "188991a703ca15827cdfd0cf6f19f3ca136ce26f4298a7654fef0b860f41e9d8",
+      "after": "dacb4338804d4d32b56632014eb95705b1c53901cae10f08d87fd3c3ba703cd0",
+      "changed": true
+    },
+    "promax-ui/packages/promax-bundle/tests/orchestration-closure.test.ts": {
+      "before": "f12b35d854ef6d7f756f9984e7e63ec414e673fdf3e209aeda68727b6f96e23b",
+      "after": "31f2a970f06a5b1492221c1d63f483eec558b211c9df6795cba8ed2ee1b1da9e",
+      "changed": true
+    },
+    "promax-ui/packages/promax-bundle/tests/work-spine.test.ts": {
+      "before": "bec7ccb2e713fa71df7fe06705b17259d729c7448be9cf8c094b4640365f0952",
+      "after": "f90b6fc20fc72bc3beb543b58f765b96a7cfd5bef05fce00edcf57c46c76f00c",
+      "changed": true
+    },
+    "promax-agent/team-harness/package.json": {
+      "before": "d18c3b9a4b82e10249f4b5e68a4a4ce7c93a7f8a40c9e2c92f05c730c861914f",
+      "after": "5a11ce2fcd782f4af398608dc82d6fc1049a638d518be124377e92be018482e5",
+      "changed": true
+    },
+    "promax-ui/packages/promax-bundle/package.json": {
+      "before": "b6c913028ec721a94ffefb76f13107b0ab72d590332557907b49d41e0588792a",
+      "after": "1bcb57df5b6d101c24300009c413532e8f174ddbc37dfde21a8027ab2cca3992",
+      "changed": true
+    },
+    "promax-ui/packages/promax-ui-console/package.json": {
+      "before": "b5b969147df7546a514424f342b26ea88cc5d31df8ac8d3ef862894075c24db3",
+      "after": "7ff13d219b46ff7c9477c15569b687f7f57dcecdb1b43ca05d44e2f8d9ca3a15",
+      "changed": true
+    },
+    "promax-agent/team-harness/generated/r9/promax-team/team-revision.yml": {
+      "before": null,
+      "after": "5369793b1e952593a5a75e5337e26dbee9711d78f82fe918aee0a5e01bcef3a3",
+      "changed": true
+    }
+  },
+  "profile": {
+    "/Users/Admin/.dsh-promax-first/profiles/web/package.json": "1abc78c13048fc4a6b9f734a7606f459467f47632ded16a5439b7828aa61949c",
+    "/Users/Admin/.dsh-promax-first/profiles/web/pnpm-lock.yaml": "7edcf0434f291bb32d3e0e1dee5d48932c040a07f9df864f5a39fd6c7fde76f9"
+  },
+  "released": {
+    "promax-promax-bundle-0.1.95.tgz": "fd67ea45702d8d09368a24d4559cc1ddd63fa120c7fc01611b6d52bdbcb61e5b",
+    "promax-team-harness-0.6.17-dist.1.tgz": "03687ab1604771292fc05da4a1d328b8eb62c3c48e37bbc571e6e5df557fcdbc",
+    "promax-promax-ui-console-0.3.156.tgz": "68add32c877dc7af5f7864e6c3d0f85289a5991776236639bf18b11c7863c268"
+  },
+  "active_preset": "5369793b1e952593a5a75e5337e26dbee9711d78f82fe918aee0a5e01bcef3a3",
+  "previous_preset_retained": "/Users/Admin/.dsh-promax-first/.agent-presets/.promax-team-gate-r8-backup-20260925",
+  "previous_preset_sha256": "d77684ccd16c11010fa7901f793e097af13e9a18f141fd039561255f3ab23b00"
+}

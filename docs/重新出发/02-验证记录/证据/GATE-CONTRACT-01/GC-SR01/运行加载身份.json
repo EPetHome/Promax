@@ -1,0 +1,27 @@
+{
+  "at_utc": "2026-09-25T05:52:24.333806+00:00",
+  "pid": "74827",
+  "bundle": {
+    "component": "promax-bundle",
+    "version": "0.1.96",
+    "evaluated_at": "2026-09-25T05:50:29.064Z",
+    "module_sha256": "e43b07646070033a660312e98e94821ae7e46aa503ada7d7ed8a95e875f5341c"
+  },
+  "harness": {
+    "component": "team-harness",
+    "version": "0.6.18-dist.1",
+    "module_sha256": "017de1f27ba645423a9460df93b6e231fe4b698b7cce70cfe37b53e984998936",
+    "evaluated_at": "2026-09-25T05:50:28.169Z"
+  },
+  "native_built_module": "/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/packages/host/apiproxy/lib/index.js",
+  "native_built_sha256": "df2703ce4e099451089d2a46926c40300d5289a2b0406fdf48ec87dec519cfac",
+  "console_module_url": "/plugins/@promax/promax-ui-console/client.js?rev=d72498f928ba",
+  "console_client_sha256": "6d7cb1d33edba3cae2f49134a14e40178ef5987cd1ff337a439ecb57e44d85d9",
+  "client_contains_new_preset": true,
+  "active_new_preset": "promax-team-r10",
+  "new_preset_team_revision_sha256": "cd483e22883c2c8beac8976df649722198a78a0ede56740b04f31706708ccb18",
+  "r8_alias_sha256": "d77684ccd16c11010fa7901f793e097af13e9a18f141fd039561255f3ab23b00",
+  "r9_alias_sha256": "5369793b1e952593a5a75e5337e26dbee9711d78f82fe918aee0a5e01bcef3a3",
+  "old_name_r9_unchanged": true,
+  "schema_and_binding_loaded_module_sha256": "e43b07646070033a660312e98e94821ae7e46aa503ada7d7ed8a95e875f5341c"
+}

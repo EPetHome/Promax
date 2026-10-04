@@ -1,0 +1,9 @@
+utc= 2026-09-25T13:18:58Z
+listener_before= COMMAND   PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    88713 Admin   17u  IPv4 0xf4cad5e9a035df3b      0t0  TCP 127.0.0.1:8800 (LISTEN)
+children= none
+connections= 4 all_localhost= True
+sent=SIGTERM 88713
+voluntary_exit_after_checks= 1
+voluntary_exit= True
+port_free= True

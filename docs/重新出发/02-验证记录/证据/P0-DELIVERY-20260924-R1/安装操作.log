@@ -1,0 +1,5 @@
+{"pid": 91259, "sessions": 127, "newest_age_seconds": 89296, "children": 1, "tcp_connections": 3, "action": "SIGTERM only"}
+old process exited voluntarily; installing two staged packages
+promax-bundle 0.1.89 archive files 6 exact match
+promax-ui-console 0.3.154 archive files 17 exact match
+profile declarations and lock updated; no unrelated package touched

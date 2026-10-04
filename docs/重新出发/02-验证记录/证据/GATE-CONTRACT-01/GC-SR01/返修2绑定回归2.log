@@ -1,0 +1,33 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/promax-session-binding.test.ts (5 tests | 1 failed) 3058ms
+   × GC-SR01 rejects changed mounted template while the revision description stays identical 492ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/promax-session-binding.test.ts > GC-SR01 rejects changed mounted template while the revision description stays identical
+AssertionError: expected [Function] to throw error matching /字节|资源|模板/ but got '会话 old 的固定绑定身份无效'
+
+- Expected:
+/字节|资源|模板/
+
++ Received:
+"会话 old 的固定绑定身份无效"
+
+ ❯ packages/promax-bundle/tests/promax-session-binding.test.ts:80:97
+     78|   await writeFile(file, `${await readFile(file, "utf8")}\n# changed te…
+     79|   await expect(resolveLegacyProductPreset(f.home, h)).rejects.toThrow(…
+     80|   await expect(productRevisionForSession(f.home, { ...h, agentPreset: …
+       |                                                                                                 ^
+     81| });
+     82|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  02:32:15
+   Duration  3.90s (transform 217ms, setup 121ms, import 264ms, tests 3.06s, environment 391ms)
+

@@ -1,0 +1,18 @@
+{
+  "at": "2026-09-25T04:19:37.915619+00:00",
+  "sources": {
+    "promax-ui/packages/promax-ui-console/src/work-protocol.ts": "e38ad7151fe4997e312185cdade7d5fd74e464003d9fdf241b93be87442078fc",
+    "promax-ui/packages/promax-bundle/src/structured-results.ts": "e60ebb4df424fafb28f92b5b1fe89eeebd797fc4b89e7b851a7872cde224648d",
+    "promax-agent/team-harness/modules/team-coordinator/agent-module.yml": "188991a703ca15827cdfd0cf6f19f3ca136ce26f4298a7654fef0b860f41e9d8",
+    "promax-ui/packages/promax-bundle/tests/orchestration-closure.test.ts": "f12b35d854ef6d7f756f9984e7e63ec414e673fdf3e209aeda68727b6f96e23b",
+    "promax-ui/packages/promax-bundle/tests/work-spine.test.ts": "bec7ccb2e713fa71df7fe06705b17259d729c7448be9cf8c094b4640365f0952",
+    "promax-agent/team-harness/package.json": "d18c3b9a4b82e10249f4b5e68a4a4ce7c93a7f8a40c9e2c92f05c730c861914f",
+    "promax-ui/packages/promax-bundle/package.json": "b6c913028ec721a94ffefb76f13107b0ab72d590332557907b49d41e0588792a",
+    "promax-ui/packages/promax-ui-console/package.json": "b5b969147df7546a514424f342b26ea88cc5d31df8ac8d3ef862894075c24db3"
+  },
+  "profile": {
+    "/Users/Admin/.dsh-promax-first/profiles/web/package.json": "b6420220ebf22066361df7954345f8fa0967b2c05e303cd3b3ab3837dff2bab3",
+    "/Users/Admin/.dsh-promax-first/profiles/web/pnpm-lock.yaml": "02f508e852a7bfbdbd7b1842ff5224c12743733d3894107c39b7642918a89e77"
+  },
+  "model": "openai-codex/gpt-6-sol xhigh"
+}

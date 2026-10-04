@@ -1,0 +1,41 @@
+2026-09-25T07:13:04Z
+Promax 正在运行：http://127.0.0.1:8800/（PID 50171）
+核对运行包：/Users/Admin/.dsh-promax-first/profiles/web
+  ✓ @promax/feishu-api@0.1.0（来源 plugins-core-20260919.vf47J6，3 个文件一致）
+  ✓ @promax/promax-bundle@0.1.97（来源 gc-sr01-repair2-20260925，6 个文件一致）
+  ✓ @promax/promax-feishu-bridge@0.1.2（来源 plugins-core-20260919.vf47J6，3 个文件一致）
+  ✓ @promax/promax-report@0.2.4（来源 chain-context-v01-20260921-report-final，75 个文件一致）
+  ✓ @promax/promax-ui-brand@0.1.11（来源 plugins-core-20260919.vf47J6，4 个文件一致）
+  ✓ @promax/promax-ui-console@0.3.157（来源 gc-sr01-20260925，17 个文件一致）
+  ✓ @promax/promax-ui-layout@0.1.7（来源 plugins-core-20260919.vf47J6，4 个文件一致）
+  ✓ @promax/team-harness@0.6.18-dist.1（来源 gc-sr01-20260925，1572 个文件一致）
+核对运行进程是否加载了已安装内容：
+  ✓ 进程 09-25 02:45:01 不早于最近安装 09-25 02:44:39，运行的就是已安装版本
+PROCESS
+pid=50171
+  PID  PPID STARTED                      ELAPSED STAT COMMAND
+50171     1 Fri Sep 25 02:45:01 2026       28:04 SN   /Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open
+p50171
+fcwd
+n/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+CHILDREN
+50199 50171 SN   /Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/node_modules/.pnpm/@esbuild+darwin-arm64@0.28.1/node_modules/@esbuild/darwin-arm64/bin/esbuild --service=0.28.1 --ping
+CONNECTIONS
+COMMAND   PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    50171 Admin   18u  IPv4 0x51443cb107911e56      0t0  TCP 127.0.0.1:8800 (LISTEN)
+node    50171 Admin   21u  IPv4 0xb7aaf73f6e0d8224      0t0  TCP 127.0.0.1:8800->127.0.0.1:64645 (ESTABLISHED)
+node    50171 Admin   32u  IPv4 0x19f6d3f4f5186d4e      0t0  TCP 127.0.0.1:8800->127.0.0.1:64709 (ESTABLISHED)
+node    50171 Admin   38u  IPv4 0x493264718dd3d118      0t0  TCP 127.0.0.1:8800->127.0.0.1:64714 (ESTABLISHED)
+LAST_SESSION
+1790248609 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/session-aa8e657a-a011-42f2-a337-bf960bdd6d2d/session.jsonl.zstd
+1790248603 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/69808fce-611c-4232-b9bc-b662dd7e42cf/session.jsonl.zstd
+1790248387 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/0a6aaa55-4004-4a77-8d85-2e9fa55f60a9/session.jsonl.zstd
+1790247826 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/4bb0b36e-dbee-4a84-b410-79ba036a2434/session.jsonl.zstd
+LAST_WORK
+1790248608 /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/工作卡.yml
+1790248607 /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/回合.yml
+1790248606 /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/链路观察.yml
+1790248603 /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/成员过程.yml
+RECENT_10MIN
+session=0
+work=0

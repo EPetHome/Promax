@@ -1,0 +1,14 @@
+2026-09-25T06:44:01Z
+pid=74827
+/Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open
+p74827
+fcwd
+n/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+recent_sessions=0
+recent_work=0
+74882 74827 SN   /Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/node_modules/.pnpm/@esbuild+darwin-arm64@0.28.1/node_modules/@esbuild/darwin-arm64/bin/esbuild --service=0.28.1 --ping
+COMMAND   PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    74827 Admin   18u  IPv4 0xe13404ddd09a5787      0t0  TCP 127.0.0.1:8800 (LISTEN)
+node    74827 Admin   22u  IPv4 0x9254af5ea11dba00      0t0  TCP 127.0.0.1:8800->127.0.0.1:53299 (ESTABLISHED)
+node    74827 Admin   36u  IPv4 0xf2b0cae5af521a30      0t0  TCP 127.0.0.1:8800->127.0.0.1:53318 (ESTABLISHED)
+node    74827 Admin   40u  IPv4 0xe0afe3ade0c983c6      0t0  TCP 127.0.0.1:8800->127.0.0.1:53320 (ESTABLISHED)

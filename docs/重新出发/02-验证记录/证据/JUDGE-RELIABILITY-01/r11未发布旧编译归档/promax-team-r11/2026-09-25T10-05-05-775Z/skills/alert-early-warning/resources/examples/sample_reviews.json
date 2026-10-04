@@ -1,0 +1,129 @@
+{
+  "app_id": "com.cloudshare.app",
+  "app_name": "云传",
+  "period": "2026-08-15 ~ 2026-08-18",
+  "total_reviews": 10,
+  "burst_period": "2026-08-15 ~ 2026-08-18（4 天）",
+  "reviews": [
+    {
+      "id": "r001",
+      "source": "appstore",
+      "app_id": "com.cloudshare.app",
+      "version": "v2.5.0",
+      "rating": 1,
+      "title": "又开始闪退了",
+      "content": "今天更新后又开始闪退了，一进传输记录就崩，跟上次一样的问题又复发，到底修没修？",
+      "date": "2026-08-15",
+      "device": "iPhone 15 Pro",
+      "language": "zh"
+    },
+    {
+      "id": "r002",
+      "source": "huawei",
+      "app_id": "com.cloudshare.app",
+      "version": "v2.5.0",
+      "rating": 1,
+      "title": "鸿蒙闪退没解决",
+      "content": "上次反映过鸿蒙闪退问题，这次更新之后还是闪退，客服说修复了完全没修好，太失望了。",
+      "date": "2026-08-15",
+      "device": "HUAWEI Mate 60 Pro",
+      "language": "zh"
+    },
+    {
+      "id": "r003",
+      "source": "xiaomi",
+      "app_id": "com.cloudshare.app",
+      "version": "v2.5.0",
+      "rating": 2,
+      "title": "上传又卡住了",
+      "content": "传一个 1.5G 的视频，进度走到 99% 又卡住不动了，取消重试还是这样，这周第三次遇到。",
+      "date": "2026-08-16",
+      "device": "小米14",
+      "language": "zh"
+    },
+    {
+      "id": "r004",
+      "source": "appstore",
+      "app_id": "com.cloudshare.app",
+      "version": "v2.5.0",
+      "rating": 1,
+      "title": "下载还是断",
+      "content": "大文件下载中途必断，还是没有断点续传，一个 800MB 的包下了三遍都没成功。",
+      "date": "2026-08-16",
+      "device": "iPhone 14",
+      "language": "zh"
+    },
+    {
+      "id": "r005",
+      "source": "huawei",
+      "app_id": "com.cloudshare.app",
+      "version": "v2.5.0",
+      "rating": 1,
+      "title": "一天闪退五六次",
+      "content": "今天已经闪退五六次了，正给客户传文件呢突然就崩了，太耽误事了，赶紧处理吧！",
+      "date": "2026-08-16",
+      "device": "HUAWEI P60 Pro",
+      "language": "zh"
+    },
+    {
+      "id": "r006",
+      "source": "xiaomi",
+      "app_id": "com.cloudshare.app",
+      "version": "v2.5.0",
+      "rating": 1,
+      "title": "登录就闪退",
+      "content": "打开应用点登录直接闪退，重启手机也没用，彻底用不了了，一星差评。",
+      "date": "2026-08-17",
+      "device": "Redmi K70",
+      "language": "zh"
+    },
+    {
+      "id": "r007",
+      "source": "appstore",
+      "app_id": "com.cloudshare.app",
+      "version": "v2.5.0",
+      "rating": 2,
+      "title": "越修越卡",
+      "content": "更新完比之前还卡，首页加载要十秒，滑列表一顿一顿的，体验倒退得厉害。",
+      "date": "2026-08-17",
+      "device": "iPhone 13",
+      "language": "zh"
+    },
+    {
+      "id": "r008",
+      "source": "huawei",
+      "app_id": "com.cloudshare.app",
+      "version": "v2.5.0",
+      "rating": 1,
+      "title": "闪退问题复发了",
+      "content": "上周就反馈过闪退，这周又来了，而且这次连设置页都进不去，你们版本管理是怎么做的？",
+      "date": "2026-08-17",
+      "device": "HUAWEI Mate 60 Pro",
+      "language": "zh"
+    },
+    {
+      "id": "r009",
+      "source": "xiaomi",
+      "app_id": "com.cloudshare.app",
+      "version": "v2.5.0",
+      "rating": 2,
+      "title": "上传还是老问题",
+      "content": "反馈了这么多天，上传 99% 卡住的问题一点没改善，传小文件正常，传大的就废，无语。",
+      "date": "2026-08-18",
+      "device": "小米14 Ultra",
+      "language": "zh"
+    },
+    {
+      "id": "r010",
+      "source": "appstore",
+      "app_id": "com.cloudshare.app",
+      "version": "v2.5.0",
+      "rating": 3,
+      "title": "核心功能没崩但体验一般",
+      "content": "小文件传输还是正常的，速度也可以，就是闪退问题确实存在，希望别再复发。",
+      "date": "2026-08-18",
+      "device": "iPhone 15",
+      "language": "zh"
+    }
+  ]
+}

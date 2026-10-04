@@ -1,0 +1,31 @@
+{
+  "at_utc": "2026-09-25T05:54:41.548528+00:00",
+  "bindings_created_after_reload": [
+    {
+      "session_id": "session-7c6a761e-e4cd-4e3c-95b5-68a20505cb72",
+      "preset": "promax-team-r8-legacy",
+      "team_revision_id": "promax-product-team@r8",
+      "revision_sha256": "d77684ccd16c11010fa7901f793e097af13e9a18f141fd039561255f3ab23b00",
+      "source": "work-card/requirement-policy",
+      "binding_file_sha256": "62f7f29f4ae4dc0d52aed8cfccffa7a5f42639da8a7d5b4d35cd1f25c108c3e6"
+    },
+    {
+      "session_id": "session-aa8e657a-a011-42f2-a337-bf960bdd6d2d",
+      "preset": "promax-team-r8-legacy",
+      "team_revision_id": "promax-product-team@r8",
+      "revision_sha256": "d77684ccd16c11010fa7901f793e097af13e9a18f141fd039561255f3ab23b00",
+      "source": "work-card/requirement-policy",
+      "binding_file_sha256": "d3054097ff9130b9c031facf5599b94c949710bcd9a3f91b5e2b9d8358b596c5"
+    },
+    {
+      "session_id": "session-ab4a8dbc-51cb-4d7d-a706-03a3372f8bda",
+      "preset": "promax-team-r8-legacy",
+      "team_revision_id": "promax-product-team@r8",
+      "revision_sha256": "d77684ccd16c11010fa7901f793e097af13e9a18f141fd039561255f3ab23b00",
+      "source": "work-card/requirement-policy",
+      "binding_file_sha256": "4e784cf6acd077858ffb9859dfd09f4035818ca743be99ceb8e7b15ba82282bd"
+    }
+  ],
+  "model_execution_inferred": false,
+  "native_mount_directly_observed": false
+}

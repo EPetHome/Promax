@@ -1,0 +1,27 @@
+runtime
+2026-09-25T04:35:06Z
+  PID  PPID STARTED                      ELAPSED COMMAND
+13956     1 Fri Sep 25 00:33:32 2026       01:34 /Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open
+web manifest header
+curl: (22) The requested URL returned error: 404
+
+console module HTTP
+HTTP/1.1 200 OK
+content-type: text/javascript; charset=utf-8
+cache-control: no-cache
+Date: Fri, 25 Sep 2026 04:35:06 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+static
+<!doctype html>
+<html lang="en">
+  <head><script>(()=>{
+const pendingQueue=[]
+window.__ModuleLoader__={
+  mode:"queue",
+  pendingQueue,
+  load(registration){pendingQueue.push(registration)},
+  create(options){
+    if(this.mode!=="queue")throw new Error("client-modules: window.__ModuleLoader__.create called after module-system boot")
+    const index=pendingQueue.findIndex(registration=>registration.id==="@deepseek-ai/

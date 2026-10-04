@@ -1,0 +1,74 @@
+{
+  "at_utc": "2026-09-25T05:54:02.161163+00:00",
+  "source_and_built": {
+    "promax-agent/deepseek-harness/packages/host/apiproxy/src/api-proxy.ts": {
+      "before": "6620a96f9d677b48ab2ad57fb64cecfaa7c3fa882af0b7c4818afed2e8176333",
+      "after": "b4f0cad77e8baeec7e40a093388948558b9b8c53b71de10ee0dcf8b2e8a77a2f",
+      "changed": true
+    },
+    "promax-agent/deepseek-harness/packages/host/apiproxy/tests/api-proxy-agent-preset.spec.ts": {
+      "before": "79221cb4af1e6143d1aa579a8500abca30e5697ba6f7ddf7a94d39bff789e379",
+      "after": "06c9cb0276fd93fed39db40e271ea44b1836b3496f3dd8685c12c7ca61b2881a",
+      "changed": true
+    },
+    "promax-agent/team-harness/src/harness.mjs": {
+      "before": "76e7a7dc77ae7479cd3a60ac2a6f6eb0c918deceded84eddfd5963fb89097081",
+      "after": "017de1f27ba645423a9460df93b6e231fe4b698b7cce70cfe37b53e984998936",
+      "changed": true
+    },
+    "promax-agent/team-harness/package.json": {
+      "before": "5a11ce2fcd782f4af398608dc82d6fc1049a638d518be124377e92be018482e5",
+      "after": "f87e68d10fe9e1c68cfbee279b132c5267dd2173169dc8eab7e6a10dd3e45612",
+      "changed": true
+    },
+    "promax-ui/packages/promax-bundle/src/index.ts": {
+      "before": "abe02f0a826396e4fb3b1d9d98cfe2732715ad37a1bc3f445bef59049f21dfbe",
+      "after": "22dc2d3d7cc227e2ef3ad5e27d3929e137223a69c0988a3cab9c77a662d56bbe",
+      "changed": true
+    },
+    "promax-ui/packages/promax-bundle/src/structured-results.ts": {
+      "before": "f802fae4b03455b4b5c05ed81c2290d5a6193cdb9be154b3041e9a9f924c221e",
+      "after": "7b764e82e1fc3111fa425b4a5ce0710d05970e4dc44372795247c253c420f173",
+      "changed": true
+    },
+    "promax-ui/packages/promax-bundle/package.json": {
+      "before": "1bcb57df5b6d101c24300009c413532e8f174ddbc37dfde21a8027ab2cca3992",
+      "after": "a3f46639c3860861ea3cd1e7645bebd0daf0977e7282b78907ef78aa9cf2a9f1",
+      "changed": true
+    },
+    "promax-ui/packages/promax-ui-console/src/client/team-state.ts": {
+      "before": "cdf19e78af646c6d5b32aaffbceb9de930f92556527cfa29c4849c8a8a2449ce",
+      "after": "c3a64a657c7c85ae705983ddcc9b2cec1365ba69780d010d41ce66cfb8854e8d",
+      "changed": true
+    },
+    "promax-ui/packages/promax-ui-console/package.json": {
+      "before": "7ff13d219b46ff7c9477c15569b687f7f57dcecdb1b43ca05d44e2f8d9ca3a15",
+      "after": "64066ea6e9804a3b635c6c06cb5d41f6a296cc4b2527774a8e97724457a70a3e",
+      "changed": true
+    },
+    "promax-ui/packages/promax-bundle/src/promax-session-binding.ts": {
+      "after": "4bff4d05efd9ff5f0bfa6fda488a700be7a507cee7b93625d8eec8cb81ccb6e8"
+    },
+    "promax-agent/team-harness/generated/r10/promax-team-r10/team-revision.yml": {
+      "after": "cd483e22883c2c8beac8976df649722198a78a0ede56740b04f31706708ccb18"
+    },
+    "promax-agent/deepseek-harness/packages/host/apiproxy/lib/index.js": {
+      "after": "df2703ce4e099451089d2a46926c40300d5289a2b0406fdf48ec87dec519cfac"
+    }
+  },
+  "release_archives": {
+    "promax-promax-bundle-0.1.96.tgz": "88995bbcf1cf99f64f353d5fbdb97295dc0bff4b19819844265a4787fa82586c",
+    "promax-promax-ui-console-0.3.157.tgz": "7a0a46790adad3182bc97a6b968ba5fef6ca5d85aa76c6ad15f778743af5b40c",
+    "promax-team-harness-0.6.18-dist.1.tgz": "ba66aee07481624350bcbcd6a6272c89c200556db43e9cfa2efb1e348b9cc8ea"
+  },
+  "runtime": {
+    "profiles/web/package.json": "680bb51d782ac0c24f738523ce87ec27273f338c4a4c00492c6e498d9f316f1f",
+    "profiles/web/pnpm-lock.yaml": "7d0ef9a8375a3669febac25a66ef8027a77f7251e9163c37c685876d52c25bb1",
+    ".agent-presets/promax-team/team-revision.yml": "5369793b1e952593a5a75e5337e26dbee9711d78f82fe918aee0a5e01bcef3a3",
+    ".agent-presets/.promax-team-gate-r8-backup-20260925/team-revision.yml": "d77684ccd16c11010fa7901f793e097af13e9a18f141fd039561255f3ab23b00"
+  },
+  "published_r8_r9_preset_unchanged": true,
+  "inspected_original_main_session_bytes_unchanged": 36,
+  "inspected_original_main_session_total": 36,
+  "changed_original_sessions": []
+}

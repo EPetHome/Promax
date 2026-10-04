@@ -1,0 +1,33 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts (21 tests | 1 failed | 20 skipped) 1063ms
+   × SR02 既有正式版只检查→普通追问→新读取器仍认保存身份，不重复提交 1062ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR02 既有正式版只检查→普通追问→新读取器仍认保存身份，不重复提交
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:355:69
+    353|   const view = await (await w.f.request("work/read", { work_key: w.key…
+    354|   expect((await reopened.round(w.key))?.check_only).not.toBe(true);
+    355|   expect((await reopened.round(w.key))?.last_check?.delivery_saved).to…
+       |                                                                     ^
+    356|   expect(view.card.delivery_receipts.at(-1).state).toMatch(/complete|s…
+    357|   expect(new ContentObjectStore(w.f.scope.projectPath).index().artifac…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 20 skipped (21)
+   Start at  04:01:45
+   Duration  2.10s (transform 459ms, setup 128ms, import 843ms, tests 1.06s, environment 0ms)
+

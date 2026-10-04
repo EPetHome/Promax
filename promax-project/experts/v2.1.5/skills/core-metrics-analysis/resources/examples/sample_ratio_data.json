@@ -1,0 +1,54 @@
+{
+  "_comment": "通用分子 / 分母复算输入（--analysis ratio）契约样例；虚构测试数据，来源：场景 06 输入 04_booking_stats.md。字段名一律从数据读，脚本内不出现业务词。",
+  "meta": {
+    "title": "预约未到馆率复算",
+    "group_label": "周次"
+  },
+  "definition": {
+    "有效预约数": "预约数 − 取消数",
+    "未到馆率": "未到馆数 ÷ 有效预约数"
+  },
+  "fields": {
+    "bookings": "预约数",
+    "cancels": "取消数",
+    "arrived": "到馆数",
+    "no_show": "未到馆数"
+  },
+  "formula": {
+    "denominator": "bookings - cancels",
+    "numerator": "no_show",
+    "rate_label": "未到馆率",
+    "numerator_label": "未到馆数",
+    "denominator_label": "有效预约数"
+  },
+  "rounding": {
+    "digits": 2,
+    "mode": "ROUND_HALF_UP",
+    "unit": "percent"
+  },
+  "groups": [
+    {"label": "第 1 周", "bookings": 120, "cancels": 20, "arrived": 80, "no_show": 20},
+    {"label": "第 2 周", "bookings": 150, "cancels": 30, "arrived": 90, "no_show": 30},
+    {"label": "第 3 周", "bookings": 180, "cancels": 20, "arrived": 120, "no_show": 40}
+  ],
+  "overall": {
+    "label": "总体"
+  },
+  "checks": [
+    {
+      "label": "到馆 + 未到馆 = 有效预约",
+      "left": "arrived + no_show",
+      "right": "bookings - cancels"
+    }
+  ],
+  "unavailable": {
+    "DAU": null,
+    "MAU": null,
+    "note": "本次未提供 DAU / MAU"
+  },
+  "limitations": [
+    "三周互不重叠",
+    "所有预约已结束",
+    "样本有限"
+  ]
+}

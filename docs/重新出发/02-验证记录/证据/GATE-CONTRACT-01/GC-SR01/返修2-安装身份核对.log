@@ -1,0 +1,22 @@
+2026-09-25T06:44:53Z
+Promax 8800 未运行。
+核对运行包：/Users/Admin/.dsh-promax-first/profiles/web
+  ✓ @promax/feishu-api@0.1.0（来源 plugins-core-20260919.vf47J6，3 个文件一致）
+  ✓ @promax/promax-bundle@0.1.97（来源 gc-sr01-repair2-20260925，6 个文件一致）
+  ✓ @promax/promax-feishu-bridge@0.1.2（来源 plugins-core-20260919.vf47J6，3 个文件一致）
+  ✓ @promax/promax-report@0.2.4（来源 chain-context-v01-20260921-report-final，75 个文件一致）
+  ✓ @promax/promax-ui-brand@0.1.11（来源 plugins-core-20260919.vf47J6，4 个文件一致）
+  ✓ @promax/promax-ui-console@0.3.157（来源 gc-sr01-20260925，17 个文件一致）
+  ✓ @promax/promax-ui-layout@0.1.7（来源 plugins-core-20260919.vf47J6，4 个文件一致）
+  ✓ @promax/team-harness@0.6.18-dist.1（来源 gc-sr01-20260925，1572 个文件一致）
+NATIVE
+00f9c744fcf47dcca8bcaba176afdb8ecbc167bf879325179e8a7db36922ecb0  promax-agent/deepseek-harness/packages/host/apiproxy/lib/index.js
+df2703ce4e099451089d2a46926c40300d5289a2b0406fdf48ec87dec519cfac  重新出发/02-验证记录/证据/GATE-CONTRACT-01/GC-SR01/恢复/返修2/native-apiproxy-index-before.js
+PACKAGE
+639188c9cded70e5b18190c2f6af3b6d4d98de272617e41a4a8d4541826cd66d  promax-ui/packages/promax-bundle/lib/index.mjs
+639188c9cded70e5b18190c2f6af3b6d4d98de272617e41a4a8d4541826cd66d  /Users/Admin/.dsh-promax-first/profiles/web/node_modules/@promax/promax-bundle/lib/index.mjs
+PRESET
+107379bac510eac9108b9cba107bc9433fa639c05240a8573db1a2ae3605be83  /Users/Admin/.dsh-promax-first/.agent-presets/promax-team-r10/manifest.sha256
+107379bac510eac9108b9cba107bc9433fa639c05240a8573db1a2ae3605be83  /Users/Admin/.dsh-promax-first/profiles/web/node_modules/@promax/team-harness/generated/r10/promax-team-r10/manifest.sha256
+PROFILE
+[('@promax/promax-bundle', 'file:/Users/Admin/Desktop/Promax/.runtime/releases/gc-sr01-20260925/promax-promax-bundle-0.1.96.tgz', 'file:/Users/Admin/Desktop/Promax/.runtime/releases/gc-sr01-repair2-20260925/promax-promax-bundle-0.1.97.tgz')]

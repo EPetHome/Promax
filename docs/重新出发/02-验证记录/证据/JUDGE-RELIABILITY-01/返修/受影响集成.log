@@ -1,0 +1,59 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/session-output.test.ts (14 tests | 2 failed) 1254ms
+     × freezes an xlsx original plus an agent-readable CSV with converter metadata 67ms
+     × stops after two failed repair rounds and exposes every final Judge reason 308ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/session-output.test.ts > dispatch confirmation gate > freezes an xlsx original plus an agent-readable CSV with converter metadata
+AssertionError: expected [ { …(9) } ] to match object [ { name: 'members.xlsx', …(4) } ]
+(4 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -2,8 +2,8 @@
+    {
+      "converter": "exceljs 4.4.0",
+      "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "name": "members.xlsx",
+      "textCharacters": 42,
+-     "truncated": false,
++     "truncated": true,
+    },
+  ]
+
+ ❯ packages/promax-bundle/tests/session-output.test.ts:908:29
+    906|       attachmentPaths,
+    907|     );
+    908|     expect(planningContext).toMatchObject([
+       |                             ^
+    909|       {
+    910|         name: "members.xlsx",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/promax-bundle/tests/session-output.test.ts > dispatch confirmation gate > stops after two failed repair rounds and exposes every final Judge reason
+AssertionError: expected '部分完成：成果已保存，仍有未满足或未核实事项：历史检查（未按新基准验收）。…' to contain '待人判断'
+
+Expected: "待人判断"
+Received: "部分完成：成果已保存，仍有未满足或未核实事项：历史检查（未按新基准验收）。不代表业务全部通过。"
+
+ ❯ packages/promax-bundle/tests/session-output.test.ts:1370:7
+    1368|     expect(
+    1369|       (await fixture.works.read(fixture.card.work_key)).last_progress,
+    1370|     ).toContain("待人判断");
+       |       ^
+    1371|     expect(
+    1372|       await readFile(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 9 passed (10)
+      Tests  2 failed | 94 passed (96)
+   Start at  06:56:41
+   Duration  13.09s (transform 4.06s, setup 2.81s, import 8.68s, tests 27.79s, environment 8.87s)
+

@@ -1,0 +1,93 @@
+# promax-215-sdk 装配底；仅应用 SPEC 1.2 的五处改动。
+# 路径占位符由 assembly/render_profile.py 用 JSON 字符串安全替换（JSON 亦为 YAML）。
+
+# 原模型路由与默认模型原样保留；只有环境变量名，不包含凭据。
+- id: llm-pi-ai
+  config:
+    providers:
+      opencode-go:
+        apiKeyEnv: OPENCODE_GO_API_KEY
+        headers:
+          x-opencode-session: promax-project-3f6c2a1e-8d4b-4e7a-9c15-7b2e0d9a6f41
+        api: openai-completions
+        baseURL: https://opencode.ai/zen/go/v1
+        defaultContextWindow: 1000000
+        defaultMaxTokens: 384000
+        compat:
+          supportsStore: false
+          supportsDeveloperRole: false
+          maxTokensField: max_tokens
+          requiresReasoningContentOnAssistantMessages: true
+          thinkingFormat: deepseek
+        models:
+          - id: deepseek-v4.1-flash
+          - id: deepseek-v4-pro
+          - id: deepseek-v4-flash
+
+- id: agent-default-model
+  config:
+    provider: opencode-go
+    model: deepseek-v4.1-flash
+
+# 1.2(2)：不使用 dsh 技能发现、清单和小写 skill。
+- id: skill-filesystem
+  disabled: true
+
+- id: tool-skill
+  disabled: true
+
+- id: skill-office
+  disabled: true
+
+# 1.2(4)：隐藏通用委派与控制，只保留宿主五工具；底层 subagents 服务仍启用。
+- id: tool-subagent
+  disabled: true
+
+- id: tool-subagent-fork
+  disabled: true
+
+- id: tool-subagent-control
+  disabled: true
+
+- id: tool-subagent-list-agents
+  disabled: true
+
+- id: subagent
+  config:
+    maxDepth: 2
+
+# 原 tool-web 关闭配置保留。
+- id: tool-web
+  disabled: true
+
+# 1.2(3)：空规则目录；Lead 原文只由 M1 的 R2 注入，保留原 maxBytes。
+- id: agent-instructions
+  config:
+    dshHome: "__PROMAX_EMPTY_INSTRUCTIONS__"
+    instructionFileCandidates: []
+    localInstructionFileCandidates: []
+    maxBytes: 65536
+
+# 1.2(1)：六个具名成员实例已移除。
+# 1.2(5)：宿主 id 固定，整体关闭只在这一条加 disabled: true。
+- insert:
+    - id: promax-wb-host
+      name: "__PROMAX_PLUGIN_ENTRY__"
+      config:
+        packageDir: "__PROMAX_PACKAGE_DIR__"
+        memberModel:
+          provider: opencode-go
+          model: deepseek-v4.1-flash
+        python: "__PROMAX_PYTHON__"
+        maxConcurrentForks: 16
+        modules:
+          team: true
+          skill: true
+          runtime: true
+
+    # 原守卫 denyStrings 与缺省 bootLog 保留；只有插件路径随装配绑定。
+    - id: promax-egress-guard
+      name: "__PROMAX_GUARD_ENTRY__"
+      config:
+        bootLog: "/Users/Admin/Desktop/Promax/promax-eval/12-2b-常驻运行器/_boot.jsonl"
+        denyStrings: ["feishu_usage", "feishu_data", "product-agent-feishu-full", "connection.dat", "feishu.cn", "larksuite", ".workbuddy", "hook.py"]

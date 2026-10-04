@@ -1,0 +1,100 @@
+{
+  "scope": "指派准备的文件/CLI静态核对；未启动Pi、产品、模型或工程测试",
+  "previous_task_backup": "重新出发/.bak/P0-R3C任务转GATE-CONTRACT-01前-20260925T031109Z.zip",
+  "model": "openai-codex/gpt-6-sol",
+  "thinking": "xhigh",
+  "pi_version": "0.84.3",
+  "permission_extension_version": "32.0.2",
+  "node_version_from_parser_process": "v22.23.1",
+  "pi_install": "/Users/Admin/.local/lib/node_modules/@earendil-works/pi-coding-agent",
+  "pi_entry": "/Users/Admin/.local/bin/pi",
+  "model_catalog": "/Users/Admin/.pi/agent/models-store.json",
+  "cli_parse": {
+    "unknownFlags": [],
+    "diagnostics": [],
+    "tools": [
+      "read",
+      "edit",
+      "write",
+      "bash"
+    ],
+    "explicit_extension": "/Users/Admin/.pi/agent/npm/node_modules/@gotgenes/pi-permission-system/src/index.ts",
+    "explicit_skill": "/Users/Admin/.agents/skills/context-relay/SKILL.md",
+    "project_context_enabled": true,
+    "offline_startup": true,
+    "new_session": true
+  },
+  "runtime_model_tools_auth": "未启动，实际启用/认证连接未验证",
+  "sources": [
+    {
+      "path": "promax-ui/packages/promax-ui-console/src/work-protocol.ts",
+      "sha256": "e38ad7151fe4997e312185cdade7d5fd74e464003d9fdf241b93be87442078fc",
+      "bytes": 48889
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/structured-results.ts",
+      "sha256": "e60ebb4df424fafb28f92b5b1fe89eeebd797fc4b89e7b851a7872cde224648d",
+      "bytes": 45640
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/work-store.ts",
+      "sha256": "1192c0215ab3f67327643510c8a41b5ccb9b66d47fa6ab7cc178a5d0a3a5c5be",
+      "bytes": 130080
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/src/work-spine.ts",
+      "sha256": "9dd023a3df3db1f9d143d06a94b8121ddd6059454ed278c1fa2b55f40ffc0a15",
+      "bytes": 11648
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/src/client/ProgressTrunk.tsx",
+      "sha256": "a40999a2d40faacb6a53bf329b78b1734d9e0038e1f22662c21d5dc8f06239dd",
+      "bytes": 7918
+    },
+    {
+      "path": "promax-agent/team-harness/modules/team-coordinator/agent-module.yml",
+      "sha256": "188991a703ca15827cdfd0cf6f19f3ca136ce26f4298a7654fef0b860f41e9d8",
+      "bytes": 13791
+    },
+    {
+      "path": "promax-agent/team-harness/package.json",
+      "sha256": "d18c3b9a4b82e10249f4b5e68a4a4ce7c93a7f8a40c9e2c92f05c730c861914f",
+      "bytes": 2872
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/package.json",
+      "sha256": "b6c913028ec721a94ffefb76f13107b0ab72d590332557907b49d41e0588792a",
+      "bytes": 1655
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/package.json",
+      "sha256": "b5b969147df7546a514424f342b26ea88cc5d31df8ac8d3ef862894075c24db3",
+      "bytes": 1534
+    }
+  ],
+  "task_sha256": "e2de065e3f2b5b750b461ed208ebcfa31d00eaa422909d5526d843ea3d1853ea",
+  "document_checks": {
+    "shell_syntax_exit": 0,
+    "missing_relative_links": [],
+    "actual_command_args": [
+      "--offline",
+      "--provider",
+      "openai-codex",
+      "--model",
+      "gpt-6-sol",
+      "--thinking",
+      "xhigh",
+      "--no-extensions",
+      "--no-skills",
+      "--no-prompt-templates",
+      "--no-themes",
+      "--tools",
+      "read,edit,write,bash",
+      "-e",
+      "/Users/Admin/.pi/agent/npm/node_modules/@gotgenes/pi-permission-system/src/index.ts",
+      "--skill",
+      "/Users/Admin/.agents/skills/context-relay/SKILL.md",
+      "@/Users/Admin/Desktop/Promax/重新出发/01-指派任务/02-交付真实性修复任务.md/01-指派任务.md"
+    ]
+  }
+}

@@ -1,0 +1,212 @@
+schema_version: 1
+kind: JudgeReferenceSet
+status: candidate
+updated_at: 2026-09-22
+# 11.1 参考集：优先复用现有冻结输入、成果版本与完整评审轨迹，不复制成新的“真值”。
+# 标签规则：
+# - deterministic_recompute：可由冻结原始数据与明确口径独立复算，Pi 已执行复算并记录命令。
+# - pending_human_confirmation：需要业务/领域审阅者确认，Pi 不假扮人工确认者。
+# - historical_unknown：旧机制未留必要字段，只作问题/流程反例，不参与按版本分组的成绩。
+# - 历史 PASS / verified 不自动生成“合格”标签。
+usage_policy:
+  rule_debug: 仅用于修改规则与回归测试的样本；不得用于计算 Judge 准确率。
+  evaluation: 用于评价误放行/误阻断/漏检；必须同时报告可判定分母、未知项与争议项数量。
+  excluded_from_scoring:
+    - 缺少独立标签的样本
+    - 加载版本未知（historical_unknown）的样本
+    - 任何以一个案例代表整体业务质量的推断
+sample_fields:
+  - sample_id
+  - usage
+  - source
+  - frozen_input
+  - artifact_versions
+  - applicable_baseline
+  - evaluable_scope
+  - reference_label
+  - gaps
+samples:
+  - sample_id: ref-001-netdisk-product-r3-pass
+    usage: rule_debug
+    source:
+      workspace: /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718
+      work_card: .工作/给一份关于-个人网盘-的相关产品调研/工作卡.yml
+      work_card_sha256: cd8a3596e5b05c500f9bc92ecab3813bb8906445d6fd26921f91cb0889b3b1f9
+      round: .工作/给一份关于-个人网盘-的相关产品调研/回合.yml
+      round_sha256: 490b29eaa942487a113a7069c2399ef9b7083949b8628a35db86605d2eaf1c59
+      judge_report: .任务/国内个人网盘产品调研/判定-r3.md
+      judge_report_sha256: 62f64fbd1c7e049c9e6d75e5c63d8e3edee18fe02fdd4694de67b637f6001716
+    frozen_input:
+      manifest: .任务/国内个人网盘产品调研/输入/manifest.yml
+      manifest_sha256: (见文件原字节；运行时读取校验)
+      sources: [SRC-001]
+      note: 仅 1 条 user-provided 需求说明，无外部取证；记录的是当时实际输入，不代表充分。
+    artifact_versions:
+      - filename: product_discovery.md
+        sha256: e03974bd42040e914b6ff3bd424ba571f41154a55ae33d37d3c65ed04bd30d65
+    applicable_baseline: 旧机制（无 acceptance baseline 逐项记录）；规则版本未知
+    evaluable_scope: 只能评「当期产品事实是否取得适用依据」这一确定性缺口，不能评整份报告业务质量
+    reference_label:
+      kind: disputed_candidate_misrelease
+      verdict: 未定（候选误放行）
+      basis:
+        - 唯一外部依据为需求说明，产品事实以知识基标注待核实
+        - r3 PASS 把「结论强度限制」当作可接受，未要求当期产品事实依据
+      confirmation: pending_human_confirmation
+      confirmed_by: null
+      disputed: true
+    gaps:
+      - 未对报告逐项建立独立合格/不合格标签；不得据此推断 Judge 整体准确率
+      - 旧机制未记录 acceptance baseline 与 rules 版本
+  - sample_id: ref-002-netdisk-cloud-cancelled-r1
+    usage: rule_debug
+    source:
+      workspace: /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718
+      work_card: .工作/帮我做一个国内的-个人云盘-相关市场调研/工作卡.yml
+      judge_report: .任务/国内个人云盘市场调研/判定-r1.md
+      judge_report_sha256: fccc61bc65f1629264265e3a03331cc1fd38afefc6709e188faddf87a1f87150
+    frozen_input:
+      sources_count: 54（按复盘材料02统计；以输入包 manifest 实际条数为准）
+    applicable_baseline: 旧机制
+    evaluable_scope: 问题生命周期与取消语义（问题保留、不自动关闭）
+    reference_label:
+      kind: execution_evidence
+      verdict: 未定（r1 REVISION_REQUIRED 后用户取消）
+      basis:
+        - 取消不把未解决问题自动清账
+        - 交付结果=未完成；不因工具链繁忙归因 Agent 能力缺陷
+      confirmation: pending_human_confirmation
+      confirmed_by: null
+      disputed: false
+    gaps: [缺少独立业务标签；只能验证状态机语义]
+  - sample_id: ref-003-netdisk-market-failed-no-verdict
+    usage: rule_debug
+    source:
+      workspace: /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718
+      work_card: .工作/帮我完成一次国内-个人网盘-相关的市场调研/工作卡.yml
+      review_ledger: .工作/帮我完成一次国内-个人网盘-相关的市场调研/评审.yml
+      review_ledger_sha256: 6cc515ba697022646bbd26795f915d2ca70ca5a81f4fce5ba5ca271091b3dfd4
+    frozen_input:
+      sources_count: 33（按复盘材料02统计）
+    applicable_baseline: 旧机制
+    evaluable_scope: no_result 原因分类（评审未返回、未派发、执行中断）与问题台账
+    reference_label:
+      kind: process_counterexample
+      verdict: 未检查（无有效评审结果）
+      basis:
+        - 有成果但无有效判定 → 不得假报完成，也不得据此判内容不合格
+        - no_result 保留在分母并单列原因
+      confirmation: pending_human_confirmation
+      confirmed_by: null
+      disputed: false
+    gaps: [缺少独立业务标签]
+  - sample_id: ref-004-frozen-rating-statistics
+    usage: evaluation
+    source:
+      skill_script: promax-agent/agents/user-analysis/skills/app-market-sentiment/resources/scripts/frozen_rating_stats.py
+      test: promax-agent/team-harness/test/frozen-statistics.test.mjs
+    frozen_input: 用例内联冻结评分数组（含缺失、非数字、越界与空数组三组）；分母与缺失口径已声明，无网络无抽样
+    applicable_baseline: 数值口径规则（USER_ANALYSIS_NUMBER_TRACE）
+    evaluable_scope: 确定性数值：1—2 星占有效评分记录的比例、缺失值与舍入
+    reference_label:
+      kind: deterministic
+      verdict: 正例/反例成对（可复算）
+      basis: [由冻结输入与声明口径独立复算；不使用模型判断]
+      confirmation: deterministic_recompute
+      confirmed_by: pi@20260922（复算命令见 RESULTS 第4节）
+      disputed: false
+    gaps: [只覆盖数值项，不证明整份报告或总体外推正确]
+  - sample_id: ref-005-appointment-user-analysis-rechecks
+    usage: evaluation
+    source:
+      workspace: /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718
+      judge_reports: [.任务/预约提醒用户分析报告/判定-r1.md, .任务/预约提醒用户分析报告/判定-r2.md, .任务/预约提醒用户分析报告/判定-r3.md]
+    frozen_input: 附件事件统计与反馈摘录（隔离工作区输入包）
+    applicable_baseline: 旧机制
+    evaluable_scope: 必回查覆盖、未解决阻断项、错误关闭、修复后新引入问题
+    reference_label:
+      kind: recheck_trajectory
+      verdict: 未定（问题生命周期轨迹）
+      basis: [同一问题跨轮次的 open/verified/unverifiable 变化需人工确认是否应关闭]
+      confirmation: pending_human_confirmation
+      confirmed_by: null
+      disputed: false
+    gaps: [旧机制 required_recheck_ids 可能缺失，只能作历史线索]
+  - sample_id: ref-006-legacy-protocol-records
+    usage: excluded
+    source:
+      note: 2026-09-20 机制升级前的编号漂移、复查漏回、字段缺失记录（见复盘材料01；工作区同上）
+    applicable_baseline: unknown
+    reference_label:
+      kind: historical_unknown
+      verdict: 历史未知
+      basis: [旧协议未留必要字段，不回填虚构 verified 或 100% 覆盖]
+      confirmation: historical_unknown
+      confirmed_by: null
+      disputed: false
+    gaps: [不参与按版本分组的成绩；仅作协议/流程反例]
+  # JR06: isolated synthetic rule-debug pairs, NOT human-labelled accuracy examples.
+  # Freeze the artifact text below before a later authorized model evaluation; never inject the expected answer into Judge input.
+  - sample_id: jr-correct-rating-categories
+    usage: rule_debug
+    source: { kind: synthetic, purpose: judge-rule-debug }
+    frozen_input: '评分口径：非整数归non_integer；整数小于1或大于5归out_of_range。'
+    artifact_versions: [{ filename: analysis.md, content: '1.5→non_integer；0/6/−1→out_of_range。' }]
+    applicable_baseline: 分类应与冻结评分口径一致
+    evaluable_scope: 不应制造J1-01式分类误判
+    reference_label: { kind: rule_debug_expectation, verdict: no_defect, basis: [直接代入冻结口径], confirmation: pending_human_confirmation }
+    gaps: [未调用真实Judge；参考需独立复核]
+  - sample_id: jr-wrong-rating-category
+    usage: rule_debug
+    source: { kind: synthetic, purpose: judge-rule-debug }
+    frozen_input: '评分口径：非整数归non_integer；整数小于1或大于5归out_of_range。'
+    artifact_versions: [{ filename: analysis.md, content: '1.5→out_of_range；0/6/−1→out_of_range。' }]
+    applicable_baseline: 分类应与冻结评分口径一致
+    evaluable_scope: 真混淆应指出
+    reference_label: { kind: rule_debug_expectation, verdict: defect, basis: [1.5非整数], confirmation: pending_human_confirmation }
+    gaps: [未调用真实Judge]
+  - sample_id: jr-frequency-overclaim
+    usage: rule_debug
+    source: { kind: synthetic, purpose: judge-rule-debug }
+    frozen_input: 评分3星记录75条；未统计各主题频次。
+    artifact_versions: [{ filename: analysis.md, content: '3星共75条，所以退款诉求集中。' }]
+    applicable_baseline: 档位数不推出主题频次
+    evaluable_scope: J1-02式超证据推断应指出
+    reference_label: { kind: rule_debug_expectation, verdict: defect, basis: [主题未统计], confirmation: pending_human_confirmation }
+    gaps: [未调用真实Judge]
+  - sample_id: jr-qualitative-limited
+    usage: rule_debug
+    source: { kind: synthetic, purpose: judge-rule-debug }
+    frozen_input: 评分3星记录75条；未统计各主题频次。
+    artifact_versions: [{ filename: analysis.md, content: '3星共75条；以下只举一例退款反馈，不代表诉求频次，未统计主题分布。' }]
+    applicable_baseline: 原目标只要求定性举例
+    evaluable_scope: 不强加全量语义统计
+    reference_label: { kind: rule_debug_expectation, verdict: no_defect, basis: [已经限缩], confirmation: pending_human_confirmation }
+    gaps: [未调用真实Judge]
+  - sample_id: jr-original-correct-false-positive
+    usage: rule_debug
+    source: { kind: synthetic, purpose: judge-rule-debug }
+    frozen_input: 非整数与越界应区分
+    artifact_versions: [{ filename: original.md, content: '1.5归non_integer。' }, { filename: current.md, content: '1.5归non_integer。' }]
+    applicable_baseline: 原问题指责1.5被错误归类
+    evaluable_scope: 原版已正确，核对原始版并撤回同一ID
+    reference_label: { kind: rule_debug_expectation, verdict: false_positive, basis: [原版已有反证], confirmation: pending_human_confirmation }
+    gaps: [未调用真实Judge]
+  - sample_id: jr-original-wrong-now-fixed
+    usage: rule_debug
+    source: { kind: synthetic, purpose: judge-rule-debug }
+    frozen_input: 非整数与越界应区分
+    artifact_versions: [{ filename: original.md, content: '1.5归out_of_range。' }, { filename: current.md, content: '1.5归non_integer。' }]
+    applicable_baseline: 原问题指责1.5被错误归类
+    evaluable_scope: 原错误当前已改只能记fixed
+    reference_label: { kind: rule_debug_expectation, verdict: fixed, basis: [原版有错], confirmation: pending_human_confirmation }
+    gaps: [未调用真实Judge]
+  - sample_id: jr-independent-paraphrase-candidate
+    usage: excluded
+    source: { kind: synthetic, purpose: independent-paraphrase-candidate }
+    frozen_input: 测试另一种输入写法；在正式评测前由独立标注者冻结并确认口径。
+    artifact_versions: [{ filename: candidate.md, content: '小数评分与越界整星应分别处理；4星共有若干评论并不足以确定某类抱怨最常见。' }]
+    applicable_baseline: 待独立确认
+    evaluable_scope: 不进入本轮规则调试成绩或Judge准确率
+    reference_label: { kind: pending_candidate, verdict: pending, basis: [], confirmation: pending_human_confirmation }
+    gaps: [冻结材料只是候选，须后续独立改写与参考确认]

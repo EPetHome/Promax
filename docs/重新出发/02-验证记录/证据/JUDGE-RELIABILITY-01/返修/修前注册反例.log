@@ -1,0 +1,43 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/judge-repair.test.ts (13 tests | 7 failed) 823ms
+   × JR-SR01 实际命名/创建→r11注册Judge→权威commit: 评分分析 88ms
+   × JR-SR01 实际命名/创建→r11注册Judge→权威commit: 产品任务 47ms
+   × JR-SR01 实际命名/创建→r11注册Judge→权威commit: 中文-2 41ms
+   × JR-SR02 声明→open观察→'fixed' (open='仍未修正', legacy=true) 119ms
+   × JR-SR02 声明→open观察→'fixed' (open='分类须按冻结口径核对', legacy=false) 115ms
+   × JR-SR02 声明→open观察→'false_positive' (open='仍待原版反证', legacy=true) 115ms
+   × JR-SR02 声明→open观察→'false_positive' (open='原指责1.5被误归类', legacy=false) 117ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/judge-repair.test.ts > JR-SR01 实际命名/创建→r11注册Judge→权威commit: 评分分析
+ FAIL  packages/promax-bundle/tests/judge-repair.test.ts > JR-SR01 实际命名/创建→r11注册Judge→权威commit: 产品任务
+ FAIL  packages/promax-bundle/tests/judge-repair.test.ts > JR-SR01 实际命名/创建→r11注册Judge→权威commit: 中文-2
+Error: 检查任务身份无效
+ ❯ stageStructuredSubmission packages/promax-bundle/src/structured-results.ts:392:13
+
+ ❯ Object.submit packages/promax-bundle/tests/judge-repair.test.ts:55:5
+ ❯ packages/promax-bundle/tests/judge-repair.test.ts:67:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  packages/promax-bundle/tests/judge-repair.test.ts > JR-SR02 声明→open观察→'fixed' (open='仍未修正', legacy=true)
+ FAIL  packages/promax-bundle/tests/judge-repair.test.ts > JR-SR02 声明→open观察→'fixed' (open='分类须按冻结口径核对', legacy=false)
+ FAIL  packages/promax-bundle/tests/judge-repair.test.ts > JR-SR02 声明→open观察→'false_positive' (open='仍待原版反证', legacy=true)
+ FAIL  packages/promax-bundle/tests/judge-repair.test.ts > JR-SR02 声明→open观察→'false_positive' (open='原指责1.5被误归类', legacy=false)
+Error: rechecks[0].id 原始指责身份冲突/缺失，保持unverifiable
+ ❯ stageStructuredSubmission packages/promax-bundle/src/structured-results.ts:392:13
+
+ ❯ Object.submit packages/promax-bundle/tests/judge-repair.test.ts:55:5
+ ❯ packages/promax-bundle/tests/judge-repair.test.ts:102:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 6 passed (13)
+   Start at  06:51:38
+   Duration  2.32s (transform 439ms, setup 120ms, import 917ms, tests 823ms, environment 391ms)
+

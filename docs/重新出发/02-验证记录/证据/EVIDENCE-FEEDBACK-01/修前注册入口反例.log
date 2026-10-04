@@ -1,0 +1,30 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/rating-usability.test.ts (5 tests | 1 failed | 4 skipped) 331ms
+   × EVIDENCE-FEEDBACK-01 注册回执：错误数值字段与正文定位反馈；只修参数提交且不改变成果/来源 330ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/rating-usability.test.ts > EVIDENCE-FEEDBACK-01 注册回执：错误数值字段与正文定位反馈；只修参数提交且不改变成果/来源
+AssertionError: expected 'evidence_links[0] numeric_spec 声明的结果 …' to contain 'evidence_links[0].numeric_spec.denomi…'
+
+Expected: "evidence_links[0].numeric_spec.denominator"
+Received: "evidence_links[0] numeric_spec 声明的结果 75 与可复算值 75 不一致；不能把成员手填结果当作已复算"
+
+ ❯ packages/promax-bundle/tests/rating-usability.test.ts:139:29
+    137|   const bad = await w.receipt([{ ...link, numeric_spec: { ...spec, den…
+    138|   expect(bad.isError).toBe(true);
+    139|   expect(String(bad.value)).toContain("evidence_links[0].numeric_spec.…
+       |                             ^
+    140|   expect(String(bad.value)).toMatch(/收到.*300.*期望.*1/u);
+    141|   expect(String(bad.value)).not.toContain("结果 75 与可复算值 75 不一致");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 skipped (5)
+   Start at  03:40:01
+   Duration  1.92s (transform 464ms, setup 133ms, import 971ms, tests 331ms, environment 412ms)
+

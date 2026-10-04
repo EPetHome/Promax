@@ -1,0 +1,9 @@
+{
+  "status": "valid",
+  "files": 139,
+  "revisionDir": "/Users/Admin/.dsh-promax-first/.agent-presets/.promax-team-gate-r9-stage-20260925"
+}
+team-revision.yml 5369793b1e952593a5a75e5337e26dbee9711d78f82fe918aee0a5e01bcef3a3 active=installed-r9
+agent.cordis.yml 09267569d3237029f01e42ac5b1a186ebb0196f5306bcda2d34cd1b2dd2eed42 active=installed-r9
+manifest.sha256 2253be5c34ff91f1919a9297000b2ca1fc4f7878f0b8e7f9b94e99194da2ecfa active=installed-r9
+old preset retained as .promax-team-gate-r8-backup-20260925

@@ -1,0 +1,78 @@
+{
+  "prepared_at": "2026-09-25",
+  "scope": "阶段四任务书准备：只读静态核对，未运行产品/测试/服务/模型",
+  "files": [
+    {
+      "path": "promax-ui/packages/promax-bundle/src/index.ts",
+      "sha256": "3123bbc06145d11690c1402af3331444233e2d3ed09298ab306b71f7678e5ce6",
+      "bytes": 382366
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/delivery.ts",
+      "sha256": "6896713b361fe867e260cf984dac7d7abefe9f2571cf4c250d3ec2eb618ea119",
+      "bytes": 8395
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/work-store.ts",
+      "sha256": "2e7732e2d3d064b29f41ff8d0f8d9a8fc847e0605b45859f49f83be9f99df82e",
+      "bytes": 137462
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/native-dispatch.test.ts",
+      "sha256": "402d30d9e79ae832bce2a8cf76891cfcd3ddbad20a3646fedbd28482cdef83a7",
+      "bytes": 53392
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/effective-completion.test.ts",
+      "sha256": "2c22da68622e6b26e97b20e45e363d3d57756dbc4c9a4b6d1c1cc8159a9e224b",
+      "bytes": 25256
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/package.json",
+      "sha256": "3540849f09a16db43f6f014a06b7f1f269369eed8221cfbdba61fd880f56efb5",
+      "bytes": 1656
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/src/work-protocol.ts",
+      "sha256": "430870c972fc9bc9280e3bfe1544a36904d2a8b4d390c1de29b2031c6dca85e0",
+      "bytes": 51430
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/src/work-control.ts",
+      "sha256": "e4f932c5e92292c1409c78a0cee7c279ffe26f8976c598be42414f86b6191903",
+      "bytes": 21812
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/src/client/WorkApp.tsx",
+      "sha256": "80fe9eece0608d200993de341221b3e1cf7ea203a17e93042f3c1486aa14afb8",
+      "bytes": 83743
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/package.json",
+      "sha256": "50a1ef88af70a954f8d907862a14551e9ce181f0ca6712828b0eef1929fd5952",
+      "bytes": 1534
+    }
+  ],
+  "versions": {
+    "promax-bundle": "0.1.103",
+    "promax-ui-console": "0.3.158"
+  },
+  "anchors": {
+    "A_prompt_execute_promise": "promax-ui-console/src/work-protocol.ts:865 要求execute正文说明“几秒后自动开始”",
+    "A_prompt_start_rule": "promax-ui-console/src/work-protocol.ts:893",
+    "A_discussion_deny_reason": "promax-bundle/src/index.ts:4533 拒绝文案“程序会显示倒计时并自动开始”",
+    "A_ui_countdown": "promax-ui-console/src/client/WorkApp.tsx:157 程序界面“N 秒后自动开始”",
+    "A_status_running_excludes_proposal": "promax-ui-console/src/work-control.ts:371",
+    "B_prompt_after_generate": "promax-ui-console/src/work-protocol.ts:895",
+    "B_unsettled_text_strip": "promax-bundle/src/index.ts:7755-7759",
+    "B_settled_auto_wake_consumed": "promax-bundle/src/index.ts:7797 return {kind:'complete'}",
+    "B_receipt_publish": "promax-bundle/src/index.ts:7554 publishDeliveryEvents",
+    "B_receipt_text": "promax-bundle/src/delivery.ts:108-114",
+    "B_judge_end_settle": "promax-bundle/src/index.ts:7912-7916",
+    "tool_gate": "promax-bundle/src/index.ts:4395 enforceDispatchPlanTool；READ_ONLY_TOOLS:4354 含promax_rating_facts"
+  },
+  "evidence": {
+    "task7_public_text_zero": "data/Promax_task7_20260924_evidence.md E09：turn4—7公开assistant正文0字",
+    "task7_start_promise": "data/Promax_task7_20260924_analysis.md §一：18:56提案被拒前已称“几秒后自动开始”，18:58:16才task-admitted"
+  }
+}

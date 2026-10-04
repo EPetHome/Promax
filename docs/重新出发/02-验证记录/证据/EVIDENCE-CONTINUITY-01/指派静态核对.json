@@ -1,0 +1,154 @@
+{
+  "task": "EVIDENCE-CONTINUITY-01",
+  "mode": "仅静态准备；未执行产品代码/测试/复现/接口/进程探测",
+  "original_sources": [
+    {
+      "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/回合.yml",
+      "sha256": "9d76700299fadbd76b9081d76a0108386d56baf41cacc4157884ffce8bddc293",
+      "matches_previous": true
+    },
+    {
+      "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/被审版本/a1bc22d1975f5798d87678a4fef826c3503f1ce0b61265b2a27ebeff381c892a",
+      "sha256": "a1bc22d1975f5798d87678a4fef826c3503f1ce0b61265b2a27ebeff381c892a",
+      "matches_previous": true
+    },
+    {
+      "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/被审版本/82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3",
+      "sha256": "82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3",
+      "matches_previous": true
+    }
+  ],
+  "original_links": [
+    {
+      "conclusion_id": "CNL-023",
+      "link_id": "LNK-023",
+      "requirement_ids": [
+        "R1"
+      ],
+      "conclusion": "本报告仅使用该附件，不联网、不扩展为市场调研",
+      "location": "本报告仅使用该附件，不联网、不扩展为市场调研",
+      "dependency_sha256": "0469678c83e7249ea45c2d1b37c738c9eaf8552445e9b2be623a76208a2fbb3e",
+      "evidence": [
+        {
+          "source_id": "SRC-001",
+          "range": "第1-8行",
+          "use": "证明分析对象为本次附件评分样本（首条记录结构）"
+        }
+      ],
+      "old_line": 3,
+      "new_line": 3,
+      "continuity": {
+        "conclusion_id": "CNL-023",
+        "state": "invalidated",
+        "reason": "正文锚点、上下文限定或基准变化；旧记录缺依赖指纹时需显式补登记"
+      }
+    },
+    {
+      "conclusion_id": "CNL-028",
+      "link_id": "LNK-028",
+      "requirement_ids": [
+        "R4",
+        "D:USER_ANALYSIS_NUMBER_TRACE"
+      ],
+      "conclusion": "本报告文件；关键数值的程序计算事实（总记录 320、有效 300、无效 20、各档计数与低分/高分占比）可与同源计算规格复算核对",
+      "location": "本报告文件；关键数值的程序计算事实（总记录 320、有效 300、无效 20、各档计数与低分/高分占比）可与同源计算规格复算核对",
+      "dependency_sha256": "422145e0707a6587684a99e75a111f9ce5299d912625177c4c4ae51c3ff13723",
+      "evidence": [
+        {
+          "source_id": "SRC-001",
+          "range": "第1-8行",
+          "use": "报告全部数值的输入来源（本批附件评分样本首条记录）"
+        }
+      ],
+      "old_line": 140,
+      "new_line": 141,
+      "continuity": {
+        "conclusion_id": "CNL-028",
+        "state": "invalidated",
+        "reason": "正文锚点、上下文限定或基准变化；旧记录缺依赖指纹时需显式补登记"
+      }
+    }
+  ],
+  "baseline_versions_equal": true,
+  "new_update": {
+    "mode": "patch",
+    "withdraw": []
+  },
+  "new_continuity_counts": {
+    "continued": 0,
+    "invalidated": 27,
+    "withdrawn": 0
+  },
+  "source_readback_sha_sets": {
+    "old": [
+      "e5bc83370f54895cf21af80ffbb49169daf9ef21d59dc290e9acc08811ed12ff"
+    ],
+    "new": [
+      "e5bc83370f54895cf21af80ffbb49169daf9ef21d59dc290e9acc08811ed12ff"
+    ]
+  },
+  "static_findings": [
+    "CNL-023锚点在第3行，最近标题是H1且无后续H1；evidenceDependency.local因此包含整篇正文；前言本身未变仍受其它章节修改影响。此为代码静态推导，未运行复现。",
+    "CNL-028锚点从第140行移至141行，原文保持，所在材料限制章节的未验证项文字改变；共享scope同样覆盖该章节。",
+    "任务7前言未变；前部核心结论和后部公共限制均有改动。原任务7不可强行要求全部续绑，公共限定变化的必要性须按保守契约判断。",
+    "当前invalidated统一理由混合锚点/上下文/基准/旧指纹，不能确定真实失效分支。",
+    "R1冻结basis=requirement_record，R4=program_check；空source_link不是必需依据缺失的充分证据。"
+  ],
+  "source_identity": [
+    {
+      "path": "promax-ui/packages/promax-bundle/src/evidence-links.ts",
+      "sha256": "fae6c5f159f3c7c8b2fbb5bfa40ff20c577f04985ee977c7de24886bcc142ffd"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/work-store.ts",
+      "sha256": "1192c0215ab3f67327643510c8a41b5ccb9b66d47fa6ab7cc178a5d0a3a5c5be"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/structured-results.ts",
+      "sha256": "bc1a117d8856b186abf13d9753d882e418f324f7834371bd5237dc2866af202c"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/index.ts",
+      "sha256": "b010c64ae30ff697738c3b95046235840994db2828a24f7e6e3083746edd42bd"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/evidence-links.test.ts",
+      "sha256": "3fc17ad4aa786f5d31aca772d614285ce24e4d44fb2999d9ab25aaad15c2cf06"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/evidence-gate-commit.test.ts",
+      "sha256": "29cdff17d1f6871824e8101a5849a00922da48cf73cf1d4fbe9972321d51c5bb"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/rating-usability.test.ts",
+      "sha256": "e8ed5317d008b043b4e87fe09e485f540ee32dd81791e9b80bd5a43d4e6bc648"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/package.json",
+      "sha256": "809a2ac65321b165ec76a3241e094b7f2a5cfa617f3d9dbe9d51219af2318ccd"
+    }
+  ],
+  "pi": {
+    "entry": "/Users/Admin/.local/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js",
+    "version": "0.84.3",
+    "permission_version": "32.0.2",
+    "args_sha256": "bfb311d2c5d919fa4015d6aaa3c5a71a90b90011320e5e40f56b12e448c44dfc",
+    "loader_sha256": "8e8a1bc1c5bc9e955f6a2314dd1db02071be56d48b1fea7b8b2cacb4fc9a0628",
+    "flags_in_parser": {
+      "--offline": true,
+      "--provider": true,
+      "--model": true,
+      "--thinking": true,
+      "--no-extensions": true,
+      "--no-skills": true,
+      "--no-prompt-templates": true,
+      "--no-themes": true,
+      "--tools": true,
+      "--extension": true,
+      "--skill": true
+    },
+    "gpt6_sol_present": true
+  },
+  "task_sha256": "d60d6d4b348bb9180e2c323a63e43c068eba447f08a6270c399d7fc79f9127f4",
+  "missing_task_links": []
+}

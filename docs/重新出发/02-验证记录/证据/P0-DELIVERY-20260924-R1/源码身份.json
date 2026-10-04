@@ -1,0 +1,30 @@
+{
+  "promax-ui/packages/promax-bundle/src/index.ts": {
+    "before_sha256": "ac7cc7218f1498a36e240ed11d11e7e7b38e8ddaf3190e469c394ee1ac0298e8",
+    "after_sha256": "be9392944d9186e806660457fb8e0a7a24264296c90b0696624751697b75b2c5"
+  },
+  "promax-ui/packages/promax-bundle/src/delivery.ts": {
+    "before_sha256": "a9b6763b3179eb63a6d88a4b628332426f37c94b25ba08487fb3324f450985f7",
+    "after_sha256": "f71efcc68a3dbc887b4f2bd2339bbc0ce055a7959b428a4734349a3c7ce55ef5"
+  },
+  "promax-ui/packages/promax-bundle/src/work-store.ts": {
+    "before_sha256": "d998d619178815334da11f15b461c3df6f15355dd9e61a220bf3c923c4b4fac8",
+    "after_sha256": "2654ee188787e33591b1cc5c8333f9fc09efc507c044bab6bf78152d2f153c07"
+  },
+  "promax-ui/packages/promax-ui-console/src/delivery-protocol.ts": {
+    "before_sha256": "d442108607f3db7b1cc1a6b753ec0b20c381305cd883eb5106518c5c35f6241f",
+    "after_sha256": "a19c11fa2aadc5d37b1a277f66857d53714fdbcb9d7a6fe05a3699822b3bff95"
+  },
+  "promax-ui/packages/promax-bundle/tests/native-dispatch.test.ts": {
+    "before_sha256": "37952b03264057084fcd3864a7945aac00cf781c0659a767dfc562e326707e17",
+    "after_sha256": "ef706c030402a69bfee1532de3a7aee53a9500c0fc56c6ef8f55a3eb4cda1030"
+  },
+  "promax-ui/packages/promax-bundle/package.json": {
+    "before_sha256": "not captured before this edit; original installed version recorded as 0.1.88 / 0.3.153",
+    "after_sha256": "3e23251ebcd83d730757286eb6d9dc2f627a59e3bd5b77e2a12533e894993ae4"
+  },
+  "promax-ui/packages/promax-ui-console/package.json": {
+    "before_sha256": "not captured before this edit; original installed version recorded as 0.1.88 / 0.3.153",
+    "after_sha256": "b5b969147df7546a514424f342b26ea88cc5d31df8ac8d3ef862894075c24db3"
+  }
+}

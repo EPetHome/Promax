@@ -1,0 +1,30 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts (14 tests | 1 failed) 4908ms
+   × GATE-CONTRACT-01 keeps valid dependency and scope fields at the registered proposal entry 21ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > GATE-CONTRACT-01 keeps valid dependency and scope fields at the registered proposal entry
+AssertionError: expected undefined to deeply equal [ 'intake' ]
+
+- Expected:
+[
+  "intake",
+]
+
++ Received:
+undefined
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:153:67
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 58 passed (59)
+   Start at  00:37:20
+   Duration  17.23s (transform 2.76s, setup 514ms, import 5.21s, tests 25.58s, environment 1.78s)
+

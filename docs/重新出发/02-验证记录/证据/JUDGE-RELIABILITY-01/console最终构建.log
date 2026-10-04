@@ -1,0 +1,71 @@
+[34mℹ[39m [34mtsdown v0.22.14[39m powered by [38;2;255;126;23mrolldown v1.2.5[39m
+[34mℹ[39m config file: [4m/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/tsdown.config.ts[24m 
+[34mℹ[39m [38;2;100;180;123m[@promax/promax-ui-console:server][39m entry: [38;2;100;180;123msrc/server.ts[39m
+[34mℹ[39m [38;2;100;180;123m[@promax/promax-ui-console:server][39m target: [38;2;100;180;123mes2022[39m
+[34mℹ[39m [38;2;100;180;123m[@promax/promax-ui-console:server][39m tsconfig: [38;2;100;180;123m../../tsconfig.json[39m
+[34mℹ[39m [38;2;100;164;180m[@promax/promax-ui-console:node][39m entry: [38;2;100;164;180msrc/index.ts[39m
+[34mℹ[39m [38;2;100;164;180m[@promax/promax-ui-console:node][39m target: [38;2;100;164;180mes2022[39m
+[34mℹ[39m [38;2;100;164;180m[@promax/promax-ui-console:node][39m tsconfig: [38;2;100;164;180m../../tsconfig.json[39m
+[34mℹ[39m [38;2;100;180;112m[@promax/promax-ui-console:client][39m entry: [38;2;100;180;112msrc/client/index.tsx[39m
+[34mℹ[39m [38;2;100;180;112m[@promax/promax-ui-console:client][39m target: [38;2;100;180;112mes2022[39m
+[34mℹ[39m [38;2;100;180;112m[@promax/promax-ui-console:client][39m tsconfig: [38;2;100;180;112m../../tsconfig.json[39m
+[34mℹ[39m Build start
+[34mℹ[39m Cleaning 5 files
+[34mℹ[39m [38;2;100;180;123m[@promax/promax-ui-console:server][39m [34m[ESM][39m Granting execute permission to [4mlib/server.mjs[24m
+[34mℹ[39m [38;2;100;180;123m[@promax/promax-ui-console:server][39m [34m[ESM][39m [2mlib/[22m[1mserver.mjs[22m    [2m5.28 kB[22m [2m│ gzip: 2.03 kB[22m
+[34mℹ[39m [38;2;100;180;123m[@promax/promax-ui-console:server][39m [34m[ESM][39m [2mlib/[22m[32m[1mserver.d.mts[22m[39m  [2m0.49 kB[22m [2m│ gzip: 0.27 kB[22m
+[34mℹ[39m [38;2;100;180;123m[@promax/promax-ui-console:server][39m [34m[ESM][39m 2 files, total: 5.77 kB
+[32m✔[39m [38;2;100;180;123m[@promax/promax-ui-console:server][39m Build complete in [32m930ms[39m
+[34mℹ[39m [38;2;100;164;180m[@promax/promax-ui-console:node][39m [34m[ESM][39m [2mlib/[22m[1mindex.mjs[22m    [2m230.10 kB[22m [2m│ gzip: 44.78 kB[22m
+[34mℹ[39m [38;2;100;164;180m[@promax/promax-ui-console:node][39m [34m[ESM][39m [2mlib/[22m[32m[1mindex.d.mts[22m[39m  [2m 18.80 kB[22m [2m│ gzip:  3.65 kB[22m
+[34mℹ[39m [38;2;100;164;180m[@promax/promax-ui-console:node][39m [34m[ESM][39m 2 files, total: 248.90 kB
+[32m✔[39m [38;2;100;164;180m[@promax/promax-ui-console:node][39m Build complete in [32m1010ms[39m
+[34mℹ[39m [38;2;100;180;112m[@promax/promax-ui-console:client][39m Hint: consider adding [34mdeps.onlyBundle[39m option to avoid unintended bundling of dependencies, or set [34mdeps.onlyBundle: false[39m to disable this hint.
+See more at [4mhttps://tsdown.dev/options/dependencies#deps-onlybundle[24m
+Detected dependencies in bundle:
+- [34mcharacter-entities[39m
+- [34mdecode-named-character-reference[39m
+- [34mmicromark-util-chunked[39m
+- [34mmicromark-util-combine-extensions[39m
+- [34mmicromark-util-decode-numeric-character-reference[39m
+- [34mmicromark-util-encode[39m
+- [34mmicromark-util-normalize-identifier[39m
+- [34mmicromark-util-character[39m
+- [34mmicromark-util-sanitize-uri[39m
+- [34mmicromark[39m
+- [34mmicromark-factory-space[39m
+- [34mmicromark-util-classify-character[39m
+- [34mmicromark-util-resolve-all[39m
+- [34mmicromark-core-commonmark[39m
+- [34mmicromark-util-subtokenize[39m
+- [34mmicromark-factory-destination[39m
+- [34mmicromark-factory-label[39m
+- [34mmicromark-factory-title[39m
+- [34mmicromark-factory-whitespace[39m
+- [34mmicromark-util-html-tag-name[39m
+- [34mmicromark-extension-gfm-autolink-literal[39m
+- [34mmicromark-extension-gfm-footnote[39m
+- [34mmicromark-extension-gfm-strikethrough[39m
+- [34mmicromark-extension-gfm-table[39m
+- [34mmicromark-extension-gfm-tagfilter[39m
+- [34mmicromark-extension-gfm-task-list-item[39m
+- [34mmicromark-extension-gfm[39m
+[34mℹ[39m [38;2;100;180;112m[@promax/promax-ui-console:client][39m [33m[CJS][39m [2mlib/[22m[1mclient.js[22m  [2m3.95 MB[22m
+[34mℹ[39m [38;2;100;180;112m[@promax/promax-ui-console:client][39m [33m[CJS][39m 1 files, total: 3.95 MB
+[32m✔[39m [38;2;100;180;112m[@promax/promax-ui-console:client][39m Build complete in [32m1033ms[39m
+vite v6.4.3 building for production...
+transforming...
+✓ 50 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                       0.46 kB │ gzip:  0.29 kB
+dist/assets/requirement_review-76-CbdVBR8X.png        5.94 kB
+dist/assets/logo-76-BxuC6YF3.png                      5.97 kB
+dist/assets/solution_design-76-DCRHj5MS.png           6.00 kB
+dist/assets/user_analysis-76-CrTMicR2.png             6.20 kB
+dist/assets/requirement_management-76-B6ZCPq3G.png    6.48 kB
+dist/assets/customer_research-76-daGXivKC.png         6.68 kB
+dist/assets/product_discovery-76-BiNhGLWz.png         6.98 kB
+dist/assets/index-BFRA1ZDs.css                        0.28 kB │ gzip:  0.23 kB
+dist/assets/index--wC1C1yq.js                       351.90 kB │ gzip: 83.41 kB │ map: 629.32 kB
+✓ built in 354ms

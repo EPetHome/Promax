@@ -1,0 +1,12 @@
+[34mℹ[39m [34mtsdown v0.22.14[39m powered by [38;2;255;126;23mrolldown v1.2.5[39m
+[34mℹ[39m config file: [4m/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/package.json[24m 
+[34mℹ[39m entry: [34msrc/index.ts[39m
+[34mℹ[39m tsconfig: [34m../../tsconfig.json[39m
+[34mℹ[39m Build start
+[34mℹ[39m Cleaning 2 files
+[34mℹ[39m [2mlib/[22m[1mindex.mjs[22m    [2m799.77 kB[22m [2m│ gzip: 226.10 kB[22m
+[34mℹ[39m [2mlib/[22m[32m[1mindex.d.mts[22m[39m  [2m 58.43 kB[22m [2m│ gzip:  16.95 kB[22m
+[34mℹ[39m 2 files, total: 858.20 kB
+[32m✔[39m Build complete in [32m1028ms[39m
+
+[最终一致性复核] 对 09:21 最终源码重跑 tsdown 至 /tmp/rebuild-check，index.mjs SHA256 aad2a4c98242912cccb9009fce679a40b4eff1777a66f347827b6cb5c035f0b1 与 lib/、归档、安装、加载内存身份一致。

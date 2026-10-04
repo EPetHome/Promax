@@ -1,0 +1,27 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-ui-console/tests/team-state.test.ts (10 tests | 1 failed) 9ms
+     × parses and syncs the installed fixed roster and information contracts instead of hardcoding GUI members 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-ui-console/tests/team-state.test.ts > Promax dynamic team state > parses and syncs the installed fixed roster and information contracts instead of hardcoding GUI members
+Error: 固定 preset 的团队版本或 preset id 不匹配
+ ❯ runtimeTeamRosterOf packages/promax-ui-console/src/client/team-state.ts:185:11
+    183|   const presetId = snapshot[2]
+    184|   if (!Number.isSafeInteger(revision) || revision < 1 || presetId !== …
+    185|     throw new Error('固定 preset 的团队版本或 preset id 不匹配')
+       |           ^
+    186|   }
+    187|   const rows = snapshot[3] ?? ''
+ ❯ packages/promax-ui-console/tests/team-state.test.ts:54:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 5 passed (6)
+      Tests  1 failed | 75 passed (76)
+   Start at  06:10:19
+   Duration  29.12s (transform 4.42s, setup 787ms, import 8.56s, tests 44.09s, environment 3.28s)
+

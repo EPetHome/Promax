@@ -1,0 +1,42 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts (14 tests | 1 failed | 13 skipped) 36ms
+   × GATE-CONTRACT-01 keeps valid dependency and scope fields at the registered proposal entry 35ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > GATE-CONTRACT-01 keeps valid dependency and scope fields at the registered proposal entry
+AssertionError: expected undefined to match object { reason: '员工提出范围变化', …(1) }
+
+- Expected:
+{
+  "moves": [
+    {
+      "action": "merge",
+      "node_id": "intake",
+      "target_node_id": "report",
+    },
+  ],
+  "reason": "员工提出范围变化",
+}
+
++ Received:
+undefined
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:159:31
+    157|   expect(changed.isError, String(changed.value)).toBe(false);
+    158|   const card = await w.works.read(w.key);
+    159|   expect(card.scope_proposal).toMatchObject({ reason: "员工提出范围变化", move…
+       |                               ^
+    160|   expect(card.spine?.nodes.map((n) => n.id)).toEqual(["intake", "repor…
+    161| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 skipped (14)
+   Start at  00:38:45
+   Duration  1.59s (transform 467ms, setup 128ms, import 976ms, tests 36ms, environment 381ms)
+

@@ -1,0 +1,692 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts (14 tests | 12 failed) 999ms
+   × GATE-CONTRACT-01 exposes the registered node contract and rejects actionable task-7 variants before commit 116ms
+   × GATE-CONTRACT-01 answer retains other legal card_patch fields without nodes or new dispatch 57ms
+   × GATE-CONTRACT-01 keeps valid dependency and scope fields at the registered proposal entry 37ms
+   × T1 successful authorized write exposes an immutable draft while its member is running; failed/empty writes do not 65ms
+   × T1 attachment + original task, then “采纳”:  the frozen run input keeps the whole task and a stable, traceable source id 45ms
+   × T2 business replies with two outputs enter follow-up; a counter-question and a bare yes never become decisions; a revision is not co-effective 228ms
+   × T3/T4 a high-impact correction pauses only the affected output; earlier normal inputs still get handled; stale results never become current; restart resumes 26ms
+   × T5 structured entries accept legal results, reject missing fields/illegal values/wrong versions, dedupe receipts, and render a parseable report; the old quoting failure no longer ends work 29ms
+   × T7 duty/phase authorization admits retrieval, skills and structured submission, and still refuses sibling dispatch, cross-role submission and foreign write paths 73ms
+   × T5/T7 actual dispatch and continuation: three version-bound reviews share one Judge, coordinator repairs, no false undispatched recovery 43ms
+   × R28/R29 续接生命周期：批准的恢复真实执行，在途不被误清，读取原结果不留假running且任务继续推进 40ms
+   × T2 a chat “采纳” adopts one suggestion only when the link is unambiguous; otherwise it is clarified and nothing is adopted 22ms
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts (27 tests | 27 failed) 3639ms
+   × R30 原生角色→续接共享/持久读取严格规范化，无新投递或假等待；R28真实计划批准恢复 456ms
+   × R31 受理后record窗口取消/失败仍在途；真实结束才结清，旧结束不串状态 141ms
+   × R31 受理后inbox窗口取消/失败仍在途；真实结束才结清，旧结束不串状态 154ms
+   × R31 受理后schema窗口取消/失败仍在途；真实结束才结清，旧结束不串状态 115ms
+   × R31 受理后throw窗口取消/失败仍在途；真实结束才结清，旧结束不串状态 83ms
+   × R30 final-result：输出规范化失败/中间件异常未投递时释放本次预占 85ms
+   × R30/R28 原生Judge并发派发与双向读取只保留原会话；程序批准恢复且同次恢复只受理一次 93ms
+   × R30/R31 原生受理前拒绝/取消、缓存失败及未知占位不留假running或自动重发 97ms
+   × R30/R31 原生受理后结果未知占位不自动重发，也不残留假running 88ms
+   × T03 原生结束通知先于提交：错误主Agent替身不能提前发布正式成功 82ms
+   × SR02 新记录只检查→普通追问→新读取器仍认保存身份，不重复提交 75ms
+   × SR02 旧记录只检查→普通追问→新读取器仍认保存身份，不重复提交 76ms
+   × SR02 普通T1/T2同字节提交：不得从旧展示回执推断T2已保存或回跳T1 81ms
+   × T08 提交等待期间真实停止保留草稿、不发布新版本、不吞取消 227ms
+   × T05 真正结算失败：错误主Agent替身不能留下相反完成话术 123ms
+   × T04/T07 保存后响应丢失先认实际版本，重复结束不重复提交，后来版本不被旧回执覆盖 154ms
+   × SR01 原生Judge结束通知不得消费未结算的用户纠正 135ms
+   × SR01 原生Judge结束通知不得消费未结算的被审快照变化 138ms
+   × SR01-A 未结算自动通知与真实解释问题混批：自动完成不可见、真实回答仍公开 179ms
+   × SR01-B 守卫激活时原生主循环错误完成受控，真实compaction摘要同会话保留 132ms
+   × SR01-C 无守卫且不传signal的普通LLM流保留文本 69ms
+   × SR01-B 自动请求取消时仍按原生信号结束，后续独立用户轮次不继承守卫 127ms
+   × T07 版本已保存但当前入口刷新失败，报告已保存而非提交失败，不重复版本 216ms
+   × T05/T07 未知提交锁保留，草稿和旧版入口可读，不自动重造版本 223ms
+   × T06 晚到失败否定同任务同版本，只追加一次更正，历史和诊断保留 137ms
+   × T08 原生同批结束通知与新用户输入只消费自动通知，不丢真实输入 72ms
+   × T08 原生等待期间入队结束通知与新用户输入只消费自动通知，不丢真实输入 80ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 39 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > R30 原生角色→续接共享/持久读取严格规范化，无新投递或假等待；R28真实计划批准恢复
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:131:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > R31 受理后record窗口取消/失败仍在途；真实结束才结清，旧结束不串状态
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > R31 受理后inbox窗口取消/失败仍在途；真实结束才结清，旧结束不串状态
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > R31 受理后schema窗口取消/失败仍在途；真实结束才结清，旧结束不串状态
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > R31 受理后throw窗口取消/失败仍在途；真实结束才结清，旧结束不串状态
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:162:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > R30 final-result：输出规范化失败/中间件异常未投递时释放本次预占
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:204:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > R30/R28 原生Judge并发派发与双向读取只保留原会话；程序批准恢复且同次恢复只受理一次
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:224:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > R30/R31 原生受理前拒绝/取消、缓存失败及未知占位不留假running或自动重发
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:260:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > R30/R31 原生受理后结果未知占位不自动重发，也不残留假running
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:279:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > T03 原生结束通知先于提交：错误主Agent替身不能提前发布正式成功
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ acceptedDelivery packages/promax-bundle/tests/native-dispatch.test.ts:298:13
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:317:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR02 新记录只检查→普通追问→新读取器仍认保存身份，不重复提交
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR02 旧记录只检查→普通追问→新读取器仍认保存身份，不重复提交
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ acceptedDelivery packages/promax-bundle/tests/native-dispatch.test.ts:298:13
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:350:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR02 普通T1/T2同字节提交：不得从旧展示回执推断T2已保存或回跳T1
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ acceptedDelivery packages/promax-bundle/tests/native-dispatch.test.ts:298:13
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:385:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > T08 提交等待期间真实停止保留草稿、不发布新版本、不吞取消
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ acceptedDelivery packages/promax-bundle/tests/native-dispatch.test.ts:298:13
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:410:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > T05 真正结算失败：错误主Agent替身不能留下相反完成话术
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ acceptedDelivery packages/promax-bundle/tests/native-dispatch.test.ts:298:13
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:431:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > T04/T07 保存后响应丢失先认实际版本，重复结束不重复提交，后来版本不被旧回执覆盖
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ acceptedDelivery packages/promax-bundle/tests/native-dispatch.test.ts:298:13
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:446:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01 原生Judge结束通知不得消费未结算的用户纠正
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01 原生Judge结束通知不得消费未结算的被审快照变化
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ acceptedDelivery packages/promax-bundle/tests/native-dispatch.test.ts:298:13
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:482:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01-A 未结算自动通知与真实解释问题混批：自动完成不可见、真实回答仍公开
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ acceptedDelivery packages/promax-bundle/tests/native-dispatch.test.ts:298:13
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:515:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01-B 守卫激活时原生主循环错误完成受控，真实compaction摘要同会话保留
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ acceptedDelivery packages/promax-bundle/tests/native-dispatch.test.ts:298:13
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:541:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01-C 无守卫且不传signal的普通LLM流保留文本
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:568:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01-B 自动请求取消时仍按原生信号结束，后续独立用户轮次不继承守卫
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ acceptedDelivery packages/promax-bundle/tests/native-dispatch.test.ts:298:13
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:577:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > T07 版本已保存但当前入口刷新失败，报告已保存而非提交失败，不重复版本
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ acceptedDelivery packages/promax-bundle/tests/native-dispatch.test.ts:298:13
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:597:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > T05/T07 未知提交锁保留，草稿和旧版入口可读，不自动重造版本
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ acceptedDelivery packages/promax-bundle/tests/native-dispatch.test.ts:298:13
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:638:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > T06 晚到失败否定同任务同版本，只追加一次更正，历史和诊断保留
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ acceptedDelivery packages/promax-bundle/tests/native-dispatch.test.ts:298:13
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:660:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/39]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > T08 原生同批结束通知与新用户输入只消费自动通知，不丢真实输入
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > T08 原生等待期间入队结束通知与新用户输入只消费自动通知，不丢真实输入
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ setup packages/promax-bundle/tests/native-dispatch.test.ts:110:109
+    108|   };
+    109|   expect((await execute("promax_work_proposal", { intent: "execute", c…
+    110|     handled_events: [{ event_id: event.id, intent: "new_task", impact:…
+       |                                                                                                             ^
+    111|   const proposed = (await store.round(key))!;
+    112|   expect((await f.request("work/card/update", { work_key: key, action:…
+ ❯ acceptedDelivery packages/promax-bundle/tests/native-dispatch.test.ts:298:13
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:684:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/39]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > GATE-CONTRACT-01 exposes the registered node contract and rejects actionable task-7 variants before commit
+AssertionError: expected 'ENOENT: no such file or directory, op…' to contain 'card_patch.nodes[0].gate'
+
+Expected: "card_patch.nodes[0].gate"
+Received: "ENOENT: no such file or directory, open '/private/var/folders/11/sxl0444d11xbqzz8pz0lr2nm0000gp/T/promax-controls-kdBLNw/home/profiles/web/node_modules/@promax/team-harness/generated/r10/promax-team-r10/manifest.sha256'"
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:117:60
+    115|     const failed = await submit(bad, `gate-bad-${actual}-${paths.join(…
+    116|     expect(failed.isError).toBe(true);
+    117|     for (const path of paths) expect(String(failed.value)).toContain(`…
+       |                                                            ^
+    118|     expect(String(failed.value)).toContain(actual);
+    119|     const repaired = (bad as readonly Record<string, unknown>[]).map((…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/39]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > GATE-CONTRACT-01 answer retains other legal card_patch fields without nodes or new dispatch
+AssertionError: ENOENT: no such file or directory, open '/private/var/folders/11/sxl0444d11xbqzz8pz0lr2nm0000gp/T/promax-controls-9eygWw/home/profiles/web/node_modules/@promax/team-harness/generated/r10/promax-team-r10/manifest.sha256': expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:139:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/39]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > GATE-CONTRACT-01 keeps valid dependency and scope fields at the registered proposal entry
+AssertionError: ENOENT: no such file or directory, open '/private/var/folders/11/sxl0444d11xbqzz8pz0lr2nm0000gp/T/promax-controls-6IseBy/home/profiles/web/node_modules/@promax/team-harness/generated/r10/promax-team-r10/manifest.sha256': expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:154:52
+    152|   const report = { id: "report", title: "形成报告", completion: "成果检查", fi…
+    153|   const proposed = await w.propose({ intent: "guide", card_patch: { no…
+    154|   expect(proposed.isError, String(proposed.value)).toBe(false);
+       |                                                    ^
+    155|   const initial = await w.works.read(w.key);
+    156|   expect(initial.spine?.nodes.find((n) => n.id === "report")?.depends_…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/39]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T1 successful authorized write exposes an immutable draft while its member is running; failed/empty writes do not
+TypeError: The "path" argument must be of type string. Received undefined
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:173:16
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/39]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T1 attachment + original task, then “采纳”:  the frozen run input keeps the whole task and a stable, traceable source id
+AssertionError: ENOENT: no such file or directory, open '/private/var/folders/11/sxl0444d11xbqzz8pz0lr2nm0000gp/T/promax-controls-fhS8AS/home/profiles/web/node_modules/@promax/team-harness/generated/r10/promax-team-r10/manifest.sha256': expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:214:46
+    212|   await w.say("采纳", { suggestion_target: "访谈检查人、登记人、管理者各 1 人" });
+    213|   const reply = await w.propose({ intent: "execute", deliverables: ["u…
+    214|   expect(reply.isError, String(reply.value)).toBe(false);
+       |                                              ^
+    215|   const card = await w.works.read(w.key);
+    216|   expect(card.origin?.text).toContain("统计人员名单的系统");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/39]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T2 business replies with two outputs enter follow-up; a counter-question and a bare yes never become decisions; a revision is not co-effective
+AssertionError: ENOENT: no such file or directory, open '/private/var/folders/11/sxl0444d11xbqzz8pz0lr2nm0000gp/T/promax-controls-VWaHyW/home/profiles/web/node_modules/@promax/team-harness/generated/r10/promax-team-r10/manifest.sha256': expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:264:46
+    262|     ],
+    263|   });
+    264|   expect(reply.isError, String(reply.value)).toBe(false);
+       |                                              ^
+    265|   read = await w.works.read(w.key);
+    266|   expect(read.decisions).toMatchObject([{ id: "identity", answer: "工号"…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/39]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T3/T4 a high-impact correction pauses only the affected output; earlier normal inputs still get handled; stale results never become current; restart resumes
+AssertionError: ENOENT: no such file or directory, open '/private/var/folders/11/sxl0444d11xbqzz8pz0lr2nm0000gp/T/promax-controls-IHpSae/home/profiles/web/node_modules/@promax/team-harness/generated/r10/promax-team-r10/manifest.sha256': expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:295:52
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/39]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T5 structured entries accept legal results, reject missing fields/illegal values/wrong versions, dedupe receipts, and render a parseable report; the old quoting failure no longer ends work
+AssertionError: expected { …(2) } to match object { isError: true, …(1) }
+
+- Expected
++ Received
+
+  {
+    "isError": true,
+-   "value": StringContaining "intent 只能是",
++   "value": "ENOENT: no such file or directory, open '/private/var/folders/11/sxl0444d11xbqzz8pz0lr2nm0000gp/T/promax-controls-7NDjvu/home/profiles/web/node_modules/@promax/team-harness/generated/r10/promax-team-r10/manifest.sha256'",
+  }
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:346:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/39]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T7 duty/phase authorization admits retrieval, skills and structured submission, and still refuses sibling dispatch, cross-role submission and foreign write paths
+AssertionError: expected { kind: 'deny', reason: '父工作当前没有执行授权' } to be 'allow' // Object.is equality
+
+- Expected:
+"allow"
+
++ Received:
+{
+  "kind": "deny",
+  "reason": "父工作当前没有执行授权",
+}
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:416:134
+    414|   await w.dispatch("product_discovery", "pd-1");
+    415|   const allow = async () => "allow";
+    416|   expect(await enforceDispatchPlanTool(f.root, { name: "web_search", a…
+       |                                                                                                                                      ^
+    417|   expect(await enforceDispatchPlanTool(f.root, { name: "skill", argume…
+    418|   expect(await enforceDispatchPlanTool(f.root, { name: "write", argume…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/39]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T5/T7 actual dispatch and continuation: three version-bound reviews share one Judge, coordinator repairs, no false undispatched recovery
+AssertionError: expected 400 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 400
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:486:140
+    484|   await w.propose({ intent: "execute", deliverables: ["product_discove…
+    485|   const proposed = (await w.works.round(w.key))!;
+    486|   expect((await f.request("work/card/update", { work_key: w.key, actio…
+       |                                                                                                                                            ^
+    487|   const main = () => ({ session: { header: { id: w.session, cwd: f.sco…
+    488|   let judgeStarts = 0, continuations = 0;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/39]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > R28/R29 续接生命周期：批准的恢复真实执行，在途不被误清，读取原结果不留假running且任务继续推进
+AssertionError: expected 400 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 400
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:562:140
+    560|   await w.propose({ intent: "execute", deliverables: ["product_discove…
+    561|   const proposed = (await w.works.round(w.key))!;
+    562|   expect((await f.request("work/card/update", { work_key: w.key, actio…
+       |                                                                                                                                            ^
+    563|   const task = (await w.works.round(w.key))!.task_key!;
+    564|   const main = () => ({ session: { header: { id: w.session, cwd: f.sco…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/39]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T2 a chat “采纳” adopts one suggestion only when the link is unambiguous; otherwise it is clarified and nothing is adopted
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:647:203
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/39]⎯
+
+
+ Test Files  2 failed | 1 passed (3)
+      Tests  39 failed | 7 passed (46)
+   Start at  02:37:24
+   Duration  9.93s (transform 2.43s, setup 471ms, import 5.04s, tests 13.08s, environment 1.26s)
+
