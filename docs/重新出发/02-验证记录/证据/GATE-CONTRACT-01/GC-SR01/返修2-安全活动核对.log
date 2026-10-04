@@ -1,0 +1,36 @@
+2026-09-25T06:41:59Z
+PROCESSES
+  PID  PPID STARTED                      ELAPSED STAT COMMAND
+74827     1 Fri Sep 25 01:50:26 2026       51:33 SN   /Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open
+p74827
+fcwd
+n/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+74882 74827 SN   /Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/node_modules/.pnpm/@esbuild+darwin-arm64@0.28.1/node_modules/@esbuild/darwin-arm64/bin/esbuild --service=0.28.1 --ping
+RECENT
+/Users/Admin/.dsh-promax-first/sessions
+/Users/Admin/Promax-first
+LAST SESSION
+1790248609 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/session-aa8e657a-a011-42f2-a337-bf960bdd6d2d/session.jsonl.zstd
+1790248603 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/69808fce-611c-4232-b9bc-b662dd7e42cf/session.jsonl.zstd
+1790248387 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/0a6aaa55-4004-4a77-8d85-2e9fa55f60a9/session.jsonl.zstd
+1790247826 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/4bb0b36e-dbee-4a84-b410-79ba036a2434/session.jsonl.zstd
+1790245786 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/session-ab4a8dbc-51cb-4d7d-a706-03a3372f8bda/session.jsonl.zstd
+1790245742 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/17df98cb-f36e-4cf8-ae16-bffec6977f55/session.jsonl.zstd
+1790245581 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/6614c607-9b65-4df5-8b76-5281dbd993b4/session.jsonl.zstd
+LAST WORK
+1790248608 /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/工作卡.yml
+1790248607 /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/回合.yml
+1790248606 /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/链路观察.yml
+1790248603 /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/成员过程.yml
+1790248574 /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/状态.yml
+1790248573 /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/评审.yml
+1790248391 /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/被审版本/82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3
+1790248161 /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/草稿快照/82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3
+1790248148 /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/草稿快照/3b40c417b8e547abe25b8aca40092178e42f3aee377f6c5c355cdcb4d2dc7a30
+1790248141 /Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/草稿快照/61eac7f84c3295ad8428be642c98b0d81bd0022dc47badcad33edc41b5041ef6
+NETWORK
+COMMAND   PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    74827 Admin   18u  IPv4 0xe13404ddd09a5787      0t0  TCP 127.0.0.1:8800 (LISTEN)
+node    74827 Admin   22u  IPv4 0x9254af5ea11dba00      0t0  TCP 127.0.0.1:8800->127.0.0.1:53299 (ESTABLISHED)
+node    74827 Admin   36u  IPv4 0xf2b0cae5af521a30      0t0  TCP 127.0.0.1:8800->127.0.0.1:53318 (ESTABLISHED)
+node    74827 Admin   40u  IPv4 0xe0afe3ade0c983c6      0t0  TCP 127.0.0.1:8800->127.0.0.1:53320 (ESTABLISHED)

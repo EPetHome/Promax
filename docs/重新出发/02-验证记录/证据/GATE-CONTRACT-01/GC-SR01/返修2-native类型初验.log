@@ -1,0 +1,105 @@
+packages/host/apiproxy/src/api-proxy.ts(2343,15): error TS2375: Type '{ id: SessionId; parentSession: SessionId; agentPreset: string | undefined; version: number; createdAt: number; cwd?: string; seedLength?: number; origin?: "subagent"; delegationDepth?: number; }' is not assignable to type 'SessionHeader' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'agentPreset' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+apps/cli/tests/web-agent-presets.e2e.ts(6,27): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+  The file is in the program because:
+    Imported via '../../../../../promax-ui/packages/promax-bundle/src/work-store.ts' from file '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/apps/cli/tests/web-agent-presets.e2e.ts'
+    Imported via "./work-store.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/delivery.ts'
+    Imported via "./work-store.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/evaluation-records.ts'
+    Imported via "./work-store.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/promax-session-binding.ts'
+apps/cli/tests/web-agent-presets.e2e.ts(7,71): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/promax-session-binding.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+apps/cli/tests/web-agent-presets.e2e.ts(210,44): error TS2379: Argument of type '{ agentPreset: string | undefined; id: string; cwd?: string; parentSession?: string; }' is not assignable to parameter of type 'Identity' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'agentPreset' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+apps/cli/tests/web-agent-presets.e2e.ts(210,99): error TS2345: Argument of type '{ header: { id: string; cwd?: string; parentSession?: string; agentPreset?: string; }; events: readonly unknown[]; }' is not assignable to parameter of type 'PresetBearingSession'.
+  Types of property 'header' are incompatible.
+    Type '{ id: string; cwd?: string; parentSession?: string; agentPreset?: string; }' is missing the following properties from type 'SessionHeader': version, createdAt
+apps/cli/tests/web-agent-presets.e2e.ts(246,62): error TS2379: Argument of type '{ agentPreset: string | undefined; version: number; id: SessionId; createdAt: number; cwd?: string; parentSession?: SessionId; seedLength?: number; origin?: "subagent"; delegationDepth?: number; }' is not assignable to parameter of type 'Identity' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'agentPreset' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+../../promax-ui/packages/promax-bundle/src/evaluation-records.ts(3,34): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/judge-evaluation.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+../../promax-ui/packages/promax-bundle/src/evaluation-records.ts(5,34): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/recording.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+  The file is in the program because:
+    Imported via "./recording.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/evaluation-records.ts'
+    Imported via "./recording.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'
+../../promax-ui/packages/promax-bundle/src/evidence-links.ts(6,75): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/rating-statistics.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+../../promax-ui/packages/promax-bundle/src/judge-evaluation.ts(2,35): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/review-protocol.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+  The file is in the program because:
+    Imported via "../../promax-ui-console/src/review-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/judge-evaluation.ts'
+    Imported via "../../promax-ui-console/src/review-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'
+../../promax-ui/packages/promax-bundle/src/judge-report.ts(2,55): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/effective-protocol.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+  The file is in the program because:
+    Imported via "../../promax-ui-console/src/effective-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/judge-report.ts'
+    Imported via "./effective-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-protocol.ts'
+    Imported via "./effective-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-protocol.ts'
+    Imported via "./effective-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-protocol.ts'
+    Imported via "../../promax-ui-console/src/effective-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/delivery.ts'
+    Imported via "../../promax-ui-console/src/effective-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/acceptance-baseline.ts'
+    Imported via "../../promax-ui-console/src/effective-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/evidence-links.ts'
+    Imported via "../../promax-ui-console/src/effective-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/evaluation-records.ts'
+    Imported via "../../promax-ui-console/src/effective-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'
+    Imported via "./effective-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-spine.ts'
+    Imported via "./effective-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-control.ts'
+../../promax-ui/packages/promax-bundle/src/promax-session-binding.ts(35,19): error TS2532: Object is possibly 'undefined'.
+../../promax-ui/packages/promax-bundle/src/promax-session-binding.ts(35,73): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+../../promax-ui/packages/promax-bundle/src/promax-session-binding.ts(35,86): error TS2532: Object is possibly 'undefined'.
+../../promax-ui/packages/promax-bundle/src/promax-session-binding.ts(37,71): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+../../promax-ui/packages/promax-bundle/src/promax-session-binding.ts(37,108): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+../../promax-ui/packages/promax-bundle/src/work-store.ts(15,34): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/judge-report.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+../../promax-ui/packages/promax-bundle/src/work-store.ts(16,31): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/artifact-edit.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+../../promax-ui/packages/promax-bundle/src/work-store.ts(17,48): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/delivery.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+../../promax-ui/packages/promax-bundle/src/work-store.ts(18,30): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/handoff.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+  The file is in the program because:
+    Imported via "./handoff.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'
+    Imported via "./handoff.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'
+../../promax-ui/packages/promax-bundle/src/work-store.ts(19,57): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/acceptance-baseline.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+../../promax-ui/packages/promax-bundle/src/work-store.ts(20,322): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/evidence-links.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+  The file is in the program because:
+    Imported via "./evidence-links.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'
+    Imported via "./evidence-links.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'
+../../promax-ui/packages/promax-bundle/src/work-store.ts(21,40): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/runtime-snapshot.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+  The file is in the program because:
+    Imported via "./runtime-snapshot.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'
+    Imported via "./runtime-snapshot.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'
+    Imported via "./runtime-snapshot.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'
+../../promax-ui/packages/promax-bundle/src/work-store.ts(22,35): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/evaluation-records.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+../../promax-ui/packages/promax-bundle/src/work-store.ts(33,8): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-spine.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+  The file is in the program because:
+    Imported via "../../promax-ui-console/src/work-spine.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'
+    Imported via "./work-spine.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-control.ts'
+    Imported via "./work-spine.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-scope.ts'
+../../promax-ui/packages/promax-bundle/src/work-store.ts(64,8): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-control.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+../../promax-ui/packages/promax-bundle/src/work-store.ts(65,83): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-scope.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+../../promax-ui/packages/promax-bundle/src/work-store.ts(67,53): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-suggestions.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+../../promax-ui/packages/promax-bundle/src/work-store.ts(640,49): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/execution-protocol.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+  The file is in the program because:
+    Imported via "../../promax-ui-console/src/execution-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'
+    Imported via "../../promax-ui-console/src/execution-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'
+../../promax-ui/packages/promax-ui-console/src/effective-protocol.ts(1,70): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-protocol.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+  The file is in the program because:
+    Imported via "./work-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/effective-protocol.ts'
+    Imported via "../../promax-ui-console/src/work-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/artifact-edit.ts'
+    Imported via "../../promax-ui-console/src/work-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/delivery.ts'
+    Imported via "../../promax-ui-console/src/work-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/acceptance-baseline.ts'
+    Imported via "./work-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-spine.ts'
+    Imported via "./work-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-progress.ts'
+    Imported via "../../promax-ui-console/src/work-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'
+    Imported via "./work-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-control.ts'
+    Imported via "./work-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-scope.ts'
+    Imported via "./work-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-suggestions.ts'
+../../promax-ui/packages/promax-ui-console/src/work-protocol.ts(273,30): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/delivery-protocol.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+  The file is in the program because:
+    Imported via "./delivery-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-protocol.ts'
+    Imported via "../../promax-ui-console/src/delivery-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/delivery.ts'
+    Imported via "../../promax-ui-console/src/delivery-protocol.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'
+../../promax-ui/packages/promax-ui-console/src/work-spine.ts(10,48): error TS6307: File '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-progress.ts' is not listed within the file list of project '/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/tsconfig.host.json'. Projects must list all files or use an 'include' pattern.
+  The file is in the program because:
+    Imported via "./work-progress.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-spine.ts'
+    Imported via "./work-progress.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-ui-console/src/work-scope.ts'
+    Imported via "../../promax-ui-console/src/work-progress.ts" from file '/Users/Admin/Desktop/Promax/promax-ui/packages/promax-bundle/src/work-store.ts'

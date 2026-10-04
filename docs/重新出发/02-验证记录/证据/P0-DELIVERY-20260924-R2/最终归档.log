@@ -1,0 +1,23 @@
+npm notice
+npm notice 📦  @promax/promax-bundle@0.1.92
+npm notice Tarball Contents
+npm notice 2.3kB cordis.patch.yml
+npm notice 246.4kB lib/index.d.mts
+npm notice 4.8MB lib/index.mjs
+npm notice 217.5kB lib/lib-Dr0cZHUd.mjs
+npm notice 745.7kB lib/streamableHttp-C3CB_h5H.mjs
+npm notice 1.1kB package.json
+npm notice 1.5kB presets/general/agent.cordis.yml
+npm notice 127B presets/general/preset.yml
+npm notice Tarball Details
+npm notice name: @promax/promax-bundle
+npm notice version: 0.1.92
+npm notice filename: promax-promax-bundle-0.1.92.tgz
+npm notice package size: 1.3 MB
+npm notice unpacked size: 6.0 MB
+npm notice shasum: ac321a60d508496b1d81761b396083d96700b3d9
+npm notice integrity: sha512-I7SmIZ7uUQVYf[...]KBEQ/TnBw0n7w==
+npm notice total files: 8
+npm notice
+promax-promax-bundle-0.1.92.tgz
+Selected archives prepared at /Users/Admin/Desktop/Promax/.runtime/releases/p0-delivery-20260924-r2-final; no runtime sources changed and no full installer generated.

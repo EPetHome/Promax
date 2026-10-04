@@ -1,0 +1,24 @@
+{
+  "endpoint": "http://127.0.0.1:8800/",
+  "pid": "36943",
+  "bundle": {
+    "component": "promax-bundle",
+    "version": "0.1.89",
+    "evaluated_at": "2026-09-24T08:13:03.837Z",
+    "module_sha256": "46effb9c29677574d74bbe740f9c17af99a479c5f0eca65e0864f38b71191780"
+  },
+  "console": {
+    "version": "0.3.154",
+    "url": "/plugins/@promax/promax-ui-console/client.js?rev=5bea8ca8d4b0",
+    "sha256": "c7ae81c4932b203c8611b4677f4b92f028156ac99797a6de8d54ec03eb63149a",
+    "bytes": 3951347,
+    "matches_installed_and_build": true
+  },
+  "archives": {
+    "promax-promax-bundle-0.1.89.tgz": "4a315ce4f11da6f560d8b09b4cae067b468eb5efd2427d60624de50101951ad3",
+    "promax-promax-ui-console-0.3.154.tgz": "4058e55a0d6d1bbeb5db344053e810db4d4688b8fdc6fa583c91ccfcfb86853f"
+  },
+  "sessions": 127,
+  "newest_session_write_age_seconds": 89348,
+  "no_business_model_or_browser_test": true
+}

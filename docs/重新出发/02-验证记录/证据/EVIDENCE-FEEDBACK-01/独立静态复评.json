@@ -1,0 +1,130 @@
+{
+  "task": "EVIDENCE-FEEDBACK-01",
+  "review_mode": "独立静态复评；未执行产品代码/测试/构建/接口/浏览器/模型/进程探测或服务操作",
+  "final_identity": [
+    {
+      "path": "promax-ui/packages/promax-bundle/src/evidence-links.ts",
+      "sha256": "fae6c5f159f3c7c8b2fbb5bfa40ff20c577f04985ee977c7de24886bcc142ffd",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/structured-results.ts",
+      "sha256": "bc1a117d8856b186abf13d9753d882e418f324f7834371bd5237dc2866af202c",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/rating-usability.test.ts",
+      "sha256": "e73d0ef8eaa028a5e942ec8b0e85160ece316560c22df7b5e01893fa61f94004",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/evidence-links.test.ts",
+      "sha256": "3fc17ad4aa786f5d31aca772d614285ce24e4d44fb2999d9ab25aaad15c2cf06",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/evidence-gate-commit.test.ts",
+      "sha256": "29cdff17d1f6871824e8101a5849a00922da48cf73cf1d4fbe9972321d51c5bb",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/package.json",
+      "sha256": "809a2ac65321b165ec76a3241e094b7f2a5cfa617f3d9dbe9d51219af2318ccd",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/lib/index.mjs",
+      "sha256": "1325800575b1755d760fc96cda571c30b15a921c7347f3338a922b8fabc623ae",
+      "matches_record": true
+    }
+  ],
+  "backup_identity": [
+    {
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-FEEDBACK-01/接手/evidence-links.ts",
+      "sha256": "641ab2f15c88aa7b12a695e437f29357691657a5b691141f7d31e254bd54a77e",
+      "matches_preparation": true
+    },
+    {
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-FEEDBACK-01/接手/structured-results.ts",
+      "sha256": "7b764e82e1fc3111fa425b4a5ce0710d05970e4dc44372795247c253c420f173",
+      "matches_preparation": true
+    },
+    {
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-FEEDBACK-01/接手/evidence-links.test.ts",
+      "sha256": "701f9e46ac3e2e19759ff064e535946eb81ee0da47fc8c5331349606299bb8ad",
+      "matches_preparation": true
+    },
+    {
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-FEEDBACK-01/接手/rating-usability.test.ts",
+      "sha256": "ea3a0fc28baabe5fa26d1f20e24dc67cead9c2331dbb219cd1e735a25c64f8a5",
+      "matches_preparation": true
+    },
+    {
+      "path": "重新出发/02-验证记录/证据/EVIDENCE-FEEDBACK-01/接手/package.json",
+      "sha256": "875d4c6e404b0dcdea0bfdf297646d20e5797d6649e3ebb09a1d90d8f5e1c5b9",
+      "matches_preparation": true
+    }
+  ],
+  "unchanged_shared_code": [
+    {
+      "path": "promax-ui/packages/promax-bundle/src/rating-facts.ts",
+      "sha256": "091f6cb133afe7e0a340b37b16ae4d2649beb31467cd2930dd17c4b3892f465e",
+      "matches_preparation": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/work-store.ts",
+      "sha256": "1192c0215ab3f67327643510c8a41b5ccb9b66d47fa6ab7cc178a5d0a3a5c5be",
+      "matches_preparation": true
+    }
+  ],
+  "installation": {
+    "profile": "/Users/Admin/.dsh-promax-first/profiles/web",
+    "only_dependency_changes": [
+      "@promax/promax-bundle"
+    ],
+    "archive": "/Users/Admin/Desktop/Promax/.runtime/releases/evidence-feedback-01-20260925/promax-promax-bundle-0.1.99.tgz",
+    "files": [
+      {
+        "path": "package.json",
+        "sha256": "91ac7e96da9df13031bbe8ad73a129d156f600cb273fd5bb69de96ac2c059160",
+        "matches_archive": true
+      },
+      {
+        "path": "lib/index.mjs",
+        "sha256": "1325800575b1755d760fc96cda571c30b15a921c7347f3338a922b8fabc623ae",
+        "matches_archive": true
+      },
+      {
+        "path": "lib/index.d.mts",
+        "sha256": "b825c5386707d6d0b1c62fb47cc2105065b4632522c714a1edc3ec77bd742d8a",
+        "matches_archive": true
+      },
+      {
+        "path": "presets/general/agent.cordis.yml",
+        "sha256": "aef446c49a9ad8a772ad141bd80cdd7a124dd3dfba3040d7ec47a378538ffc92",
+        "matches_archive": true
+      },
+      {
+        "path": "cordis.patch.yml",
+        "sha256": "6f2da68a0700cb0173880c8b88c744abab4ef1a0d0b9524a93ab0ada6ed60a01",
+        "matches_archive": true
+      },
+      {
+        "path": "presets/general/preset.yml",
+        "sha256": "49b9096e3de608f76666920ad50be4dbd62ff95724e805fc90618b714e355955",
+        "matches_archive": true
+      }
+    ],
+    "built_archive_installed_historical_load_agree": true,
+    "historical_load_checked_at": "2026-09-25T07:45:48.309821+00:00",
+    "current_process": "not_checked"
+  },
+  "findings": [],
+  "decision": "本批静态复评通过；工程及加载为已读历史证据，业务未验，阶段二关联延续另批",
+  "evidence_notes": [
+    "类型检查日志为一行exit 0记录，未独立重跑",
+    "修前注册日志使用索引0；最终测试四条凭证使用索引3，报告已披露",
+    "pi-lens缺依赖失败不作为通过证据，非任务必须诊断工具",
+    "新增多命中集成反例“评分”不足4字符，同时触发长度错误；既有4字符“当前价格”独立多命中用例仍保留，未据此判阻断"
+  ]
+}

@@ -1,0 +1,25 @@
+2026-09-25T06:51:04Z
+b37a742bce5615610e7ced258ed4c163f5ecb7ed59cdc73095801338a109827f  promax-ui/packages/promax-bundle/src/promax-session-binding.ts
+b010c64ae30ff697738c3b95046235840994db2828a24f7e6e3083746edd42bd  promax-ui/packages/promax-bundle/src/index.ts
+897dd3c99d4bb5cb0fc95fc82dbf2236175085b7b7a78e507050a32b4e1f445c  promax-ui/packages/promax-bundle/package.json
+639188c9cded70e5b18190c2f6af3b6d4d98de272617e41a4a8d4541826cd66d  promax-ui/packages/promax-bundle/lib/index.mjs
+74c2c1ac0dafb17c6356864ffbac988403aba25157b25b435fc81936f7f40291  promax-ui/packages/promax-bundle/tests/promax-session-binding.test.ts
+9235deb37086bbc476967f01756588baf8516d068db4e945443c9679684c4b40  promax-ui/packages/promax-bundle/tests/orchestration-closure.test.ts
+2c22da68622e6b26e97b20e45e363d3d57756dbc4c9a4b6d1c1cc8159a9e224b  promax-ui/packages/promax-bundle/tests/effective-completion.test.ts
+47fceab8103a3595b554fa07841312000f1e23aa8b62e4f6b56a8b39a686c288  promax-ui/packages/promax-ui-console/tests/work-route-fixture.ts
+065e1968ee8d762013494d6ab546117dfb333068c784a29b6f3a14f42144b04b  promax-agent/deepseek-harness/packages/host/apiproxy/src/api-proxy.ts
+00f9c744fcf47dcca8bcaba176afdb8ecbc167bf879325179e8a7db36922ecb0  promax-agent/deepseek-harness/packages/host/apiproxy/lib/index.js
+0836044ab5805856ea77efd0684fa0c401ab8fdf12f1ca9aae69376ff57d2919  promax-agent/deepseek-harness/apps/cli/tests/web-agent-presets.e2e.ts
+INSTALL
+afecb86e88044899723a0fbe630c986e1fbdf44edf0633127779efa3931686ff  /Users/Admin/.dsh-promax-first/profiles/web/package.json
+4ea55aa949774fa9c9b98b5f5039dc3db06a6bb2f65f0e6d448e25b7d51baac6  /Users/Admin/.dsh-promax-first/profiles/web/pnpm-lock.yaml
+639188c9cded70e5b18190c2f6af3b6d4d98de272617e41a4a8d4541826cd66d  /Users/Admin/.dsh-promax-first/profiles/web/node_modules/@promax/promax-bundle/lib/index.mjs
+cf43c4967fd6f74949538d0e418f0136231ad541ee038133a26c915f223ae0ca  /Users/Admin/.dsh-promax-first/.agent-presets/promax-team-r10/agent.cordis.yml
+REPO_STATUS
+ M packages/promax-bundle/package.json
+ M packages/promax-bundle/src/index.ts
+?? packages/promax-bundle/src/promax-session-binding.ts
+?? packages/promax-bundle/tests/effective-completion.test.ts
+?? packages/promax-bundle/tests/orchestration-closure.test.ts
+?? packages/promax-bundle/tests/promax-session-binding.test.ts
+?? packages/promax-ui-console/tests/work-route-fixture.ts

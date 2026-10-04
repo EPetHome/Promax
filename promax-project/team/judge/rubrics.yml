@@ -1,0 +1,143 @@
+schema_version: 2
+selection:
+  source: Lead 派工时写的成果类型 = domain_rubrics 节名
+  strategy: exact-match
+  task_field: kind
+  no_match: incomplete
+
+# 通用机械项由预检执行；flag 的 hint 只供确认，不直接阻断。
+common_rules:
+  - rule_id: DELIVERY_STATE
+    by: program
+    program_check: K1
+    check: 正文保存状态字样交给 Lead 回执说明。
+  - rule_id: NUMBER_PROVENANCE
+    by: program
+    program_check: K2 / check_numbers
+    check: 数字来源与事实编号；K2 是来源集合提示，不是错误结论。
+  - rule_id: EXTERNAL_COMPLETION
+    by: program
+    program_check: K3
+    check: 识别已写入或同步外部系统的声明。
+  - rule_id: MATERIAL_IDS
+    by: program
+    program_check: K4
+    check: 材料编号存在性，命名空间从材料推导，不把新成果自编编号当材料编号。
+  - rule_id: UPSTREAM_LINKS
+    by: program
+    program_check: K9
+    check: 上游编号与文件存在性、PRD 主需求与上游首位需求编号的差异提示。
+  - rule_id: UPDATE_SCOPE
+    by: program
+    program_check: K10
+    check: 更新行与引用其编号或数字的关联段落；Judge 只读 scope 加未关闭台账。
+
+domain_rubrics:
+  prd:
+    display_name: PRD（三件套同组，另加 diagram / prototype 的 judge 项）
+    rules:
+      - rule_id: PRD_REQUIRED_SECTIONS
+        by: judge
+        check: 按用户要求的深度判断目标、范围、行为与验收能否相互支持；简版不套完整模板，不把待决定或假设冒充批准，不夹带数据库/API/部署方案。
+      - rule_id: PRD_TRACEABILITY_TABLE
+        by: program
+        program_check: K4 / K6 / K9
+        check: 核材料规则编号、状态名与带单位数值的追溯和跨成果集合；上游缺口标 hint，不强制旧式矩阵。
+      - rule_id: PRD_BOUNDARY_TRUTH
+        by: judge
+        check: 核规则含义、例外与恢复能否闭环；数量变化是否先得到 after=before+delta 再按 after<=N 判定，而非只看 before。程序不执行原型 JS，无法证明的交互写未验证；不替业务拍板。
+
+  diagram:
+    display_name: 业务流程图
+    rules:
+      - rule_id: DIAGRAM_REQUIRED_BLOCKS
+        by: judge
+        check: 图是否回答用户要审的业务问题，图型和粒度是否适合；推导、假设、未决分支是否如实标注；不因缺旧平台固定六节判错。
+      - rule_id: DIAGRAM_ELEMENT_MAPPING
+        by: program
+        program_check: K4 / K6
+        check: 规则编号存在性；同组三件套的规则与状态集合由 prd 组预检比对。
+      - rule_id: DIAGRAM_DECISION_PATH
+        by: judge
+        check: 条件语义、分支方向、触发与结果是否相符；失败/取消有没有材料要求的恢复和退出路径；不能把未运行 Mermaid 机器校验写成通过。
+
+  prototype:
+    display_name: 单 HTML 交互原型
+    rules:
+      - rule_id: PROTOTYPE_SINGLE_FILE
+        by: program
+        program_check: K7
+        check: 单文件 HTML 无 http/https/协议相对 URL 或外链脚本、样式、字体等资源。
+      - rule_id: PROTOTYPE_CONTROL_HANDLER
+        by: judge
+        check: 就被要求呈现的主流程核操作的业务响应是否有意义；mock 与未实现边界是否说明，不把静态检查当浏览器交互通过。不逐个手算或执行脚本验算。
+      - rule_id: PROTOTYPE_RULE_FEEDBACK
+        by: judge
+        check: 可见条件、实现意图与反馈是否表达同一业务规则；失败恢复和容量口径是否与 PRD/图一致。仅静态语义检查，实际运行、视觉与响应式未验证。
+
+  customer-research-report:
+    display_name: 客户研究报告 / 痛点清单
+    rules:
+      - rule_id: CUSTOMER_RESEARCH_REQUIRED_SECTIONS
+        by: judge
+        check: 按所要成果核用户与场景、痛点和候选需求的表达是否足以回答问题；不要求正文交付状态或旧固定章节。
+      - rule_id: CUSTOMER_RESEARCH_EVIDENCE_TRACE
+        by: program
+        program_check: check_quotes / K4
+        check: 从访谈文件名、JSON、CSV 与材料主体名推导来源标签，逐字核引文及归属，不强制 E/SRC 编号体系。
+      - rule_id: CUSTOMER_RESEARCH_SAMPLE_BOUNDARY
+        by: judge
+        check: 共识/个案/推断/未知是否分清；个案不外推总体、传闻不当事实、相反体验不抹平；用户提出的方案不直接当已验证需求或最优解；多源证据强度与结论是否相称。
+
+  product-discovery-report:
+    display_name: 产品探索报告
+    rules:
+      - rule_id: PRODUCT_DISCOVERY_REQUIRED_SECTIONS
+        by: judge
+        check: 比较面板、机会与风险能否回答用户的研究范围；不缩掉未知竞品，不用资料数量或固定长模板代替回答。
+      - rule_id: PRODUCT_DISCOVERY_EVIDENCE_TRACE
+        by: program
+        program_check: check_quotes / K2
+        check: 文件主体名作引文来源标签；机械核原文归属与数字来源提示。
+      - rule_id: PRODUCT_DISCOVERY_SCOPE_BOUNDARY
+        by: judge
+        check: 官方宣称、第三方主观评价、实测与推断分开；资料未提及或未获取不等于不支持；双方版本、时点、单位可比，来源冲突如实保留；机会须有依据并标待验证。
+
+  user-analysis-report:
+    display_name: 用户分析报告
+    rules:
+      - rule_id: USER_ANALYSIS_REQUIRED_SECTIONS
+        by: judge
+        check: 依据用户要求核评分分布与数据质量、定性反馈、建议与限制是否回答问题；简洁报告不强制长章节、全量记录或额外主题统计。
+      - rule_id: USER_ANALYSIS_NUMBER_TRACE
+        by: program
+        program_check: check_numbers / check_quotes
+        check: 使用 Lead 提供的 facts.json，核事实编号行数字与记录引文；未打标数字列待确认，不重跑 facts.py，不让 Judge 重数数据。
+      - rule_id: USER_ANALYSIS_INFERENCE_BOUNDARY
+        by: judge
+        check: 数字所指对象、有效/无效分类与分母解释是否正确；无主题频次不写集中/主要；评论声量不外推用户总体、相关不写因果、版本替代不当时间趋势；建议须有依据或待验证。
+
+  requirement-management-report:
+    display_name: 需求清单 / 优先级
+    rules:
+      - rule_id: REQUIREMENT_RECORD_COVERAGE
+        by: program
+        program_check: K4 / K5 / K9 / check_quotes
+        check: 来源编号存在、记录覆盖、上游文件与引文核对；遗漏编号是 hint，是否属于本次范围交 Judge。
+      - rule_id: REQUIREMENT_LIST_TRACE_AND_SCOPE
+        by: judge
+        check: 重复合并是否保留不同条件与来源，优先级有无季度目标依据；依赖方向是否成立，范围外/待评估/待澄清不混同；不把建议冒充确认，不编造投入产出或外部写入。
+
+  requirement-review-report:
+    display_name: 需求评审报告（只核评审意见，不重做 PRD 评审）
+    rules:
+      - rule_id: REQUIREMENT_REVIEW_REQUIRED_SECTIONS
+        by: judge
+        check: 评审对象与模式是否符合派工，结论是否由报告实际列出的意见支持；不补评 PRD 的其他业务缺陷，不套旧十一节。
+      - rule_id: REQUIREMENT_REVIEW_ISSUE_EVIDENCE
+        by: program
+        program_check: K4 / K8 / check_quotes
+        check: 引用原句与位置编号存在、原始被评审文件 SHA 未被改写；没有输入原件快照则明确无法验证，不能假装比较通过。
+      - rule_id: REQUIREMENT_REVIEW_CROSS_ARTIFACT_BOUNDARY
+        by: judge
+        check: 只核每条已有意见的依据能否推出其缺陷、影响与建议；明确正确的范围/生效时机不得误判，建议改写不等于 PRD 原文；缺资料保留未验证，业务取舍放 decisions。

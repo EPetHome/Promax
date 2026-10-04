@@ -1,0 +1,374 @@
+{
+  "task": "JUDGE-RELIABILITY-01",
+  "scope": "独立静态评审；未运行产品、测试、复现、构建、接口、进程、模型、浏览器或服务",
+  "final_identity": [
+    {
+      "path": "promax-ui/packages/promax-bundle/src/judge-evidence.ts",
+      "sha256": "7da6d95075cf2b9c1fca2e8d66778658e5bec8a3ab01395932ac309a1abbbea8",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/structured-results.ts",
+      "sha256": "74d59394cfc9a554f6e4d75b56852c9635377b082a2f87d663c75be67cfc5229",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/work-store.ts",
+      "sha256": "b395e024be7c5eb34b8dfb59ab08e88441fdf6cc3edba35f92f4e2bc1cc4ce38",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/index.ts",
+      "sha256": "9b549799bbfb997239c443edf73dadaf74d82a406f4c3bfaaa2aab7af82ecfda",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/runtime-snapshot.ts",
+      "sha256": "19bb3ce3a05a8303e2821b99959062b182135afff1d2f09c22c1309c6d0fcffc",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/promax-session-binding.ts",
+      "sha256": "a1b3c87c5f9778374f182e57423b9a77d8a6ea6b97402d464bd3f8484fdae22b",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/judge-report.ts",
+      "sha256": "d820663d8c986b08a5cc49ea6e1a1995d7b428ae105a3a4c3b36a99c73618f6b",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/judge-evaluation.ts",
+      "sha256": "6da43f91902fa2d49eacafba3eb94050bc3713c389976a431f9e86af20e36b54",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/chain-metrics.ts",
+      "sha256": "d29b9a88d77c05e4536cfb3e04466174746ec5f655da8ce47b9438f47d9e86bd",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/judge-reliability.test.ts",
+      "sha256": "de689ec1ad9604e50071172eca1324271b8dd0a7caac1949741d6937fdf61b54",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/judge-evaluation.test.ts",
+      "sha256": "7b834656fb5666d6476b8a03eaa3e435edfbde5de2e5f412c0daedf8eec048a7",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/review-continuity.test.ts",
+      "sha256": "abc6669c2aee245d92050b038b82d4ebe79470f08b6655f51562659861c5019b",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/promax-session-binding.test.ts",
+      "sha256": "73d8952089e6c699b584aea68a7981597797c683356ead1ce5b32abbb835be21",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/package.json",
+      "sha256": "28558fde802ff6803eaad006e778a5aa0920acb1e7890e5eb81d9c3d446d2e27",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/lib/index.mjs",
+      "sha256": "781c4f19d704bec25ff1f70005808f9b691e3be7cba8f50cc1a5a22ab385a2dc",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/src/review-protocol.ts",
+      "sha256": "478e5fecd7c4c8c19fc9ce385e535afad16f015bb3b1cd469106bbf7ab0c3fcb",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/src/client/WorkApp.tsx",
+      "sha256": "80fe9eece0608d200993de341221b3e1cf7ea203a17e93042f3c1486aa14afb8",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/src/client/team-state.ts",
+      "sha256": "dcacf809266bd55db7fd0233207cf8ed95a50795d0f3a453a73f6d9f9f1f8bd1",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/tests/team-state.test.ts",
+      "sha256": "90a29276e29818a0df59530985d860948e4a1c0f98e2050be6eb55a2c658bb84",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/tests/shell-registration.test.tsx",
+      "sha256": "9747782b90ffc5d123d7fb887398c8ea177c15a9bbd450e5b7899c4e886211fa",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/tests/work-route-fixture.ts",
+      "sha256": "7cf33bde5230910bbfdc78f516855daa84bfd1e0f963a3c01d801588defce832",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/package.json",
+      "sha256": "50a1ef88af70a954f8d907862a14551e9ce181f0ca6712828b0eef1929fd5952",
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/lib/client.js",
+      "sha256": "422f3e11a0754d290800639d1eaf3b545820794ac4c4908b09205c8bb886c10d",
+      "matches_record": true
+    },
+    {
+      "path": "promax-agent/team-harness/modules/independent-judge/agent-module.yml",
+      "sha256": "51f4fb9e278d635a769c5e910d800b8c35927b856bf0ca5296ca0e92a6f5e5ea",
+      "matches_record": true
+    },
+    {
+      "path": "promax-agent/team-harness/catalogs/rubrics.yml",
+      "sha256": "9b917d955e8e00775ab9319c915d1d43fefa05f3a709840b823d0d622d94a7af",
+      "matches_record": true
+    },
+    {
+      "path": "promax-agent/team-harness/schemas/agent-module.schema.yml",
+      "sha256": "bdb7d33bdd8a2aaa4abc4b6c92bd068b27cc7ecb177862a69395463ed029f64f",
+      "matches_record": true
+    },
+    {
+      "path": "promax-agent/team-harness/schemas/team-revision.schema.yml",
+      "sha256": "227d78d8c8fbd0bd4b934ec65ba3bdcbc694609bcc03373c46a39644a5910a37",
+      "matches_record": true
+    },
+    {
+      "path": "promax-agent/team-harness/src/harness.mjs",
+      "sha256": "2a1878b859d5be068d2849ce6e06367a7dbdaa0a473d90bba210707b52db7625",
+      "matches_record": true
+    },
+    {
+      "path": "promax-agent/team-harness/fixtures/judge-reference-cases.yml",
+      "sha256": "665229867b255fa3b6e6d37505a63eb9a30b3fc7c8932b65127dafc2de3af6e0",
+      "matches_record": true
+    },
+    {
+      "path": "promax-agent/team-harness/package.json",
+      "sha256": "5ed52df28cd44c34f4e9945160a5060306ec6ce926333ce71bbcc9f743f3868b",
+      "matches_record": true
+    },
+    {
+      "path": "promax-agent/team-harness/generated/r11/promax-team-r11/manifest.sha256",
+      "sha256": "19abde82140494303edd6004ae6731e53d12a70886884f543b3b6497cbe54326",
+      "matches_record": true
+    },
+    {
+      "path": "promax-agent/team-harness/test/judge-reliability.test.mjs",
+      "sha256": "6f1c907a420e7a3300855d33a9e1b665d7714c202a795424f9d5b443a824dad0",
+      "matches_record": true
+    }
+  ],
+  "backup_identity": [
+    {
+      "path": "promax-ui/packages/promax-bundle/src/structured-results.ts",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/work-store.ts",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/index.ts",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/promax-session-binding.ts",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/runtime-snapshot.ts",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/judge-report.ts",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/judge-evaluation.ts",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/src/review-protocol.ts",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-agent/team-harness/modules/independent-judge/agent-module.yml",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-agent/team-harness/schemas/team-revision.schema.yml",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/src/client/WorkApp.tsx",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/chain-metrics.ts",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/report-adapter.ts",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-agent/team-harness/src/harness.mjs",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-agent/team-harness/schemas/agent-module.schema.yml",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-agent/team-harness/package.json",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/promax-session-binding.test.ts",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/src/client/team-state.ts",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/tests/team-state.test.ts",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/tests/shell-registration.test.tsx",
+      "exists": true,
+      "matches_record": true
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/tests/work-route-fixture.ts",
+      "exists": true,
+      "matches_record": true
+    }
+  ],
+  "backup_limits": [
+    "harness.mjs接手副本与当前相同，且不同于任务准备时SHA；用recovery旧0.6.18-dist.1归档补充对照，实际仅增加judge_contract编译透传。不能声称该副本是完整修改前字节。",
+    "rubrics及参考集没有任务准备对应接手副本；旧发布rubric可从旧tgz对照，参考集视为候选资料，不将其自评分当真实效果。"
+  ],
+  "installation": {
+    "profile_dependency_changes": [
+      "@promax/promax-bundle",
+      "@promax/promax-ui-console",
+      "@promax/team-harness"
+    ],
+    "packages": [
+      {
+        "name": "@promax/promax-bundle",
+        "archive": "/Users/Admin/Desktop/Promax/.runtime/releases/judge-reliability-20260925/promax-promax-bundle-0.1.102.tgz",
+        "files": 6,
+        "mismatches": []
+      },
+      {
+        "name": "@promax/promax-ui-console",
+        "archive": "/Users/Admin/Desktop/Promax/.runtime/releases/judge-reliability-20260925/promax-promax-ui-console-0.3.158.tgz",
+        "files": 17,
+        "mismatches": []
+      },
+      {
+        "name": "@promax/team-harness",
+        "archive": "/Users/Admin/Desktop/Promax/.runtime/releases/judge-reliability-20260925/promax-team-harness-0.6.19.tgz",
+        "files": 1575,
+        "mismatches": []
+      }
+    ],
+    "resources": [
+      {
+        "revision": 10,
+        "files": 139,
+        "mismatches": []
+      },
+      {
+        "revision": 11,
+        "files": 139,
+        "mismatches": []
+      }
+    ],
+    "historical_module_identity_match": {
+      "bundle": true,
+      "harness": true,
+      "console": true
+    },
+    "historical_load_at": "2026-09-25T10:21:03.017046+00:00",
+    "current_process": "not_checked"
+  },
+  "git": {
+    "branch": "pi/first-usable",
+    "head": "8f761c9c26a642bbc81e733cf19e363e3b875466",
+    "status_counts": {
+      " D": 222,
+      " M": 32,
+      "??": 97
+    }
+  },
+  "findings": [
+    {
+      "id": "JR-SR01",
+      "priority": "P1",
+      "file": "promax-ui/packages/promax-bundle/src/judge-evidence.ts",
+      "line": 36,
+      "title": "新合同拒绝平台合法中文task_key",
+      "trigger": "r11新合同任务由现有命名器产生含中文的task_key，例如产品任务或评分分析。",
+      "code_basis": [
+        "index.ts:1978—2008允许Han且规范化保留中文",
+        "index.ts:4213—4225从提交生成任务名并作为task_key保存",
+        "judge-evidence.ts:36仅允许A-Za-z0-9_-；stage及commit都调用，PASS/INCOMPLETE等结果也无例外",
+        "judge-reliability.test.ts的fixture/registered均硬编码task_key=t，绕开真实任务生成链"
+      ],
+      "impact": "该类合法任务的Judge结果一律被拒为检查任务身份无效，新默认r11可无法收口。",
+      "fix_direction": "复用/对齐现有安全task_key契约，保留路径穿越及非法名保护；通过真实中文任务生成→新合同注册工具→权威提交的反例核对。",
+      "runtime_status": "未运行复现，静态确定性推导"
+    },
+    {
+      "id": "JR-SR02",
+      "priority": "P2",
+      "file": "promax-ui/packages/promax-bundle/src/judge-evidence.ts",
+      "line": 104,
+      "title": "正常open复查被混入原始指责集合，后续verified关闭被永久拒绝",
+      "trigger": "r1登记I1；r2用rechecks.state=open保留未修；r3已修或确认原判错误，再提交verified。",
+      "code_basis": [
+        "work-store.ts:876为issue声明的open历史写claim_sha256",
+        "work-store.ts:879—884为正常recheck open历史不写claim_sha256",
+        "judge-evidence.ts:104—106把所有state=open历史当作原始声明；多条时任一无claim_sha256或evidence不同即报身份冲突"
+      ],
+      "impact": "合法的继续未修→后来关闭流程被迫unverifiable；即使open复查的evidence原样也因缺claim_sha256拒绝，fixed/false_positive均受影响。",
+      "fix_direction": "区分原始/重新声明事件与正常复查事件，用真实原指责身份判冲突，不把open状态当事件类型；保留真正同名不同指责的拒绝。",
+      "runtime_status": "未运行复现，静态确定性推导"
+    }
+  ],
+  "verification_limits": [
+    "137/137及后续4/4为既有Pi记录，未覆盖真实中文任务路径及open后再verified组合。",
+    "修前反例.log仅模块导入缺失，不是任务要求的有意义行为修前反例；记录已如实披露。",
+    "旧team八失败不被改写为通过；web失败的入口规则在旧安装包中已存在，本批harness仅新增合同透传行，静态判为历史断言/行为冲突，不新增回归。",
+    "真实Judge语义/误报漏报、浏览器/旧会话实际续接均未验。"
+  ],
+  "decision": "暂不通过：JR-SR01 P1、JR-SR02 P2；阶段三工程/加载候选保留，不能收口。"
+}

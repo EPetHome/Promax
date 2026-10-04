@@ -1,0 +1,218 @@
+schema_version: 1
+
+# 只放按 validation_kind 选择的领域规则。五项通用检查与三条放行硬规则由
+# independent-judge AgentModule 固定持有，不能由团队配置或用户输入覆盖。
+selection:
+  source: AgentModule.spec.artifacts[].validation_kind
+  strategy: exact-match
+  no_match: common-checks-only
+  task_field: validation_kind
+
+domain_rubrics:
+  prd:
+    display_name: PRD
+    rules:
+      - rule_id: PRD_REQUIRED_SECTIONS
+        defect_type: PRD_STRUCTURE_MISSING
+        check: 员工要求简版/要点版时，只核对目标与范围、关键业务规则与边界、主流程与状态、验收要点、待决定事项与假设是否齐备，不因未展开其余章节判缺陷；完整 PRD 才逐字检查最终 Markdown 是否按顺序包含 0. 文档控制与闭集输入、1. 背景/问题与证据、2. 目标/成功指标与非目标、3. 用户与场景、4. 范围及优先级、5. 需求清单、6. 业务规则与边界真值表、7. 流程/状态与异常、8. 权限与产品级数据需求、9. 验收标准、10. 输入硬信息保留表与追溯矩阵、11. 假设/矛盾/未决项与未验证项；无依据内容写“未提供”，不能漏节。
+        fail_evidence:
+          - 最终产物路径
+          - 缺失的标题原文
+          - 相邻标题及行号
+      - rule_id: PRD_TRACEABILITY_TABLE
+        defect_type: PRD_TRACEABILITY_MISSING
+        check: 逐字检查每个输入硬信息是否在“输入硬信息保留表”或“追溯矩阵”中有来源编号、正文去向和允许状态。
+        fail_evidence:
+          - 输入原文及位置
+          - 产物中对应表格的行号范围
+          - 缺失的来源编号、去向或状态
+      - rule_id: PRD_BOUNDARY_TRUTH
+        defect_type: PRD_BOUNDARY_MISMATCH
+        check: 输入含阈值时，逐行核对三点表；数量变化必须先算 after=before+delta，再以 after<=N 判定。before=N、delta=1 必须为 false 并拒绝。
+        fail_evidence:
+          - 规则位置
+          - 三点表位置
+          - 具体代入式、布尔结果和文档分支
+
+  diagram:
+    display_name: 业务流程图
+    rules:
+      - rule_id: DIAGRAM_REQUIRED_BLOCKS
+        defect_type: DIAGRAM_STRUCTURE_MISSING
+        check: 逐字检查最终 Markdown 是否按顺序包含 1. 图表类型与业务问题、2. 参与者/节点/条件/边与证据映射、3. Mermaid 图、4. 主流程/异常与补偿说明、5. 矛盾/缺口与设计选择、6. 边界真值表与验证记录六个区块。
+        fail_evidence:
+          - 最终产物路径
+          - 缺失的区块名
+          - 相邻标题及行号
+      - rule_id: DIAGRAM_ELEMENT_MAPPING
+        defect_type: DIAGRAM_ELEMENT_UNMAPPED
+        check: 逐字核对 Mermaid 中每个业务参与者、节点、条件和边是否在映射表中出现，并带输入事实、明确推导、设计选择、矛盾或缺口编号。
+        fail_evidence:
+          - Mermaid 元素原文及行号
+          - 映射表检索结果
+          - 缺失或不匹配的编号
+      - rule_id: DIAGRAM_DECISION_PATH
+        defect_type: DIAGRAM_DECISION_MISMATCH
+        check: 逐个条件节点代入边界值，核对节点谓词、是/否或 true/false 边和结果节点。数量变化使用 after<=N；before=N、delta=1 必须沿 false/否边进入拒绝。
+        fail_evidence:
+          - 条件节点位置
+          - 两条边及结果节点位置
+          - 具体代入式与应走分支
+
+  prototype:
+    display_name: 单 HTML 交互原型
+    rules:
+      - rule_id: PROTOTYPE_SINGLE_FILE
+        defect_type: PROTOTYPE_EXTERNAL_DEPENDENCY
+        check: 逐字检查最终交付是否只有一个 HTML，CSS 与 JavaScript 均内联，不存在 http、https、协议相对 URL、CDN、外链字体或运行时资源；head 内 PROMAX_TRACE 注释须含闭集输入、页面/任务映射、控件/处理器映射、状态覆盖、边界真值表、浏览器取证、未验证项和自检。
+        fail_evidence:
+          - 最终产物路径
+          - 外部引用原文及行号
+          - 被引用资源类型
+      - rule_id: PROTOTYPE_CONTROL_HANDLER
+        defect_type: PROTOTYPE_CONTROL_UNWIRED
+        check: 逐个核对未禁用的按钮、链接和表单控件是否能在内联 JavaScript 中定位到对应处理逻辑；没有实现的控件必须逐字标为 disabled 或不可用。
+        fail_evidence:
+          - 控件原文及行号
+          - 处理逻辑检索结果
+          - 缺失或不匹配的绑定
+      - rule_id: PROTOTYPE_RULE_FEEDBACK
+        defect_type: PROTOTYPE_RULE_MISMATCH
+        check: 逐个核对可见条件标签、JavaScript 判断和用户反馈是否表达同一规则。数量变化使用 after<=N；before=N、delta=1 必须显示拒绝且数量不增加。
+        fail_evidence:
+          - 可见标签位置
+          - JavaScript 判断位置
+          - 反馈位置
+          - 具体代入式与实际结果
+
+  customer-research-report:
+    display_name: 客户研究报告
+    rules:
+      - rule_id: CUSTOMER_RESEARCH_REQUIRED_SECTIONS
+        defect_type: CUSTOMER_RESEARCH_STRUCTURE_MISSING
+        check: 逐字检查最终 Markdown 是否按顺序包含“## 0 交付状态、## 1 输入证据清单、## 2 样本与场景、## 3 样本边界与外推限制、## 4 访谈摘要、## 5 关键发现、## 6 痛点与候选需求、## 7 证据追溯矩阵、## 8 矛盾、缺口与未验证项、## 9 下游移交、## 10 逐项自检”；同一份结构定义在 customer-research Skill 的 output_templates.md 与 customer-research-r4 校验器（CUSTOMER_RESEARCH_REQUIRED_HEADINGS）中一致。可选产物（画像卡、贝壳图、多源证据矩阵、需求分层建议）不新增固定标题，不作为必需节。输入无依据的内容写“未提供”或“不适用”，不能删节。
+        fail_evidence:
+          - 最终产物路径
+          - 缺失或乱序的标题原文
+          - 相邻标题及行号
+      - rule_id: CUSTOMER_RESEARCH_EVIDENCE_TRACE
+        defect_type: CUSTOMER_RESEARCH_EVIDENCE_UNMAPPED
+        check: 逐项核对关键发现、痛点和候选需求是否引用 E-*，并能在证据追溯矩阵回到 SRC-*、输入原文及位置；事实、推断、建议和未验证项不得混写。
+        evidence_obligation:
+          question: 每条关键发现/痛点/候选需求能否落到本批样本的原始记录与具体位置，未知是否如实保留
+          min_basis: 冻结输入或用户材料中的可定位片段；样本内事实不得外推总体，缺失样本不按 0 计入分母
+        evidence_basis: [source_link]
+        capability_obligation:
+          - 冻结输入读取与逐条定位
+          - 样本范围与分母口径说明
+        fail_evidence:
+          - 结论原文及行号
+          - E-* 与 SRC-* 检索结果
+          - 缺失的输入原文、位置或分类
+      - rule_id: CUSTOMER_RESEARCH_SAMPLE_BOUNDARY
+        defect_type: CUSTOMER_RESEARCH_SAMPLE_BOUNDARY_MISMATCH
+        check: 逐行核对样本边界实际代入表；必须满足 0<=observed_count<=sample_size，未知时不计算比例，observed_count=1 只标个案，跨样本结论只描述本批样本，不得外推总体，存在相反证据时必须并列标冲突。
+        fail_evidence:
+          - 样本边界表位置
+          - observed_count、sample_size 与具体代入式
+          - 越界计数、总体外推或被覆盖的相反证据原文
+
+  product-discovery-report:
+    display_name: 产品探索报告
+    rules:
+      - rule_id: PRODUCT_DISCOVERY_REQUIRED_SECTIONS
+        defect_type: PRODUCT_DISCOVERY_STRUCTURE_MISSING
+        check: 逐字检查最终 Markdown 是否按顺序包含 0. 任务与闭集输入、1. 来源登记与口径、2. 竞品覆盖矩阵、3. 维度化差异面板、4. 关键差异及证据、5. 机会假设、6. 风险与反证、7. 边界真值表、8. 未验证项、9. 证据追溯矩阵；无依据内容不能删节。
+        fail_evidence:
+          - 最终产物路径
+          - 缺失或乱序标题及行号
+          - 相邻标题原文
+      - rule_id: PRODUCT_DISCOVERY_EVIDENCE_TRACE
+        defect_type: PRODUCT_DISCOVERY_EVIDENCE_UNMAPPED
+        check: 逐项核对主要比较判断有适合用户用途、时点、产品口径的依据；差异事实引用 E-* 并回到 SRC-*、原文与位置。结构可追溯不等于依据充分：原始需求不是产品事实独立证据，模型 KB 不是本次取得的外部材料；可靠用户材料可支持完成，不用网页数量作条件。事实、官方宣传、实测、分析推断、机会假设和未知分别限定，未尝试/失败/未发现不推出不存在。机会假设必须回指差异证据。
+        evidence_obligation:
+          question: 主要比较判断的双方依据在比较时点是否有效、单位/范围/场景是否可比，结论类型（当期事实/比较/两点变化/持续趋势）是否与依据强度匹配
+          min_basis: 双方可比的当期依据或明确标注为宣称/历史；两点数据不得自动写成持续趋势；可靠已有材料即可满足，缺材料记无法验证而不缩小原目标
+        evidence_basis: [source_link]
+        capability_obligation:
+          - 当前产品事实的适用依据（已有材料或获准公开来源）
+          - 比较口径与结论强度核对
+        fail_evidence:
+          - 差异或机会原文及行号
+          - E-* 与 SRC-* 检索结果
+          - 缺失分类或来源位置
+      - rule_id: PRODUCT_DISCOVERY_SCOPE_BOUNDARY
+        defect_type: PRODUCT_DISCOVERY_SCOPE_OR_BOUNDARY_MISMATCH
+        check: 核对来源覆盖、时间窗、字段口径和竞品范围没有超出不可变输入清单；逐行核对边界真值表三点代入，无可求值边界时必须明确写不适用，不能编造阈值。
+        fail_evidence:
+          - 输入清单与超范围结论
+          - 边界表位置
+          - 具体代入式或被编造阈值
+
+  user-analysis-report:
+    display_name: 用户分析报告
+    rules:
+      - rule_id: USER_ANALYSIS_REQUIRED_SECTIONS
+        defect_type: USER_ANALYSIS_STRUCTURE_MISSING
+        check: 按原始用户要求选择交付深度。简洁评分报告只要求评分分布与数据质量、主要反馈及来源举例、3条待验证建议、必要限制与查看入口；不要求固定九节、全量record_id、模板构成、额外趋势数字或长篇真值表。计算与追溯明细由程序结论关联/工具结果入口承载，不手工重复矩阵。完整分析模式仍检查输入与样本/口径、数据质量与清洗、结构化反馈或指标基线、趋势与异常、归因假设与替代解释、反例与冲突、边界真值表、限制与未验证项、证据追溯矩阵；按适用性说明，不编造无依据扩展。
+        fail_evidence:
+          - 最终产物路径
+          - 缺失或乱序标题及行号
+          - 对应 Skill 的固定输出契约
+      - rule_id: USER_ANALYSIS_NUMBER_TRACE
+        defect_type: USER_ANALYSIS_NUMBER_UNTRACEABLE
+        check: 关键数字、比例、趋势、引文和图表应回到已登记结论关联、SRC-*、输入位置、时间窗、分母与公式；不强制手工E-*矩阵。冻结评分用promax_rating_facts与当前版本程序复算凭证核对，不逐行重数；计算结果不是新的原始事实源。C11 缺失值反例：10 人中仅 6 人提供本周数据，3 人达标；观测样本达标率是 3/6，不能把缺失 4 人当 0 后宣称总体率 3/10，也不能把上月数据合入本周分母。必须写清缺失处理、适用人群与推断边界。
+        evidence_obligation:
+          question: 每个关键数值的分子、分母、过滤去重、缺失处理、时间窗与舍入是否声明且可复算
+          min_basis: 冻结输入或已保存记录中的字段定位与计算规格；口径变化留版本并重算受影响结果
+        evidence_basis: [source_link, numeric_recompute]
+        capability_obligation:
+          - 数值口径与可复算输入
+          - 样本代表性与可外推范围说明
+        fail_evidence:
+          - 数字/引文/图表原文及行号
+          - E-*、SRC-* 与输入位置检索结果
+          - 缺失时间窗、分母或公式
+      - rule_id: USER_ANALYSIS_INFERENCE_BOUNDARY
+        defect_type: USER_ANALYSIS_INFERENCE_OR_BOUNDARY_MISMATCH
+        check: 核对评论声量未外推用户总体、相关性未写成因果；提出归因假设时保留替代解释。仅在实际任务需要且有阈值依据时核对真值表，不为简洁评分报告新增长表。版本替换不是时间趋势；未知阈值不得自创。
+        fail_evidence:
+          - 外推或因果化原文及行号
+          - 替代解释检索结果
+          - 边界代入式与应有结论
+
+  requirement-management-report:
+    display_name: 需求清单
+    rules:
+      - rule_id: REQUIREMENT_LIST_TRACE_AND_SCOPE
+        defect_type: REQUIREMENT_LIST_LOST_OR_INVENTED
+        check: 逐项核对来源与原始要求、必做和可选范围、重复合并后的条件保留、可测验收口径、待业务拍板缺口；编号和优先级不能冒充已确认决定。不机械要求无关 PRD 长章节；只有本轮明确交付才检查外部入库证据。
+        fail_evidence:
+          - 清单条目与原始输入位置
+          - 合并前后的条件差异
+          - 无依据的优先级或已完成声明
+
+  requirement-review-report:
+    display_name: 需求评审报告
+    rules:
+      - rule_id: REQUIREMENT_REVIEW_REQUIRED_SECTIONS
+        defect_type: REQUIREMENT_REVIEW_STRUCTURE_MISSING
+        check: 逐字检查最终 Markdown 是否按顺序包含 0. 评审对象与版本、1. 闭集输入覆盖、2. 总体结论、3. 完整性、4. 歧义与冲突、5. 跨产物逻辑、6. 状态/数据流与时序、7. 边界真值表、8. 验收可测性、9. 问题跟踪表、10. 限制与未验证项。
+        fail_evidence:
+          - 最终产物路径
+          - 缺失或乱序标题及行号
+          - 相邻标题原文
+      - rule_id: REQUIREMENT_REVIEW_ISSUE_EVIDENCE
+        defect_type: REQUIREMENT_REVIEW_ISSUE_UNLOCATABLE
+        check: 每个 RR-* 问题必须含级别、文件位置、原文、判断依据、影响、整改建议、状态和责任人，并明确分类为已证实缺陷、风险、建议或未验证；没有可定位证据不得制造问题。
+        fail_evidence:
+          - RR-* 原文及行号
+          - 缺失字段
+          - 被评审产物中的定位检索结果
+      - rule_id: REQUIREMENT_REVIEW_CROSS_ARTIFACT_BOUNDARY
+        defect_type: REQUIREMENT_REVIEW_CROSS_ARTIFACT_MISMATCH
+        check: 逐项核对 PRD、业务图与原型的术语、角色、状态、谓词和结果分支；边界表必须实际代入三点，数量变化先算 after，before=N、delta=1 必须判拒绝。未提供某产物时只能标未验证。
+        fail_evidence:
+          - 三份产物中的对应原文与行号
+          - 具体代入式和实际分支
+          - 缺失产物或不一致项

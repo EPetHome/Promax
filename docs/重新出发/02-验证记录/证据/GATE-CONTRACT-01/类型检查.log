@@ -1,0 +1,17 @@
+packages/promax-ui-console/src/work-protocol.ts(532,44): error TS18046: 'raw.filenames' is of type 'unknown'.
+packages/promax-ui-console/src/work-protocol.ts(538,65): error TS18046: 'raw.filenames' is of type 'unknown'.
+packages/promax-ui-console/src/work-protocol.ts(543,97): error TS2322: Type 'string' is not assignable to type 'string[] | WorkNode'.
+packages/promax-ui-console/src/work-protocol.ts(546,23): error TS2322: Type 'string' is not assignable to type 'string[] | WorkNode'.
+packages/promax-ui-console/src/work-protocol.ts(548,131): error TS2322: Type 'string' is not assignable to type 'string[] | WorkNode'.
+packages/promax-ui-console/src/work-protocol.ts(550,151): error TS2322: Type 'string' is not assignable to type 'string[] | WorkNode'.
+packages/promax-ui-console/src/work-protocol.ts(551,55): error TS2322: Type 'string' is not assignable to type 'string[] | WorkNode'.
+packages/promax-ui-console/src/work-protocol.ts(553,51): error TS2322: Type 'string' is not assignable to type 'string[] | WorkNode'.
+packages/promax-ui-console/src/work-protocol.ts(554,72): error TS2322: Type 'string' is not assignable to type 'string[] | WorkNode'.
+packages/promax-ui-console/src/work-protocol.ts(557,74): error TS2322: Type 'string' is not assignable to type 'string[] | WorkNode'.
+packages/promax-ui-console/src/work-protocol.ts(560,134): error TS2322: Type 'string' is not assignable to type 'string[] | WorkNode'.
+packages/promax-ui-console/src/work-protocol.ts(562,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+packages/promax-ui-console/src/work-protocol.ts(563,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+packages/promax-ui-console/src/work-protocol.ts(564,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.

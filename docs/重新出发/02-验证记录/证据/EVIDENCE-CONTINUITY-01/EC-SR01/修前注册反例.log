@@ -1,0 +1,55 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/rating-usability.test.ts (14 tests | 3 failed | 11 skipped) 860ms
+   × EC-SR01 v2注册回执：'两个子分支'重复结论，第二处分支变化不得续绑 333ms
+   × EC-SR01 v2注册回执：'父段与子分支'重复结论，第二处分支变化不得续绑 268ms
+   × EC-SR01 有旧被审字节的v1迁移：第二处重复结论改变仍保守失效，不写回历史 259ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/rating-usability.test.ts > EC-SR01 v2注册回执：'两个子分支'重复结论，第二处分支变化不得续绑
+ FAIL  packages/promax-bundle/tests/rating-usability.test.ts > EC-SR01 v2注册回执：'父段与子分支'重复结论，第二处分支变化不得续绑
+AssertionError: expected [ Array(1) ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ packages/promax-bundle/tests/rating-usability.test.ts:188:32
+    186|   expect((await w.receipt([], {}, "ec-sr01-v2")).isError).toBe(false);
+    187|   const after = (await w.store.round(w.key))!.receipts!["user_analysis…
+    188|   expect(after.evidence_links).toHaveLength(0);
+       |                                ^
+    189|   expect(after.evidence_continuity).toEqual([expect.objectContaining({…
+    190|   expect((await w.store.evidenceLinks(w.key)).conclusions.find(c => c.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  packages/promax-bundle/tests/rating-usability.test.ts > EC-SR01 有旧被审字节的v1迁移：第二处重复结论改变仍保守失效，不写回历史
+AssertionError: expected [ Array(1) ] to have a length of +0 but got 1
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ packages/promax-bundle/tests/rating-usability.test.ts:210:32
+    208|   expect((await w.receipt([], {}, "ec-sr01-v1")).isError).toBe(false);
+    209|   const after = (await w.store.round(w.key))!.receipts![legacy.filenam…
+    210|   expect(after.evidence_links).toHaveLength(0);
+       |                                ^
+    211|   expect(after.evidence_continuity![0]).toMatchObject({ state: "invali…
+    212|   expect((await w.store.evidenceLinks(w.key)).conclusions.find(c => c.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 11 skipped (14)
+   Start at  05:08:47
+   Duration  3.07s (transform 614ms, setup 135ms, import 1.60s, tests 860ms, environment 408ms)
+

@@ -1,0 +1,620 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts (35 tests | 8 failed | 27 skipped) 4798ms
+   × SE01 提示词与讨论拒绝文案不再预告开始，提案被拒程序状态仍是讨论 4ms
+   × SE02 complete回执后恰有一次交付说明回合，公开文本可见且在回执之后 663ms
+   × SE03 saved_partial：说明输入带实际状态与缺口，回执不被改写 567ms
+   × SE03 failed：说明输入带实际状态与缺口，回执不被改写 511ms
+   × SE03 unknown：说明输入带实际状态与缺口，回执不被改写 512ms
+   × SE04 说明回合只读：派工/提案/回执/检查/写改与统计计算被拒，只读可用 1476ms
+   × SE06 重复通知/重复结束/冷读不重复说明；correction 触发一次更正说明且历史保留 579ms
+   × SE07 说明回合失败只保留回执不重试；混批员工问题公开回答且说明不吞输入 484ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SE01 提示词与讨论拒绝文案不再预告开始，提案被拒程序状态仍是讨论
+AssertionError: expected '你是 Promax 主 Agent，面向公司内部产品员工。员工不需要懂内部…' not to contain '几秒后自动开始'
+
+- Expected
++ Received
+
+- 几秒后自动开始
++ 你是 Promax 主 Agent，面向公司内部产品员工。员工不需要懂内部成员、任务包或检查机制。
++
++ ## 对员工说话
++ - 用员工能直接读懂的短段、分组或表格；普通问题直接答完，不附流程说明。
++ - 不向员工展示内部标识：成员 ID（如 solution_design、quality_judge）、task_key、文件路径、哈希、团队版本、判定轮次、scope.start、冻结、合同、闸门等运行术语。提到成员时用角色名：客户研究员、竞品分析师、需求管理员、方案设计师、需求评审员、数据分析师、检查。
++ - 程序暂缓某个调用不是失败，不要对员工说"被拒绝""需要再次授权"。
++
++ ## 每次回复调用一次 promax_work_proposal（结构化提交）
++ 正文照常写给员工；控制依据只来自 promax_work_proposal 的参数，不再在正文末尾写 <promax-work> 结构块（旧会话里的结构块只是历史）。工具返回错误时按错误逐项修正后重新调用；程序校验工作、问题、成果、版本后才生效，你自报的状态、次数、版本或"已完成"不作为依据。工作区只显示主干、问题列表和员工打开的一份文档。
++ 参数：{"intent":"answer|guide|execute|edit","card_patch":{},"deliverables":[],"edit_request":null,"handled_events":[]}
++ - answer：普通问答。不建成果、不调成员。card_patch 通常为空。
++ - guide：模糊想法或只给材料。先给材料里的具体观察或可选方向，再问最多 1–2 个会改变结果的问题；同时用 card_patch 形成可纠正的草稿，不启动执行。
++ - execute：员工已明确要什么成果。正文用一两句说明将产出什么、按什么范围做，并说明"几秒后自动开始，可随时停止或先等等"。不要写"等你确认""请授权"。执行进行中不能提出新的 execute/edit。
++ - edit：严格修改单份已有成果的一个指定范围，范围外逐字保留。edit_request 填 filename、当前版本哈希（只用程序注入值）、anchor（heading 可用纯标题文字或完整 Markdown 标题，必须唯一存在）与 instruction。材料替换等跨章节更新用 execute 列出受影响成果，不伪造单标题锚点；程序预置当前版本并保留冻结基线，只修受影响内容及必要交叉引用，不无条件覆盖。
++
++ ## 待处理输入与 handled_events
++ 上下文「待处理输入」中的每一项都必须在 handled_events 里给出 {event_id, intent, impact, note}，按列出的优先级处理，前面的普通输入不能跳过。
++ - intent：question 追问/咨询（先回答，不记决定）；supplement 补充要求或材料；decision 对某个问题的回答（给 question_id 和 answer）；correction 否定或纠正已有口径/成果；new_task 与当前目标无关的新任务；control 停止、等等、开始等控制意图。
++ - 正例：问题「同一个人最终按什么识别？」回复「工号」→ decision，answer=工号。回复「给我用」→ decision。
++ - 反例：回复「是空白还是什么原因」→ question，先解释原因，不记决定。二选一问题只回「是的」→ 不能擅自选边，用 clarify 反问是哪一项。「采纳」只关联当前回应的那一条建议及其版本，不等于所有建议获批，也不代表建议里的访谈已经完成；关联不清先 clarify。
++ - impact=high 只用于会改变在做成果或已确认口径的纠正；此时写 affects（受影响成果文件名），程序会暂停相关步骤、其余工作继续。普通补充 impact=normal。
++ - 决定或补充影响已有成果时写 affects；有多份成果就逐份列出，程序会安排局部修改。不影响任何成果时 affects 传 []，程序记为有效要求。
++ - 新口径替代旧决定或已采纳建议时用 revokes 指明，旧口径保留为历史但不再同时生效。
++ - note 用一句话说明实际改动或下一步，界面会展示；不要只写"记下了"。
++
++ card_patch 字段（未采纳建议可调整，已采纳建议及反馈由程序持续保留；已记录要求、问题和员工决定不能用空列表清除）：
++ - title：不超过 20 字的工作名；goal：一句话目标。
++ - employee_said：[{text, quote}]。quote 必须逐字摘自真实员工消息；程序只保存实际消息为依据。text 仅是你的解释，永不获得用户来源身份；不能凭真实引文把新增禁令变成用户决定。无真实来源时工具明确拒绝。
++ - suggestions：[{text, basis}] 少量可核对的量化建议，每条一件事，basis 写依据。在聊天中提出，不变成独立清单、表单或执行关卡。程序记录用户回应的具体建议：state=accepted 才持续按采纳事项跟进；rejected 不再强求；adjusted 按 history 中的反馈改建议；未表态仍是 proposed。不能用含糊的“可以”确认全部建议；employee_said 不用于伪造建议采纳。拒绝额外建议不撤销用户原本明确要求。未采纳建议不阻断已具备输入、已明确委托的工作。
++ - nodes：普通追问默认不创建或重写；无自定义阶段时省略，沿用程序初始节点。确需自定义时提供 1–12 个主要业务阶段 [{id,title,completion,filenames,gate,depends_on?}]；id 为 1–60 字符的字母/数字/下划线/连字符，title/completion 为非空业务文字，filenames 为数组。gate 必填且只能是 employee | checked_artifacts | accepted_artifacts；filenames 必须是团队登记成果文件名数组，checked_artifacts/accepted_artifacts 必须关联至少一份成果；不需要自定义阶段时省略 nodes；合法例子：{id:"intake",title:"核对材料",completion:"明确材料范围",filenames:[],gate:"employee"}、{id:"report",title:"形成报告",completion:"报告保存并核对",filenames:["团队登记成果名.md"],gate:"checked_artifacts"}。depends_on 可用其它节点 id 的数组表示真实依赖。不硬套固定名称、顺序或一阶段一成员。gate 虽为兼容字段仍须满足数据格式，但不是新增执行授权或用户手工核销步骤；旧三个值意义不变。主干只读、无展开/导航/编辑/手工核销，不显示默认百分比。派工仍按需求、必要输入和真实依赖；失败、中断、等待必要信息如实报告。
++ - 合并/移除原节点或完成条件时，scope_moves 逐项给出 {node_id,condition_id?,action:"merge"|"defer",target_node_id?,reason}。整个节点移除只给节点级条目；保留节点中移除条件给条件级条目。merge 指向新主线中的节点，程序会完整迁入原条件和关联缺口（同名条件不擅自删减）；defer 是员工明确移出本次范围，不是完成。每项说明原因，员工过目确认前不生效；历史、未满足条件及其去向永久保留。不得用删除或假完成换全绿。
++ - 不新增 conditions 手工核销条件；旧条件、证据和版本仍保留。量化事项用 suggestions 提出并跟进，不随机打质量分，不删除未完成事项制造完成率。新要求影响在跑任务时保留原任务范围，说明旧结果需要更新或复核。
++ - 用户指出问题时先核对原要求、原文与证据；明确错误才纠正，分歧保留，不把新要求当原错误。文件落盘、独立检查和用户采纳分开表述，不要求员工维护进度；浏览不能改变执行或完成状态。
++ - pending：[{id, decision_key, node_id, artifact, location, current_content, effect, timing, question, options, basis}] 需要员工拍板的业务选择或缺口。每轮只在正文引导 1–3 个最必要的问题，完整清单保留在问题列表中；说明是否阻塞后续步骤及影响范围。decision_key 是稳定业务决定标识；artifact 是具体成果文件名，location 是真实章节标题/唯一原文；current_content 摘录当前内容，effect 说明决定后改哪处。timing=now 是本次必需；后续设计 timing=later，不扩大本次必交。options 可给少量参考答案，员工在聊天中直接回应，无需管理表单。检查报告已提出的待决定项程序会自动放进卡片，不要换个说法再提一遍；员工已回答的问题不要再列。
++ - 不再输出 panel；旧工作中的表单数据只作历史兼容。问题、归并与排序建议用短聊天表达，不能要求用户先填表再开始工作。
++ - 员工以"我的决定：…"点选的答案程序已记为决定；你仍需在 handled_events 中给出它影响哪些成果（affects），不要再改写成 employee_said。
++ - deliverables 只用团队登记的文件名；简版需求默认只列员工要的那一份。
++
++ ## 执行由程序推进
++ - during_run 是员工执行中提交的新信息及所在事项。当前任务仍按启动时的范围执行；及时回应讨论，核对哪些变化影响结果，不能把旧范围成果当已满足新要求。新的范围、成果或决定待当前回合结束后按既有授权机制推进，不取消或重跑在跑任务。
++ - 程序在员工点击开始或倒计时结束后启动执行，并按"生成 → 独立检查 → 需要时返修（最多两轮）→ 结束"推进。每一步程序会通知你该调用谁；成员用成果回执、检查用结构化结果提交，程序核对后才推进。你不需要也不能替成员写成果，不要运行命令或计算哈希。
++ - 模型或工具失败时程序按同一故障最多自动恢复 3 次；缺权限、工具或必要材料会等员工，不盲目重试；耗尽后保留成果、暂停受影响步骤并上报平台缺陷。据实转述 Agent Status，不要自称已修复、已上报或已完成。
++ - 生成后及时告知成果可查看；检查结论与全任务完成度分开，以程序的验收基准与状态为准。局部 PASS、问题台账关闭、文件存在均不等于任务完成；保留结论的未知、推断与时效边界。
++ - 执行结束后，把仍需员工判断的事项放进 pending（带 options），正文只点出最关键的一两项。
++ - 员工回答了待决定事项或补充了要求时，程序已把它记为已确认；单一范围用 edit；跨章节或多成果用 execute 按影响修订，保留未受影响的内容，不重写全文。
++ - 改变目标、已确认规则或成果范围时，先说明影响再提出。
++ - 恢复工作只依据注入的工作卡、当前成果与最近检查；默认不做浏览器验收，相关项标未验证。
++ - 协作焦点以员工最新聊天为准，旧导航只是历史浏览记录，不是当前派工指令。员工说“回到主题，看看还差什么”时围绕总目标、有效要求、已采纳建议和真实剩余事项回答，不把这句话吞成导航操作。
++ - drafts 是员工未提交输入：不引用、不执行、不作为决定。side_topics 中 deferred=true 的事项不是本次范围。
++ - 范围外话题根据与目标的关系用 side_topic:{text,reason} 轻提示，允许继续展开；不用轮数或耗时中断。暂存支线不算接受新范围。
++ - 已答问题不重新提出；确有新材料/冲突，写 reopen_reason 和 reviewed_sha256（确有新版本），说明为什么需要重新讨论。
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:726:34
+    724|
+    725| it("SE01 提示词与讨论拒绝文案不再预告开始，提案被拒程序状态仍是讨论", async () => {
+    726|   expect(WORK_SYSTEM_PROMPT).not.toContain("几秒后自动开始");
+       |                                  ^
+    727|   expect(WORK_SYSTEM_PROMPT).not.toContain("倒计时并自动开始");
+    728|   expect(WORK_SYSTEM_PROMPT).toContain("交付说明");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SE02 complete回执后恰有一次交付说明回合，公开文本可见且在回执之后
+AssertionError: 程序回执必须先发布: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:755:32
+    753|   const receipt = events.find((e: any) => e.type === "user/message" &&…
+    754|   const explanation = events.findLast((e: any) => e.type === "assistan…
+    755|   expect(receipt, "程序回执必须先发布").toBeTruthy();
+       |                                ^
+    756|   expect(explanation, "complete 回执后应恰有一次公开说明回合").toBeTruthy();
+    757|   expect(explanation!.seq).toBeGreaterThan(receipt!.seq);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SE03 saved_partial：说明输入带实际状态与缺口，回执不被改写
+AssertionError: expected '## 当前工作（程序注入的相关摘要，内部上下文，不向员工复述标识）\nti…' not to contain 'gaps: []'
+
+- Expected
++ Received
+
+- gaps: []
++ ## 当前工作（程序注入的相关摘要，内部上下文，不向员工复述标识）
++ title: 原生续接
++ goal: ""
++ origin: 完成prd.md
++ requirement_version: 4
++ materials: []
++ confirmed: []
++ acceptance_baseline_version: a807a5980efc57b18e52402b15d63f9c21667ed8bc7ff7faeb786db3999d6789
++ completion:
++   state: complete
++   label: 已完成
++   business: 已完成
++   gaps: []
++   items:
++     - id: R1
++       required: true
++       necessity: required
++       state: met
++       evidence: 隔离测试可控判定，不是真实模型业务验收
++       files:
++         - prd.md
++     - id: R3
++       required: true
++       necessity: required
++       state: met
++       evidence: 隔离测试可控判定，不是真实模型业务验收
++       files:
++         - prd.md
++     - id: R4
++       required: true
++       necessity: required
++       state: met
++       evidence: 隔离测试可控判定，不是真实模型业务验收
++       files:
++         - prd.md
++   counts:
++     denominator: 3
++     met: 3
++     unmet: 0
++     unverifiable: 0
++     no_result: 0
++     q1: 1
++     no_result_rate: 0
++   no_result: []
++   progress_only: false
++ decisions: []
++ suggestions: []
++ pending: []
++ deliverables:
++   - filename: prd.md
++     status: 已保存 · 部分完成
++     sha256: 26152624eb74ba6025731226218f80eec5ed0729d98f125542e188f7afaf92d8
++ nodes:
++   - id: outcome-1
++     title: 形成方案与流程
++     filenames:
++       - prd.md
++ last_progress: "部分完成：成果已保存，仍有未满足或未核实事项：成果未保存或版本未审：prd.md；R1；R3；R4；存在尚无有效判定（no_r\
++   esult）的必需项。正式版本已保存，当前入口待修复：prd.md（ENOENT: no such file or directory, open
++   '/private/tmp/promax-controls-MKRNug/projects/product/产物/原生续接/prd.md'）。不代表业务全\
++   部通过。"
++ delivery_receipt:
++   id: delivery:9f90eea83c28dcc5f1c048d4cf48fb2da04efa69a905521ab566049599ad5c8f
++   at: 2026-09-25T12:57:20.591Z
++   task_key: 原生续接
++   reviewed_hashes:
++     prd.md: 26152624eb74ba6025731226218f80eec5ed0729d98f125542e188f7afaf92d8
++   state: saved_partial
++   correction: false
++   text: "部分完成：成果已保存，仍有未满足或未核实事项：成果未保存或版本未审：prd.md；R1；R3；R4；存在尚无有效判定（no_result）的必需\
++     项。正式版本已保存，当前入口待修复：prd.md（ENOENT: no such file or directory, open
++     '/private/tmp/promax-controls-MKRNug/projects/product/产物/原生续接/prd.md'）。不代表业\
++     务全部通过。"
++   targets:
++     - kind: formal
++       filename: prd.md
++       sha256: 26152624eb74ba6025731226218f80eec5ed0729d98f125542e188f7afaf92d8
++       task_key: 原生续接
++       path: 产物/原生续接/prd.md
++     - kind: previous
++       filename: prd.md
++       sha256: 2e0ebf917ce88a5a53bcad8ba587aa3c897ba710ebb7cbc8ad7af8f58f8ceff1
++       path: 产物/原生续接/prd.md
++ side_topics: []
++
++ ## 有效要求（程序绑定；优先于主 Agent 的 prompt/message/focus 与工作计划）
++ 来源优先级：系统权限与产品最低规则不可由计划覆盖；用户原始要求及有效决定决定目标，解释/假设不是用户决定。改变用途、证据要求或交付范围须走有效决定/范围变更；执行后接受局限不追溯改写。
++ 用户原始依据：[{"id":"origin","kind":"user_request","text":"完成prd.md","at":"2026-09-25T12:57:20.106Z"}]
++ 真实能力策略（不是用户禁令；配置可用不代表实际调用成功）：{"browser":"disabled","public_web":"authorized_members_only","judge_web":"disabled","availability":"not_probed"}。公开搜索/正文读取与浏览器自动化分开；未配置、调用失败、未尝试须据实际工具结果记录。
++ 产品规则与版本（不是用户原话）：{"revision":"promax-product-team@r10","rules":[]}
++ 主 Agent 的理解/计划（非权威）：""
++ 未确认假设/建议：[]
++ 全任务验收基准（必需性不可豁免）：{"protocol":1,"version":"a807a5980efc57b18e52402b15d63f9c21667ed8bc7ff7faeb786db3999d6789","requirement_version":4,"items":[{"id":"R1","text":"范围、用途与原始要求及有效决定一致；主 Agent 新增限制有真实来源；基准未遗漏原始目标。","required":true,"necessity":"required","source_refs":["origin"],"files":["prd.md"],"source_kind":"user_request","evidence_basis":["requirement_record"],"evidence_obligation":{"question":"本次交付范围与用途是否由用户原始要求/有效决定确定，主 Agent 的限制是否有权限或用户依据","min_basis":"原始要求与有效决定记录；无来源的限制不升级为权威要求；修改用途须走有效决定"},"capability_obligation":["读取原始要求、事件与决定记录","范围变更留版本"]},{"id":"R3","text":"事实、推断、未知及结论强度一致；未尝试/失败/未发现不推导不存在，保留时效与口径限制。","required":true,"necessity":"required","source_refs":["product:effective-requirements/1"],"files":["prd.md"],"source_kind":"product_rule","evidence_obligation":{"question":"每个关键结论的类型（当期事实/比较/变化/趋势/总体/原因）是否有匹配强度的依据，未知是否如实保留","min_basis":"结论类型对应的最低依据；不支持时降级表述并重新核对原目标，不用措辞换取满足率"},"capability_obligation":["按结论类型判断最低依据","保留时点与口径限制"]},{"id":"R4","text":"本次必交成果已保存、可读取；当前版本、引用和依据可追溯。","required":true,"necessity":"required","source_refs":["origin"],"files":["prd.md"],"source_kind":"product_rule","evidence_basis":["program_check"],"evidence_obligation":{"question":"当前被审版本是否与实际保存的成果字节一致，关键结论能否定位回正文与依据","min_basis":"程序保存的成果哈希、版本与可读入口；结论关联与来源版本一致"},"capability_obligation":["成果哈希与版本绑定","可读入口检查"]}],"files":["prd.md"]}
++ 本次须逐项回报的 scope IDs：["R1","R3","R4"]。scope 外不默认为满足。
++ ## 待处理输入（0 项；按优先级排列，每项都要在 promax_work_proposal 的 handled_events 中处理）
++ 无
++ ## Agent Status（程序产生，只读）
++ control: 讨论中
++ requirement_version: 4
++ execution_version: 4
++ steps:
++   - step: prd.md
++     control: 讨论中
++ blocks: []
++
++ 可采用信息交接（非成员结束；主 Agent 判断适用性并派工）：[]
++ 本轮：intent: execute
++ deliverables:
++   - prd.md
++ phase: ended
++ started: true
++ judge_round: 1
++ task_key: 原生续接
++ last_check:
++   report: .任务/原生续接/判定-r1.md
++   judge_round: 1
++   verdict: PASS
++
++ 本次任务包：.任务/原生续接/任务包.yml
++ 最近检查报告（按需读取原文）：.任务/原生续接/判定-r1.md
++ 评分样本简洁交付不扩成全量长模板：安排成员先用promax_rating_facts取得统计，必要记录原文按需读。普通追问只回答并提交intent=answer，不新建任务/重评。材料替换沿用当前成果，仅更新程序版本对照指出的统计、相关结论和必要交叉影响；不合并新旧样本、不自动新增分析维度。Judge读取程序事实，不安排其手工重数。
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:774:23
+    772|   const context = coordinatorContext(card, round, deriveAgentStatus(ca…
+    773|   expect(context).toContain(`state: ${state}`);
+    774|   expect(context).not.toContain("gaps: []");
+       |                       ^
+    775|   expect(context).toContain("pending: true");
+    776|   w.setParentText((options: any) => JSON.stringify(options.messages ??…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SE03 failed：说明输入带实际状态与缺口，回执不被改写
+AssertionError: expected '## 当前工作（程序注入的相关摘要，内部上下文，不向员工复述标识）\nti…' to contain 'pending: true'
+
+- Expected
++ Received
+
+- pending: true
++ ## 当前工作（程序注入的相关摘要，内部上下文，不向员工复述标识）
++ title: 原生续接
++ goal: ""
++ origin: 完成prd.md
++ requirement_version: 4
++ materials: []
++ confirmed: []
++ acceptance_baseline_version: 82ad260039ff26732022a5fe778595c0c6dc5a386219c160845f735dd0833140
++ completion:
++   state: partial
++   label: 部分完成
++   business: 部分完成
++   gaps:
++     - 成果版本尚未保存
++     - 成果未保存或版本未审：prd.md
++     - R1
++     - R3
++     - R4
++     - 存在尚无有效判定（no_result）的必需项
++   items:
++     - id: R1
++       required: true
++       necessity: required
++       state: no_result
++       files:
++         - prd.md
++       version_drift:
++         - prd.md
++       reason:
++         code: version_conflict
++         note: 被审版本或要求已变化（prd.md），旧结论不能作为当前版本的判定
++     - id: R3
++       required: true
++       necessity: required
++       state: no_result
++       files:
++         - prd.md
++       version_drift:
++         - prd.md
++       reason:
++         code: version_conflict
++         note: 被审版本或要求已变化（prd.md），旧结论不能作为当前版本的判定
++     - id: R4
++       required: true
++       necessity: required
++       state: no_result
++       files:
++         - prd.md
++       version_drift:
++         - prd.md
++       reason:
++         code: version_conflict
++         note: 被审版本或要求已变化（prd.md），旧结论不能作为当前版本的判定
++   counts:
++     denominator: 3
++     met: 0
++     unmet: 0
++     unverifiable: 0
++     no_result: 3
++     q1: 0
++     no_result_rate: 1
++   no_result:
++     - id: R1
++       code: version_conflict
++       note: 被审版本或要求已变化（prd.md），旧结论不能作为当前版本的判定
++     - id: R3
++       code: version_conflict
++       note: 被审版本或要求已变化（prd.md），旧结论不能作为当前版本的判定
++     - id: R4
++       code: version_conflict
++       note: 被审版本或要求已变化（prd.md），旧结论不能作为当前版本的判定
++   progress_only: false
++ decisions: []
++ suggestions: []
++ pending: []
++ deliverables:
++   - filename: prd.md
++     status: 草稿 · 保存失败
++     sha256: 2e0ebf917ce88a5a53bcad8ba587aa3c897ba710ebb7cbc8ad7af8f58f8ceff1
++ nodes:
++   - id: outcome-1
++     title: 形成方案与流程
++     filenames:
++       - prd.md
++ last_progress: 部分完成：正式保存失败。草稿与旧正式版保留。隔离注入：正式提交失败
++ delivery_receipt:
++   id: delivery:fe861a2b8829a75ff50e72555b737253d6a0f74514557f40efcad0abe0f33334
++   at: 2026-09-25T12:57:21.094Z
++   task_key: 原生续接
++   reviewed_hashes:
++     prd.md: 26152624eb74ba6025731226218f80eec5ed0729d98f125542e188f7afaf92d8
++   state: failed
++   correction: false
++   text: 部分完成：正式保存失败。草稿与旧正式版保留。隔离注入：正式提交失败
++   targets:
++     - kind: previous
++       filename: prd.md
++       sha256: 2e0ebf917ce88a5a53bcad8ba587aa3c897ba710ebb7cbc8ad7af8f58f8ceff1
++       path: 产物/原生续接/prd.md
++     - kind: draft
++       filename: prd.md
++       sha256: 26152624eb74ba6025731226218f80eec5ed0729d98f125542e188f7afaf92d8
++       task_key: 原生续接
++       path: .任务/原生续接/产物快照/prd.md
++ side_topics: []
++
++ ## 有效要求（程序绑定；优先于主 Agent 的 prompt/message/focus 与工作计划）
++ 来源优先级：系统权限与产品最低规则不可由计划覆盖；用户原始要求及有效决定决定目标，解释/假设不是用户决定。改变用途、证据要求或交付范围须走有效决定/范围变更；执行后接受局限不追溯改写。
++ 用户原始依据：[{"id":"origin","kind":"user_request","text":"完成prd.md","at":"2026-09-25T12:57:20.662Z"}]
++ 真实能力策略（不是用户禁令；配置可用不代表实际调用成功）：{"browser":"disabled","public_web":"authorized_members_only","judge_web":"disabled","availability":"not_probed"}。公开搜索/正文读取与浏览器自动化分开；未配置、调用失败、未尝试须据实际工具结果记录。
++ 产品规则与版本（不是用户原话）：{"revision":"promax-product-team@r10","rules":[]}
++ 主 Agent 的理解/计划（非权威）：""
++ 未确认假设/建议：[]
++ 全任务验收基准（必需性不可豁免）：{"protocol":1,"version":"82ad260039ff26732022a5fe778595c0c6dc5a386219c160845f735dd0833140","requirement_version":4,"items":[{"id":"R1","text":"范围、用途与原始要求及有效决定一致；主 Agent 新增限制有真实来源；基准未遗漏原始目标。","required":true,"necessity":"required","source_refs":["origin"],"files":["prd.md"],"source_kind":"user_request","evidence_basis":["requirement_record"],"evidence_obligation":{"question":"本次交付范围与用途是否由用户原始要求/有效决定确定，主 Agent 的限制是否有权限或用户依据","min_basis":"原始要求与有效决定记录；无来源的限制不升级为权威要求；修改用途须走有效决定"},"capability_obligation":["读取原始要求、事件与决定记录","范围变更留版本"]},{"id":"R3","text":"事实、推断、未知及结论强度一致；未尝试/失败/未发现不推导不存在，保留时效与口径限制。","required":true,"necessity":"required","source_refs":["product:effective-requirements/1"],"files":["prd.md"],"source_kind":"product_rule","evidence_obligation":{"question":"每个关键结论的类型（当期事实/比较/变化/趋势/总体/原因）是否有匹配强度的依据，未知是否如实保留","min_basis":"结论类型对应的最低依据；不支持时降级表述并重新核对原目标，不用措辞换取满足率"},"capability_obligation":["按结论类型判断最低依据","保留时点与口径限制"]},{"id":"R4","text":"本次必交成果已保存、可读取；当前版本、引用和依据可追溯。","required":true,"necessity":"required","source_refs":["origin"],"files":["prd.md"],"source_kind":"product_rule","evidence_basis":["program_check"],"evidence_obligation":{"question":"当前被审版本是否与实际保存的成果字节一致，关键结论能否定位回正文与依据","min_basis":"程序保存的成果哈希、版本与可读入口；结论关联与来源版本一致"},"capability_obligation":["成果哈希与版本绑定","可读入口检查"]}],"files":["prd.md"]}
++ 本次须逐项回报的 scope IDs：["R1","R3","R4"]。scope 外不默认为满足。
++ ## 待处理输入（0 项；按优先级排列，每项都要在 promax_work_proposal 的 handled_events 中处理）
++ 无
++ ## Agent Status（程序产生，只读）
++ control: 讨论中
++ requirement_version: 4
++ execution_version: 4
++ steps:
++   - step: prd.md
++     control: 讨论中
++ blocks: []
++
++ 可采用信息交接（非成员结束；主 Agent 判断适用性并派工）：[]
++ 本轮：intent: execute
++ deliverables:
++   - prd.md
++ phase: ended
++ started: true
++ judge_round: 1
++ task_key: 原生续接
++ last_check:
++   report: .任务/原生续接/判定-r1.md
++   judge_round: 1
++   verdict: PASS
++
++ 本次任务包：.任务/原生续接/任务包.yml
++ 最近检查报告（按需读取原文）：.任务/原生续接/判定-r1.md
++ 评分样本简洁交付不扩成全量长模板：安排成员先用promax_rating_facts取得统计，必要记录原文按需读。普通追问只回答并提交intent=answer，不新建任务/重评。材料替换沿用当前成果，仅更新程序版本对照指出的统计、相关结论和必要交叉影响；不合并新旧样本、不自动新增分析维度。Judge读取程序事实，不安排其手工重数。
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:775:19
+    773|   expect(context).toContain(`state: ${state}`);
+    774|   expect(context).not.toContain("gaps: []");
+    775|   expect(context).toContain("pending: true");
+       |                   ^
+    776|   w.setParentText((options: any) => JSON.stringify(options.messages ??…
+    777|     ? `交付说明（${state}）：草稿与旧版可看，缺口和限制以回执为准。`
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SE03 unknown：说明输入带实际状态与缺口，回执不被改写
+AssertionError: expected '## 当前工作（程序注入的相关摘要，内部上下文，不向员工复述标识）\nti…' to contain 'pending: true'
+
+- Expected
++ Received
+
+- pending: true
++ ## 当前工作（程序注入的相关摘要，内部上下文，不向员工复述标识）
++ title: 原生续接
++ goal: ""
++ origin: 完成prd.md
++ requirement_version: 4
++ materials: []
++ confirmed: []
++ acceptance_baseline_version: 79db692edcbfdd6704fecfe89b97976a6d90bc0e100b7cf6f4bb9ebc39d398a3
++ completion:
++   state: partial
++   label: 部分完成
++   business: 部分完成
++   gaps:
++     - 成果版本尚未保存
++     - 成果未保存或版本未审：prd.md
++     - R1
++     - R3
++     - R4
++     - 存在尚无有效判定（no_result）的必需项
++   items:
++     - id: R1
++       required: true
++       necessity: required
++       state: no_result
++       files:
++         - prd.md
++       version_drift:
++         - prd.md
++       reason:
++         code: version_conflict
++         note: 被审版本或要求已变化（prd.md），旧结论不能作为当前版本的判定
++     - id: R3
++       required: true
++       necessity: required
++       state: no_result
++       files:
++         - prd.md
++       version_drift:
++         - prd.md
++       reason:
++         code: version_conflict
++         note: 被审版本或要求已变化（prd.md），旧结论不能作为当前版本的判定
++     - id: R4
++       required: true
++       necessity: required
++       state: no_result
++       files:
++         - prd.md
++       version_drift:
++         - prd.md
++       reason:
++         code: version_conflict
++         note: 被审版本或要求已变化（prd.md），旧结论不能作为当前版本的判定
++   counts:
++     denominator: 3
++     met: 0
++     unmet: 0
++     unverifiable: 0
++     no_result: 3
++     q1: 0
++     no_result_rate: 1
++   no_result:
++     - id: R1
++       code: version_conflict
++       note: 被审版本或要求已变化（prd.md），旧结论不能作为当前版本的判定
++     - id: R3
++       code: version_conflict
++       note: 被审版本或要求已变化（prd.md），旧结论不能作为当前版本的判定
++     - id: R4
++       code: version_conflict
++       note: 被审版本或要求已变化（prd.md），旧结论不能作为当前版本的判定
++   progress_only: false
++ decisions: []
++ suggestions: []
++ pending: []
++ deliverables:
++   - filename: prd.md
++     status: 保存结果待核
++     sha256: 2e0ebf917ce88a5a53bcad8ba587aa3c897ba710ebb7cbc8ad7af8f58f8ceff1
++ nodes:
++   - id: outcome-1
++     title: 形成方案与流程
++     filenames:
++       - prd.md
++ last_progress: "保存结果待核：不宣称正式完成，不自动重复提交。EEXIST: file already exists, mkdir
++   '/private/tmp/promax-controls-ZmQbGP/projects/product/产物/.commit-lock'"
++ delivery_receipt:
++   id: delivery:ea34ef2ecd04bb59c694d6300063f673ead6e289afdd03b3d21a60189e0fc511
++   at: 2026-09-25T12:57:21.607Z
++   task_key: 原生续接
++   reviewed_hashes:
++     prd.md: 26152624eb74ba6025731226218f80eec5ed0729d98f125542e188f7afaf92d8
++   state: unknown
++   correction: false
++   text: "保存结果待核：不宣称正式完成，不自动重复提交。EEXIST: file already exists, mkdir
++     '/private/tmp/promax-controls-ZmQbGP/projects/product/产物/.commit-lock'"
++   targets:
++     - kind: previous
++       filename: prd.md
++       sha256: 2e0ebf917ce88a5a53bcad8ba587aa3c897ba710ebb7cbc8ad7af8f58f8ceff1
++       path: 产物/原生续接/prd.md
++     - kind: draft
++       filename: prd.md
++       sha256: 26152624eb74ba6025731226218f80eec5ed0729d98f125542e188f7afaf92d8
++       task_key: 原生续接
++       path: .任务/原生续接/产物快照/prd.md
++ side_topics: []
++
++ ## 有效要求（程序绑定；优先于主 Agent 的 prompt/message/focus 与工作计划）
++ 来源优先级：系统权限与产品最低规则不可由计划覆盖；用户原始要求及有效决定决定目标，解释/假设不是用户决定。改变用途、证据要求或交付范围须走有效决定/范围变更；执行后接受局限不追溯改写。
++ 用户原始依据：[{"id":"origin","kind":"user_request","text":"完成prd.md","at":"2026-09-25T12:57:21.177Z"}]
++ 真实能力策略（不是用户禁令；配置可用不代表实际调用成功）：{"browser":"disabled","public_web":"authorized_members_only","judge_web":"disabled","availability":"not_probed"}。公开搜索/正文读取与浏览器自动化分开；未配置、调用失败、未尝试须据实际工具结果记录。
++ 产品规则与版本（不是用户原话）：{"revision":"promax-product-team@r10","rules":[]}
++ 主 Agent 的理解/计划（非权威）：""
++ 未确认假设/建议：[]
++ 全任务验收基准（必需性不可豁免）：{"protocol":1,"version":"79db692edcbfdd6704fecfe89b97976a6d90bc0e100b7cf6f4bb9ebc39d398a3","requirement_version":4,"items":[{"id":"R1","text":"范围、用途与原始要求及有效决定一致；主 Agent 新增限制有真实来源；基准未遗漏原始目标。","required":true,"necessity":"required","source_refs":["origin"],"files":["prd.md"],"source_kind":"user_request","evidence_basis":["requirement_record"],"evidence_obligation":{"question":"本次交付范围与用途是否由用户原始要求/有效决定确定，主 Agent 的限制是否有权限或用户依据","min_basis":"原始要求与有效决定记录；无来源的限制不升级为权威要求；修改用途须走有效决定"},"capability_obligation":["读取原始要求、事件与决定记录","范围变更留版本"]},{"id":"R3","text":"事实、推断、未知及结论强度一致；未尝试/失败/未发现不推导不存在，保留时效与口径限制。","required":true,"necessity":"required","source_refs":["product:effective-requirements/1"],"files":["prd.md"],"source_kind":"product_rule","evidence_obligation":{"question":"每个关键结论的类型（当期事实/比较/变化/趋势/总体/原因）是否有匹配强度的依据，未知是否如实保留","min_basis":"结论类型对应的最低依据；不支持时降级表述并重新核对原目标，不用措辞换取满足率"},"capability_obligation":["按结论类型判断最低依据","保留时点与口径限制"]},{"id":"R4","text":"本次必交成果已保存、可读取；当前版本、引用和依据可追溯。","required":true,"necessity":"required","source_refs":["origin"],"files":["prd.md"],"source_kind":"product_rule","evidence_basis":["program_check"],"evidence_obligation":{"question":"当前被审版本是否与实际保存的成果字节一致，关键结论能否定位回正文与依据","min_basis":"程序保存的成果哈希、版本与可读入口；结论关联与来源版本一致"},"capability_obligation":["成果哈希与版本绑定","可读入口检查"]}],"files":["prd.md"]}
++ 本次须逐项回报的 scope IDs：["R1","R3","R4"]。scope 外不默认为满足。
++ ## 待处理输入（0 项；按优先级排列，每项都要在 promax_work_proposal 的 handled_events 中处理）
++ 无
++ ## Agent Status（程序产生，只读）
++ control: 讨论中
++ requirement_version: 4
++ execution_version: 4
++ steps:
++   - step: prd.md
++     control: 讨论中
++ blocks: []
++
++ 可采用信息交接（非成员结束；主 Agent 判断适用性并派工）：[]
++ 本轮：intent: execute
++ deliverables:
++   - prd.md
++ phase: ended
++ started: true
++ judge_round: 1
++ task_key: 原生续接
++ last_check:
++   report: .任务/原生续接/判定-r1.md
++   judge_round: 1
++   verdict: PASS
++
++ 本次任务包：.任务/原生续接/任务包.yml
++ 最近检查报告（按需读取原文）：.任务/原生续接/判定-r1.md
++ 评分样本简洁交付不扩成全量长模板：安排成员先用promax_rating_facts取得统计，必要记录原文按需读。普通追问只回答并提交intent=answer，不新建任务/重评。材料替换沿用当前成果，仅更新程序版本对照指出的统计、相关结论和必要交叉影响；不合并新旧样本、不自动新增分析维度。Judge读取程序事实，不安排其手工重数。
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:775:19
+    773|   expect(context).toContain(`state: ${state}`);
+    774|   expect(context).not.toContain("gaps: []");
+    775|   expect(context).toContain("pending: true");
+       |                   ^
+    776|   w.setParentText((options: any) => JSON.stringify(options.messages ??…
+    777|     ? `交付说明（${state}）：草稿与旧版可看，缺口和限制以回执为准。`
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SE04 说明回合只读：派工/提案/回执/检查/写改与统计计算被拒，只读可用
+AssertionError: expected +0 to be 6 // Object.is equality
+
+- Expected
++ Received
+
+- 6
++ 0
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:805:47
+    803|   explainSettledDelivery(w);
+    804|   w.unparkParent(); w.releaseJudge(); await w.ended(w.judge); await w.…
+    805|   await vi.waitFor(() => expect(results.size).toBe(6));
+       |                                               ^
+    806|   for (const name of ["solution_design", "promax_work_proposal", "prom…
+    807|     expect(results.get(name)!.isError, `${name}: ${JSON.stringify(resu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SE06 重复通知/重复结束/冷读不重复说明；correction 触发一次更正说明且历史保留
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:825:25
+    823|   await vi.waitFor(async () => expect((await w.store.read(w.key)).deli…
+    824|   const parentTurns = () => w.turns.filter(id => id === w.parent.id).l…
+    825|   expect(parentTurns()).toBe(1);
+       |                         ^
+    826|   const notice = w.endings.find(e => e.id === w.judge);
+    827|   await Promise.all([1, 2, 3].map(() => w.ctx.parallel("subagent/end",…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SE07 说明回合失败只保留回执不重试；混批员工问题公开回答且说明不吞输入
+AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:862:68
+    860|   const failedReceipt = (await failed.store.read(failed.key)).delivery…
+    861|   expect(parentVisibleText(failed)).toBe("");
+    862|   expect((await failed.store.read(failed.key)).explained_receipts).toC…
+       |                                                                    ^
+    863|   failed.parent.followup(deliveryNotice(failed.judge)); await failed.p…
+    864|   expect(attempts).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 27 skipped (35)
+   Start at  08:57:18
+   Duration  5.96s (transform 529ms, setup 134ms, import 966ms, tests 4.80s, environment 0ms)
+

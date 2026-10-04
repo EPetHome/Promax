@@ -1,0 +1,19 @@
+2026-09-25T04:29:29Z
+LISTENER
+COMMAND   PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    68452 Admin   17u  IPv4 0x4d0fde61b1806bb1      0t0  TCP 127.0.0.1:8800 (LISTEN)
+PROC
+  PID  PPID STARTED                       ELAPSED STAT COMMAND
+68452     1 Thu Sep 24 05:40:39 2026     18:48:50 SN   /Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open
+p68452
+fcwd
+n/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+COMMAND   PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    68452 Admin   17u  IPv4 0x4d0fde61b1806bb1      0t0  TCP 127.0.0.1:8800 (LISTEN)
+node    68452 Admin   21u  IPv4 0x9183f9765d0a2fee      0t0  TCP 127.0.0.1:8800->127.0.0.1:49813 (ESTABLISHED)
+node    68452 Admin   30u  IPv4 0x749155b7bbb9ac05      0t0  TCP 127.0.0.1:8800->127.0.0.1:49815 (ESTABLISHED)
+node    68452 Admin   35u  IPv4 0xd18f2718f0a4416b      0t0  TCP 127.0.0.1:8800->127.0.0.1:49820 (ESTABLISHED)
+SESSION RECENT
+TASK STATES RECENT
+PRESET
+drwxr-xr-x@ 8 Admin  staff  256 Sep 22 09:36 /Users/Admin/.dsh-promax-first/.agent-presets/promax-team

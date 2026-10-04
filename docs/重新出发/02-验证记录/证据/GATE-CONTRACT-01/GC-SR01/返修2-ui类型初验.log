@@ -1,0 +1,8 @@
+packages/promax-bundle/src/promax-session-binding.ts(35,19): error TS2532: Object is possibly 'undefined'.
+packages/promax-bundle/src/promax-session-binding.ts(35,73): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+packages/promax-bundle/src/promax-session-binding.ts(35,86): error TS2532: Object is possibly 'undefined'.
+packages/promax-bundle/src/promax-session-binding.ts(37,71): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+packages/promax-bundle/src/promax-session-binding.ts(37,108): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.

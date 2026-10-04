@@ -1,0 +1,9 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 11 skipped (12)
+   Start at  00:23:14
+   Duration  1.65s (transform 483ms, setup 126ms, import 940ms, tests 136ms, environment 386ms)
+

@@ -1,0 +1,353 @@
+ D evidence/empty-project-cleanup-20260905/cleanup.mjs
+ D evidence/empty-project-cleanup-20260905/deleted.json
+ D evidence/empty-project-cleanup-20260905/inventory.json
+ D evidence/empty-project-cleanup-20260905/workspace-before.json
+ D evidence/fixed-workspace-20260905/all-tests.log
+ D evidence/fixed-workspace-20260905/baseline-tests.log
+ D evidence/fixed-workspace-20260905/build.log
+ D evidence/fixed-workspace-20260905/files-1280.png
+ D evidence/fixed-workspace-20260905/final-browser-check.json
+ D evidence/fixed-workspace-20260905/geometry-checks.json
+ D evidence/fixed-workspace-20260905/installed-ui.json
+ D evidence/fixed-workspace-20260905/new-request-1280.png
+ D evidence/fixed-workspace-20260905/trace-1024.png
+ D evidence/fixed-workspace-20260905/trace-1280.png
+ D evidence/fixed-workspace-20260905/ui-tests.log
+ D evidence/fixed-workspace-20260905/workbench-1280.png
+ D "evidence/fixed-workspace-20260905/\351\252\214\346\224\266\350\257\264\346\230\216.md"
+ D evidence/gui-00-section5-20260829/acceptance-matrix.md
+ D evidence/gui-00-section5-20260829/team-files-judge-states.png
+ D evidence/gui-00-section5-20260829/team-members-r2.png
+ D evidence/gui-00-section5-20260829/team-progress-three-columns.png
+ D evidence/gui-00-section5-20260829/team-session-empty-r2.png
+ D evidence/gui-00-section5-20260829/team-session-toolbar-r2.png
+ D evidence/gui-brand-toolbar-20260829/logo-and-toolbar-0.3.8.jpg
+ D evidence/gui-brand-toolbar-20260829/verification.md
+ D evidence/gui-composer-controls-20260830/01-team-session-composer.png
+ D evidence/gui-composer-controls-20260830/02-attachment-hover-tooltip.png
+ D evidence/gui-composer-controls-20260830/03-attachment-filechooser-focus.png
+ D evidence/gui-composer-controls-20260830/04-attachment-keyboard-focus.png
+ D evidence/gui-composer-controls-20260830/05-navigation-draft.png
+ D evidence/gui-composer-controls-20260830/06-navigation-team-home.png
+ D evidence/gui-composer-controls-20260830/07-team-home-one-click-draft.png
+ D evidence/gui-composer-controls-20260830/08-breadcrumb-team-home.png
+ D evidence/gui-composer-controls-20260830/09-breadcrumb-project-home.png
+ D evidence/gui-composer-controls-20260830/fixture.e2e.ts
+ D evidence/gui-composer-controls-20260830/verification.md
+ D evidence/gui-composer-controls-20260830/vitest.config.ts
+ D evidence/gui-handoff-browser-20260831/01-yellow-draft-banner.png
+ D evidence/gui-handoff-browser-20260831/02-yellow-banner-handoff-enabled.png
+ D evidence/gui-handoff-browser-20260831/03-transfer-dialog.png
+ D evidence/gui-handoff-browser-20260831/04-team-session-started.png
+ D evidence/gui-handoff-browser-20260831/05-listed-draft-handoff-enabled.png
+ D evidence/gui-handoff-browser-20260831/06-transfer-dialog-listed-draft.png
+ D evidence/gui-handoff-browser-20260831/07-team-session-from-listed-draft.png
+ D evidence/gui-handoff-browser-20260831/08-returned-to-original-draft.png
+ D evidence/gui-handoff-browser-20260831/14-final-new-draft-yellow-banner.png
+ D evidence/gui-handoff-browser-20260831/15-final-handoff-enabled.png
+ D evidence/gui-handoff-browser-20260831/16-final-transfer-dialog.png
+ D evidence/gui-handoff-browser-20260831/17-final-team-session-started.png
+ D evidence/gui-handoff-browser-20260831/18-final-returned-to-source-draft.png
+ D evidence/gui-hero-mark-removed-20260830/hero-mark-removed-0.3.35.png
+ D evidence/gui-hero-mark-removed-20260830/project-trajectory-no-whale-0.3.35.png
+ D evidence/gui-hero-mark-removed-20260830/verification.md
+ D evidence/gui-p0-20260828/01-native-team-conversation-1440x900.png
+ D evidence/gui-p0-20260828/02-pending-question-1440x900.png
+ D evidence/gui-p0-20260828/03-continuous-messages-1440x900.png
+ D evidence/gui-p0-20260828/04-settings-1280x800.png
+ D evidence/gui-p0-20260828/05-settings-1440x900.png
+ D evidence/gui-p0-20260828/06-team-pagination-1280x800.png
+ D evidence/gui-r2-routing-20260829/judge-routed-mention.png
+ D evidence/gui-r2-routing-20260829/runtime-roster-with-judge.png
+ D evidence/gui-r2-routing-20260829/team-home-r2-final.png
+ D evidence/gui-r2-routing-20260829/team-home-r2-roster.png
+ D evidence/gui-r4-routing-20260830/historical-r3-session-0.3.37.png
+ D evidence/gui-r4-routing-20260830/r4-eight-deliverables-0.3.37.png
+ D evidence/gui-r4-routing-20260830/verification.md
+ D evidence/gui-r5-routing-20260830/verification.md
+ D evidence/gui-room-v033-20260828/01-team-room-home-1440x900.png
+ D evidence/gui-room-v033-20260828/02-native-team-conversation-1440x900.png
+ D evidence/gui-room-v033-20260828/03-team-settings-1280x800.png
+ D evidence/gui-room-v033-20260828/04-unconfigured-team-room-1440x900.png
+ D evidence/gui-runtime-projections-20260830/01-workbench-cp3-final.png
+ D evidence/gui-runtime-projections-20260830/02-both-collapsed-recoverable.png
+ D evidence/gui-runtime-projections-20260830/03-task-trace-final.png
+ D evidence/gui-runtime-projections-20260830/04-deliverables-final.png
+ D evidence/gui-runtime-projections-20260830/05-responsive-1180.png
+ D evidence/gui-runtime-projections-20260830/06-responsive-820.png
+ D evidence/gui-runtime-projections-20260830/07-responsive-480.png
+ D evidence/gui-runtime-projections-20260830/verification.md
+ D evidence/gui-runtime-projections-20260830/workbench-cp3.png
+ D evidence/gui-runtime-projections-20260830/workbench-running.png
+ D evidence/gui-shell-v3-20260830/deliverables-final-1280x720.jpg
+ D evidence/gui-shell-v3-20260830/deliverables-wide-1280x720.png
+ D evidence/gui-shell-v3-20260830/draft-final-1280x720.jpg
+ D evidence/gui-shell-v3-20260830/draft-wide-1280x720.png
+ D evidence/gui-shell-v3-20260830/draft-wide-fixed-1280x720.png
+ D evidence/gui-shell-v3-20260830/project-workbench-composer-wide-1280x720.png
+ D evidence/gui-shell-v3-20260830/project-workbench-final-1280x720.jpg
+ D evidence/gui-shell-v3-20260830/project-workbench-wide-1280x720.png
+ D evidence/gui-shell-v3-20260830/responsive-1180x760.png
+ D evidence/gui-shell-v3-20260830/responsive-480x760.png
+ D evidence/gui-shell-v3-20260830/responsive-820x760-before-drawer-fix.png
+ D evidence/gui-shell-v3-20260830/responsive-820x760.png
+ D evidence/gui-shell-v3-20260830/responsive-final-1180x760.jpg
+ D evidence/gui-shell-v3-20260830/responsive-final-480x760.jpg
+ D evidence/gui-shell-v3-20260830/responsive-final-820x760.jpg
+ D evidence/gui-shell-v3-20260830/verification.md
+ D evidence/gui-shell-v3-20260830/workbench-final-1280x720.jpg
+ D evidence/gui-shell-v3-20260830/workbench-toast-final-1280x720.jpg
+ D evidence/gui-shell-v3-20260830/workbench-wide-1280x720.png
+ D evidence/gui-shell-v3-collapse-composer-fix-20260830/01-workbench-final.png
+ D evidence/gui-shell-v3-collapse-composer-fix-20260830/02-both-panels-collapsed-recoverable.png
+ D evidence/gui-shell-v3-collapse-composer-fix-20260830/03-task-trace-telemetry.png
+ D evidence/gui-shell-v3-collapse-composer-fix-20260830/04-responsive-1180.png
+ D evidence/gui-shell-v3-collapse-composer-fix-20260830/05-responsive-820.png
+ D evidence/gui-shell-v3-collapse-composer-fix-20260830/06-responsive-480.png
+ D evidence/gui-shell-v3-collapse-composer-fix-20260830/07-navigation-draft-exit.png
+ D evidence/gui-shell-v3-collapse-composer-fix-20260830/verification.md
+ D evidence/gui-team-stop-20260830/team-workbench-0.3.38.png
+ D evidence/gui-team-stop-20260830/verification.md
+ D evidence/gui-team-stop-dynamic-20260830/dynamic-stop.e2e.ts
+ D evidence/gui-team-stop-dynamic-20260830/promax-overlay.yml
+ D evidence/gui-team-stop-dynamic-20260830/team-stop-after.png
+ D evidence/gui-team-stop-dynamic-20260830/verification.md
+ D evidence/gui-team-stop-dynamic-20260830/vitest.config.ts
+ D evidence/gui-theme-step1-20260830/theme-3184.png
+ D evidence/gui-theme-step1-20260830/verification.md
+ D evidence/manual-real-use-checklist.md
+ D evidence/original-style-fixed-frame-20260905/browser-checks.json
+ D evidence/original-style-fixed-frame-20260905/build-console-final.log
+ D evidence/original-style-fixed-frame-20260905/build.log
+ D evidence/original-style-fixed-frame-20260905/files-1280.png
+ D evidence/original-style-fixed-frame-20260905/install-final.log
+ D evidence/original-style-fixed-frame-20260905/install.log
+ D evidence/original-style-fixed-frame-20260905/installed-ui.json
+ D evidence/original-style-fixed-frame-20260905/new-request-1280.png
+ D evidence/original-style-fixed-frame-20260905/package-final.log
+ D evidence/original-style-fixed-frame-20260905/package.log
+ D evidence/original-style-fixed-frame-20260905/style-restoration.patch
+ D evidence/original-style-fixed-frame-20260905/tests.log
+ D evidence/original-style-fixed-frame-20260905/trace-1280.png
+ D evidence/original-style-fixed-frame-20260905/typecheck-final.log
+ D evidence/original-style-fixed-frame-20260905/typecheck.log
+ D evidence/original-style-fixed-frame-20260905/ui-tests-final.log
+ D evidence/original-style-fixed-frame-20260905/ui-tests.log
+ D evidence/original-style-fixed-frame-20260905/workbench-1024.png
+ D evidence/original-style-fixed-frame-20260905/workbench-1280.png
+ D "evidence/original-style-fixed-frame-20260905/\351\252\214\346\224\266\350\257\264\346\230\216.md"
+ D evidence/output-access-20260905/all-tests.log
+ D evidence/output-access-20260905/browser-checks.json
+ D evidence/output-access-20260905/build-final.log
+ D evidence/output-access-20260905/build.log
+ D evidence/output-access-20260905/files-1280.png
+ D evidence/output-access-20260905/install-final.log
+ D evidence/output-access-20260905/install.log
+ D evidence/output-access-20260905/installed-packages.json
+ D evidence/output-access-20260905/outputs-tests.log
+ D evidence/output-access-20260905/package-final.log
+ D evidence/output-access-20260905/package.log
+ D evidence/output-access-20260905/preview-1024.png
+ D evidence/output-access-20260905/preview-1280.png
+ D evidence/output-access-20260905/typecheck-final.log
+ D evidence/output-access-20260905/typecheck.log
+ D evidence/output-access-20260905/ui-tests-final.log
+ D evidence/output-access-20260905/ui-tests.log
+ D evidence/output-access-20260905/workbench-1280.png
+ D "evidence/output-access-20260905/\351\252\214\346\224\266\350\257\264\346\230\216.md"
+ D evidence/phase2-step2-failure/index.html
+ D evidence/phase2-step2-failure/main.tsx
+ D evidence/project-files-20260906/README.md
+ D evidence/project-files-20260906/before/packages/promax-bundle/src/index.ts
+ D evidence/project-files-20260906/before/packages/promax-bundle/src/task-artifact.ts
+ D evidence/project-files-20260906/before/packages/promax-ui-console/src/client/PromaxWorkspaceShell.tsx
+ D evidence/project-files-20260906/before/packages/promax-ui-console/src/client/TaskOutputs.tsx
+ D evidence/project-files-20260906/before/packages/promax-ui-console/src/client/index.tsx
+ D evidence/project-files-20260906/before/packages/promax-ui-console/src/client/team-state.ts
+ D evidence/project-files-20260906/before/packages/promax-ui-console/src/workbench-styles.ts
+ D evidence/project-files-20260906/before/packages/promax-ui-console/tests/workspace-shell.test.tsx.txt
+ D evidence/project-files-20260906/bundle-build.log
+ D evidence/project-files-20260906/install-deps.log
+ D evidence/project-files-20260906/installed.json
+ D evidence/project-files-20260906/package.log
+ D evidence/project-files-20260906/runtime-checks.json
+ D evidence/project-files-20260906/runtime-install-ui.log
+ D evidence/project-files-20260906/runtime-install.log
+ D evidence/project-files-20260906/server.log
+ D evidence/project-files-20260906/task.diff
+ D evidence/project-files-20260906/tests.log
+ D evidence/project-files-20260906/typecheck.log
+ D evidence/project-files-20260906/ui-build.log
+ D evidence/project-tree-20260905/before/PromaxWorkspaceShell.tsx
+ D evidence/project-tree-20260905/before/installed-release-sha256
+ D evidence/project-tree-20260905/before/styles.ts
+ D evidence/project-tree-20260905/before/workbench-styles.ts
+ D evidence/project-tree-20260905/before/workspace-shell.test.tsx
+ D evidence/project-tree-20260905/package.log
+ D evidence/project-tree-20260905/verification.json
+ D evidence/prx-006-complete-assembly-2026-09-02/README.md
+ D evidence/prx-006-complete-assembly-2026-09-02/code-audit-r1.md
+ D evidence/prx-006-complete-assembly-2026-09-02/code-audit-r2.md
+ D evidence/prx-006-complete-assembly-2026-09-02/customer-research-persona.md
+ D evidence/prx-006-complete-assembly-2026-09-02/fixed-preset-install.md
+ D evidence/prx-006-complete-assembly-2026-09-02/human-verification-index.md
+ D evidence/prx-006-complete-assembly-2026-09-02/module-tests.md
+ D evidence/prx-006-complete-assembly-2026-09-02/product-discovery-persona.md
+ D evidence/prx-006-complete-assembly-2026-09-02/product-solution-persona.md
+ D evidence/prx-006-complete-assembly-2026-09-02/requirement-management-persona.md
+ D evidence/prx-006-complete-assembly-2026-09-02/requirement-review-persona.md
+ D evidence/prx-006-complete-assembly-2026-09-02/runtime-smoke.md
+ D evidence/prx-006-complete-assembly-2026-09-02/settings-mcp-credentials.md
+ D evidence/prx-006-complete-assembly-2026-09-02/skills-and-personas.md
+ D evidence/prx-006-complete-assembly-2026-09-02/team-coordinator-persona.md
+ D evidence/prx-006-complete-assembly-2026-09-02/user-analysis-persona.md
+ D evidence/prx-006-complete-assembly-2026-09-02/web-judge-telemetry.md
+ D evidence/recycle-bin-20260905/README.md
+ D evidence/recycle-bin-20260905/before/PromaxWorkspaceShell.tsx
+ D evidence/recycle-bin-20260905/before/bundle-index.ts
+ D evidence/recycle-bin-20260905/before/client-index.tsx
+ D evidence/recycle-bin-20260905/before/styles.ts
+ D evidence/recycle-bin-20260905/before/workbench-styles.ts
+ D evidence/recycle-bin-20260905/final-tests.log
+ D evidence/recycle-bin-20260905/installed.json
+ D evidence/recycle-bin-20260905/package-final.log
+ D evidence/recycle-bin-20260905/package.log
+ D evidence/recycle-bin-20260905/running-guard.json
+ D evidence/recycle-bin-20260905/runtime-check.mjs
+ D evidence/recycle-bin-20260905/runtime-fixture.json
+ D evidence/recycle-bin-20260905/runtime-results.json
+ D evidence/recycle-bin-20260905/ui-build.log
+ D evidence/recycle-bin-20260905/ui-checks.json
+ D evidence/step7-stop-judge-closure-2026-09-04.md
+ M packages/promax-bundle/cordis.patch.yml
+ M packages/promax-bundle/package.json
+ M packages/promax-bundle/src/index.ts
+ M packages/promax-bundle/src/task-artifact.ts
+ M packages/promax-bundle/tests/session-output.test.ts
+ M packages/promax-ui-console/package.json
+ M packages/promax-ui-console/src/client/PromaxSettings.tsx
+ M packages/promax-ui-console/src/client/PromaxWorkspaceShell.tsx
+ M packages/promax-ui-console/src/client/TaskTrace.tsx
+ M packages/promax-ui-console/src/client/company-connection.tsx
+ M packages/promax-ui-console/src/client/index.tsx
+ M packages/promax-ui-console/src/client/task-attachments.ts
+ M packages/promax-ui-console/src/client/team-state.ts
+ M packages/promax-ui-console/src/components/BrandAssets.tsx
+ M packages/promax-ui-console/src/components/PromaxConsole.tsx
+ M packages/promax-ui-console/src/data/api-client.ts
+ M packages/promax-ui-console/src/workbench-styles.ts
+ M packages/promax-ui-console/tests/brand-assets.test.tsx
+ M packages/promax-ui-console/tests/bundle-policy.test.ts
+ M packages/promax-ui-console/tests/company-connection.test.tsx
+ M packages/promax-ui-console/tests/promax-settings.test.tsx
+ M packages/promax-ui-console/tests/shell-registration.test.tsx
+ M packages/promax-ui-console/tests/task-trace.test.tsx
+ M packages/promax-ui-console/tests/team-state.test.ts
+ M packages/promax-ui-console/tests/workspace-shell.test.tsx
+ M packages/promax-ui-console/tsdown.config.ts
+ M packages/promax-ui-layout/src/client/index.tsx
+ M packages/promax-ui-layout/tests/layout.test.tsx
+ M pnpm-lock.yaml
+ M scripts/package-distribution.mjs
+ D scripts/start-real-use.sh
+ M tsconfig.json
+ M vitest.config.ts
+?? packages/promax-bundle/src/acceptance-baseline.ts
+?? packages/promax-bundle/src/artifact-edit.ts
+?? packages/promax-bundle/src/artifact-operations.ts
+?? packages/promax-bundle/src/chain-metrics.ts
+?? packages/promax-bundle/src/context-budget.ts
+?? packages/promax-bundle/src/delivery.ts
+?? packages/promax-bundle/src/dispatch-control.ts
+?? packages/promax-bundle/src/evaluation-records.ts
+?? packages/promax-bundle/src/evidence-links.ts
+?? packages/promax-bundle/src/handoff.ts
+?? packages/promax-bundle/src/judge-evaluation.ts
+?? packages/promax-bundle/src/judge-evidence.ts
+?? packages/promax-bundle/src/judge-report.ts
+?? packages/promax-bundle/src/promax-session-binding.ts
+?? packages/promax-bundle/src/rating-facts.ts
+?? packages/promax-bundle/src/rating-statistics.ts
+?? packages/promax-bundle/src/recording.ts
+?? packages/promax-bundle/src/report-adapter.ts
+?? packages/promax-bundle/src/request-health.ts
+?? packages/promax-bundle/src/runtime-snapshot.ts
+?? packages/promax-bundle/src/structured-results.ts
+?? packages/promax-bundle/src/task-key.ts
+?? packages/promax-bundle/src/tool-health.ts
+?? packages/promax-bundle/src/work-store.ts
+?? packages/promax-bundle/tests/acceptance-states.test.ts
+?? packages/promax-bundle/tests/chain-metrics.test.ts
+?? packages/promax-bundle/tests/chain-runtime.test.ts
+?? packages/promax-bundle/tests/delivery-concurrency.test.ts
+?? packages/promax-bundle/tests/delivery-preflight.test.ts
+?? packages/promax-bundle/tests/effective-completion.test.ts
+?? packages/promax-bundle/tests/evidence-gate-commit.test.ts
+?? packages/promax-bundle/tests/evidence-links.test.ts
+?? packages/promax-bundle/tests/first-usable-work.test.ts
+?? packages/promax-bundle/tests/input-status-clock.test.ts
+?? packages/promax-bundle/tests/judge-evaluation.test.ts
+?? packages/promax-bundle/tests/judge-reliability.test.ts
+?? packages/promax-bundle/tests/judge-repair.test.ts
+?? packages/promax-bundle/tests/material-execution.test.ts
+?? packages/promax-bundle/tests/metrics-attribution.test.ts
+?? packages/promax-bundle/tests/native-dispatch.test.ts
+?? packages/promax-bundle/tests/orchestration-closure.test.ts
+?? packages/promax-bundle/tests/promax-session-binding.test.ts
+?? packages/promax-bundle/tests/rating-usability.test.ts
+?? packages/promax-bundle/tests/recording-recovery.test.ts
+?? packages/promax-bundle/tests/review-continuity.test.ts
+?? packages/promax-bundle/tests/work-panels.test.ts
+?? packages/promax-bundle/tests/work-spine.test.ts
+?? packages/promax-bundle/tests/work-suggestions.test.ts
+?? packages/promax-ui-console/src/assets/first-usable/
+?? packages/promax-ui-console/src/client/ArtifactPreview.tsx
+?? packages/promax-ui-console/src/client/CurrentWork.tsx
+?? packages/promax-ui-console/src/client/DocPointer.tsx
+?? packages/promax-ui-console/src/client/ProgressTrunk.tsx
+?? packages/promax-ui-console/src/client/ProjectPicker.tsx
+?? packages/promax-ui-console/src/client/QuestionQueue.tsx
+?? packages/promax-ui-console/src/client/WorkActivity.tsx
+?? packages/promax-ui-console/src/client/WorkApp.tsx
+?? packages/promax-ui-console/src/client/WorkComposer.tsx
+?? packages/promax-ui-console/src/client/WorkDraft.tsx
+?? packages/promax-ui-console/src/client/WorkQuestions.tsx
+?? packages/promax-ui-console/src/client/WorkSettingsDialog.tsx
+?? packages/promax-ui-console/src/client/WorkspaceSplit.tsx
+?? packages/promax-ui-console/src/client/dialog-keyboard.ts
+?? packages/promax-ui-console/src/client/line-diff.ts
+?? packages/promax-ui-console/src/client/panel-answer.ts
+?? packages/promax-ui-console/src/client/sidebar-graph-styles.ts
+?? packages/promax-ui-console/src/client/work-api.ts
+?? packages/promax-ui-console/src/client/work-interaction.ts
+?? packages/promax-ui-console/src/client/work-layout.ts
+?? packages/promax-ui-console/src/client/work-styles.ts
+?? packages/promax-ui-console/src/client/work-timeline.ts
+?? packages/promax-ui-console/src/client/work-tree.ts
+?? packages/promax-ui-console/src/client/workspace-nav.ts
+?? packages/promax-ui-console/src/delivery-protocol.ts
+?? packages/promax-ui-console/src/effective-protocol.ts
+?? packages/promax-ui-console/src/execution-protocol.ts
+?? packages/promax-ui-console/src/request-progress.ts
+?? packages/promax-ui-console/src/review-protocol.ts
+?? packages/promax-ui-console/src/work-control.ts
+?? packages/promax-ui-console/src/work-progress.ts
+?? packages/promax-ui-console/src/work-protocol.ts
+?? packages/promax-ui-console/src/work-scope.ts
+?? packages/promax-ui-console/src/work-spine.ts
+?? packages/promax-ui-console/src/work-suggestions.ts
+?? packages/promax-ui-console/tests/artifact-preview.test.tsx
+?? packages/promax-ui-console/tests/console-defects.test.tsx
+?? packages/promax-ui-console/tests/current-work.test.tsx
+?? packages/promax-ui-console/tests/fixed-frame.test.ts
+?? packages/promax-ui-console/tests/progress-summary.test.tsx
+?? packages/promax-ui-console/tests/question-queue.test.tsx
+?? packages/promax-ui-console/tests/work-app.test.tsx
+?? packages/promax-ui-console/tests/work-questions.test.tsx
+?? packages/promax-ui-console/tests/work-route-fixture.ts
+?? packages/promax-ui-console/tests/work-scope.test.tsx
+?? packages/promax-ui-console/tests/work-timeline.test.ts
+?? packages/promax-ui-console/tests/work-tree.test.ts
+?? packages/promax-ui-console/tests/workspace-minimal.test.tsx
+?? packages/promax-ui-console/tests/workspace-nav.test.ts
+?? prototype.html

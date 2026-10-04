@@ -1,0 +1,76 @@
+{
+  "name": "@promax/team-harness",
+  "version": "0.6.18",
+  "private": true,
+  "type": "module",
+  "main": "src/dsh-adapter.mjs",
+  "exports": {
+    ".": "./src/dsh-adapter.mjs",
+    "./configurator": "./src/configurator-tool.mjs",
+    "./customer-research-validation": "./src/customer-research-validation.mjs",
+    "./external-capabilities": "./src/external-capabilities.mjs",
+    "./harness": "./src/harness.mjs",
+    "./member-skill-provider": "./src/member-skill-provider.mjs",
+    "./telemetry-runtime": "./src/telemetry-runtime.mjs",
+    "./telemetry-store": "./src/telemetry-store.mjs",
+    "./package.json": "./package.json",
+    "./first-usable/*": "./generated/r10/promax-team-r10/*",
+    "./first-usable-r9/*": "./generated/r9/promax-team/*",
+    "./first-usable-r8/*": "./generated/r8/promax-team/*",
+    "./first-usable-r7/*": "./generated/r7/promax-team/*",
+    "./first-usable-r6/*": "./generated/r6/promax-team/*",
+    "./first-usable-r5/*": "./generated/r5/promax-team/*",
+    "./first-usable-r4/*": "./generated/r4/promax-team/*",
+    "./first-usable-r3/*": "./generated/r3/promax-team/*",
+    "./first-usable-r2/*": "./generated/r2/promax-team/*"
+  },
+  "files": [
+    "agents",
+    "catalogs",
+    "modules",
+    "recipes",
+    "schemas",
+    "src/configuration.mjs",
+    "src/configurator-tool.mjs",
+    "src/cli.mjs",
+    "src/customer-research-validation.mjs",
+    "src/dsh-adapter.mjs",
+    "src/external-capabilities.mjs",
+    "src/harness.mjs",
+    "src/member-skill-provider.mjs",
+    "src/telemetry-runtime.mjs",
+    "src/telemetry-store.mjs",
+    "README.md",
+    "generated/promax-team",
+    "generated/r2/promax-team",
+    "generated/r3/promax-team",
+    "generated/r4/promax-team",
+    "generated/r5/promax-team",
+    "generated/r6/promax-team",
+    "generated/r7/promax-team",
+    "generated/r8/promax-team",
+    "generated/r9/promax-team",
+    "generated/r10/promax-team-r10"
+  ],
+  "description": "Promax 动态 Agent 团队契约、编译器与静态校验。",
+  "scripts": {
+    "catalog": "node src/cli.mjs catalog",
+    "compile:first-usable": "node src/cli.mjs compile --definition definitions/promax-product-team.yml --revision 10 --output generated/r10",
+    "compile:first-usable-r7": "node src/cli.mjs compile --definition definitions/promax-product-team.yml --revision 7 --output generated/r7",
+    "compile:first-usable-r6": "node src/cli.mjs compile --definition definitions/promax-product-team.yml --revision 6 --output generated/r6",
+    "compile:example": "node src/cli.mjs compile --definition examples/dynamic-product-team.yml --revision 1 --output generated",
+    "validate": "node src/cli.mjs validate --definition examples/dynamic-product-team.yml",
+    "validate:resources": "node src/cli.mjs validate-resources --manifest examples/team-resource-manifest.yml --definition examples/dynamic-product-team.yml",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "ajv": "8.17.1",
+    "yaml": "2.8.1"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-tools": "*"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

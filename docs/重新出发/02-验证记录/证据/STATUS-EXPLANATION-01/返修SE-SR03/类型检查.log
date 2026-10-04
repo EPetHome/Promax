@@ -1,0 +1,2 @@
+命令: node_modules/.bin/tsc --noEmit -p tsconfig.json
+exit_code=0

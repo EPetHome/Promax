@@ -1,0 +1,199 @@
+{
+  "name": "product-agent-team",
+  "version": "2.1.5",
+  "description": "Product delivery expert team: one lead orchestrating six specialist agents across customer research, competitor exploration, user analytics, requirement management, solution design and requirement review.",
+  "author": {
+    "name": "产品组",
+    "email": ""
+  },
+  "agents": [
+    "./agents/product-agent-team-lead.md",
+    "./agents/customer-research-agent.md",
+    "./agents/product-exploration-agent.md",
+    "./agents/user-analysis-agent.md",
+    "./agents/requirement-management-agent.md",
+    "./agents/product-solution-agent.md",
+    "./agents/requirement-review-agent.md"
+  ],
+  "expertType": "team",
+  "agentName": "product-agent-team-lead",
+  "teamInfo": {
+    "leadAgent": "product-agent-team-lead",
+    "memberAgents": [
+      "customer-research-agent",
+      "product-exploration-agent",
+      "user-analysis-agent",
+      "requirement-management-agent",
+      "product-solution-agent",
+      "requirement-review-agent"
+    ]
+  },
+  "displayName": {
+    "en": "Product Agent Team",
+    "zh": "产品智能体专家团"
+  },
+  "profession": {
+    "en": "Product Agent Team",
+    "zh": "产品智能体专家团"
+  },
+  "displayDescription": {
+    "en": "One lead plus six specialists covering customer research, competitor exploration, user analytics, requirement management, solution design and review.",
+    "zh": "一主六子的产品专家团，打通客户研究、竞品探索、用户数据、需求管理、方案设计与评审全链路"
+  },
+  "avatar": "avatars/杜全程.png",
+  "categoryId": "01-ProductDesign",
+  "defaultInitPrompt": {
+    "zh": "我这有一份客户访谈记录，帮我提炼需求、评估优先级，再出一份可评审的 PRD",
+    "en": "Here is a customer interview transcript: extract requirements, prioritise them, and produce a reviewable PRD"
+  },
+  "plugin": "product-agent-team",
+  "tags": [
+    {
+      "en": "Product Lifecycle",
+      "zh": "产品全流程"
+    },
+    {
+      "en": "Multi-Agent Collaboration",
+      "zh": "多智能体协同"
+    },
+    {
+      "en": "Requirement Delivery",
+      "zh": "需求交付"
+    }
+  ],
+  "quickPrompts": [
+    {
+      "zh": "我这有一份客户访谈记录，帮我提炼需求、评估优先级，再出一份可评审的 PRD",
+      "en": "Here is a customer interview transcript: extract requirements, prioritise them, and produce a reviewable PRD"
+    },
+    {
+      "zh": "对比我们和主要竞品的能力差距，给出差异面板和可借鉴项，结论要有来源",
+      "en": "Benchmark us against the main competitors, produce a difference panel and takeaways with sources"
+    },
+    {
+      "zh": "这份 PRD 帮我做多角色评审，找出逻辑矛盾和 Blocker，并跟到整改闭环",
+      "en": "Run a multi-role review on this PRD, surface logic conflicts and blockers, and track remediation to closure"
+    }
+  ],
+  "members": [
+    {
+      "id": "product-agent-team-lead",
+      "name": {
+        "en": "Du Quancheng",
+        "zh": "杜全程"
+      },
+      "displayName": {
+        "en": "Du Quancheng",
+        "zh": "杜全程"
+      },
+      "profession": {
+        "en": "Product Delivery Director",
+        "zh": "产品交付总监"
+      },
+      "avatar": "avatars/杜全程.png",
+      "role": "lead"
+    },
+    {
+      "id": "customer-research-agent",
+      "name": {
+        "en": "Gu Zhishen",
+        "zh": "顾知深"
+      },
+      "displayName": {
+        "en": "Gu Zhishen",
+        "zh": "顾知深"
+      },
+      "profession": {
+        "en": "Customer Research Specialist",
+        "zh": "客户研究专家"
+      },
+      "avatar": "avatars/顾知深.png",
+      "role": "member"
+    },
+    {
+      "id": "product-exploration-agent",
+      "name": {
+        "en": "Tan Wangyuan",
+        "zh": "谭望远"
+      },
+      "displayName": {
+        "en": "Tan Wangyuan",
+        "zh": "谭望远"
+      },
+      "profession": {
+        "en": "Product Exploration Analyst",
+        "zh": "产品探索分析师"
+      },
+      "avatar": "avatars/谭望远.png",
+      "role": "member"
+    },
+    {
+      "id": "user-analysis-agent",
+      "name": {
+        "en": "Shen Shuming",
+        "zh": "沈数明"
+      },
+      "displayName": {
+        "en": "Shen Shuming",
+        "zh": "沈数明"
+      },
+      "profession": {
+        "en": "User Data Analyst",
+        "zh": "用户数据分析师"
+      },
+      "avatar": "avatars/沈数明.png",
+      "role": "member"
+    },
+    {
+      "id": "requirement-management-agent",
+      "name": {
+        "en": "Guan Youxu",
+        "zh": "管有序"
+      },
+      "displayName": {
+        "en": "Guan Youxu",
+        "zh": "管有序"
+      },
+      "profession": {
+        "en": "Requirement Management Specialist",
+        "zh": "需求管理专员"
+      },
+      "avatar": "avatars/管有序.png",
+      "role": "member"
+    },
+    {
+      "id": "product-solution-agent",
+      "name": {
+        "en": "Fang Chengtu",
+        "zh": "方成图"
+      },
+      "displayName": {
+        "en": "Fang Chengtu",
+        "zh": "方成图"
+      },
+      "profession": {
+        "en": "Product Solution Designer",
+        "zh": "产品方案设计师"
+      },
+      "avatar": "avatars/方成图.png",
+      "role": "member"
+    },
+    {
+      "id": "requirement-review-agent",
+      "name": {
+        "en": "Zha Mingli",
+        "zh": "查明理"
+      },
+      "displayName": {
+        "en": "Zha Mingli",
+        "zh": "查明理"
+      },
+      "profession": {
+        "en": "Requirement Review Expert",
+        "zh": "需求评审专家"
+      },
+      "avatar": "avatars/查明理.png",
+      "role": "member"
+    }
+  ]
+}

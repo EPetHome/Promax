@@ -1,0 +1,49 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/promax-session-binding.test.ts (5 tests | 2 failed) 1708ms
+   × GC-SR01 rejects changed mounted template while the revision description stays identical 357ms
+   × GC-SR01 preserves the contract across two generations of alias descendants 275ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/promax-session-binding.test.ts > GC-SR01 rejects changed mounted template while the revision description stays identical
+AssertionError: promise resolved "'promax-team-r8-legacy'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"promax-team-r8-legacy"
+
+ ❯ packages/promax-bundle/tests/promax-session-binding.test.ts:76:53
+     74|   const file = join(f.home, ".agent-presets", "promax-team-r8-legacy",…
+     75|   await writeFile(file, `${await readFile(file, "utf8")}\n# changed te…
+     76|   await expect(resolveLegacyProductPreset(f.home, h)).rejects.toThrow(…
+       |                                                     ^
+     77|   await expect(productRevisionForSession(f.home, { ...h, agentPreset: …
+     78| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/promax-bundle/tests/promax-session-binding.test.ts > GC-SR01 preserves the contract across two generations of alias descendants
+Error: 会话 grandchild 的团队合同与已挂载模板绑定不一致
+ ❯ productRevisionForSession packages/promax-bundle/src/promax-session-binding.ts:92:13
+     90|     const inherited = !pin && header.parentSession ? await readBinding…
+     91|     if ((!pin && !inherited) || (pin ?? inherited)!.preset !== preset …
+     92|       throw new Error(`会话 ${header.id} 的团队合同与已挂载模板绑定不一致`);
+       |             ^
+     93|   }
+     94|   return { preset, revision, bytes };
+ ❯ packages/promax-bundle/tests/promax-session-binding.test.ts:88:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  02:22:49
+   Duration  2.63s (transform 225ms, setup 140ms, import 272ms, tests 1.71s, environment 432ms)
+

@@ -1,0 +1,38 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts (27 tests | 1 failed | 26 skipped) 281ms
+   × SR01-C 无守卫且不传signal的普通LLM流保留文本 280ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01-C 无守卫且不传signal的普通LLM流保留文本
+AssertionError: expected [] to deeply equal [ { type: 'text', …(1) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "text": "普通无signal调用应保留的文本",
+-     "type": "text",
+-   },
+- ]
++ []
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:572:30
+    570|   const assembler = new BlockAssembler();
+    571|   for await (const chunk of w.ctx.llm.stream({ provider: "stub", model…
+    572|   expect(assembler.blocks()).toEqual([{ type: "text", text: "普通无signal…
+       |                              ^
+    573|   expect(assembler.finish).toEqual({ kind: "stop" });
+    574| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 26 skipped (27)
+   Start at  05:39:03
+   Duration  1.78s (transform 531ms, setup 136ms, import 1.30s, tests 281ms, environment 0ms)
+

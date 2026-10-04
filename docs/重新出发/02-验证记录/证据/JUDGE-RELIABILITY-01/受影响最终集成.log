@@ -1,0 +1,31 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/promax-session-binding.test.ts (6 tests | 1 failed) 16038ms
+   × GC-SR01 binds old r8 and subagent to published bytes, not the mutable current r9 name 5478ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/promax-session-binding.test.ts > GC-SR01 binds old r8 and subagent to published bytes, not the mutable current r9 name
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ packages/promax-bundle/tests/promax-session-binding.test.ts:38:1
+     36| const legacy = (id: string, cwd: string, parentSession?: string) => ({…
+     37|
+     38| it("GC-SR01 binds old r8 and subagent to published bytes, not the muta…
+       | ^
+     39|   const f = await setup(); await f.bind("old", 8);
+     40|   const header = legacy("old", f.workspace);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/promax-bundle/tests/promax-session-binding.test.ts > GC-SR01 binds old r8 and subagent to published bytes, not the mutable current r9 name
+Error: ENOTEMPTY: directory not empty, rmdir '/private/tmp/promax-preset-binding-8495vp/runtime/profiles/web/node_modules/@promax/team-harness/generated/r11/promax-team-r11/skills'
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 12 passed (13)
+      Tests  1 failed | 136 passed (137)
+   Start at  06:14:00
+   Duration  31.93s (transform 7.67s, setup 2.49s, import 15.78s, tests 93.81s, environment 10.80s)
+

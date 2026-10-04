@@ -1,0 +1,13 @@
+installed_bundle_version=0.1.105
+OK   package.json 4ebcbbd9407542907f7f268d8ed706b7e6df7ec7efd87b4ead63a1e8b1e9eb5b
+OK   lib/index.mjs d553f265fed80f9b282cc26c00a838f63c2bc4ee0f4303a44130d57a094adf43
+OK   lib/index.d.mts 79b5224ba57973b76420ddc0f714d4390237b4f44d2f7c85a26b0052c9e5bb73
+OK   presets/general/agent.cordis.yml aef446c49a9ad8a772ad141bd80cdd7a124dd3dfba3040d7ec47a378538ffc92
+OK   cordis.patch.yml 6f2da68a0700cb0173880c8b88c744abab4ef1a0d0b9524a93ab0ada6ed60a01
+OK   presets/general/preset.yml 49b9096e3de608f76666920ad50be4dbd62ff95724e805fc90618b714e355955
+installed_bundle_matches_archive= 6/6
+lock_diff:
+10
+lock_diff_non_bundle_lines:
+2
+（lock_diff_non_bundle_lines 两行是 bundle 条目的 version: 0.1.104→0.1.105，路径行含 promax-bundle）

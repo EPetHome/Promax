@@ -1,0 +1,33 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts (35 tests | 1 failed | 34 skipped) 659ms
+   × SE02 complete回执后恰有一次交付说明回合，公开文本可见且在回执之后 659ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SE02 complete回执后恰有一次交付说明回合，公开文本可见且在回执之后
+AssertionError: complete 回执后应恰有一次公开说明回合: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:749:50
+    747|   const explanation = events.findLast((e: any) => e.type === "assistan…
+    748|   expect(receipt, "程序回执必须先发布").toBeTruthy();
+    749|   expect(explanation, "complete 回执后应恰有一次公开说明回合").toBeTruthy();
+       |                                                  ^
+    750|   expect(explanation!.seq).toBeGreaterThan(receipt!.seq);
+    751|   expect(w.turns.filter(id => id === w.parent.id)).toHaveLength(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 34 skipped (35)
+   Start at  09:21:49
+   Duration  1.77s (transform 508ms, setup 124ms, import 928ms, tests 659ms, environment 0ms)
+

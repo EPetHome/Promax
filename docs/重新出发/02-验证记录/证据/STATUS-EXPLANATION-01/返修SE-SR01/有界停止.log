@@ -1,0 +1,7 @@
+utc= 2026-09-25T13:46:38Z
+listener_before= present
+children= none
+sent=SIGTERM 5501
+voluntary_exit_after_checks= 1
+voluntary_exit= True
+port_free= True

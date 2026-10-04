@@ -1,0 +1,23 @@
+{
+  "checked_at_utc": "2026-09-25T07:14:22.368814+00:00",
+  "pid": "54804",
+  "bundle_runtime": {
+    "component": "promax-bundle",
+    "version": "0.1.98",
+    "evaluated_at": "2026-09-25T07:14:04.614Z",
+    "module_sha256": "bd872938aa9e30586f1260c440c31dac43fe18cf34377fecee37fa42c49621d4"
+  },
+  "harness_runtime": {
+    "component": "team-harness",
+    "version": "0.6.18-dist.1",
+    "module_sha256": "017de1f27ba645423a9460df93b6e231fe4b698b7cce70cfe37b53e984998936",
+    "evaluated_at": "2026-09-25T07:14:03.626Z"
+  },
+  "bundle_installed_sha256": "bd872938aa9e30586f1260c440c31dac43fe18cf34377fecee37fa42c49621d4",
+  "native_cli_resolved": "/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/packages/host/apiproxy/lib/index.js",
+  "native_built_sha256": "7cad86f6abba27b4aefcddd1ea573bf9b69e43b9cbd8866697cca7934e2aca00",
+  "native_contains_seed_aware_fork": true,
+  "console_loaded_installed_sha256": "6d7cb1d33edba3cae2f49134a14e40178ef5987cd1ff337a439ecb57e44d85d9",
+  "r10_manifest_sha256": "107379bac510eac9108b9cba107bc9433fa639c05240a8573db1a2ae3605be83",
+  "r10_files_verified": 139
+}

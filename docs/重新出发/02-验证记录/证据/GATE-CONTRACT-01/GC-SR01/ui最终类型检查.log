@@ -1,0 +1,12 @@
+packages/promax-bundle/src/index.ts(7687,28): error TS2345: Argument of type 'Header | { id: string; cwd?: string; agentPreset?: string; parentSession?: string; }' is not assignable to parameter of type '{ agentPreset?: string; }'.
+  Type 'Header' has no properties in common with type '{ agentPreset?: string; }'.
+packages/promax-bundle/src/index.ts(7687,42): error TS2339: Property 'events' does not exist on type '{ header: Header; }'.
+packages/promax-bundle/src/index.ts(7834,79): error TS2379: Argument of type '({ id: string; cwd?: string; parentSession?: string; agentPreset?: string; } & { agentPreset: string | undefined; }) | ({ agentPreset?: string; } & { agentPreset: string | undefined; })' is not assignable to parameter of type 'Identity' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ id: string; cwd?: string; parentSession?: string; agentPreset?: string; } & { agentPreset: string | undefined; }' is not assignable to type 'Identity' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'agentPreset' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+packages/promax-bundle/src/index.ts(8697,140): error TS2379: Argument of type '{ agentPreset?: string; } & { agentPreset: string | undefined; }' is not assignable to parameter of type 'Identity' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Property 'id' is missing in type '{ agentPreset?: string; } & { agentPreset: string | undefined; }' but required in type 'Identity'.
+packages/promax-bundle/src/index.ts(8960,73): error TS2379: Argument of type '{ agentPreset?: string; } & { agentPreset: string | undefined; }' is not assignable to parameter of type 'Identity' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Property 'id' is missing in type '{ agentPreset?: string; } & { agentPreset: string | undefined; }' but required in type 'Identity'.

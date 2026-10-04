@@ -1,0 +1,75 @@
+{
+  "task": "EVIDENCE-FEEDBACK-01",
+  "phase": "第二阶段首批准备；未实施",
+  "model": "openai-codex/gpt-6-sol",
+  "thinking": "xhigh",
+  "previous_task_backup": "重新出发/.bak/阶段一收口任务转凭证反馈首批前-20260925T073239Z.zip",
+  "static_findings": [
+    "numeric matched同时检查result/numerator/denominator，错误只显示result",
+    "location按当前正文精确唯一匹配，但工具说明未明确禁止拼接式导航描述",
+    "任务7 CNL-023/028在当前回执evidence_continuity中明确标invalidated；本批不修改dependency_sha256或续绑规则"
+  ],
+  "sources": [
+    {
+      "path": "promax-ui/packages/promax-bundle/src/evidence-links.ts",
+      "sha256": "641ab2f15c88aa7b12a695e437f29357691657a5b691141f7d31e254bd54a77e"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/structured-results.ts",
+      "sha256": "7b764e82e1fc3111fa425b4a5ce0710d05970e4dc44372795247c253c420f173"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/rating-facts.ts",
+      "sha256": "091f6cb133afe7e0a340b37b16ae4d2649beb31467cd2930dd17c4b3892f465e"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/work-store.ts",
+      "sha256": "1192c0215ab3f67327643510c8a41b5ccb9b66d47fa6ab7cc178a5d0a3a5c5be"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/evidence-links.test.ts",
+      "sha256": "701f9e46ac3e2e19759ff064e535946eb81ee0da47fc8c5331349606299bb8ad"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/rating-usability.test.ts",
+      "sha256": "ea3a0fc28baabe5fa26d1f20e24dc67cead9c2331dbb219cd1e735a25c64f8a5"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/package.json",
+      "sha256": "875d4c6e404b0dcdea0bfdf297646d20e5797d6649e3ebb09a1d90d8f5e1c5b9"
+    }
+  ],
+  "pi": {
+    "version": "0.84.3",
+    "permission_extension": "32.0.2",
+    "entry": "/Users/Admin/.local/bin/pi",
+    "model_catalog": "/Users/Admin/.pi/agent/models-store.json",
+    "model_entry_present": true,
+    "explicit_skill": "/Users/Admin/.agents/skills/context-relay/SKILL.md"
+  },
+  "not_run": [
+    "产品代码修改",
+    "工程测试",
+    "Pi/模型",
+    "构建/装配",
+    "服务/接口/浏览器"
+  ],
+  "task_sha256": "0fbbc83845fd585df2a620cbb64be4682ef17847b30f2ca9f797f1be6e89d2f6",
+  "shell_syntax_exit": 0,
+  "missing_links": [],
+  "cli_parse": {
+    "model": "openai-codex/gpt-6-sol",
+    "thinking": "xhigh",
+    "tools": [
+      "read",
+      "edit",
+      "write",
+      "bash"
+    ],
+    "extension": "/Users/Admin/.pi/agent/npm/node_modules/@gotgenes/pi-permission-system/src/index.ts",
+    "skill": "/Users/Admin/.agents/skills/context-relay/SKILL.md",
+    "new_session": true,
+    "unknown_flags": [],
+    "diagnostics": []
+  }
+}

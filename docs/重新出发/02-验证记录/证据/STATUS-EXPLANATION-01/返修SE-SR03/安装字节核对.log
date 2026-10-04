@@ -1,0 +1,20 @@
+installed_bundle_version=0.1.106
+OK   package.json e000131b1a37e04262dcd88a75631308839aa4292911acf9685299d8a74f9a00
+OK   lib/index.mjs 52bfd06b53e81f05f336520d8bf8ba3514df59ea42289338092722e620d25586
+OK   lib/index.d.mts 79b5224ba57973b76420ddc0f714d4390237b4f44d2f7c85a26b0052c9e5bb73
+OK   presets/general/agent.cordis.yml aef446c49a9ad8a772ad141bd80cdd7a124dd3dfba3040d7ec47a378538ffc92
+OK   cordis.patch.yml 6f2da68a0700cb0173880c8b88c744abab4ef1a0d0b9524a93ab0ada6ed60a01
+OK   presets/general/preset.yml 49b9096e3de608f76666920ad50be4dbd62ff95724e805fc90618b714e355955
+installed_bundle_matches_archive= 6/6
+lock_diff:
+-        specifier: file:/Users/Admin/Desktop/Promax/.runtime/releases/se-sr01-20260925/promax-promax-bundle-0.1.105.tgz
+-        version: file:../../../Desktop/Promax/.runtime/releases/se-sr01-20260925/promax-promax-bundle-0.1.105.tgz(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz)(@promax/promax-feishu-bridge@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-promax-feishu-bridge-0.1.2.tgz(@promax/promax-report@file:../../../Desktop/Promax/.runtime/releases/chain-context-v01-20260921-report-final/promax-promax-report-0.2.4.tgz(@deepseek-ai/dsh-agent@0.1.1-rc.2(@deepseek-ai/dsh-llm@0.1.1-rc.2))(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz)))(@promax/promax-report@file:../../../Desktop/Promax/.runtime/releases/chain-context-v01-20260921-report-final/promax-promax-report-0.2.4.tgz(@deepseek-ai/dsh-agent@0.1.1-rc.2(@deepseek-ai/dsh-llm@0.1.1-rc.2))(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz))
++        specifier: file:/Users/Admin/Desktop/Promax/.runtime/releases/se-sr03-20260925/promax-promax-bundle-0.1.106.tgz
++        version: file:../../../Desktop/Promax/.runtime/releases/se-sr03-20260925/promax-promax-bundle-0.1.106.tgz(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz)(@promax/promax-feishu-bridge@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-promax-feishu-bridge-0.1.2.tgz(@promax/promax-report@file:../../../Desktop/Promax/.runtime/releases/chain-context-v01-20260921-report-final/promax-promax-report-0.2.4.tgz(@deepseek-ai/dsh-agent@0.1.1-rc.2(@deepseek-ai/dsh-llm@0.1.1-rc.2))(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz)))(@promax/promax-report@file:../../../Desktop/Promax/.runtime/releases/chain-context-v01-20260921-report-final/promax-promax-report-0.2.4.tgz(@deepseek-ai/dsh-agent@0.1.1-rc.2(@deepseek-ai/dsh-llm@0.1.1-rc.2))(@promax/feishu-api@file:../../../Desktop/Promax/.runtime/releases/plugins-core-20260919.vf47J6/promax-feishu-api-0.1.0.tgz))
+-  '@promax/promax-bundle@file:../../../Desktop/Promax/.runtime/releases/se-sr01-20260925/promax-promax-bundle-0.1.105.tgz':
+-    resolution: {integrity: sha512-TD5xL1R5BHTLv/nDT1Ezd8lR7D9PnF69Xt0N9tBKRQjlEk8t7xA3spocPn6owzewPr7GCV/xWqKM9oZnVBl5rA==, tarball: file:../../../Desktop/Promax/.runtime/releases/se-sr01-20260925/promax-promax-bundle-0.1.105.tgz}
+-    version: 0.1.105
++  '@promax/promax-bundle@file:../../../Desktop/Promax/.runtime/releases/se-sr03-20260925/promax-promax-bundle-0.1.106.tgz':
++    resolution: {integrity: sha512-F7THCHgL31FXhzrWmKSElZi3+Yy9CC/r9htdky3CW5yoR2vLlanPiFfCXfZUD6aQB8/R3qrO1vxdLQoH+h7AOw==, tarball: file:../../../Desktop/Promax/.runtime/releases/se-sr03-20260925/promax-promax-bundle-0.1.106.tgz}
++    version: 0.1.106
+lock_diff_lines=14

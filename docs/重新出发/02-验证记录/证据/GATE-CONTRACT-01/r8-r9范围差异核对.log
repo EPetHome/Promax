@@ -1,0 +1,15 @@
+members same
+artifacts same
+rubrics same
+workspace_policy same
+tool_profiles same
+skills same
+permissions same
+member_count 7 7
+member non-prompt same 0 customer_research
+member non-prompt same 1 product_discovery
+member non-prompt same 2 requirement_management
+member non-prompt same 3 solution_design
+member non-prompt same 4 requirement_review
+member non-prompt same 5 user_analysis
+member non-prompt same 6 quality_judge

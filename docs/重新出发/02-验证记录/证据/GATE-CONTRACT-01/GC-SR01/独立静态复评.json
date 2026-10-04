@@ -1,0 +1,72 @@
+{
+  "scope": "独立静态复评；只读源码/差异/测试代码/已有日志；未执行产品测试、复现、构建、类型、接口、模型、浏览器或服务操作",
+  "current_listed_fingerprints_match": {
+    "promax-agent/deepseek-harness/packages/host/apiproxy/src/api-proxy.ts": true,
+    "promax-agent/deepseek-harness/packages/host/apiproxy/tests/api-proxy-agent-preset.spec.ts": true,
+    "promax-agent/team-harness/src/harness.mjs": true,
+    "promax-agent/team-harness/package.json": true,
+    "promax-ui/packages/promax-bundle/src/index.ts": true,
+    "promax-ui/packages/promax-bundle/src/structured-results.ts": true,
+    "promax-ui/packages/promax-bundle/package.json": true,
+    "promax-ui/packages/promax-ui-console/src/client/team-state.ts": true,
+    "promax-ui/packages/promax-ui-console/package.json": true,
+    "promax-ui/packages/promax-bundle/src/promax-session-binding.ts": true,
+    "promax-agent/team-harness/generated/r10/promax-team-r10/team-revision.yml": true,
+    "promax-agent/deepseek-harness/packages/host/apiproxy/lib/index.js": true
+  },
+  "before_archive_fingerprints_match": {
+    "promax-agent/deepseek-harness/packages/host/apiproxy/src/api-proxy.ts": true,
+    "promax-agent/deepseek-harness/packages/host/apiproxy/tests/api-proxy-agent-preset.spec.ts": true,
+    "promax-agent/team-harness/src/harness.mjs": true,
+    "promax-agent/team-harness/package.json": true,
+    "promax-ui/packages/promax-bundle/src/index.ts": true,
+    "promax-ui/packages/promax-bundle/src/structured-results.ts": true,
+    "promax-ui/packages/promax-bundle/package.json": true,
+    "promax-ui/packages/promax-ui-console/src/client/team-state.ts": true,
+    "promax-ui/packages/promax-ui-console/package.json": true
+  },
+  "findings": [
+    {
+      "id": "GC-SR01-A",
+      "priority": "P2",
+      "kind": "implementation",
+      "file": "promax-ui/packages/promax-bundle/src/promax-session-binding.ts",
+      "line": 61,
+      "claim": "只固定team-revision.yml字节，未把实际agent.cordis.yml/manifest资源与已发布身份核对；描述文件不变而挂载模板改变时不会被该绑定拒绝。",
+      "runtime_reproduction": "not_run"
+    },
+    {
+      "id": "GC-SR01-B",
+      "priority": "P2",
+      "kind": "implementation",
+      "file": "promax-ui/packages/promax-bundle/src/promax-session-binding.ts",
+      "line": 89,
+      "claim": "别名会话只读自身/直接父sidecar，不为继承者持久化也不解析更上层来源；旧主会话fork出的第一层可借根pin，第二层fork/后代因直接父无pin而合同读取失败。",
+      "runtime_reproduction": "not_run"
+    },
+    {
+      "id": "GC-SR01-C",
+      "priority": "P2",
+      "kind": "implementation",
+      "file": "promax-agent/deepseek-harness/packages/host/apiproxy/src/api-proxy.ts",
+      "line": 1173,
+      "claim": "有效选择事件为promax-team但创建header不是promax-team的合法旧会话，未读其可靠revision就被当新会话拒绝；注册产品resolver也只传原header。",
+      "runtime_reproduction": "not_run"
+    },
+    {
+      "id": "GC-SR01-D",
+      "priority": "P2",
+      "kind": "verification_gap",
+      "file": "promax-agent/deepseek-harness/packages/host/apiproxy/tests/api-proxy-agent-preset.spec.ts",
+      "line": 236,
+      "claim": "核心resolver固定返回r8、原生resume和mount替换为测试实现；mount仅读取源资源并记录到Map。当前测试证明API采用返回值，不能证明真实产品绑定→原生持久恢复→实际挂载→合同的闭环；原任务禁止硬编码映射取绿。",
+      "runtime_reproduction": "not_run"
+    }
+  ],
+  "preserved": [
+    "同名旧入口已加入产品解析接点；r10独立新入口、旧别名及原始记录保护方向保留",
+    "native56/56、Promax74/74与安装加载是开发既有记录，不是本轮执行",
+    "30份未知旧会话拒绝恢复为已披露限制，本复评未将其单独列为缺陷"
+  ],
+  "status": "not_accepted_pending_repair"
+}

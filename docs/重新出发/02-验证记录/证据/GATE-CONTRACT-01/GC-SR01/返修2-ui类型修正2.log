@@ -1,0 +1,4 @@
+packages/promax-bundle/src/promax-session-binding.ts(118,43): error TS2379: Argument of type '{ agentPreset: string | undefined; id: string; cwd?: string; parentSession?: string; }' is not assignable to parameter of type 'Identity' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'agentPreset' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.

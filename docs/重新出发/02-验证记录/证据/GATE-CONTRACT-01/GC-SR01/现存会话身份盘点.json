@@ -1,0 +1,507 @@
+{
+  "summary": {
+    "at_utc": "2026-09-25T05:07:56.613765+00:00",
+    "all_sessions": 135,
+    "main_product_sessions": 36,
+    "main_preset_counts": {
+      "promax-team": 36
+    },
+    "main_with_work_binding": 36,
+    "post_r9_product_sessions": [],
+    "work_revision_counts": {
+      "unknown": 30,
+      "promax-product-team@r5": 1,
+      "promax-product-team@r8": 3,
+      "promax-product-team@r4": 1,
+      "promax-product-team@r7": 1
+    },
+    "task7_old": {
+      "session_path": "/Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/session-aa8e657a-a011-42f2-a337-bf960bdd6d2d/session.jsonl.zstd",
+      "header_preset": "promax-team",
+      "effective_preset": "promax-team",
+      "selection_count": 0,
+      "created_at": "2026-09-24T10:55:34.679000+00:00",
+      "origin": null,
+      "parent_session": null,
+      "cwd": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718",
+      "sha256": "8a67e339dd8e85cb69f5507374b660b0b4f1df1d29ac1acf08fe823754442585",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/工作卡.yml",
+          "policy_revision": "promax-product-team@r8",
+          "work_key": "请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2"
+        }
+      ]
+    }
+  },
+  "product_main_sessions": [
+    {
+      "id": "session-9e54e087-cf05-4411-bd70-eb38a9e3d277",
+      "created_at": "2026-09-16T04:53:18.103000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/附件是我这版预约提醒的简版-PRD-出一份评审报告-re/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "附件是我这版预约提醒的简版-PRD-出一份评审报告-re"
+        }
+      ],
+      "sha256": "3a7dd856010cf7f932fdeac853c63c9dea5ba5404ca411fee0b5ca052209693a"
+    },
+    {
+      "id": "session-ec8dcdb7-1005-4e38-91fe-5824fff4fbc1",
+      "created_at": "2026-09-19T11:30:04.584000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/产品任务/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "产品任务"
+        }
+      ],
+      "sha256": "4684bd2a33d9e7350280c2ffd1f712bafeac5cb6e5b65a05cd22f2ff5ab4aed4"
+    },
+    {
+      "id": "session-1c10c08c-25e4-41d5-98d6-756dac6623cb",
+      "created_at": "2026-09-16T02:41:22.605000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/附件是我这版预约提醒的简版-PRD-麻烦评审一下-出一份/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "附件是我这版预约提醒的简版-PRD-麻烦评审一下-出一份"
+        }
+      ],
+      "sha256": "a7c7f37f78f99955bbe4ee6b599098b56b403697d53ae1ca958f5bafa26c2c36"
+    },
+    {
+      "id": "session-d3e33d51-df22-4da0-8fac-69013177c414",
+      "created_at": "2026-09-22T01:00:06.279000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/帮我完成一次国内-个人网盘-相关的市场调研/工作卡.yml",
+          "policy_revision": "promax-product-team@r5",
+          "work_key": "帮我完成一次国内-个人网盘-相关的市场调研"
+        }
+      ],
+      "sha256": "236f253adc008e6dfc559604a613305a089a5ff7cf19158476bfe85b7e1ccb41"
+    },
+    {
+      "id": "session-b6da50e2-8519-4f89-9153-f689e786e9e2",
+      "created_at": "2026-09-16T04:31:49.450000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/按附件把需求清单和简版-PRD-都做出来-require/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "按附件把需求清单和简版-PRD-都做出来-require"
+        }
+      ],
+      "sha256": "13221da8c30ad749ecfdc4fcf39bb9f827daa86b7871ef6773e5c66aacab4643"
+    },
+    {
+      "id": "session-0554b053-7893-4ef9-b868-762476302ba9",
+      "created_at": "2026-09-16T02:14:11.501000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/按附件的需求与规则-为-预约提醒-这个小功能出一套方案/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "按附件的需求与规则-为-预约提醒-这个小功能出一套方案"
+        }
+      ],
+      "sha256": "874b3e9cfb14b99a3a2b57fcbce633eb232e2d59467eb01c555189f62b7befc6"
+    },
+    {
+      "id": "session-6ffa51d0-361e-4993-90d1-9b64b09f9c24",
+      "created_at": "2026-09-16T04:20:03.405000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/我想弄一个名单维护的东西-你帮我看看怎么搞比较好/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "我想弄一个名单维护的东西-你帮我看看怎么搞比较好"
+        }
+      ],
+      "sha256": "be740a74ffbee39e268ed906b1659836eec2794f7e65fb5f447ca29dd40dc84e"
+    },
+    {
+      "id": "session-aa8e657a-a011-42f2-a337-bf960bdd6d2d",
+      "created_at": "2026-09-24T10:55:34.679000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2/工作卡.yml",
+          "policy_revision": "promax-product-team@r8",
+          "work_key": "请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M-2"
+        }
+      ],
+      "sha256": "8a67e339dd8e85cb69f5507374b660b0b4f1df1d29ac1acf08fe823754442585"
+    },
+    {
+      "id": "session-8ef39279-390c-4180-b13d-95f1eb163165",
+      "created_at": "2026-09-21T01:10:54.557000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/帮我做一个国内的-个人云盘-相关市场调研/工作卡.yml",
+          "policy_revision": "promax-product-team@r4",
+          "work_key": "帮我做一个国内的-个人云盘-相关市场调研"
+        }
+      ],
+      "sha256": "f70d755eb31dac9f6e6fa4c388b61cdaf52f3e0a78f30f954b0085285c739880"
+    },
+    {
+      "id": "session-d8a6c76c-a2b3-426d-9b35-ddbd64f4f45c",
+      "created_at": "2026-09-20T12:54:50.958000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/给一份关于-个人网盘-的相关产品调研/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "给一份关于-个人网盘-的相关产品调研"
+        }
+      ],
+      "sha256": "05027794cd166ca0ca4bd2b4d48b78b4ec4c24c9a554e2c9d5b206755c064b1a"
+    },
+    {
+      "id": "session-8ad8c7e9-ac1d-4f3a-a6c7-3f6527b2c987",
+      "created_at": "2026-09-16T05:18:58.171000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/用附件做一份用户分析报告-保存为-user-analys/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "用附件做一份用户分析报告-保存为-user-analys"
+        }
+      ],
+      "sha256": "72f22cefd1d734d7fe6bee69d1e5305f8465e735e758510883cd79b0aba358fa"
+    },
+    {
+      "id": "session-2f0d5bb6-8f3b-47eb-91d6-26e060b80b33",
+      "created_at": "2026-09-16T05:34:10.439000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/我这边只有旧工具导出的名单-附件-没有工号那一列-也拿/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "我这边只有旧工具导出的名单-附件-没有工号那一列-也拿"
+        }
+      ],
+      "sha256": "26eca20549e14303dae8c5325c0975f6622a6d15c1221abe2126fb1298908da5"
+    },
+    {
+      "id": "session-c1e8afc8-aece-4ff1-85ca-0ed946d53777",
+      "created_at": "2026-09-16T05:54:34.732000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/按附件为-预约提醒-出一份-prd-md-规则以附件为准/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "按附件为-预约提醒-出一份-prd-md-规则以附件为准"
+        }
+      ],
+      "sha256": "e832fe5ed5a2f1241702e52c0888f0bde5ef71f2ca2a5c874dcbe29850e44419"
+    },
+    {
+      "id": "session-63e8b85d-a088-4d47-bba5-a0c58834c136",
+      "created_at": "2026-09-16T01:42:04.654000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请把附件里的原始需求整理成需求清单-保存为-requir/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "请把附件里的原始需求整理成需求清单-保存为-requir"
+        }
+      ],
+      "sha256": "c30f48264b9896871719816fa0eae63a16031753d35bd2ff625a993db7a1e053"
+    },
+    {
+      "id": "session-876b8563-b9a5-49d5-8761-d029fc65204a",
+      "created_at": "2026-09-22T11:30:52.867000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中-星河笔记-的评分与反馈-交付一份简洁的-M/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "请分析附件中-星河笔记-的评分与反馈-交付一份简洁的-M"
+        }
+      ],
+      "sha256": "4c9e62f469321a4f25eda15c7f14ab73c39d82e47d2d91845cd68604dc1efe40"
+    },
+    {
+      "id": "session-73c3e1f2-2310-4c36-94d4-d7aa3153f37b",
+      "created_at": "2026-09-18T06:10:00.897000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/帮我完成-个人网盘-的相关产品调研/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "帮我完成-个人网盘-的相关产品调研"
+        }
+      ],
+      "sha256": "719f16f5c6fbc2e37fd6910e67a40d096669528554b68b6028215602f7322752"
+    },
+    {
+      "id": "session-ab4a8dbc-51cb-4d7d-a706-03a3372f8bda",
+      "created_at": "2026-09-24T10:00:09.676000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M/工作卡.yml",
+          "policy_revision": "promax-product-team@r8",
+          "work_key": "请分析附件中的评分与反馈-交付一份简洁-可直接阅读的-M"
+        }
+      ],
+      "sha256": "42fa0467c36b5ac12db2511b506f6abc6f4669888cf79ea21442f7b50bb46fa5"
+    },
+    {
+      "id": "session-a449f829-d323-4ddc-bf2f-12b43ea107ee",
+      "created_at": "2026-09-16T02:54:18.107000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请根据附件的事件统计和反馈摘录-出一份用户分析报告-保存/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "请根据附件的事件统计和反馈摘录-出一份用户分析报告-保存"
+        }
+      ],
+      "sha256": "f144ff2ad20492eb388665a8da94066a3764116ddfa4719818b1d6b664dbfa08"
+    },
+    {
+      "id": "session-7c6a761e-e4cd-4e3c-95b5-68a20505cb72",
+      "created_at": "2026-09-23T06:02:58.527000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中的评分和反馈-交付一份简洁-可直接阅读的-M/工作卡.yml",
+          "policy_revision": "promax-product-team@r8",
+          "work_key": "请分析附件中的评分和反馈-交付一份简洁-可直接阅读的-M"
+        }
+      ],
+      "sha256": "2fa3b485ee745b4fce6b8ceef4b176775b23a705bfa2164d249650e1b4a7bf34"
+    },
+    {
+      "id": "session-1ab7eea2-5582-452f-a8d3-883a75a110bd",
+      "created_at": "2026-09-16T01:28:49.258000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请阅读附件的参照产品资料-做一份产品探索报告-保存为-p/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "请阅读附件的参照产品资料-做一份产品探索报告-保存为-p"
+        }
+      ],
+      "sha256": "6084467db1bfd30471101983f1114f7394656978a369061e6df5a837e6069ece"
+    },
+    {
+      "id": "session-a72216bb-7489-4106-a66e-c8b3e8d915e4",
+      "created_at": "2026-09-22T11:33:07.332000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请分析附件中-星河笔记-的评分与反馈-交付一份简洁的-M-2/工作卡.yml",
+          "policy_revision": "promax-product-team@r7",
+          "work_key": "请分析附件中-星河笔记-的评分与反馈-交付一份简洁的-M-2"
+        }
+      ],
+      "sha256": "1cc48c0b2dad32514fbac034d281982ba0b47a47a0c078f234f7dcb14acac642"
+    },
+    {
+      "id": "session-7ade944d-e7dd-4c21-aa40-4e69da7d629e",
+      "created_at": "2026-09-15T16:51:17.665000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/评测隔离-20260915-1242-ed3718/.工作/请根据附件的访谈摘录和任务背景-整理一份客研报告-保存为/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "请根据附件的访谈摘录和任务背景-整理一份客研报告-保存为"
+        }
+      ],
+      "sha256": "deffa60a8ddba5b811122a7226a5b650da86a013367861d1eae42f3667335f8e"
+    },
+    {
+      "id": "session-6b8cf2b6-ad46-4b48-bc22-a096cab9de4c",
+      "created_at": "2026-09-14T02:11:32.813000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/产品/.工作/客户老说邀请成员太麻烦-一个个输邮箱-输错了也不知道错在/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "客户老说邀请成员太麻烦-一个个输邮箱-输错了也不知道错在"
+        }
+      ],
+      "sha256": "7d683369734d3ea7ebb5325ce3c71f2806c2796427f9e126354947afd6e6d0ce"
+    },
+    {
+      "id": "session-051d19e2-d026-4e59-9250-a3f63650a338",
+      "created_at": "2026-09-14T02:58:10.820000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/产品/.工作/做原型-根据附件规则-做一个可交互的-HTML-原型-只/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "做原型-根据附件规则-做一个可交互的-HTML-原型-只"
+        }
+      ],
+      "sha256": "eca5e9d7dd7943e7632ba29dd3cdba7169e584c5ede227238800497319ae1d41"
+    },
+    {
+      "id": "session-bfc6451d-19ca-40a0-9c5c-3e14e583e46d",
+      "created_at": "2026-09-14T02:34:56.998000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/产品/.工作/客研整理-根据附件访谈-整理一份客研报告-只要-cust/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "客研整理-根据附件访谈-整理一份客研报告-只要-cust"
+        }
+      ],
+      "sha256": "b6f7256235bbfbb8fe8d721c993412b15ebce8ceeae3fcde6f1dd000782a100f"
+    },
+    {
+      "id": "session-883ecdb9-4a9a-479f-8630-468d25252a5a",
+      "created_at": "2026-09-14T02:57:53.367000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/产品/.工作/需求评审-请评审附件这份简版-PRD-出一份评审报告-只/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "需求评审-请评审附件这份简版-PRD-出一份评审报告-只"
+        }
+      ],
+      "sha256": "a6933b643a14c1fb3e0ab4a24d173357e69866ed0673b9d5ba3d69ad94bccd61"
+    },
+    {
+      "id": "session-3550f3f5-7b64-4b2a-84fe-e9d9e4829ba6",
+      "created_at": "2026-09-14T02:35:17.025000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/产品/.工作/数据分析-根据附件统计-出一份用户分析报告-只要-use/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "数据分析-根据附件统计-出一份用户分析报告-只要-use"
+        }
+      ],
+      "sha256": "bf4a8982e7034990033fcae6f0b15feaac132534f78010d01f541f49b9c818c5"
+    },
+    {
+      "id": "session-e89a2ff5-0b45-4c68-b1c8-034eba336069",
+      "created_at": "2026-09-14T02:10:54.707000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/产品/.工作/PRD-和-BRD-有什么区别/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "PRD-和-BRD-有什么区别"
+        }
+      ],
+      "sha256": "2d8af40a767897ba189de9ea396ed32bddf15f08d88a427f252ea2ee2179ff1c"
+    },
+    {
+      "id": "session-a17956f0-a46a-4e7b-805d-18689aa7d647",
+      "created_at": "2026-09-14T02:17:07.006000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/产品/.工作/请直接出一份简版-PRD-只要-prd-md-虚构产品/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "请直接出一份简版-PRD-只要-prd-md-虚构产品"
+        }
+      ],
+      "sha256": "bbe0362cf36276629fc6cee5eddb3e042870c96954de8d1d3b1fbda532ed8997"
+    },
+    {
+      "id": "session-935aa6e7-40d3-4579-b51a-1f6693b2cc42",
+      "created_at": "2026-09-13T17:06:36.445000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/产品/.工作/请直接出一份简版-PRD-只要-prd-md-虚构产品-会议室-9760ba97/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "请直接出一份简版-PRD-只要-prd-md-虚构产品-会议室-9760ba97"
+        }
+      ],
+      "sha256": "41e451dabe6ea6a26aab6ca95f62f3f46e3d96683052b1a759acfd21fefeeab7"
+    },
+    {
+      "id": "session-52511edb-5f19-46fe-9eca-554854026486",
+      "created_at": "2026-09-14T02:15:41.484000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/产品/.工作/客户老说邀请成员太麻烦-一个个输邮箱-输错了也不知道错在-2/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "客户老说邀请成员太麻烦-一个个输邮箱-输错了也不知道错在-2"
+        }
+      ],
+      "sha256": "69467b5e78818f6e7ce56b811797c507dc073181d4f32b277bb6a44dabd23a72"
+    },
+    {
+      "id": "session-f1da14fb-cb32-44d2-9628-643431a35c79",
+      "created_at": "2026-09-14T02:35:37.233000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/产品/.工作/需求整理-根据附件原始条目-整理成需求清单-只要-req/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "需求整理-根据附件原始条目-整理成需求清单-只要-req"
+        }
+      ],
+      "sha256": "b893de56bda75e5abdd61c6f4daf7fd772dc6c75cfa3857abc933aaebc3f596a"
+    },
+    {
+      "id": "session-6bbb55ba-01f6-47ac-bbea-bffa09a16418",
+      "created_at": "2026-09-13T16:31:17.813000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/产品/.工作/一起想方案/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "一起想方案"
+        }
+      ],
+      "sha256": "9568991a42f8c445e4ccdc93efc07d5897843842b5f63e855a0bc65542ff8f6f"
+    },
+    {
+      "id": "session-4ee65773-5704-4485-b16e-d55367166684",
+      "created_at": "2026-09-14T02:57:37.439000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/产品/.工作/竞品对比-根据附件里的虚构参照产品资料-做一份对比分析/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "竞品对比-根据附件里的虚构参照产品资料-做一份对比分析"
+        }
+      ],
+      "sha256": "728bba39280d9b81a8cc914031dc9e15bf241119fc0efb504a4cd3d56c5d6c82"
+    },
+    {
+      "id": "session-6073d1f9-8762-45a5-9aca-c5b927f7324e",
+      "created_at": "2026-09-14T02:57:22.975000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/产品/.工作/需求整理-重跑-根据附件原始条目-整理成需求清单-只要/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "需求整理-重跑-根据附件原始条目-整理成需求清单-只要"
+        }
+      ],
+      "sha256": "3171d51aac562668706bec8af6a699a4ac8a61c56923246ba63255304216559c"
+    },
+    {
+      "id": "session-6ec9ef4a-3634-4070-a166-218622b56f8d",
+      "created_at": "2026-09-15T09:14:36.973000+00:00",
+      "effective_preset": "promax-team",
+      "work_binding": [
+        {
+          "path": "/Users/Admin/Promax-first/企业-bba5c8e2c5b3ff5b/.工作/我需要做一个统计人员名单的系统/工作卡.yml",
+          "policy_revision": null,
+          "work_key": "我需要做一个统计人员名单的系统"
+        }
+      ],
+      "sha256": "36ac2429212aa6550308905119b2487c429d88f918725850417ab1717f664f62"
+    }
+  ]
+}

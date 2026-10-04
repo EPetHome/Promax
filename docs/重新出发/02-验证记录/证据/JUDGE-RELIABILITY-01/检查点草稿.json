@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "base_id": "20260925T102457Z-24c6e6c32d",
+  "payload": {
+    "goal": "JUDGE-RELIABILITY-01：现有Judge流程内补可核对依据与关闭原因，保留真缺陷、旧合同和权威保护；整批工程/安全交付后独立静态复评，真实效果另验。",
+    "phase": "JUDGE-RELIABILITY-01工程候选完成、安全加载于8800；13文件137/137集成+后续仅补测一例4/4，tsc/构建/团队新revision通过；旧team测试8失败分开保留；业务Judge效果和Codex静态复评未验。",
+    "pins": [
+      {
+        "id": "C-JR02-ENTRY",
+        "kind": "constraint",
+        "status": "active",
+        "text": "本流judge-reliability-20260925唯一任务为重新出发/01-指派任务/03-Judge可靠判定任务.md/01-指派任务.md；唯一结果03-阶段三Judge可靠判定结果.md；证据/JUDGE-RELIABILITY-01。阶段二p0-delivery-20260924任务/结果不得覆盖或串写。",
+        "source": "本任务§1/11及Context Relay多流约定"
+      },
+      {
+        "id": "C-JR03-TRUTH",
+        "kind": "constraint",
+        "status": "active",
+        "text": "引文/版本合法不等于语义正确。保留J1-01正确分类不误报与J1-02无频次却称集中仍报问题的对照；结构/工程/模型效果分开，不将stub、工具成功或自评充业务通过。",
+        "source": "完整方案、任务§2/7/8；work-wiki LLM-as-a-Judge/Agent评估/门禁全绿不等于语义正确"
+      },
+      {
+        "id": "C-JR04-PROTECTION",
+        "kind": "constraint",
+        "status": "active",
+        "text": "不改原业务/失败/会话/历史快照，不reset/restore/clean/stash/自动提交；修改前备份受改字节；00-*.md只读，xx-GPT6-Pro名言警句不读/引用/改。保留已有大量未提交/未跟踪改动。",
+        "source": "AGENTS及本任务§1/9"
+      },
+      {
+        "id": "D-JR05-CONTRACT",
+        "kind": "decision",
+        "status": "active",
+        "text": "完整方案要求最小有界原文引用、stage/commit同一核对、verified关闭原因fixed/false_positive；撤销须原问题提出时版本，历史同名歧义/旧字节缺失不倒推。旧合同/记录未知不补真值，新规则随真实绑定合同生效，已发布r4—r10不覆盖。字段细化由Pi在现有类型内最小落实。",
+        "source": "完整方案及任务§3—5"
+      },
+      {
+        "id": "C-JR06-EXECUTION",
+        "kind": "constraint",
+        "status": "active",
+        "text": "允许任务内隔离工程与受影响安全交付；禁止真实Promax/Judge模型、浏览器/截图、外网探活、联调、额外子Agent、安装升级插件和认证/全局权限/业务模型变更。真实Judge本次只准备冻结样本/入口，未授权调用。",
+        "source": "任务§7—9"
+      },
+      {
+        "id": "C-JR07-PARALLEL",
+        "kind": "constraint",
+        "status": "retired",
+        "text": "EC-SR01已有Pi0.1.101工程/加载记录但独立复评未完成，本流不关闭它。并行用完整现役快照/独立流，不能只从Git HEAD漏掉未跟踪代码；共享文件不能同时写，合并/发布串行。安全重载禁stop/restart的SIGKILL后备，仅必要有界TERM，活动任务不强停。",
+        "source": "用户并行讨论要求、阶段二入口及任务§9",
+        "retired_reason": "状态性陈述已过时：阶段二EC-SR01已完成独立静态复评，阶段三Pi工程及安全加载已完成；权限、旧会话与隔离约束继续有效。",
+        "retired_source": "重新出发/02-验证记录/02-P0返修结果.md#ec-sr01-repair-static-review；重新出发/02-验证记录/03-阶段三Judge可靠判定结果.md"
+      },
+      {
+        "id": "C-JR08-WIKI",
+        "kind": "constraint",
+        "status": "active",
+        "text": "用户开启work-wiki；只读方法查询、不写知识页/候选/回填。已用LLM-as-a-Judge、Agent评估、工具设计原则、门禁errors=0不证明内容正确卡片；新任务启动显式llm-wiki-query及context-relay。Wiki不是本机实现/运行证据，Pi不继承Codex hook状态。",
+        "source": "用户开启指令、Wiki规则与任务§10/11"
+      },
+      {
+        "id": "C-JR01-SCOPE",
+        "kind": "constraint",
+        "status": "retired",
+        "text": "阶段三一份完整任务，JR01—JR08为验收项而非新子批/工作流；Pi开发、Codex静态复评，模型openai-codex/gpt-6-sol/xhigh。当前只准备任务书，没有实施。",
+        "source": "用户“开启work-wiki。开始写任务书”；此前完整方案及整批交付讨论",
+        "retired_reason": "本Pi会话收到整体实施任务并已开始修改源码；仅原pin“当前只准备任务书，没有实施”这部分时间描述退役，其余范围由C-JR09继续。",
+        "retired_source": "当前用户消息引用JUDGE-RELIABILITY-01任务书，实施开始并有实际修改及测试"
+      },
+      {
+        "id": "C-JR09-IMPLEMENT",
+        "kind": "constraint",
+        "status": "retired",
+        "text": "阶段三当前Pi实施中；JR01—JR08仍为同一交付验收，不拆工作流；工程通过后需安全加载、静态复评和后续单独授权真实Judge效果验证。",
+        "source": "当前用户提供整体开发任务及本会话实际源码/测试",
+        "retired_reason": "状态性陈述已过时：阶段二EC-SR01已完成独立静态复评，阶段三Pi工程及安全加载已完成；权限、旧会话与隔离约束继续有效。",
+        "retired_source": "重新出发/02-验证记录/02-P0返修结果.md#ec-sr01-repair-static-review；重新出发/02-验证记录/03-阶段三Judge可靠判定结果.md"
+      },
+      {
+        "id": "C-JR10-BASELINE",
+        "kind": "constraint",
+        "status": "active",
+        "text": "EC-SR01已通过独立静态复评，本流接手 work-store/structured-results 字节与其最终身份核对一致。仍禁止改写其原结果、会话、旧业务文件；共享发布保持串行。",
+        "source": "阶段二结果#ec-sr01-repair-static-review及本流接手/最终身份SHA"
+      },
+      {
+        "id": "C-JR11-DELIVERED",
+        "kind": "constraint",
+        "status": "active",
+        "text": "JUDGE-RELIABILITY-01工程候选三包已安全加载于本机8800 r11；Codex独立静态复评及真实Judge效果均未验，不能声称阶段三业务完成。任何恢复先重新核对进程活动与后续改动，不调用根stop/restart或强停。",
+        "source": "阶段三唯一结果与实际加载身份.json"
+      }
+    ],
+    "work": [
+      {
+        "item": "引用/关闭原因协议/历史/指标/旧合同",
+        "status": "done",
+        "evidence": "JR01—JR05源码及r11已装载；严格场景证据在结果和最终SHA"
+      },
+      {
+        "item": "规则对照/后续模型入口",
+        "status": "done",
+        "evidence": "7个隔离合成候选、SHA冻结和01-后续效果验证入口；无模型运行"
+      },
+      {
+        "item": "安全归档离线安装与8800加载",
+        "status": "done",
+        "evidence": "bundle0.1.102 console0.3.158 team0.6.19 r11；PID83640内存模块/安装/归档SHA一致，r10旧资源保留；恢复目录完整"
+      },
+      {
+        "item": "Codex静态复评及真实Judge效果",
+        "status": "not_started",
+        "evidence": "独立复评待执行；真实业务模型未授权"
+      }
+    ],
+    "artifacts": [
+      {
+        "path": "重新出发/02-验证记录/03-阶段三Judge可靠判定结果.md",
+        "description": "本流唯一结果，实际测试/失败/加载/未验和下一步",
+        "status": "已保存"
+      },
+      {
+        "path": "重新出发/02-验证记录/证据/JUDGE-RELIABILITY-01/最终源码身份.sha256",
+        "description": "32项现有源码、构建、r11资源/测试SHA；最后仅修改身份冲突测试",
+        "status": "已核验"
+      },
+      {
+        "path": ".runtime/releases/judge-reliability-20260925/",
+        "description": "三包归档/identity及recovery旧profile/锁/包/安装/r10；恢复须重新核活动及用户变化",
+        "status": "已保存并安装（安全加载）"
+      },
+      {
+        "path": "重新出发/02-验证记录/证据/JUDGE-RELIABILITY-01/实际加载身份.json",
+        "description": "PID83640 localhost内存meta、静态console SHA/旧新资源",
+        "status": "已核验"
+      },
+      {
+        "path": "重新出发/02-验证记录/证据/JUDGE-RELIABILITY-01/01-后续效果验证入口.md",
+        "description": "冻结调试候选与后续授权边界",
+        "status": "已保存，未运行模型"
+      }
+    ],
+    "checks": [
+      {
+        "command": "cd promax-ui && TMPDIR=/private/tmp ./node_modules/.bin/vitest run --testTimeout 15000 packages/promax-bundle/tests/{judge-reliability,review-continuity,judge-evaluation,promax-session-binding,evidence-gate-commit,evidence-links,rating-usability,chain-metrics,effective-completion,native-dispatch}.test.ts packages/promax-ui-console/tests/{team-state,shell-registration,work-app}.test.ts*",
+        "status": "passed",
+        "result": "13文件137通过；首次默认5s超时、复跑通过；后续仅增加身份冲突用例并定向4/4通过",
+        "scope": "受影响注册工具/旧会话/console/阶段二回归"
+      },
+      {
+        "command": "./node_modules/.bin/tsc --noEmit -p tsconfig.json；bundle tsdown；console tsdown+vite；team cli verify r11",
+        "status": "passed",
+        "result": "类型与两包最终构建成功；r11清单139有效",
+        "scope": "源代码/构建/新资源"
+      },
+      {
+        "command": "node --test team-harness test/{judge-reliability,frozen-statistics}.test.mjs",
+        "status": "passed",
+        "result": "2/2通过",
+        "scope": "team新资源与评分事实"
+      },
+      {
+        "command": "node --test team-harness旧 first-usable/review-revision + prx006/modern-layout",
+        "status": "failed",
+        "result": "共8个旧断言/行为失败；r2/r8旧包断言与r10基线不符，prx006 web拒收旧预期尚未定位；详见结果",
+        "scope": "不把定向通过混全包绿"
+      },
+      {
+        "command": "本地离线pack/install；安全TERM→start；localhost静态内存meta+console静态模块SHA核对",
+        "status": "passed",
+        "result": "3包归档/安装逐文件一致，新r11/旧r10资源全清单核对，8800 PID83640运行模块SHA与安装一致",
+        "scope": "运行生效，不是业务模型或浏览器验收"
+      }
+    ],
+    "next": [
+      {
+        "action": "交Codex读取阶段三唯一结果、SHA、受影响源码/测试及旧web失败做独立静态复评；发现阻断才开最小返修。",
+        "precondition": "不要替换r11已装资源或改原历史/EC-SR01结果"
+      },
+      {
+        "action": "后续单独获准后按01-后续效果验证入口跑冻结调试+真正独立改写、多次保留输出。",
+        "precondition": "明确模型/配置、次数/token费用/停止条件，独立参考确认"
+      }
+    ],
+    "unknowns": [
+      "真实Judge效果/误判率、浏览器业务体验及旧会话实际续接未验，不因工程/静态加载认定阶段三业务完成",
+      "阶段三Codex独立静态复评未运行",
+      "旧team-harness prx006 web失败未独立定位；其它r2/r8/工具名单旧断言未更新，不宣称全仓全绿"
+    ],
+    "do_not_repeat": [
+      "不从阶段二历史命令自动启动/重载/测试，不混写其流与结果。",
+      "不把JR01—JR08拆成独立子批或增加产品Judge/审批环节。",
+      "不读排除目录，不改旧revision/业务原件，不把旧关闭原因倒填为fixed或false_positive。",
+      "不写Wiki或代运行真实Judge；不将工程通过冒充语义正确。"
+    ],
+    "evidence_paths": [
+      "重新出发/01-指派任务/03-Judge可靠判定任务.md/01-指派任务.md",
+      "重新出发/02-验证记录/03-阶段三Judge可靠判定结果.md",
+      "重新出发/02-验证记录/证据/JUDGE-RELIABILITY-01/最终源码身份.sha256",
+      "重新出发/02-验证记录/证据/JUDGE-RELIABILITY-01/实际加载身份.json",
+      "重新出发/02-验证记录/证据/JUDGE-RELIABILITY-01/受影响最终集成复验.log",
+      ".runtime/releases/judge-reliability-20260925/archive-identity.json"
+    ],
+    "boundary": {
+      "safe": true,
+      "reason": "源码/记录及装配均完成，旧会话/认证未动；8800正常静态入口可核；无后台任务接管。仅待独立复评/另授权模型。",
+      "running": [],
+      "stop_after_save": true
+    }
+  }
+}

@@ -1,0 +1,26 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts (12 tests | 1 failed | 11 skipped) 17ms
+   × GATE-CONTRACT-01 exposes the registered node contract and rejects actionable task-7 variants before commit 17ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > GATE-CONTRACT-01 exposes the registered node contract and rejects actionable task-7 variants before commit
+AssertionError: expected undefined to be defined
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:94:58
+     92|   const proposal = f.tools.get("promax_work_proposal")!;
+     93|   const schema = proposal.parameters as { properties: { card_patch: { …
+     94|   expect(schema.properties.card_patch.properties?.nodes).toBeDefined();
+       |                                                          ^
+     95|   const input = await w.say("分析附件并出一份报告");
+     96|   const handled_events = [{ event_id: input.event.id, intent: "new_tas…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 skipped (12)
+   Start at  00:21:15
+   Duration  2.40s (transform 573ms, setup 143ms, import 1.66s, tests 17ms, environment 504ms)
+

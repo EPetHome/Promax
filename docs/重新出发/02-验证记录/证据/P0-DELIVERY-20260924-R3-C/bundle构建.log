@@ -1,0 +1,150 @@
+[34mℹ[39m [34mtsdown v0.22.14[39m powered by [38;2;255;126;23mrolldown v1.2.5[39m
+[34mℹ[39m config file: [4m/Users/Admin/Desktop/Promax/promax-ui/package.json[24m 
+[34mℹ[39m entry: [34mpackages/promax-bundle/src/index.ts[39m
+[34mℹ[39m target: [34mnode22.19.0[39m
+[34mℹ[39m tsconfig: [34mtsconfig.json[39m
+[34mℹ[39m Build start
+[34mℹ[39m Cleaning 4 files
+(rolldown-plugin-dts:fake-js plugin) `declare module "./context.ts"` will be kept as-is in the output. Relative module declaration may cause unexpected issues. Found in /Users/Admin/Desktop/Promax/promax-ui/node_modules/.pnpm/@deepseek-ai+cordis@4.0.1_@deepseek-ai+cordis-plugin-loader@1.0.2/node_modules/@deepseek-ai/cordis/lib/types/registry.d.ts.
+(rolldown-plugin-dts:fake-js plugin) `declare module "./context.ts"` will be kept as-is in the output. Relative module declaration may cause unexpected issues. Found in /Users/Admin/Desktop/Promax/promax-ui/node_modules/.pnpm/@deepseek-ai+cordis@4.0.1_@deepseek-ai+cordis-plugin-loader@1.0.2/node_modules/@deepseek-ai/cordis/lib/types/logger.d.ts.
+(rolldown-plugin-dts:fake-js plugin) `declare module "./context.ts"` will be kept as-is in the output. Relative module declaration may cause unexpected issues. Found in /Users/Admin/Desktop/Promax/promax-ui/node_modules/.pnpm/@deepseek-ai+cordis@4.0.1_@deepseek-ai+cordis-plugin-loader@1.0.2/node_modules/@deepseek-ai/cordis/lib/types/events.d.ts.
+(rolldown-plugin-dts:fake-js plugin) `declare module "./context.ts"` will be kept as-is in the output. Relative module declaration may cause unexpected issues. Found in /Users/Admin/Desktop/Promax/promax-ui/node_modules/.pnpm/@deepseek-ai+cordis@4.0.1_@deepseek-ai+cordis-plugin-loader@1.0.2/node_modules/@deepseek-ai/cordis/lib/types/fiber.d.ts.
+(rolldown-plugin-dts:fake-js plugin) `declare module "./context.ts"` will be kept as-is in the output. Relative module declaration may cause unexpected issues. Found in /Users/Admin/Desktop/Promax/promax-ui/node_modules/.pnpm/@deepseek-ai+cordis@4.0.1_@deepseek-ai+cordis-plugin-loader@1.0.2/node_modules/@deepseek-ai/cordis/lib/types/reflect.d.ts.
+(rolldown-plugin-dts:fake-js plugin) `declare module "./context.ts"` will be kept as-is in the output. Relative module declaration may cause unexpected issues. Found in /Users/Admin/Desktop/Promax/promax-end/node_modules/.pnpm/@deepseek-ai+cordis@4.0.1_@deepseek-ai+cordis-plugin-loader@1.0.2/node_modules/@deepseek-ai/cordis/lib/types/fiber.d.ts.
+(rolldown-plugin-dts:fake-js plugin) `declare module "./context.ts"` will be kept as-is in the output. Relative module declaration may cause unexpected issues. Found in /Users/Admin/Desktop/Promax/promax-end/node_modules/.pnpm/@deepseek-ai+cordis@4.0.1_@deepseek-ai+cordis-plugin-loader@1.0.2/node_modules/@deepseek-ai/cordis/lib/types/events.d.ts.
+(rolldown-plugin-dts:fake-js plugin) `declare module "./context.ts"` will be kept as-is in the output. Relative module declaration may cause unexpected issues. Found in /Users/Admin/Desktop/Promax/promax-end/node_modules/.pnpm/@deepseek-ai+cordis@4.0.1_@deepseek-ai+cordis-plugin-loader@1.0.2/node_modules/@deepseek-ai/cordis/lib/types/logger.d.ts.
+(rolldown-plugin-dts:fake-js plugin) `declare module "./context.ts"` will be kept as-is in the output. Relative module declaration may cause unexpected issues. Found in /Users/Admin/Desktop/Promax/promax-end/node_modules/.pnpm/@deepseek-ai+cordis@4.0.1_@deepseek-ai+cordis-plugin-loader@1.0.2/node_modules/@deepseek-ai/cordis/lib/types/registry.d.ts.
+(rolldown-plugin-dts:fake-js plugin) `declare module "./context.ts"` will be kept as-is in the output. Relative module declaration may cause unexpected issues. Found in /Users/Admin/Desktop/Promax/promax-end/node_modules/.pnpm/@deepseek-ai+cordis@4.0.1_@deepseek-ai+cordis-plugin-loader@1.0.2/node_modules/@deepseek-ai/cordis/lib/types/reflect.d.ts.
+[34mℹ[39m Hint: consider adding [34mdeps.onlyBundle[39m option to avoid unintended bundling of dependencies, or set [34mdeps.onlyBundle: false[39m to disable this hint.
+See more at [4mhttps://tsdown.dev/options/dependencies#deps-onlybundle[24m
+Detected dependencies in bundle:
+- [34m@deepseek-ai/cosmokit[39m
+- [34m@standard-schema/spec[39m
+- [34m@deepseek-ai/cordis[39m
+- [34m@deepseek-ai/schemastery[39m
+- [34m@deepseek-ai/dsh-brand[39m
+- [34m@deepseek-ai/dsh-attachment[39m
+- [34m@deepseek-ai/dsh-llm[39m
+- [34myaml[39m
+- [34m@deepseek-ai/dsh-home-paths[39m
+- [34m@deepseek-ai/dsh-credentials[39m
+- [34m@deepseek-ai/dsh-settings[39m
+- [34m@deepseek-ai/dsh-anonymous-user-id[39m
+- [34m@deepseek-ai/dsh-atomic-write[39m
+- [34m@deepseek-ai/dsh-llm-deepseek[39m
+- [34m@deepseek-ai/dsh-agent[39m
+- [34m@promax/promax-report[39m
+- [34m@promax/feishu-api[39m
+- [34m@promax/promax-feishu-bridge[39m
+- [34mexceljs[39m
+- [34mprocess-nextick-args[39m
+- [34misarray[39m
+- [34mreadable-stream[39m
+- [34msafe-buffer[39m
+- [34mcore-util-is[39m
+- [34minherits[39m
+- [34mutil-deprecate[39m
+- [34mstring_decoder[39m
+- [34mjszip[39m
+- [34mimmediate[39m
+- [34mlie[39m
+- [34msetimmediate[39m
+- [34mpako[39m
+- [34mxmlchars[39m
+- [34msaxes[39m
+- [34muuid[39m
+- [34m@fast-csv/format[39m
+- [34mlodash.isfunction[39m
+- [34mlodash.isequal[39m
+- [34mlodash.isboolean[39m
+- [34mlodash.isnil[39m
+- [34mlodash.escaperegexp[39m
+- [34m@fast-csv/parse[39m
+- [34mlodash.isundefined[39m
+- [34mlodash.uniq[39m
+- [34mlodash.groupby[39m
+- [34mfast-csv[39m
+- [34mdayjs[39m
+- [34mminimatch[39m
+- [34mbalanced-match[39m
+- [34mbrace-expansion[39m
+- [34mreaddir-glob[39m
+- [34masync[39m
+- [34mgraceful-fs[39m
+- [34mlazystream[39m
+- [34mnormalize-path[39m
+- [34mlodash.defaults[39m
+- [34mlodash.flatten[39m
+- [34mlodash.difference[39m
+- [34mlodash.union[39m
+- [34mlodash.isplainobject[39m
+- [34mfs.realpath[39m
+- [34mconcat-map[39m
+- [34mpath-is-absolute[39m
+- [34mglob[39m
+- [34mwrappy[39m
+- [34monce[39m
+- [34minflight[39m
+- [34marchiver-utils[39m
+- [34marchiver[39m
+- [34mcompress-commons[39m
+- [34mbuffer-crc32[39m
+- [34mcrc-32[39m
+- [34mcrc32-stream[39m
+- [34mzip-stream[39m
+- [34mbl[39m
+- [34mtar-stream[39m
+- [34mfs-constants[39m
+- [34mend-of-stream[39m
+- [34mlistenercount[39m
+- [34mbuffer-indexof-polyfill[39m
+- [34mtraverse[39m
+- [34mchainsaw[39m
+- [34mbuffers[39m
+- [34mbinary[39m
+- [34mbluebird[39m
+- [34munzipper[39m
+- [34mduplexer2[39m
+- [34mfstream[39m
+- [34mrimraf[39m
+- [34mmkdirp[39m
+- [34mbig-integer[39m
+- [34mtmp[39m
+- [34munderscore[39m
+- [34mmammoth[39m
+- [34mbase64-js[39m
+- [34m@xmldom/xmldom[39m
+- [34mxmlbuilder[39m
+- [34mdingbat-to-unicode[39m
+- [34mlop[39m
+- [34moption[39m
+- [34mpdfjs-dist[39m
+- [34mpdf-parse[39m
+- [34m@deepseek-ai/dsh-scope[39m
+- [34misexe[39m
+- [34mwhich[39m
+- [34mpath-key[39m
+- [34mcross-spawn[39m
+- [34mshebang-regex[39m
+- [34mshebang-command[39m
+- [34m@modelcontextprotocol/sdk[39m
+- [34m@deepseek-ai/dsh-subprocess[39m
+- [34m@deepseek-ai/dsh-session[39m
+- [34m@deepseek-ai/dsh-tools[39m
+- [34m@deepseek-ai/dsh-mcp-client[39m
+- [34m@deepseek-ai/dsh-timeout[39m
+- [34meventsource-parser[39m
+- [34mzod[39m
+- [34majv[39m
+- [34mfast-deep-equal[39m
+- [34mjson-schema-traverse[39m
+- [34mfast-uri[39m
+- [34majv-formats[39m
+- [34mcontent-type[39m
+- [34mpkce-challenge[39m
+[34mℹ[39m [2mpackages/promax-bundle/lib/[22m[1mindex.mjs[22m                    [2m  4.83 MB[22m
+[34mℹ[39m [2mpackages/promax-bundle/lib/[22mstreamableHttp-C3CB_h5H.mjs  [2m745.73 kB[22m [2m│ gzip: 169.25 kB[22m
+[34mℹ[39m [2mpackages/promax-bundle/lib/[22mlib-Dr0cZHUd.mjs             [2m217.50 kB[22m [2m│ gzip:  63.54 kB[22m
+[34mℹ[39m [2mpackages/promax-bundle/lib/[22m[32m[1mindex.d.mts[22m[39m                  [2m246.37 kB[22m [2m│ gzip:  64.28 kB[22m
+[34mℹ[39m 4 files, total: 6.04 MB
+[32m✔[39m Build complete in [32m1589ms[39m

@@ -1,0 +1,14 @@
+# 2026-09-25 提示词准备基线（Claude实测，未改产品）
+$ TMPDIR=/private/tmp node_modules/.bin/vitest run packages/promax-bundle/tests/{native-dispatch,effective-completion,orchestration-closure}.test.ts --testTimeout 15000
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+
+ Test Files  3 passed (3)
+      Tests  49 passed (49)
+   Start at  08:33:39
+   Duration  15.79s (transform 1.48s, setup 329ms, import 2.84s, tests 20.88s, environment 964ms)
+
+$ node_modules/.bin/tsc --noEmit -p tsconfig.json
+tsc exit 0
+$ git -C promax-ui status --short | wc -l
+     353

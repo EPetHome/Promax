@@ -1,0 +1,7 @@
+packages/promax-bundle/src/index.ts(16,10): error TS6133: 'CURRENT_PRODUCT_PRESET' is declared but its value is never read.
+packages/promax-bundle/src/index.ts(8868,57): error TS2339: Property 'metadata' does not exist on type '{}'.
+packages/promax-bundle/src/index.ts(8869,49): error TS2339: Property 'metadata' does not exist on type '{}'.
+packages/promax-bundle/src/index.ts(8870,58): error TS2339: Property 'metadata' does not exist on type '{}'.
+packages/promax-bundle/src/index.ts(8949,127): error TS18048: 'requestedWorkspace' is possibly 'undefined'.
+packages/promax-ui-console/tests/bundle-policy.test.ts(901,7): error TS2345: Argument of type '{ promaxAuth: never; llm: { listProviders: () => never[]; }; workspaceRegistry: { create: Mock<(path: string, title?: string | undefined) => Promise<{ id: string; path: string; title: string; sessionIds: never[]; }>>; delete: Mock<...>; }; ... 11 more ...; emit: Mock<...>; }' is not assignable to parameter of type 'HostContext'.
+  Property 'provide' is missing in type '{ promaxAuth: never; llm: { listProviders: () => never[]; }; workspaceRegistry: { create: Mock<(path: string, title?: string | undefined) => Promise<{ id: string; path: string; title: string; sessionIds: never[]; }>>; delete: Mock<...>; }; ... 11 more ...; emit: Mock<...>; }' but required in type 'HostContext'.

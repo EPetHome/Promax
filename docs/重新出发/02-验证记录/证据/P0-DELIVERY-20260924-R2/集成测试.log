@@ -1,0 +1,30 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-ui-console/tests/work-app.test.tsx (25 tests | 1 failed) 29717ms
+   × continues talking during execution, stops via existing disk control and rejects stale authorization 2165ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-ui-console/tests/work-app.test.tsx > continues talking during execution, stops via existing disk control and rejects stale authorization
+AssertionError: expected '尚未开始' to contain '已停止'
+
+Expected: "已停止"
+Received: "尚未开始"
+
+ ❯ packages/promax-ui-console/tests/work-app.test.tsx:236:59
+    234|   await waitFor(() => expect(props.stopTeamTask).toHaveBeenCalledOnce(…
+    235|   await waitFor(async () => expect((await works.round(card.work_key))?…
+    236|   expect((await works.read(card.work_key)).last_progress).toContain("已…
+       |                                                           ^
+    237|   await expect(works.authorize(card.work_key, running.revision, "click…
+    238|   expect(await screen.findByText("已停止 · 已有成果保留", {}, { timeout: 3000 }…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 62 passed (63)
+   Start at  04:45:27
+   Duration  33.58s (transform 4.55s, setup 1.12s, import 7.86s, tests 48.75s, environment 2.65s)
+

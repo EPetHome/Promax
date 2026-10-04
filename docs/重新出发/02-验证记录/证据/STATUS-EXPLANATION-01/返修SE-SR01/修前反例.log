@@ -1,0 +1,33 @@
+命令: PATH=/Users/Admin/.hermes/node/bin:$PATH TMPDIR=/private/tmp node_modules/.bin/vitest run packages/promax-bundle/tests/native-dispatch.test.ts -t 'SE-SR01' --testTimeout 20000
+环境: 在修改前的源码（bundle 0.1.104，index.ts SHA 18fabf58…）上运行于 2026-09-25
+
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts (36 tests | 1 failed | 35 skipped) 713ms
+   × SE-SR01 多步说明回合：每一步都显示正在说明（第2步不得 pending:false） 712ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SE-SR01 多步说明回合：每一步都显示正在说明（第2步不得 pending:false）
+AssertionError: ["true","false"]: expected 'false' to be 'true' // Object.is equality
+
+Expected: "true"
+Received: "false"
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:913:55
+    911|   expect(pendingSeen.length, JSON.stringify(pendingSeen)).toBeGreaterT…
+    912|   expect(pendingSeen[0], JSON.stringify(pendingSeen)).toBe("true");
+    913|   expect(pendingSeen[1], JSON.stringify(pendingSeen)).toBe("true");
+       |                                                       ^
+    914|   expect(parentVisibleText(w)).toContain("交付说明：以程序回执为准");
+    915| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 35 skipped (36)
+   Start at  09:42:46
+   Duration  1.91s (transform 524ms, setup 142ms, import 987ms, tests 713ms, environment 0ms)
+

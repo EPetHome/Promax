@@ -1,0 +1,134 @@
+TAP version 13
+# Subtest: frozen rating evidence: exact counts, missing denominator, source hash and zero sample
+ok 1 - frozen rating evidence: exact counts, missing denominator, source hash and zero sample
+  ---
+  duration_ms: 122.367333
+  type: 'test'
+  ...
+# Subtest: JR05 immutable r11 Judge contract, prompt, historical r10 and package entry
+ok 2 - JR05 immutable r11 Judge contract, prompt, historical r10 and package entry
+  ---
+  duration_ms: 161.7995
+  type: 'test'
+  ...
+# Subtest: Judge validates the modern closed set and runtime web sources use the same store callback
+ok 3 - Judge validates the modern closed set and runtime web sources use the same store callback
+  ---
+  duration_ms: 101.897375
+  type: 'test'
+  ...
+# (node:82260) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: 完全体 catalog 只有 28 个原版目录和 revision 1，loader 逐条复算内容与树哈希
+ok 4 - 完全体 catalog 只有 28 个原版目录和 revision 1，loader 逐条复算内容与树哈希
+  ---
+  duration_ms: 58.548042
+  type: 'test'
+  ...
+# Subtest: 完全体固定 promax-team、六业务 Skill 数、全员 web 与 Judge 闭集边界
+not ok 5 - 完全体固定 promax-team、六业务 Skill 数、全员 web 与 Judge 闭集边界
+  ---
+  duration_ms: 201.400083
+  type: 'test'
+  location: '/Users/Admin/Desktop/Promax/promax-agent/team-harness/test/prx006-complete-team.test.mjs:42:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      [
+        'glob',
+        'grep',
+        'promax_check_result',
+    +   'promax_rating_facts',
+    +   'promax_read_context',
+        'read',
+        'write'
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 'glob'
+    1: 'grep'
+    2: 'promax_check_result'
+    3: 'read'
+    4: 'write'
+  actual:
+    0: 'glob'
+    1: 'grep'
+    2: 'promax_check_result'
+    3: 'promax_rating_facts'
+    4: 'promax_read_context'
+    5: 'read'
+    6: 'write'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/Admin/Desktop/Promax/promax-agent/team-harness/test/prx006-complete-team.test.mjs:80:12)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: 只保留 9 个顶层模块且没有 v1/2 历史模块目录
+ok 6 - 只保留 9 个顶层模块且没有 v1/2 历史模块目录
+  ---
+  duration_ms: 0.441584
+  type: 'test'
+  ...
+# Subtest: web 成功与仅摘要失败 SRC 必须由业务产物回指后才能进入 Judge
+not ok 7 - web 成功与仅摘要失败 SRC 必须由业务产物回指后才能进入 Judge
+  ---
+  duration_ms: 38.497542
+  type: 'test'
+  location: '/Users/Admin/Desktop/Promax/promax-agent/team-harness/test/prx006-complete-team.test.mjs:95:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected rejection.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  stack: |-
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async TestContext.<anonymous> (file:///Users/Admin/Desktop/Promax/promax-agent/team-harness/test/prx006-complete-team.test.mjs:177:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: 历史中文冻结路径只拦 Judge，并给出可操作的中文错误且不改磁盘
+ok 8 - 历史中文冻结路径只拦 Judge，并给出可操作的中文错误且不改磁盘
+  ---
+  duration_ms: 2.013542
+  type: 'test'
+  ...
+# Subtest: Judge 三态保持证据闭集，telemetry 使用 dsh session hook 与本机 SQLite
+not ok 9 - Judge 三态保持证据闭集，telemetry 使用 dsh session hook 与本机 SQLite
+  ---
+  duration_ms: 0.171917
+  type: 'test'
+  location: '/Users/Admin/Desktop/Promax/promax-agent/team-harness/test/prx006-complete-team.test.mjs:240:1'
+  failureType: 'testCodeFailure'
+  error: '最多两轮'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///Users/Admin/Desktop/Promax/promax-agent/team-harness/test/prx006-complete-team.test.mjs:242:106)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:744:18)
+    Test.postRun (node:internal/test_runner/test:1173:19)
+    Test.run (node:internal/test_runner/test:1101:12)
+    process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 6
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 401.902875

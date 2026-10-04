@@ -1,0 +1,37 @@
+{
+  "task": "JUDGE-RELIABILITY-01 §12 JR-SR01/JR-SR02返修",
+  "scope": "只准备提示词；未修改产品或执行验证/启动Pi",
+  "task_sha256": "d1f2cf8eaebc047cf45db8da1e707b44a3abc0f80d2241c90bdc4a9c55ad8a35",
+  "source_identity": [
+    {
+      "path": "promax-ui/packages/promax-bundle/src/judge-evidence.ts",
+      "sha256": "7da6d95075cf2b9c1fca2e8d66778658e5bec8a3ab01395932ac309a1abbbea8"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/work-store.ts",
+      "sha256": "b395e024be7c5eb34b8dfb59ab08e88441fdf6cc3edba35f92f4e2bc1cc4ce38"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/index.ts",
+      "sha256": "9b549799bbfb997239c443edf73dadaf74d82a406f4c3bfaaa2aab7af82ecfda"
+    },
+    {
+      "path": "promax-ui/packages/promax-ui-console/src/review-protocol.ts",
+      "sha256": "478e5fecd7c4c8c19fc9ce385e535afad16f015bb3b1cd469106bbf7ab0c3fcb"
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/judge-reliability.test.ts",
+      "sha256": "de689ec1ad9604e50071172eca1324271b8dd0a7caac1949741d6937fdf61b54"
+    }
+  ],
+  "missing_links": [],
+  "pi": {
+    "version": "0.84.3",
+    "permission_version": "32.0.2",
+    "args_sha256": "bfb311d2c5d919fa4015d6aaa3c5a71a90b90011320e5e40f56b12e448c44dfc",
+    "loader_sha256": "8e8a1bc1c5bc9e955f6a2314dd1db02071be56d48b1fea7b8b2cacb4fc9a0628",
+    "model": "openai-codex/gpt-6-sol",
+    "thinking": "xhigh"
+  },
+  "wiki": "本轮未查询、未回填；保留既有按需查询技能"
+}

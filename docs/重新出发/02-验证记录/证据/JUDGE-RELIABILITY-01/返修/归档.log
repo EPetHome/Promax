@@ -1,0 +1,11 @@
+package: @promax/promax-bundle@0.1.103
+Tarball Contents
+cordis.patch.yml
+lib/index.d.mts
+lib/index.mjs
+package.json
+presets/general/agent.cordis.yml
+presets/general/preset.yml
+Tarball Details
+/Users/Admin/Desktop/Promax/.runtime/releases/jr-sr01-sr02-20260925/promax-promax-bundle-0.1.103.tgz
+{"archive": "/Users/Admin/Desktop/Promax/.runtime/releases/jr-sr01-sr02-20260925/promax-promax-bundle-0.1.103.tgz", "archive_sha256": "bbf0928c342608a6b822df13df4bf7b6ba00c75c3f5f5a990ab076df3789ebde", "files": 6, "source_diff": [], "semantically_normalized": ["package.json"], "built_module_sha256": "2c69557dc78a49135c97f75c1afd2d183055f5f7c027648607141a8dbaf7a51a"}

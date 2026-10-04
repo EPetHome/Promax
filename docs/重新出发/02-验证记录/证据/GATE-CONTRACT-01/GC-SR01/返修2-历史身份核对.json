@@ -1,0 +1,15 @@
+{
+  "at_utc": "2026-09-25T06:48:56.489253+00:00",
+  "original_headers_checked": 36,
+  "missing_count": 0,
+  "changed_count": 0,
+  "changed_ids": [],
+  "missing_ids": [],
+  "published_alias_manifest_sha256": {
+    "4": "f2030fc36e3c71b2376819ae5f5a18edbbff10646bfe406e0e66bac38e7c55eb",
+    "5": "b79a306fa8b470da63f18c249938225d2ca30668c947d74e7b8e8fb3d67c20b2",
+    "7": "b94abd581f3e9be8f5878658f9c575299043b42399949aded4239bd2412a0ccf",
+    "8": "854158985b0077cc33e88fa5ef618010a9a9d6359a32c27ca7430b4b669eb7a2",
+    "9": "2253be5c34ff91f1919a9297000b2ca1fc4f7878f0b8e7f9b94e99194da2ecfa"
+  }
+}

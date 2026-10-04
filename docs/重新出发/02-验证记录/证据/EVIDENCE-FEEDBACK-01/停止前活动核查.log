@@ -1,0 +1,18 @@
+listener 54804 launch cwd /Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+COMMAND ['ps', '-p', '54804', '-o', 'pid=,ppid=,stat=,lstart=,command='] exit 0 stdout 54804     1 SN   Fri Sep 25 03:14:01 2026     /Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open
+ stderr 
+COMMAND ['lsof', '-a', '-p', '54804', '-d', 'cwd', '-Fn'] exit 0 stdout p54804
+fcwd
+n/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+ stderr 
+COMMAND ['pgrep', '-P', '54804', '-fl', '.'] exit 0 stdout 54830 /Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/node_modules/.pnpm/@esbuild+darwin-arm64@0.28.1/node_modules/@esbuild/darwin-arm64/bin/esbuild --service=0.28.1 --ping
+ stderr 
+COMMAND ['lsof', '-nP', '-a', '-p', '54804', '-iTCP'] exit 0 stdout COMMAND   PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    54804 Admin   18u  IPv4 0x94086420d4ad9c26      0t0  TCP 127.0.0.1:8800 (LISTEN)
+node    54804 Admin   30u  IPv4 0xd85caf080a750b34      0t0  TCP 127.0.0.1:8800->127.0.0.1:54724 (ESTABLISHED)
+node    54804 Admin   32u  IPv4 0xc987aa79c010ef46      0t0  TCP 127.0.0.1:8800->127.0.0.1:54736 (ESTABLISHED)
+node    54804 Admin   33u  IPv4 0x5a2bad7dd7f5c24c      0t0  TCP 127.0.0.1:8800->127.0.0.1:54737 (ESTABLISHED)
+ stderr 
+sessions recent_300sec_count 0 recent_first_10 []
+work recent_300sec_count 0 recent_first_10 []
+profile recent_300sec_count 0 recent_first_10 []

@@ -1,0 +1,80 @@
+{
+  "rounds": 36,
+  "phases": {
+    "ended": 19,
+    "unknown": 12,
+    "checking": 2,
+    "generating": 1,
+    "repairing": 2
+  },
+  "notEnded": [
+    {
+      "phase": "unknown",
+      "mtime": "2026-09-16T02:54:18.170Z"
+    },
+    {
+      "phase": "unknown",
+      "mtime": "2026-09-16T05:59:04.288Z"
+    },
+    {
+      "phase": "checking",
+      "mtime": "2026-09-16T02:53:12.020Z"
+    },
+    {
+      "phase": "unknown",
+      "mtime": "2026-09-24T10:29:36.759Z"
+    },
+    {
+      "phase": "checking",
+      "mtime": "2026-09-16T02:55:40.947Z"
+    },
+    {
+      "phase": "unknown",
+      "mtime": "2026-09-19T11:30:19.767Z"
+    },
+    {
+      "phase": "generating",
+      "mtime": "2026-09-15T17:49:55.390Z"
+    },
+    {
+      "phase": "unknown",
+      "mtime": "2026-09-22T11:30:52.997Z"
+    },
+    {
+      "phase": "unknown",
+      "mtime": "2026-09-16T01:42:04.708Z"
+    },
+    {
+      "phase": "unknown",
+      "mtime": "2026-09-14T02:15:49.666Z"
+    },
+    {
+      "phase": "repairing",
+      "mtime": "2026-09-14T03:05:48.264Z"
+    },
+    {
+      "phase": "repairing",
+      "mtime": "2026-09-14T03:04:57.947Z"
+    },
+    {
+      "phase": "unknown",
+      "mtime": "2026-09-13T16:31:21.314Z"
+    },
+    {
+      "phase": "unknown",
+      "mtime": "2026-09-14T03:22:27.520Z"
+    },
+    {
+      "phase": "unknown",
+      "mtime": "2026-09-14T02:10:59.158Z"
+    },
+    {
+      "phase": "unknown",
+      "mtime": "2026-09-14T02:11:38.033Z"
+    },
+    {
+      "phase": "unknown",
+      "mtime": "2026-09-15T09:27:24.241Z"
+    }
+  ]
+}

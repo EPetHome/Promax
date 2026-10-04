@@ -1,0 +1,22 @@
+{
+  "checked_at_utc": "2026-09-25T11:00:35.259510+00:00",
+  "listener_pid": "88713",
+  "url": "http://127.0.0.1:8800/",
+  "bundle": {
+    "component": "promax-bundle",
+    "version": "0.1.103",
+    "evaluated_at": "2026-09-25T11:00:18.556Z",
+    "module_sha256": "2c69557dc78a49135c97f75c1afd2d183055f5f7c027648607141a8dbaf7a51a"
+  },
+  "bundle_built_and_installed_sha256": "2c69557dc78a49135c97f75c1afd2d183055f5f7c027648607141a8dbaf7a51a",
+  "team_unchanged": {
+    "component": "team-harness",
+    "version": "0.6.19",
+    "module_sha256": "2a1878b859d5be068d2849ce6e06367a7dbdaa0a473d90bba210707b52db7625",
+    "evaluated_at": "2026-09-25T11:00:17.776Z"
+  },
+  "console_entry": "/plugins/@promax/promax-ui-console/client.js?rev=b92d76360d74",
+  "console_unchanged_sha256": "422f3e11a0754d290800639d1eaf3b545820794ac4c4908b09205c8bb886c10d",
+  "r10_resource_unchanged_sha256": "107379bac510eac9108b9cba107bc9433fa639c05240a8573db1a2ae3605be83",
+  "r11_resource_unchanged_sha256": "19abde82140494303edd6004ae6731e53d12a70886884f543b3b6497cbe54326"
+}

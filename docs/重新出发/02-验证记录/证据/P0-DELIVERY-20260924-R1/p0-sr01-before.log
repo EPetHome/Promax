@@ -1,0 +1,28 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts (20 tests | 2 failed | 18 skipped) 1138ms
+   × SR01 原生Judge结束通知不得消费未结算的用户纠正 670ms
+   × SR01 原生Judge结束通知不得消费未结算的被审快照变化 468ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01 原生Judge结束通知不得消费未结算的用户纠正
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01 原生Judge结束通知不得消费未结算的被审快照变化
+AssertionError: expected 0 to be greater than 0
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:413:59
+    411|   expect(parentVisibleText(w)).not.toContain("报告已更新完成");
+    412|   expect(new ContentObjectStore(w.f.scope.projectPath).readVersion(w.k…
+    413|   expect(w.turns.filter(id => id === w.parent.id).length).toBeGreaterT…
+       |                                                           ^
+    414| });
+    415|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 18 skipped (20)
+   Start at  04:00:13
+   Duration  2.23s (transform 511ms, setup 132ms, import 894ms, tests 1.14s, environment 0ms)
+

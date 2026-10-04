@@ -1,0 +1,33 @@
+命令: PATH=/Users/Admin/.hermes/node/bin:$PATH TMPDIR=/private/tmp node_modules/.bin/vitest run packages/promax-bundle/tests/native-dispatch.test.ts -t 'SE-SR03' --testTimeout 20000
+环境: 在修改前的源码（bundle 0.1.105，index.ts SHA 08985a05…）上运行于 2026-09-25
+
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts (42 tests | 1 failed | 41 skipped) 780ms
+   × SE-SR03 说明回合后员工新回合（未 idle）pending:false，说明只出现一次 779ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SE-SR03 说明回合后员工新回合（未 idle）pending:false，说明只出现一次
+AssertionError: [{"turn":2,"pending":"true"},{"turn":3,"pending":"true"}]: expected 'true' to be 'false' // Object.is equality
+
+Expected: "false"
+Received: "true"
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:1030:54
+    1028|   expect(seen.length, JSON.stringify(seen)).toBeGreaterThanOrEqual(2);
+    1029|   expect(seen[0]!.pending, JSON.stringify(seen)).toBe("true");
+    1030|   expect(seen.at(-1)!.pending, JSON.stringify(seen)).toBe("false");
+       |                                                      ^
+    1031|   expect(parentVisibleText(w).match(/交付说明：以程序回执为准/gu) ?? []).toHaveLen…
+    1032|   expect(parentVisibleText(w).match(/正常回答/gu) ?? []).toHaveLength(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 41 skipped (42)
+   Start at  10:09:03
+   Duration  2.33s (transform 592ms, setup 142ms, import 1.34s, tests 780ms, environment 0ms)
+

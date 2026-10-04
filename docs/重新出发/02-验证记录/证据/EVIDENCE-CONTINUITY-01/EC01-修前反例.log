@@ -1,0 +1,39 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/rating-usability.test.ts (6 tests | 1 failed | 5 skipped) 331ms
+   × EC01 注册回执：H1前言不受独立后续章节牵连；公共限制仍阻断续绑 330ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/rating-usability.test.ts > EC01 注册回执：H1前言不受独立后续章节牵连；公共限制仍阻断续绑
+AssertionError: expected [ { conclusion_id: 'CNL-001', …(2) } ] to deeply equal [ ObjectContaining{…} ]
+
+- Expected
++ Received
+
+  [
+    {
+      "conclusion_id": "CNL-001",
+-     "state": "continued",
++     "reason": "正文锚点、上下文限定或基准变化；旧记录缺依赖指纹时需显式补登记",
++     "state": "invalidated",
+    },
+  ]
+
+ ❯ packages/promax-bundle/tests/rating-usability.test.ts:186:39
+    184|   expect(response.isError, String(response.value)).toBe(false);
+    185|   const current = (await w.store.round(w.key))!.receipts!["user_analys…
+    186|   expect(current.evidence_continuity).toEqual([expect.objectContaining…
+       |                                       ^
+    187|   expect(current.evidence_links![0]).toMatchObject({ conclusion_id: ol…
+    188|   expect(current.evidence_links![0]!.link_id).not.toBe(old.link_id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 skipped (6)
+   Start at  04:29:12
+   Duration  2.23s (transform 447ms, setup 137ms, import 1.27s, tests 331ms, environment 423ms)
+

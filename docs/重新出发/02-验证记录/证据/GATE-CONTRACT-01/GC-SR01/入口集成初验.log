@@ -1,0 +1,224 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts (14 tests | 12 failed) 377ms
+   × GATE-CONTRACT-01 exposes the registered node contract and rejects actionable task-7 variants before commit 28ms
+   × GATE-CONTRACT-01 answer retains other legal card_patch fields without nodes or new dispatch 10ms
+   × GATE-CONTRACT-01 keeps valid dependency and scope fields at the registered proposal entry 8ms
+   × T1 successful authorized write exposes an immutable draft while its member is running; failed/empty writes do not 14ms
+   × T1 attachment + original task, then “采纳”:  the frozen run input keeps the whole task and a stable, traceable source id 15ms
+   × T2 business replies with two outputs enter follow-up; a counter-question and a bare yes never become decisions; a revision is not co-effective 150ms
+   × T3/T4 a high-impact correction pauses only the affected output; earlier normal inputs still get handled; stale results never become current; restart resumes 7ms
+   × T5 structured entries accept legal results, reject missing fields/illegal values/wrong versions, dedupe receipts, and render a parseable report; the old quoting failure no longer ends work 8ms
+   × T7 duty/phase authorization admits retrieval, skills and structured submission, and still refuses sibling dispatch, cross-role submission and foreign write paths 20ms
+   × T5/T7 actual dispatch and continuation: three version-bound reviews share one Judge, coordinator repairs, no false undispatched recovery 6ms
+   × R28/R29 续接生命周期：批准的恢复真实执行，在途不被误清，读取原结果不留假running且任务继续推进 6ms
+   × T2 a chat “采纳” adopts one suggestion only when the link is unambiguous; otherwise it is clarified and nothing is adopted 7ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > GATE-CONTRACT-01 exposes the registered node contract and rejects actionable task-7 variants before commit
+AssertionError: expected '会话 session-one 缺少可核对的原始preset/工作区绑定' to contain 'card_patch.nodes[0].gate'
+
+Expected: "card_patch.nodes[0].gate"
+Received: "会话 session-one 缺少可核对的原始preset/工作区绑定"
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:116:60
+    114|     const failed = await submit(bad, `gate-bad-${actual}-${paths.join(…
+    115|     expect(failed.isError).toBe(true);
+    116|     for (const path of paths) expect(String(failed.value)).toContain(`…
+       |                                                            ^
+    117|     expect(String(failed.value)).toContain(actual);
+    118|     const repaired = (bad as readonly Record<string, unknown>[]).map((…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > GATE-CONTRACT-01 answer retains other legal card_patch fields without nodes or new dispatch
+AssertionError: 会话 session-one 缺少可核对的原始preset/工作区绑定: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:138:46
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > GATE-CONTRACT-01 keeps valid dependency and scope fields at the registered proposal entry
+AssertionError: 会话 session-one 缺少可核对的原始preset/工作区绑定: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:153:52
+    151|   const report = { id: "report", title: "形成报告", completion: "成果检查", fi…
+    152|   const proposed = await w.propose({ intent: "guide", card_patch: { no…
+    153|   expect(proposed.isError, String(proposed.value)).toBe(false);
+       |                                                    ^
+    154|   const initial = await w.works.read(w.key);
+    155|   expect(initial.spine?.nodes.find((n) => n.id === "report")?.depends_…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T1 successful authorized write exposes an immutable draft while its member is running; failed/empty writes do not
+TypeError: The "path" argument must be of type string. Received undefined
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:172:16
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T1 attachment + original task, then “采纳”:  the frozen run input keeps the whole task and a stable, traceable source id
+AssertionError: 会话 session-one 缺少可核对的原始preset/工作区绑定: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:213:46
+    211|   await w.say("采纳", { suggestion_target: "访谈检查人、登记人、管理者各 1 人" });
+    212|   const reply = await w.propose({ intent: "execute", deliverables: ["u…
+    213|   expect(reply.isError, String(reply.value)).toBe(false);
+       |                                              ^
+    214|   const card = await w.works.read(w.key);
+    215|   expect(card.origin?.text).toContain("统计人员名单的系统");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T2 business replies with two outputs enter follow-up; a counter-question and a bare yes never become decisions; a revision is not co-effective
+AssertionError: 会话 session-one 缺少可核对的原始preset/工作区绑定: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:263:46
+    261|     ],
+    262|   });
+    263|   expect(reply.isError, String(reply.value)).toBe(false);
+       |                                              ^
+    264|   read = await w.works.read(w.key);
+    265|   expect(read.decisions).toMatchObject([{ id: "identity", answer: "工号"…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T3/T4 a high-impact correction pauses only the affected output; earlier normal inputs still get handled; stale results never become current; restart resumes
+AssertionError: 会话 session-one 缺少可核对的原始preset/工作区绑定: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:294:52
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T5 structured entries accept legal results, reject missing fields/illegal values/wrong versions, dedupe receipts, and render a parseable report; the old quoting failure no longer ends work
+AssertionError: expected { …(2) } to match object { isError: true, …(1) }
+
+- Expected
++ Received
+
+  {
+    "isError": true,
+-   "value": StringContaining "intent 只能是",
++   "value": "会话 session-one 缺少可核对的原始preset/工作区绑定",
+  }
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:345:48
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T7 duty/phase authorization admits retrieval, skills and structured submission, and still refuses sibling dispatch, cross-role submission and foreign write paths
+AssertionError: expected { kind: 'deny', reason: '父工作当前没有执行授权' } to be 'allow' // Object.is equality
+
+- Expected:
+"allow"
+
++ Received:
+{
+  "kind": "deny",
+  "reason": "父工作当前没有执行授权",
+}
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:415:134
+    413|   await w.dispatch("product_discovery", "pd-1");
+    414|   const allow = async () => "allow";
+    415|   expect(await enforceDispatchPlanTool(f.root, { name: "web_search", a…
+       |                                                                                                                                      ^
+    416|   expect(await enforceDispatchPlanTool(f.root, { name: "skill", argume…
+    417|   expect(await enforceDispatchPlanTool(f.root, { name: "write", argume…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T5/T7 actual dispatch and continuation: three version-bound reviews share one Judge, coordinator repairs, no false undispatched recovery
+AssertionError: expected 400 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 400
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:485:140
+    483|   await w.propose({ intent: "execute", deliverables: ["product_discove…
+    484|   const proposed = (await w.works.round(w.key))!;
+    485|   expect((await f.request("work/card/update", { work_key: w.key, actio…
+       |                                                                                                                                            ^
+    486|   const main = () => ({ session: { header: { id: w.session, cwd: f.sco…
+    487|   let judgeStarts = 0, continuations = 0;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > R28/R29 续接生命周期：批准的恢复真实执行，在途不被误清，读取原结果不留假running且任务继续推进
+AssertionError: expected 400 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 400
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:561:140
+    559|   await w.propose({ intent: "execute", deliverables: ["product_discove…
+    560|   const proposed = (await w.works.round(w.key))!;
+    561|   expect((await f.request("work/card/update", { work_key: w.key, actio…
+       |                                                                                                                                            ^
+    562|   const task = (await w.works.round(w.key))!.task_key!;
+    563|   const main = () => ({ session: { header: { id: w.session, cwd: f.sco…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > T2 a chat “采纳” adopts one suggestion only when the link is unambiguous; otherwise it is clarified and nothing is adopted
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:646:203
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  12 failed | 5 passed (17)
+   Start at  01:28:34
+   Duration  2.55s (transform 750ms, setup 321ms, import 1.69s, tests 1.72s, environment 1.11s)
+

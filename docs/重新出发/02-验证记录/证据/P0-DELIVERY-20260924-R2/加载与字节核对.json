@@ -1,0 +1,17 @@
+{
+  "pid": "48274",
+  "runtime": {
+    "component": "promax-bundle",
+    "version": "0.1.91",
+    "evaluated_at": "2026-09-24T08:50:26.268Z",
+    "module_sha256": "0fbe4e31a33fa703d9c8d3526539eb5ccce552b5df21294d0107b8ce141ee9db"
+  },
+  "source_installed_archive_equal": true,
+  "manifest_lock_archive_integrity": true,
+  "console": {
+    "url": "/plugins/@promax/promax-ui-console/client.js?rev=5bea8ca8d4b0",
+    "matches_existing_installed": true,
+    "sha256": "c7ae81c4932b203c8611b4677f4b92f028156ac99797a6de8d54ec03eb63149a"
+  },
+  "recovery": ".runtime/releases/p0-delivery-20260924-r2/recovery"
+}

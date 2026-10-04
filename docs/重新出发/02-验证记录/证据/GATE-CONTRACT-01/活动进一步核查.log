@@ -1,0 +1,59 @@
+SESSION TREE
+SESSION AGE
+1790248609 1177626 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/session-aa8e657a-a011-42f2-a337-bf960bdd6d2d/session.jsonl.zstd
+1790248603 572942 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/69808fce-611c-4232-b9bc-b662dd7e42cf/session.jsonl.zstd
+1790248387 429023 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/0a6aaa55-4004-4a77-8d85-2e9fa55f60a9/session.jsonl.zstd
+1790247826 707405 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/4bb0b36e-dbee-4a84-b410-79ba036a2434/session.jsonl.zstd
+1790245786 1267843 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/session-ab4a8dbc-51cb-4d7d-a706-03a3372f8bda/session.jsonl.zstd
+1790245742 400133 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/17df98cb-f36e-4cf8-ae16-bffec6977f55/session.jsonl.zstd
+1790245581 391721 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/6614c607-9b65-4df5-8b76-5281dbd993b4/session.jsonl.zstd
+1790244401 663449 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/bedfa43d-5077-4c67-bb5e-f34887c57317/session.jsonl.zstd
+1790148278 1759249 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/session-7c6a761e-e4cd-4e3c-95b5-68a20505cb72/session.jsonl.zstd
+1790148239 1017409 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/c25f1df5-c620-481d-a050-b2cc5ec7d8b6/session.jsonl.zstd
+1790147946 595714 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/8ee0010f-f703-42ab-8be4-82c4ffa0ef50/session.jsonl.zstd
+1790144617 928826 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/899067b4-1905-4ca9-82a6-ae0b7a085aba/session.jsonl.zstd
+1790081267 1394250 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/session-a72216bb-7489-4106-a66e-c8b3e8d915e4/session.jsonl.zstd
+1790081266 890959 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/9dee59f9-e9a8-4cc0-9a46-97828e4388a2/session.jsonl.zstd
+1790081132 1170392 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/5609faba-9aed-44dd-bed6-42005ecb88bb/session.jsonl.zstd
+1790078367 771636 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/fe59b53d-7ae3-4f48-97b1-72614d2c541e/session.jsonl.zstd
+1790078144 804029 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/560190f6-32ba-4315-b193-5c0bf2372444/session.jsonl.zstd
+1790076669 53218 /Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--/session-876b8563-b9a5-49d5-8761-d029fc65204a/session.jsonl.zstd
+CHILDREN
+13440 11763       00:00 Ss   /bin/bash -c { echo 'SESSION TREE'; find "$HOME/.dsh-promax-first/sessions" -maxdepth 2 -type f | head -30; echo 'SESSION AGE'; find "$HOME/.dsh-promax-first/sessions" -type f -print0 | xargs -0 stat -f '%m %z %N' | sort -nr | head -18; echo 'CHILDREN'; ps -axo pid,ppid,etime,stat,command | rg 'subagent|deepseek-harness|tsx/esm|dsh ' | head -35; echo 'TCP PEERS'; lsof -nP -a -p 68452 -iTCP | head -30; for p in 49813 49815 49820; do lsof -nP -tiTCP:$p | head -4; done; echo 'TASK LOCATIONS'; find "$HOME/.dsh-promax-first" -maxdepth 2 -type d | head -40; } > '重新出发/02-验证记录/证据/GATE-CONTRACT-01/活动进一步核查.log' 2>&1; tail -105 '重新出发/02-验证记录/证据/GATE-CONTRACT-01/活动进一步核查.log'
+13465 13440       00:00 S    rg subagent|deepseek-harness|tsx/esm|dsh 
+68452     1    18:49:02 SN   /Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open
+TCP PEERS
+COMMAND   PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    68452 Admin   17u  IPv4 0x4d0fde61b1806bb1      0t0  TCP 127.0.0.1:8800 (LISTEN)
+node    68452 Admin   21u  IPv4 0x9183f9765d0a2fee      0t0  TCP 127.0.0.1:8800->127.0.0.1:49813 (ESTABLISHED)
+node    68452 Admin   30u  IPv4 0x749155b7bbb9ac05      0t0  TCP 127.0.0.1:8800->127.0.0.1:49815 (ESTABLISHED)
+node    68452 Admin   35u  IPv4 0xd18f2718f0a4416b      0t0  TCP 127.0.0.1:8800->127.0.0.1:49820 (ESTABLISHED)
+2476
+68452
+2476
+68452
+2476
+68452
+TASK LOCATIONS
+/Users/Admin/.dsh-promax-first
+/Users/Admin/.dsh-promax-first/storages
+/Users/Admin/.dsh-promax-first/promax
+/Users/Admin/.dsh-promax-first/promax/trace-outbox-3a468845f214f57091315192
+/Users/Admin/.dsh-promax-first/promax/data
+/Users/Admin/.dsh-promax-first/promax/recycle-bin
+/Users/Admin/.dsh-promax-first/workspaces
+/Users/Admin/.dsh-promax-first/workspaces/general
+/Users/Admin/.dsh-promax-first/sessions
+/Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~8BC4~6D4B~9694~79BB-20260915-1242-ed3718--
+/Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~4EA7~54C1--
+/Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-first-~4F01~4E1A-bba5c8e2c5b3ff5b--
+/Users/Admin/.dsh-promax-first/sessions/--Users-Admin-Promax-~9879~76EE~9694~79BB~9A8C~653620260905--
+/Users/Admin/.dsh-promax-first/.agent-presets
+/Users/Admin/.dsh-promax-first/.agent-presets/general
+/Users/Admin/.dsh-promax-first/.agent-presets/promax-team
+/Users/Admin/.dsh-promax-first/.agent-presets/promax-team-configurator
+/Users/Admin/.dsh-promax-first/profiles
+/Users/Admin/.dsh-promax-first/profiles/web
+/Users/Admin/.dsh-promax-first/profiles/web-p0-delivery-stage
+/Users/Admin/.dsh-promax-first/profiles/node_modules
+/Users/Admin/.dsh-promax-first/run

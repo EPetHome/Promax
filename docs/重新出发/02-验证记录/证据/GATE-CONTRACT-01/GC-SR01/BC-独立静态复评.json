@@ -1,0 +1,67 @@
+{
+  "scope": "GC-SR01-BC独立静态复评；仅读取差异/源码/测试/已有日志及文件SHA，未执行产品测试、复现、接口、模型、类型/构建、浏览器或服务操作",
+  "identity_checks": [
+    {
+      "path": "promax-agent/deepseek-harness/packages/host/apiproxy/src/api-proxy.ts",
+      "matches": true
+    },
+    {
+      "path": "promax-agent/deepseek-harness/packages/host/apiproxy/lib/index.js",
+      "matches": true
+    },
+    {
+      "path": "promax-agent/deepseek-harness/apps/cli/tests/web-agent-presets.e2e.ts",
+      "matches": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/src/promax-session-binding.ts",
+      "matches": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/tests/promax-session-binding.test.ts",
+      "matches": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/package.json",
+      "matches": true
+    },
+    {
+      "path": "promax-ui/packages/promax-bundle/lib/index.mjs",
+      "matches": true
+    },
+    {
+      "path": "/Users/Admin/.dsh-promax-first/profiles/web/package.json",
+      "matches": true
+    },
+    {
+      "path": "/Users/Admin/.dsh-promax-first/profiles/web/pnpm-lock.yaml",
+      "matches": true
+    },
+    {
+      "path": "/Users/Admin/.dsh-promax-first/profiles/web/node_modules/@promax/promax-bundle/lib/index.mjs",
+      "matches": true
+    },
+    {
+      "path": "/Users/Admin/.dsh-promax-first/.agent-presets/promax-team-r10/manifest.sha256",
+      "matches": true
+    }
+  ],
+  "changes": [
+    "native fork预pin采用events.slice(0,cut)，与实际seed一致",
+    "旧alias子pin兼容仅在直接父pin同别名、同revision及资源校验通过时允许有效旧名读取；不改旧pin",
+    "bundle入口index.ts与BC接手备份字节一致，未改变其它分发/合同入口"
+  ],
+  "test_evidence_review": [
+    "BC修前真实链在冷恢复派生会话时报固定绑定身份无效，日志保留",
+    "修后同一实际JSONL→resolver→native恢复/mount→systemPrompt→有效选择合同链，含selected两代实际fork及再次冷恢复；1/1为已有开发记录",
+    "绑定6/6代码含旧alias pin保持原字节、父来源缺失/父revision冲突/父资源冲突拒绝；47/47原生回归已有记录"
+  ],
+  "delivery_evidence": "BC-运行加载身份.json记录bundle0.1.98模块bd872938…与安装/构建一致；native7cad86f6…；console/team/r10未重发。未实时探测服务。",
+  "conclusion": "passed_static_review_no_new_actionable_findings_in_scope",
+  "stage": "阶段一工程与独立静态复评可收口，业务验收未通过声明；阶段二不自动启动",
+  "limitations": [
+    "未运行真实业务模型/浏览器/效率及生产旧会话逐一恢复",
+    "未知版本会话继续拒绝；原已披露限制保持",
+    "pi-lens失败保留，不当作通过证据"
+  ]
+}

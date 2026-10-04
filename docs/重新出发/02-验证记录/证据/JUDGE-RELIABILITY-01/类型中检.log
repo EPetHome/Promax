@@ -1,0 +1,3 @@
+packages/promax-bundle/src/promax-session-binding.ts(128,5): error TS1308: 'await' expressions are only allowed within async functions and at the top levels of modules.
+packages/promax-bundle/src/promax-session-binding.ts(129,5): error TS2322: Type 'string' is not assignable to type 'Promise<string>'.
+  Type 'string' is not assignable to type 'Promise<string>'.

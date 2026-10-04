@@ -1,0 +1,16 @@
+checked_utc= 2026-09-25T10:58:58Z
+dependency @promax/promax-bundle file:/Users/Admin/Desktop/Promax/.runtime/releases/judge-reliability-20260925/promax-promax-bundle-0.1.102.tgz
+dependency @promax/promax-ui-console file:/Users/Admin/Desktop/Promax/.runtime/releases/judge-reliability-20260925/promax-promax-ui-console-0.3.158.tgz
+dependency @promax/team-harness file:/Users/Admin/Desktop/Promax/.runtime/releases/judge-reliability-20260925/promax-team-harness-0.6.19.tgz
+previous_bundle_sha_matches= 781c4f19d704bec25ff1f70005808f9b691e3be7cba8f50cc1a5a22ab385a2dc
+preset 10 sha256 107379bac510eac9108b9cba107bc9433fa639c05240a8573db1a2ae3605be83
+preset 11 sha256 19abde82140494303edd6004ae6731e53d12a70886884f543b3b6497cbe54326
+listener_pids= ['83640']
+process= 83640     1 Fri Sep 25 06:19:36 2026     /Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open
+cwd= p83640
+fcwd
+n/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+children= none
+connections= 3 local= True
+sessions= 135 recent120= 0 recent600= 0 newest_age_s= 85329
+profile_sha256= 173f0460f319e05e917fdeebb1312357775d46911a18d50a4250d947c82af5ae lock_sha256= 63a778e783a437f92f32756d105d356ef8d6cecf35387e5ef919aaf10e652c38

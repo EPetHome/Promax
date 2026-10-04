@@ -1,0 +1,22 @@
+{
+  "bundle_runtime": {
+    "component": "promax-bundle",
+    "version": "0.1.95",
+    "evaluated_at": "2026-09-25T04:33:35.532Z",
+    "module_sha256": "cc2494734610211ce99be420dd92adf734ad779b2c81a1eb456d4be36cdada7e"
+  },
+  "harness_runtime": {
+    "component": "team-harness",
+    "version": "0.6.17-dist.1",
+    "module_sha256": "76e7a7dc77ae7479cd3a60ac2a6f6eb0c918deceded84eddfd5963fb89097081",
+    "evaluated_at": "2026-09-25T04:33:34.721Z"
+  },
+  "registered_schema_runtime_module_sha256": "cc2494734610211ce99be420dd92adf734ad779b2c81a1eb456d4be36cdada7e",
+  "registered_schema_proof": "工具注册调用 structuredToolDefinitions 于此模块；隔离工具入口测试断言实际注册节点schema；生产进程模块hash与受测归档lib一致，未调用业务模型",
+  "console_url": "/plugins/@promax/promax-ui-console/client.js?rev=eaf7c5f401e5",
+  "console_client_sha256": "a9afccfd83a109e189528b1bcddfc69f48c3b55b46a845416b088607fd40b285",
+  "console_installed_match": true,
+  "preset_revision": "promax-product-team@r9",
+  "preset_team_revision_sha256": "5369793b1e952593a5a75e5337e26dbee9711d78f82fe918aee0a5e01bcef3a3",
+  "old_session_migration": "not_performed"
+}

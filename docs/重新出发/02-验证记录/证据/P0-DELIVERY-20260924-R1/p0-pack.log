@@ -1,0 +1,52 @@
+npm notice
+npm notice 📦  @promax/promax-ui-console@0.3.154
+npm notice Tarball Contents
+npm notice 6.7kB dist/assets/customer_research-76-daGXivKC.png
+npm notice 351.9kB dist/assets/index--wC1C1yq.js
+npm notice 629.3kB dist/assets/index--wC1C1yq.js.map
+npm notice 281B dist/assets/index-BFRA1ZDs.css
+npm notice 6.0kB dist/assets/logo-76-BxuC6YF3.png
+npm notice 7.0kB dist/assets/product_discovery-76-BiNhGLWz.png
+npm notice 6.5kB dist/assets/requirement_management-76-B6ZCPq3G.png
+npm notice 5.9kB dist/assets/requirement_review-76-CbdVBR8X.png
+npm notice 6.0kB dist/assets/solution_design-76-DCRHj5MS.png
+npm notice 6.2kB dist/assets/user_analysis-76-CrTMicR2.png
+npm notice 456B dist/index.html
+npm notice 4.0MB lib/client.js
+npm notice 18.8kB lib/index.d.mts
+npm notice 230.1kB lib/index.mjs
+npm notice 492B lib/server.d.mts
+npm notice 5.3kB lib/server.mjs
+npm notice 1.3kB package.json
+npm notice Tarball Details
+npm notice name: @promax/promax-ui-console
+npm notice version: 0.3.154
+npm notice filename: promax-promax-ui-console-0.3.154.tgz
+npm notice package size: 1.4 MB
+npm notice unpacked size: 5.2 MB
+npm notice shasum: de1457f504ffce45105962fa6efe655da91506ab
+npm notice integrity: sha512-olQztzjLE6Oiu[...]GDDdebUVTeJMQ==
+npm notice total files: 17
+npm notice
+promax-promax-ui-console-0.3.154.tgz
+npm notice
+npm notice 📦  @promax/promax-bundle@0.1.89
+npm notice Tarball Contents
+npm notice 2.3kB cordis.patch.yml
+npm notice 56.7kB lib/index.d.mts
+npm notice 745.3kB lib/index.mjs
+npm notice 1.1kB package.json
+npm notice 1.5kB presets/general/agent.cordis.yml
+npm notice 127B presets/general/preset.yml
+npm notice Tarball Details
+npm notice name: @promax/promax-bundle
+npm notice version: 0.1.89
+npm notice filename: promax-promax-bundle-0.1.89.tgz
+npm notice package size: 227.7 kB
+npm notice unpacked size: 807.0 kB
+npm notice shasum: 15fc1da8bb47749d46d39d131cdcd20de76843f4
+npm notice integrity: sha512-WHDeKF+yaGeDT[...]k84DbSYlZpygw==
+npm notice total files: 6
+npm notice
+promax-promax-bundle-0.1.89.tgz
+Selected archives prepared at /Users/Admin/Desktop/Promax/.runtime/releases/p0-delivery-20260924-r1; no runtime sources changed and no full installer generated.

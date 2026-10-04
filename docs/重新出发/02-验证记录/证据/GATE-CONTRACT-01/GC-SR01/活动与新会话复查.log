@@ -1,0 +1,21 @@
+2026-09-25T05:48:14Z
+PORT
+COMMAND   PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    13956 Admin   17u  IPv4 0x843120a3a5b06dd2      0t0  TCP 127.0.0.1:8800 (LISTEN)
+PID=13956
+  PID  PPID STARTED                       ELAPSED STAT COMMAND
+13956     1 Fri Sep 25 00:33:32 2026     01:14:42 SN   /Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open
+p13956
+fcwd
+n/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+CHILDREN
+TCP
+COMMAND   PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    13956 Admin   17u  IPv4 0x843120a3a5b06dd2      0t0  TCP 127.0.0.1:8800 (LISTEN)
+node    13956 Admin   28u  IPv4 0xe34d4639f0fc7e3c      0t0  TCP 127.0.0.1:8800->127.0.0.1:55447 (ESTABLISHED)
+node    13956 Admin   30u  IPv4 0xbcefd7e78775608f      0t0  TCP 127.0.0.1:8800->127.0.0.1:55472 (ESTABLISHED)
+node    13956 Admin   31u  IPv4 0xef5e90b09bc550b1      0t0  TCP 127.0.0.1:8800->127.0.0.1:55473 (ESTABLISHED)
+RECENT SESSION WRITES 5m
+RECENT WORK WRITES 5m
+NEW MAIN HEADERS SINCE r9
+count= 0 identities= []

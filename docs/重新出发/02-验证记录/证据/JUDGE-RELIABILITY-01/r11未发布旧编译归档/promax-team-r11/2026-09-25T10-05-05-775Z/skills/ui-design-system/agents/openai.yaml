@@ -1,0 +1,4 @@
+interface:
+  display_name: "产品界面设计系统"
+  short_description: "为内部产品与HTML原型定义可复用的视觉和组件规则"
+  default_prompt: "Use $ui-design-system to define a practical UI baseline, tokens, component states, and responsive rules for this product solution."

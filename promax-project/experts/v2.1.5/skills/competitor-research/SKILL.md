@@ -1,0 +1,106 @@
+---
+context: fork
+name: competitor-research
+description: 产品竞品分析主技能。编排意图识别、搜索检索、报告生成的完整工作流。当用户提到竞品、对比、vs、市场分析、替代方案、竞品分析时自动触发。
+---
+
+执行前读取 `references/collection.md` 和 `references/platform.md`。使用统计由宿主 Hook 自动触发；不得手动运行 start/finish。按 collection.md 的业务结果合同交付真实产物。
+
+**调用 ID：`competitor-research`；默认角色：`product_discovery`；版本：2.1.5。**
+
+# Competitor Research
+
+## Skill 名称
+competitor-research
+
+## Skill 目标
+接收用户的自然语言查询，识别分析意图，编排搜索与报告生成流程，交付完整的结构化竞品研究报告。
+
+## 适用场景
+- 用户想了解某个市场/行业的竞争格局（"AI 邮件助手市场分析"）
+- 用户想深入研究某个产品（"Superhuman 邮件客户端"）
+- 用户想对比多个产品（"Superhuman vs Front 功能对比"）
+- 用户提到"竞品"、"vs"、"替代方案"、"市场分析"等关键词
+
+## 不适用场景
+- 用户询问的是产品使用教程或技术实现细节（非竞品分析）
+- 用户需要的是单一产品官方文档（非竞争视角）
+- 用户需求是内部项目评审或代码 review
+
+## 输入要求
+- 用户的自然语言查询（中英文均可）
+- 可选：用户提供的目标产品官网 URL 作为补充参考
+
+## 处理流程
+
+### Step 1: 意图识别
+读取 `{baseDir}/../search-engine/references/intent_parser.md`，将查询解析为三种意图之一：
+
+| 意图 | 关键词 | 分析重点 |
+|------|--------|---------|
+| market_analysis | market、行业、市场规模、主要厂商 | 市场规模、主要玩家、发展趋势 |
+| product_deep_research | 单一产品名称（短查询） | 功能特性、技术架构、定价、评价 |
+| product_competition | vs、对比、竞品、替代、alternatives | 功能对比矩阵、定价分析、差异化 |
+
+提取 `target_product`，去除后缀修饰词（功能、特性、分析等）。
+
+### Step 2: 使用检索结果
+**本技能不联网搜索**（宿主会拒绝本技能内的网页搜索）。检索由成员另行调用 `search-engine` 完成：
+- 只使用参数中给出的 search-engine 检索结果文件，按 URL 去重
+- 排除社交媒体、评论聚合站等低质量来源
+- 参数里没有检索结果时，不自行搜索，直接返回「缺少检索结果，需先调用 search-engine」
+
+### Step 3: 数据清洗与报告生成
+按 `report-generator` 的方法在本技能内完成（这不是一次对该技能的调用；如需独立执行，由成员另行调用）：
+- 读取 `{baseDir}/../report-generator/references/data_cleaning.md` 结构化搜索结果
+- 读取 `{baseDir}/../report-generator/references/report_template.md` 选择对应报告模板
+- 生成完整 Markdown 报告
+
+### Step 4: 输出
+将完整报告返回给用户。
+
+## 输出格式
+结构化 Markdown 报告，包含：
+- 执行摘要（Executive Summary）
+- 产品概览表格
+- 功能对比矩阵
+- 深度洞察
+- 推荐建议
+- 来源引用列表
+
+汇报执行情况时，只把本次实际发生的 Skill 调用写成「调用」；按其他技能方法在本技能内完成的步骤，写成「本技能内完成」，不得写成调用了对应技能。
+
+## 依赖资源
+- `search-engine` 子技能 — 搜索策略与执行
+- `report-generator` 子技能 — 数据清洗与报告生成
+- `{baseDir}/../search-engine/assets/sources.yaml` — 可信来源配置
+
+## 注意事项
+- 证据优先：只收录有可验证来源的产品信息
+- 禁止编造：未检索到的信息标注"未在搜索结果中找到"
+- 不确定信息标注 `[unverified]`
+- 所有来源必须在 References 部分列出完整 URL
+
+## 示例调用
+
+```
+Input:  "AI email assistant market analysis"
+Intent: market_analysis
+Output: 市场分析报告，包含 5+ 产品概览、市场规模趋势、推荐建议
+
+Input:  "Superhuman email client"
+Intent: product_deep_research
+Output: 产品深度研究报告，包含功能、定价、技术架构、优劣势
+
+Input:  "Superhuman vs Front vs Missive"
+Intent: product_competition
+Output: 竞争对比报告，包含功能对比矩阵、定价分析、差异化建议
+```
+
+
+---
+
+
+## 本次任务输入
+
+$ARGUMENTS

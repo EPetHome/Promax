@@ -1,0 +1,98 @@
+! Corepack is about to download https://registry.npmjs.org/pnpm/-/pnpm-11.7.0.tgz
+Scope: all 5 workspace projects
+? Verifying lockfile against supply-chain policies (643 entries)...
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 16, reused 16, downloaded 0, added 0
+Progress: resolved 19, reused 19, downloaded 0, added 0
+
+   ╭──────────────────────────────────────────────╮
+   │                                              │
+   │      Update available! 11.7.0 → 12.6.0.      │
+   │     Changelog: https://pnpm.io/v/12.6.0      │
+   │   To update, run: corepack use pnpm@12.6.0   │
+   │                                              │
+   ╰──────────────────────────────────────────────╯
+
+Progress: resolved 30, reused 30, downloaded 0, added 0
+Progress: resolved 31, reused 30, downloaded 0, added 0
+Progress: resolved 63, reused 50, downloaded 0, added 0
+Progress: resolved 166, reused 165, downloaded 0, added 0
+Progress: resolved 171, reused 171, downloaded 0, added 0
+Progress: resolved 173, reused 173, downloaded 0, added 0
+Progress: resolved 174, reused 173, downloaded 0, added 0
+Progress: resolved 408, reused 348, downloaded 0, added 0
+Progress: resolved 426, reused 353, downloaded 0, added 0
+Progress: resolved 556, reused 461, downloaded 0, added 0
+Progress: resolved 594, reused 499, downloaded 0, added 0
+Progress: resolved 595, reused 500, downloaded 0, added 0
+Progress: resolved 639, reused 543, downloaded 0, added 0
+[WARN] Request took 11109ms: https://registry.npmjs.org/react-is
+✓ Lockfile passes supply-chain policies (643 entries in 19.1s)
+Progress: resolved 649, reused 554, downloaded 0, added 0
+Progress: resolved 650, reused 554, downloaded 0, added 0
+Progress: resolved 650, reused 555, downloaded 0, added 0
+[WARN] 6 deprecated subdependencies found: fstream@1.0.12, glob@7.2.3, inflight@1.0.6, lodash.isequal@4.5.0, rimraf@2.7.1, uuid@8.3.2
+Packages: +4
+++++
+Progress: resolved 650, reused 555, downloaded 0, added 4, done
+
+Done in 28.1s using pnpm v11.7.0
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts (20 tests | 3 failed | 17 skipped) 1900ms
+   × SR01 原生Judge结束通知不得消费未结算的用户纠正 775ms
+   × SR01 原生Judge结束通知不得消费未结算的被审快照变化 523ms
+   × T07 版本已保存但当前入口刷新失败，报告已保存而非提交失败，不重复版本 601ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01 原生Judge结束通知不得消费未结算的用户纠正
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01 原生Judge结束通知不得消费未结算的被审快照变化
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:412:95
+    410|   expect(new ContentObjectStore(w.f.scope.projectPath).index().artifac…
+    411|   expect(parentVisibleText(w)).not.toContain("报告已更新完成");
+    412|   expect((await w.store.read(w.key)).deliverables.some(d => d.current_…
+       |                                                                                               ^
+    413|   expect(w.turns.filter(id => id === w.parent.id).length).toBeGreaterT…
+    414| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > T07 版本已保存但当前入口刷新失败，报告已保存而非提交失败，不重复版本
+AssertionError: expected { …(8) } to match object { Object (state, correction) }
+(7 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "correction": false,
+-   "state": "complete",
++   "state": "saved_partial",
+  }
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:442:47
+    440|   await w.store.refreshDelivery(w.key);
+    441|   const recovered = await w.store.read(w.key);
+    442|   expect(recovered.delivery_receipts!.at(-1)).toMatchObject({ state: "…
+       |                                               ^
+    443|   expect(recovered.deliverables.find(d => d.filename === "prd.md")).to…
+    444|   expect(recovered.last_progress).toContain("正式交付已完成");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 17 skipped (20)
+   Start at  04:00:00
+   Duration  3.39s (transform 508ms, setup 139ms, import 1.28s, tests 1.90s, environment 0ms)
+

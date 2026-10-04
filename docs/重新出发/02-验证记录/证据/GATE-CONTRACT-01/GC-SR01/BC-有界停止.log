@@ -1,0 +1,14 @@
+2026-09-25T07:13:32Z
+pid=50171
+/Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open
+p50171
+fcwd
+n/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+session_recent=0
+work_recent=0
+esbuild-only-child
+50199 50171 SN   /Users/Admin/Desktop/Promax/promax-agent/deepseek-harness/node_modules/.pnpm/@esbuild+darwin-arm64@0.28.1/node_modules/@esbuild/darwin-arm64/bin/esbuild --service=0.28.1 --ping
+2026-09-25T07:13:32Z TERM PID=50171
+stopped_self_poll=2
+stopped=1
+listener_after=

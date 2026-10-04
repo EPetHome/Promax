@@ -1,0 +1,10 @@
+members same
+artifacts same
+rubrics same
+workspace_policy same
+tool_profiles same
+skills same
+permissions same
+domain_rubrics same
+preset_id promax-team -> promax-team-r10
+team_revision_id promax-product-team@r9 -> promax-product-team@r10

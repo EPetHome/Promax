@@ -1,0 +1,226 @@
+---
+context: fork
+name: requirement-board
+description: 生成需求管理看板。从飞书多维表格读取需求数据，生成可视化看板 HTML 页面。触发词：生成需求看板、看板刷新、requirement
+  board。
+---
+
+执行前读取 `references/collection.md` 和 `references/platform.md`。使用统计由宿主 Hook 自动触发；不得手动运行 start/finish。按 collection.md 的业务结果合同交付真实产物。
+
+**调用 ID：`requirement-board`；默认角色：`requirement_management`；版本：2.1.5。**
+
+# 需求看板
+
+本版通过当前目录 `scripts/feishu_data.py` 直连飞书。先读 `references/platform.md` 的业务读写命令；目标业务表由本次用户提供，不能使用采集表代替。
+
+## 第一步：读取业务需求池
+
+用 tables 选择实际目标表，fields 读取字段，records 完整分页读取并保存本地 JSON。字段按实际结构映射。
+
+## 第二步：数据处理（关键！）
+
+### 2.1 JSON 读取
+
+脚本通过标准库生成合法 JSON，使用 json.load 读取。解析失败须检查文件来源，不能改写业务原文来凑解析成功。
+
+### 2.2 时间戳转换
+
+飞书 API 返回的日期字段是**毫秒时间戳**（number 类型），必须转换为 HTML 模板期望的格式。
+
+**转换规则：**
+```
+毫秒时间戳 1754611200000 → ["August 8", "2025"]
+```
+
+Python 转换函数：
+```python
+MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+
+def ts2date(ts):
+    if not ts: return None
+    try:
+        from datetime import datetime, timezone, timedelta
+        tz = timezone(timedelta(hours=8))
+        dt = datetime.fromtimestamp(int(ts)/1000, tz=tz)
+        return [f"{MONTHS[dt.month-1]} {dt.day}", str(dt.year)]
+    except:
+        return None
+```
+
+### 2.3 字段名映射
+
+飞书 API 返回的字段名可能不一致，需要兜底映射：
+
+| 模板期望字段 | 可能的 API 字段名 |
+|-------------|------------------|
+| `提出需求时间` | `提出需求时间` 或 `提出需求日期` |
+| `原定上线时间` | `原定上线时间` 或 `原定上线日期` |
+| `开发开始时间` | `开发开始时间` 或 `开发开始日期` |
+| `技术方案评审时间` | `技术方案评审时间` 或 `技术方案评审日期` |
+| `提测时间` | `提测时间` 或 `提测日期` |
+| `真实上线时间` | `真实上线时间` 或 `真实上线日期` |
+
+### 2.4 文本字段提取
+
+飞书 API 的标题等字段可能返回数组格式 `[{"text":"标题内容","type":"text"}]`：
+
+```python
+def txt(v):
+    if isinstance(v, str): return v
+    if isinstance(v, list): return "".join(i.get("text","") for i in v if isinstance(i,dict))
+    return str(v) if v else None
+
+def lnk(v):
+    if isinstance(v, list):
+        parts = []
+        for i in v:
+            if isinstance(i, dict):
+                for k in ("text","link"):
+                    if i.get(k): parts.append(i[k])
+        return "".join(parts) if parts else None
+    return v if isinstance(v, str) else None
+
+def people(v):
+    if isinstance(v, list): return v
+    return None
+```
+
+---
+
+## 第三步：生成 HTML 看板
+
+看板是**自包含 HTML 文件**（所有 CSS + JS + 数据嵌入一个文件），Chart.js 使用 CDN。
+
+### 3.1 数据嵌入格式
+
+```js
+window.EMBEDDED_DATA = {
+  "has_more": false,
+  "items": [{
+    "fields": {
+      "标题": string,
+      "状态": string | null,
+      "一级模块": string | null,
+      "二级模块": string[] | null,
+      "重要性": string | null,
+      "提出需求时间": [string, string] | null,  // ["Month Day", "Year"]
+      "原定上线时间": [string, string] | null,
+      "开发开始时间": [string, string] | null,
+      "技术方案评审时间": [string, string] | null,
+      "提测时间": [string, string] | null,
+      "真实上线时间": [string, string] | null,
+      "有用链接": string | null,
+      "相关人员": string[] | null,
+      "标签": string[] | null
+    },
+    "id": string,
+    "record_id": string
+  }],
+  "total": number
+}
+```
+
+### 3.2 视觉风格规范
+
+| 属性 | 值 |
+|------|-----|
+| 背景渐变 | `linear-gradient(135deg, #667eea 0%, #764ba2 100%)` |
+| 卡片背景 | 白色 `#fff` |
+| 卡片圆角 | 12px |
+| 卡片阴影 | `0 4px 6px rgba(0,0,0,0.1)` → hover `0 8px 25px rgba(0,0,0,0.15)` |
+| 标题色 | 深紫 `#1a1a2e` |
+| 正数/上升 | `#10b981` |
+| 负数/下降 | `#ef4444` |
+| 响应式 | `grid-template-columns: repeat(auto-fit, minmax(180px, 1fr))` |
+| 卡片 hover | `transform: translateY(-2px)` |
+| 最小字体 | 12px |
+| 不缓存 | `<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">` |
+
+### 3.3 统计卡片（4 张）
+
+- **总需求**：数字 + "总需求"
+- **已上线**：数字 + "已上线" + 占比百分比 + 趋势指示器（↑/↓）
+- **开发中**：数字 + "开发中"（状态为端测/联调、内部测试、开发阶段、上线阶段、方案阶段、算法实验）
+- **高风险**：数字 + "高风险需求"（重要性为 "⚠️ 高"）
+
+### 3.4 图表（4 个，Chart.js CDN）
+
+| 图表 | 类型 | 数据 | 说明 |
+|------|------|------|------|
+| 状态分布 | 柱状图 | 各状态数量 | X=状态名，Y=数量，颜色 #667eea |
+| 模块分布 | 饼图 | 各一级模块占比 | 颜色循环 #667eea, #764ba2, #f093fb, #f5576c...，显示图例 |
+| 重要性分布 | 饼图 | 高/中/低占比 | 颜色 #ef4444=高, #f59e0b=中, #10b981=低，显示图例 |
+| 月度趋势 | 折线图 | 按月统计提出需求数 | X=月份，Y=数量，颜色 #667eea，圆点标记 |
+
+### 3.5 控制栏
+
+```
+[搜索框] [模块下拉] [状态下拉] [重要性按钮] [排序] [视图切换]
+```
+
+### 3.6 记录列表
+
+**卡片视图（默认）：**
+```
+[▶ 展开按钮] [重要性标签] 标题（粗体）
+模块名
+状态（颜色圆点 + 文字）
+提出时间 / 上线时间
+相关人员（绿色标签）
+```
+
+点击 ▶ 展开显示完整字段。
+
+**表格视图：**
+```
+标题 | 模块 | 状态（颜色圆点） | 重要性 | 提出时间 | 上线时间
+```
+
+### 3.7 JS 主逻辑
+
+```javascript
+async function loadData() {
+  const records = EMBEDDED_DATA.items;
+  renderStats(records);
+  renderCharts(records);
+  populateFilters(records);
+  bindEvents();
+  renderRecords(records);
+}
+```
+
+---
+
+## 第四步：反馈给用户
+
+```
+看板已生成 ✅
+📊 核心数据：
+- 总需求：{total} 条
+- 已上线：{online} 条（{percent}%）
+- 开发中：{dev} 条
+- 高风险：{high_risk} 条
+```
+
+---
+
+## 注意事项
+
+- **业务接口：** 使用当前技能自带的 feishu_data.py；采集使用 feishu_usage.py
+- **不要硬编码 app_token 和 table_id**，从用户提供的 URL 解析
+- **不要硬编码用户个人信息**（姓名、open_id、路径等）
+- **日期字段：** 毫秒时间戳 → `["Month Day", "Year"]` 格式
+- **原文保真：** 解析失败时检查来源，不改写业务原文
+- **字段名映射：** API 返回的日期字段名不一定是 `时间` 后缀，可能 `日期` 后缀
+- **文本字段：** 标题等字段可能是数组 `[{"text":"..."}]` 格式
+- **空记录：** 跳过 `fields` 为空的记录
+- **看板是自包含 HTML**，Chart.js 从 CDN 加载
+- **保存路径：** 默认输出到当前工作目录的 `requirement-board.html`
+
+
+---
+
+
+## 本次任务输入
+
+$ARGUMENTS

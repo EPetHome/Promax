@@ -1,0 +1,11 @@
+核对运行包：/Users/Admin/.dsh-promax-first/profiles/web
+  ✓ @promax/feishu-api@0.1.0（来源 plugins-core-20260919.vf47J6，3 个文件一致）
+  ✓ @promax/promax-bundle@0.1.93（来源 p0-delivery-20260924-r3-final，8 个文件一致）
+  ✓ @promax/promax-feishu-bridge@0.1.2（来源 plugins-core-20260919.vf47J6，3 个文件一致）
+  ✓ @promax/promax-report@0.2.4（来源 chain-context-v01-20260921-report-final，75 个文件一致）
+  ✓ @promax/promax-ui-brand@0.1.11（来源 plugins-core-20260919.vf47J6，4 个文件一致）
+  ✓ @promax/promax-ui-console@0.3.155（来源 p0-delivery-20260924-r1-final，17 个文件一致）
+  ✓ @promax/promax-ui-layout@0.1.7（来源 plugins-core-20260919.vf47J6，4 个文件一致）
+  ✓ @promax/team-harness@0.6.16-dist.1（来源 evidence-quality-v08-20260922，1292 个文件一致）
+Promax 已启动：http://127.0.0.1:8800/（PID 62553）
+日志：/Users/Admin/.dsh-promax-first/run/promax-8800.log

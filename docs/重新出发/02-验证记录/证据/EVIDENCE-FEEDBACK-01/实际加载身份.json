@@ -1,0 +1,22 @@
+{
+  "checked_at_utc": "2026-09-25T07:45:48.309821+00:00",
+  "url": "http://127.0.0.1:8800/",
+  "listener_pid": "58587",
+  "bundle_runtime": {
+    "component": "promax-bundle",
+    "version": "0.1.99",
+    "evaluated_at": "2026-09-25T07:44:47.290Z",
+    "module_sha256": "1325800575b1755d760fc96cda571c30b15a921c7347f3338a922b8fabc623ae"
+  },
+  "bundle_built_sha256": "1325800575b1755d760fc96cda571c30b15a921c7347f3338a922b8fabc623ae",
+  "bundle_installed_sha256": "1325800575b1755d760fc96cda571c30b15a921c7347f3338a922b8fabc623ae",
+  "harness_runtime": {
+    "component": "team-harness",
+    "version": "0.6.18-dist.1",
+    "module_sha256": "017de1f27ba645423a9460df93b6e231fe4b698b7cce70cfe37b53e984998936",
+    "evaluated_at": "2026-09-25T07:44:46.537Z"
+  },
+  "console_entry": "/plugins/@promax/promax-ui-console/client.js?rev=d72498f928ba",
+  "console_loaded_sha256": "6d7cb1d33edba3cae2f49134a14e40178ef5987cd1ff337a439ecb57e44d85d9",
+  "console_installed_sha256": "6d7cb1d33edba3cae2f49134a14e40178ef5987cd1ff337a439ecb57e44d85d9"
+}

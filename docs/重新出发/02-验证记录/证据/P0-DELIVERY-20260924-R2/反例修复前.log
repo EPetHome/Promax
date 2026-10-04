@@ -1,0 +1,71 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts (23 tests | 4 failed | 19 skipped) 2888ms
+   × SR02 普通T1/T2同字节提交：不得从旧展示回执推断T2已保存或回跳T1 948ms
+   × SR01 原生Judge结束通知不得消费未结算的用户纠正 620ms
+   × SR01 原生Judge结束通知不得消费未结算的被审快照变化 639ms
+   × T07 版本已保存但当前入口刷新失败，报告已保存而非提交失败，不重复版本 680ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR02 普通T1/T2同字节提交：不得从旧展示回执推断T2已保存或回跳T1
+AssertionError: expected [ { …(8) }, { …(8) } ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:391:96
+    389|   for (let i = 0; i < 3; i++) await new WorkStore(root).refreshDeliver…
+    390|   const card = await new WorkStore(root).read(w.key);
+    391|   expect(card.delivery_receipts!.filter(r => r.task_key === second && …
+       |                                                                                                ^
+    392|   expect(card.delivery_receipts!.at(-1)!.targets.find(t => t.kind === …
+    393|   expect(objects.index().artifacts[0]!.versions).toHaveLength(2);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01 原生Judge结束通知不得消费未结算的用户纠正
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > SR01 原生Judge结束通知不得消费未结算的被审快照变化
+AssertionError: expected '报告已更新完成' not to contain '报告已更新完成'
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:491:36
+    489|   // The native loop emits chunks before turn-stopping. Neither the se…
+    490|   // front-end conversation projection may publish an unverified compl…
+    491|   expect(parentVisibleText(w)).not.toContain("报告已更新完成");
+       |                                    ^
+    492|   const view = await (await w.f.request("work/read", { work_key: w.key…
+    493|   expect(JSON.stringify(view)).not.toContain("报告已更新完成");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  packages/promax-bundle/tests/native-dispatch.test.ts > T07 版本已保存但当前入口刷新失败，报告已保存而非提交失败，不重复版本
+AssertionError: expected { kind: 'delivery', …(3) } to match object { kind: 'delivery', receipt: { …(2) } }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "kind": "delivery",
+    "receipt": {
+-     "id": "delivery:b312947cb94d3da5b3a207a81b3da0b167971dcfe791ac0be5e01ebd9439397e",
+-     "state": "complete",
++     "id": "delivery:9f90eea83c28dcc5f1c048d4cf48fb2da04efa69a905521ab566049599ad5c8f",
++     "state": "saved_partial",
+    },
+  }
+
+ ❯ packages/promax-bundle/tests/native-dispatch.test.ts:527:26
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 19 skipped (23)
+   Start at  04:42:54
+   Duration  4.70s (transform 659ms, setup 200ms, import 1.51s, tests 2.89s, environment 0ms)
+

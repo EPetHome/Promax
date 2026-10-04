@@ -1,0 +1,33 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts (13 tests | 1 failed) 4794ms
+   × GATE-CONTRACT-01 exposes the registered node contract and rejects actionable task-7 variants before commit 312ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/orchestration-closure.test.ts > GATE-CONTRACT-01 exposes the registered node contract and rejects actionable task-7 variants before commit
+AssertionError: card_patch.nodes[0].filenames 实际 []；gate=checked_artifacts 必须关联至少一份团队登记成果；无成果阶段使用 gate=employee，或省略 nodes（第 2/3 次恢复）: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ packages/promax-bundle/tests/orchestration-closure.test.ts:123:48
+    121|     }));
+    122|     const fixed = await submit(repaired, `gate-fixed-${actual}-${paths…
+    123|     expect(fixed.isError, String(fixed.value)).toBe(false);
+       |                                                ^
+    124|     expect((await w.works.round(w.key))?.turn.card_patch.nodes).toMatc…
+    125|     await f.close();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 57 passed (58)
+   Start at  00:26:24
+   Duration  18.08s (transform 2.50s, setup 627ms, import 4.80s, tests 26.34s, environment 2.14s)
+

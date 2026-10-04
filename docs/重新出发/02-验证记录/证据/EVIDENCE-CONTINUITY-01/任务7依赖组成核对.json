@@ -1,0 +1,41 @@
+{
+  "task": "EC03只读任务7原被审版",
+  "original_sha256": [
+    "a1bc22d1975f5798d87678a4fef826c3503f1ce0b61265b2a27ebeff381c892a",
+    "82e101c129b954ab261b8a8ceda711434aaf84f628791063cac078b94567abe3"
+  ],
+  "check": [
+    {
+      "conclusion_id": "CNL-023",
+      "recorded_hash_matches_old_v1": true,
+      "old_v1_changes": true,
+      "old_v2": "60561688e762734111e15d3c38dfe731dd0ebde711d86dd93211d47c15edba87",
+      "new_v2": "43f513f7b4fa80d9bd88055b652814f0c8489e9ecc0a6f97e6d98d436e67e8b1",
+      "changed_parts": {
+        "preamble": false,
+        "parents": false,
+        "local": false,
+        "scope": true
+      },
+      "shared_scope_titles": [
+        "## 四、材料限制"
+      ]
+    },
+    {
+      "conclusion_id": "CNL-028",
+      "recorded_hash_matches_old_v1": true,
+      "old_v1_changes": true,
+      "old_v2": "98f6fcc164f8919f3c4daec0a47d142538720c33c1e02d8dc0426a2b855a4832",
+      "new_v2": "e6073497d8f0a481d3cba7952024b548d595fbdc00ee142951897863e62d1cca",
+      "changed_parts": {
+        "preamble": false,
+        "parents": false,
+        "local": true,
+        "scope": true
+      },
+      "shared_scope_titles": [
+        "## 四、材料限制"
+      ]
+    }
+  ]
+}

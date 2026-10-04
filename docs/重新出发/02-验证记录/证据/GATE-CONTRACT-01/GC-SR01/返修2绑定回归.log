@@ -1,0 +1,88 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/promax-session-binding.test.ts (5 tests | 5 failed) 3637ms
+   × GC-SR01 binds old r8 and subagent to published bytes, not the mutable current r9 name 826ms
+   × GC-SR01 new sessions select r10, and an already r9-bound same-name session cold-resumes as r9 795ms
+   × GC-SR01 rejects changed mounted template while the revision description stays identical 736ms
+   × GC-SR01 preserves the contract across two generations of alias descendants 565ms
+   × GC-SR01 missing/contradictory/changed evidence never silently selects r8, r9 or r10 714ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/promax-session-binding.test.ts > GC-SR01 binds old r8 and subagent to published bytes, not the mutable current r9 name
+Error: 团队preset promax-team-r8-legacy 的发布清单含非法资源路径
+ ❯ publishedResources packages/promax-bundle/src/promax-session-binding.ts:36:13
+     34|     const match = /^([a-f0-9]{64})  ([A-Za-z0-9_.\/-]+)$/u.exec(line);
+     35|     if (!match || match[2].split("/").some(part => part === ".." || pa…
+     36|       throw new Error(`团队preset ${preset} 的发布清单含非法资源路径`);
+       |             ^
+     37|     const [actual, original] = await Promise.all([readFile(join(root, …
+     38|     if (sha256(actual) !== match[1] || !actual.equals(original))
+ ❯ resolveLegacyProductPreset packages/promax-bundle/src/promax-session-binding.ts:93:21
+ ❯ packages/promax-bundle/tests/promax-session-binding.test.ts:41:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  packages/promax-bundle/tests/promax-session-binding.test.ts > GC-SR01 new sessions select r10, and an already r9-bound same-name session cold-resumes as r9
+Error: 团队preset promax-team-r9-legacy 的发布清单含非法资源路径
+ ❯ publishedResources packages/promax-bundle/src/promax-session-binding.ts:36:13
+     34|     const match = /^([a-f0-9]{64})  ([A-Za-z0-9_.\/-]+)$/u.exec(line);
+     35|     if (!match || match[2].split("/").some(part => part === ".." || pa…
+     36|       throw new Error(`团队preset ${preset} 的发布清单含非法资源路径`);
+       |             ^
+     37|     const [actual, original] = await Promise.all([readFile(join(root, …
+     38|     if (sha256(actual) !== match[1] || !actual.equals(original))
+ ❯ resolveLegacyProductPreset packages/promax-bundle/src/promax-session-binding.ts:93:21
+ ❯ packages/promax-bundle/tests/promax-session-binding.test.ts:54:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  packages/promax-bundle/tests/promax-session-binding.test.ts > GC-SR01 rejects changed mounted template while the revision description stays identical
+Error: 团队preset promax-team-r8-legacy 的发布清单含非法资源路径
+ ❯ publishedResources packages/promax-bundle/src/promax-session-binding.ts:36:13
+     34|     const match = /^([a-f0-9]{64})  ([A-Za-z0-9_.\/-]+)$/u.exec(line);
+     35|     if (!match || match[2].split("/").some(part => part === ".." || pa…
+     36|       throw new Error(`团队preset ${preset} 的发布清单含非法资源路径`);
+       |             ^
+     37|     const [actual, original] = await Promise.all([readFile(join(root, …
+     38|     if (sha256(actual) !== match[1] || !actual.equals(original))
+ ❯ resolveLegacyProductPreset packages/promax-bundle/src/promax-session-binding.ts:93:21
+ ❯ packages/promax-bundle/tests/promax-session-binding.test.ts:76:3
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  packages/promax-bundle/tests/promax-session-binding.test.ts > GC-SR01 preserves the contract across two generations of alias descendants
+Error: 团队preset promax-team-r8-legacy 的发布清单含非法资源路径
+ ❯ publishedResources packages/promax-bundle/src/promax-session-binding.ts:36:13
+     34|     const match = /^([a-f0-9]{64})  ([A-Za-z0-9_.\/-]+)$/u.exec(line);
+     35|     if (!match || match[2].split("/").some(part => part === ".." || pa…
+     36|       throw new Error(`团队preset ${preset} 的发布清单含非法资源路径`);
+       |             ^
+     37|     const [actual, original] = await Promise.all([readFile(join(root, …
+     38|     if (sha256(actual) !== match[1] || !actual.equals(original))
+ ❯ resolveLegacyProductPreset packages/promax-bundle/src/promax-session-binding.ts:93:21
+ ❯ packages/promax-bundle/tests/promax-session-binding.test.ts:87:3
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  packages/promax-bundle/tests/promax-session-binding.test.ts > GC-SR01 missing/contradictory/changed evidence never silently selects r8, r9 or r10
+Error: 团队preset promax-team-r8-legacy 的发布清单含非法资源路径
+ ❯ publishedResources packages/promax-bundle/src/promax-session-binding.ts:36:13
+     34|     const match = /^([a-f0-9]{64})  ([A-Za-z0-9_.\/-]+)$/u.exec(line);
+     35|     if (!match || match[2].split("/").some(part => part === ".." || pa…
+     36|       throw new Error(`团队preset ${preset} 的发布清单含非法资源路径`);
+       |             ^
+     37|     const [actual, original] = await Promise.all([readFile(join(root, …
+     38|     if (sha256(actual) !== match[1] || !actual.equals(original))
+ ❯ resolveLegacyProductPreset packages/promax-bundle/src/promax-session-binding.ts:93:21
+ ❯ packages/promax-bundle/tests/promax-session-binding.test.ts:98:3
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed (5)
+   Start at  02:31:53
+   Duration  4.67s (transform 277ms, setup 156ms, import 325ms, tests 3.64s, environment 482ms)
+

@@ -1,0 +1,30 @@
+
+ RUN  v4.1.11 /Users/Admin/Desktop/Promax/promax-ui
+
+ ❯ packages/promax-bundle/tests/rating-usability.test.ts (5 tests | 1 failed | 4 skipped) 335ms
+   × EVIDENCE-FEEDBACK-01 注册回执：错误数值字段与正文定位反馈；只修参数提交且不改变成果/来源 335ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/promax-bundle/tests/rating-usability.test.ts > EVIDENCE-FEEDBACK-01 注册回执：错误数值字段与正文定位反馈；只修参数提交且不改变成果/来源
+AssertionError: expected 'evidence_links[3].location 必填且不少于 4 个…' not to contain '不少于 4 个字符'
+
+Expected: "不少于 4 个字符"
+Received: "evidence_links[3].location 必填且不少于 4 个字符（成果内的真实定位）；evidence_links[3].location 在 user_analysis.md 当前版本定位不唯一（命中 2 次，前几处行号 1、4）；收到 "评分"，请选择逐字存在且唯一的片段"
+
+ ❯ packages/promax-bundle/tests/rating-usability.test.ts:155:40
+    153|     expect(rejected.isError).toBe(true);
+    154|     expect(String(rejected.value)).toContain("evidence_links[3].locati…
+    155|     expect(String(rejected.value)).not.toContain("不少于 4 个字符");
+       |                                        ^
+    156|     expect(String(rejected.value)).toContain(feedback);
+    157|     expect((await w.store.round(w.key))!.receipts).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 skipped (5)
+   Start at  04:06:10
+   Duration  1.92s (transform 489ms, setup 133ms, import 978ms, tests 335ms, environment 410ms)
+

@@ -1,0 +1,167 @@
+{
+  "customer-research": {
+    "name": "客研管理",
+    "agent": "customer_research",
+    "agent_name": "客研管理",
+    "install_name": "customer-research"
+  },
+  "product-exploration": {
+    "name": "产品探索",
+    "agent": "product_discovery",
+    "agent_name": "产品探索",
+    "install_name": "product-exploration"
+  },
+  "competitor-research": {
+    "name": "竞品调研",
+    "agent": "product_discovery",
+    "agent_name": "产品探索",
+    "install_name": "competitor-research"
+  },
+  "competitor-web-crawler": {
+    "name": "竞品网页抓取",
+    "agent": "product_discovery",
+    "agent_name": "产品探索",
+    "install_name": "competitor-web-crawler"
+  },
+  "search-engine": {
+    "name": "搜索引擎",
+    "agent": "product_discovery",
+    "agent_name": "产品探索",
+    "install_name": "search-engine"
+  },
+  "report-generator": {
+    "name": "报告生成",
+    "agent": "product_discovery",
+    "agent_name": "产品探索",
+    "install_name": "report-generator"
+  },
+  "difference-panel": {
+    "name": "竞品差异面板",
+    "agent": "product_discovery",
+    "agent_name": "产品探索",
+    "install_name": "difference-panel"
+  },
+  "requirement-clarifier": {
+    "name": "需求澄清",
+    "agent": "solution_design",
+    "agent_name": "产品方案",
+    "install_name": "requirement-clarifier"
+  },
+  "prd-document-generator": {
+    "name": "产品方案生成",
+    "agent": "solution_design",
+    "agent_name": "产品方案",
+    "install_name": "prd-document-generator",
+    "execution_mode": "inline"
+  },
+  "business-diagram-generator": {
+    "name": "业务流程图生成",
+    "agent": "solution_design",
+    "agent_name": "产品方案",
+    "install_name": "business-diagram-generator",
+    "execution_mode": "inline"
+  },
+  "interaction-design": {
+    "name": "交互设计",
+    "agent": "solution_design",
+    "agent_name": "产品方案",
+    "install_name": "interaction-design"
+  },
+  "ui-design-system": {
+    "name": "UI设计系统",
+    "agent": "solution_design",
+    "agent_name": "产品方案",
+    "install_name": "ui-design-system"
+  },
+  "interactive-prototype-generator": {
+    "name": "交互原型生成",
+    "agent": "solution_design",
+    "agent_name": "产品方案",
+    "install_name": "interactive-prototype-generator",
+    "execution_mode": "inline"
+  },
+  "prototype-quality-audit": {
+    "name": "原型质量验收",
+    "agent": "solution_design",
+    "agent_name": "产品方案",
+    "install_name": "prototype-quality-audit"
+  },
+  "rd-handoff-package": {
+    "name": "研发交接包",
+    "agent": "solution_design",
+    "agent_name": "产品方案",
+    "install_name": "rd-handoff-package"
+  },
+  "app-market-sentiment": {
+    "name": "应用市场舆情",
+    "agent": "user_analysis",
+    "agent_name": "用户分析",
+    "install_name": "app-market-sentiment"
+  },
+  "core-metrics-analysis": {
+    "name": "核心指标分析",
+    "agent": "user_analysis",
+    "agent_name": "用户分析",
+    "install_name": "core-metrics-analysis"
+  },
+  "user-feedback-processor": {
+    "name": "用户反馈处理",
+    "agent": "user_analysis",
+    "agent_name": "用户分析",
+    "install_name": "user-feedback-processor"
+  },
+  "data-visualization": {
+    "name": "数据可视化",
+    "agent": "user_analysis",
+    "agent_name": "用户分析",
+    "install_name": "data-visualization"
+  },
+  "alert-early-warning": {
+    "name": "主动预警",
+    "agent": "user_analysis",
+    "agent_name": "用户分析",
+    "install_name": "alert-early-warning"
+  },
+  "feishu-requirement-entry": {
+    "name": "需求录入",
+    "agent": "requirement_management",
+    "agent_name": "需求管理",
+    "install_name": "requirement-entry"
+  },
+  "feishu-requirement-board": {
+    "name": "需求看板",
+    "agent": "requirement_management",
+    "agent_name": "需求管理",
+    "install_name": "requirement-board"
+  },
+  "feishu-requirement-archive": {
+    "name": "需求归档",
+    "agent": "requirement_management",
+    "agent_name": "需求管理",
+    "install_name": "requirement-archive"
+  },
+  "pm-weekly-monitor": {
+    "name": "项目周报监控",
+    "agent": "requirement_management",
+    "agent_name": "需求管理",
+    "install_name": "pm-weekly-monitor"
+  },
+  "requirement-review": {
+    "name": "需求评审",
+    "agent": "requirement_review",
+    "agent_name": "需求评审",
+    "install_name": "requirement-review"
+  },
+  "logic-detector": {
+    "name": "逻辑检测",
+    "agent": "requirement_review",
+    "agent_name": "需求评审",
+    "install_name": "logic-detector"
+  },
+  "issue-tracker": {
+    "name": "问题追踪",
+    "agent": "requirement_review",
+    "agent_name": "需求评审",
+    "install_name": "issue-tracker"
+  }
+}

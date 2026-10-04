@@ -1,0 +1,4 @@
+utc= 2026-09-25T10:59:28Z pid=83640 session_recent600=0 children=0 connections= 3 all_localhost=True profile_sha= 173f0460f319e05e917fdeebb1312357775d46911a18d50a4250d947c82af5ae
+sent=SIGTERM 83640
+voluntary_exit_after_checks=2
+port_free=true

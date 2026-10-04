@@ -1,0 +1,17 @@
+listener 70161 expected cwd /Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+cmd ['ps', '-p', '70161', '-o', 'pid=,ppid=,stat=,lstart=,command='] exit 0 out 70161     1 SN   Fri Sep 25 04:44:41 2026     /Users/Admin/.hermes/node/bin/node --import tsx/esm apps/cli/src/bin.ts --profile web --port 8800 --no-open
+
+cmd ['lsof', '-a', '-p', '70161', '-d', 'cwd', '-Fn'] exit 0 out p70161
+fcwd
+n/Users/Admin/Desktop/Promax/promax-agent/deepseek-harness
+
+cmd ['pgrep', '-P', '70161', '-fl', '.'] exit 1 out 
+cmd ['lsof', '-nP', '-a', '-p', '70161', '-iTCP'] exit 0 out COMMAND   PID  USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+node    70161 Admin   17u  IPv4 0xb68ef2334c2f62ef      0t0  TCP 127.0.0.1:8800 (LISTEN)
+node    70161 Admin   28u  IPv4 0x493264718dd3d118      0t0  TCP 127.0.0.1:8800->127.0.0.1:50520 (ESTABLISHED)
+node    70161 Admin   30u  IPv4 0x1a37816d977de721      0t0  TCP 127.0.0.1:8800->127.0.0.1:50528 (ESTABLISHED)
+node    70161 Admin   34u  IPv4 0xd916fbd63bbebbcb      0t0  TCP 127.0.0.1:8800->127.0.0.1:50536 (ESTABLISHED)
+
+sessions recent_600sec_count 0 first10 []
+work recent_600sec_count 0 first10 []
+profile recent_600sec_count 0 first10 []
